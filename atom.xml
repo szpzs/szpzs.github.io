@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>盛年不重来，一日难再晨，及时宜自勉，岁月不待人。</title>
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://szpzs.github.io/"/>
+  <updated>2016-09-15T08:10:07.000Z</updated>
+  <id>http://szpzs.github.io/</id>
+  
+  <author>
+    <name>彭政生</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Erlang Thursday – lists:seq</title>
+    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-seq/"/>
+    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-seq/</id>
+    <published>2016-09-15T08:02:18.000Z</published>
+    <updated>2016-09-15T08:10:07.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地让读者接受和理解的一些想法。<br><a id="more"></a><br>因为这周我在<a href="https://www.proctor-it.com/ruby-tuesday-ranges/" target="_blank" rel="external">Ruby Tuesday</a>里谈到了Ruby的Range方法，那么今天我要讲的Erlang函数就是lists:seq/2和lists:seq/3。</p>
+<p>如果你还记得上周<a href="https://www.proctor-it.com/erlang-thursday-lists-member/" target="_blank" rel="external">Erlang Thursday</a>里的Erlang扫盲小知识里讲到的，在函数名字后面的数字表示是这个函数的arity，也就是入参的个数。</p>
+<p>函数 lists:seq/2 接受两个整数入参，一个表示起始整数，一个表示结束整数，它产生一个包括这两个入参的整数列表。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>).</div><div class="line"><span class="comment">% [1,2,3,4,5,6,7,8,9,10]</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% [1]</span></div></pre></td></tr></table></figure>
+<p>有三个入参的lists:seq函数引入一个增量作为第三个参数：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, <span class="number">3</span>).</div><div class="line"><span class="comment">% [1,4,7,10]</span></div></pre></td></tr></table></figure>
+<p>这个增量值可以是负数，这样就允许从一个整数减少低至另一个整数。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">20</span>, <span class="number">10</span>, -<span class="number">1</span>).</div><div class="line"><span class="comment">% [20,19,18,17,16,15,14,13,12,11,10]</span></div><div class="line">lists:seq(<span class="number">20</span>, <span class="number">10</span>, -<span class="number">5</span>).</div><div class="line"><span class="comment">% [20,15,10]</span></div></pre></td></tr></table></figure>
+<p>如果给了不合适的起始和结束入参，lists:seq 函数不像Rang Range那样返回一个空集合，它会抛出一个异常。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">10</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching lists:seq(10,1) (lists.erl, line 241)</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, -<span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div><div class="line">lists:seq(<span class="number">10</span>, <span class="number">1</span>, <span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地让读者接受和理解的一些想法。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
+    
+      <category term="seq" scheme="http://szpzs.github.io/tags/seq/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – lists:member/2</title>
+    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-member-2/"/>
+    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-member-2/</id>
+    <published>2016-09-15T06:09:19.000Z</published>
+    <updated>2016-09-15T06:44:56.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>为了和每周的 <a href="http://www.proctor-it.com/ruby-tuesday-enumerableinclude/" target="_blank" rel="external">Ruby Tuesday</a> 系列文章中关于Enumerable#include?函数来个跨界对比，我决定着重介绍 Erlang 中相同类型的函数，lists:member/2。</p>
+<a id="more"></a>
+<p>首先给不熟悉Erlang的同学们补充一下知识：lists:member/2 表达的意思是在lists模块里有个名字叫member的函数，它有两个参数。Arity这个词的意思表示这个函数接受的入参的个数。在Erlang中，模块很重要，因为它是所有函数赖以生存的容器－－另外也是因为模块在Erlang里是代码重新装载的单元－－为了重新载入某个方法的新版本，必需指定具体模块。</p>
+<p>总而言之，模块lists的函数member接受两个入参：一个是被查找的元素，它是Erlang的一种由任意数据类型组成的数据，另一个是被检索的由Erlang的各种类型数据组成的列表；如果被查找的元素在列表里被找到，则返回true。一个Erlang的term是任意Erlang数据类型组成的数据。</p>
+<p>为了方便大家运行，下面的表达式是通用的写法，返回值则加上了%符号，这个符号是Erlang注释符号，这样就方便大家直接拷贝下面的表达式然后复制到Erlang的shell上运行。</p>
+<p>这个函数能够很方便地判断一个数字是否在一个由数字组成的列表里：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:member(<span class="number">4</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">13</span>, <span class="number">21</span>]).</div><div class="line"><span class="comment">% false</span></div><div class="line">lists:member(<span class="number">13</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">13</span>, <span class="number">21</span>]).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>或者判断一个原子是否在一个由原子组成的列表里：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:member(c, [a, b, c, d]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member(q, [a, b, c, d]).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
+<p>或者由更复杂的term组成的列表，比如元组，或者包含列表的元组：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:member(&#123;d, <span class="number">4</span>&#125;, [&#123;a, <span class="number">1</span>&#125;, &#123;b, <span class="number">2</span>&#125;, &#123;c, <span class="number">3</span>&#125;, &#123;d, <span class="number">4</span>&#125;]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member(&#123;'Foo', [bar, baz]&#125;, [a, <span class="number">1</span>, &#123;'Foo', [bar, baz]&#125;]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member(&#123;fu, [bar, baz]&#125;, [a, <span class="number">1</span>, &#123;'Foo', [bar, baz]&#125;]).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
+<p>甚至是判断一个整数或字符是否在一个字符串里：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:member($a, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member(<span class="number">97</span>, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member($A, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
+<p>如果你仔细观察，你会发现，在Erlang里字符串实际上是由整数组成的列表。</p>
+<p>希望这是一个有趣的Ruby和Erlang的比较；同时如果你对它不熟悉的话，能让你更了解Erlang。</p>
+<p>原文链接：<a href="https://www.proctor-it.com/erlang-thursday-lists-member/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-member/</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;为了和每周的 &lt;a href=&quot;http://www.proctor-it.com/ruby-tuesday-enumerableinclude/&quot;&gt;Ruby Tuesday&lt;/a&gt; 系列文章中关于Enumerable#include?函数来个跨界对比，我决定着重介绍 Erlang 中相同类型的函数，lists:member/2。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
+    
+      <category term="member" scheme="http://szpzs.github.io/tags/member/"/>
+    
+  </entry>
+  
+</feed>
