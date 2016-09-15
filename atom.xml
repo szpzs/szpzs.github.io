@@ -106,9 +106,9 @@
     
       <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
     
-      <category term="apply" scheme="http://szpzs.github.io/tags/apply/"/>
-    
       <category term="erlang" scheme="http://szpzs.github.io/tags/erlang/"/>
+    
+      <category term="apply" scheme="http://szpzs.github.io/tags/apply/"/>
     
   </entry>
   
@@ -151,9 +151,9 @@
     
       <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
     
-      <category term="tc" scheme="http://szpzs.github.io/tags/tc/"/>
-    
       <category term="timer" scheme="http://szpzs.github.io/tags/timer/"/>
+    
+      <category term="tc" scheme="http://szpzs.github.io/tags/tc/"/>
     
   </entry>
   
