@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Erlang, Elixir, Hexo, NexT" />
+  <meta name="keywords" content="Erlang,lists,map," />
 
 
 
@@ -86,15 +86,19 @@
 
 
 
-<meta name="description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Time is all">
-<meta property="og:url" content="http://szpzs.github.io/categories/Erlang/index.html">
+<meta name="description" content="今天的Erlang Thursday讲的是函数 lists:map/2 。
+lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="erlang-thursday-lists-map-2">
+<meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-map-2/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
+<meta property="og:description" content="今天的Erlang Thursday讲的是函数 lists:map/2 。
+lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。">
+<meta property="og:updated_time" content="2016-09-15T11:58:38.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Time is all">
-<meta name="twitter:description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
+<meta name="twitter:title" content="erlang-thursday-lists-map-2">
+<meta name="twitter:description" content="今天的Erlang Thursday讲的是函数 lists:map/2 。
+lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。">
 
 
 
@@ -115,9 +119,9 @@
 
 
 
-  <link rel="canonical" href="http://szpzs.github.io/categories/Erlang/"/>
+  <link rel="canonical" href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-map-2/"/>
 
-  <title> 分类: Erlang | Time is all </title>
+  <title> erlang-thursday-lists-map-2 | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -138,7 +142,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -249,159 +253,179 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <div class="collection-title">
-      <h2 >
-        Erlang
-        <small>分类</small>
-      </h2>
-    </div>
-
+  <div id="posts" class="posts-expand">
     
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/09/15/erlang-thursday-lists-map-2/" itemprop="url">
-              
-                <span itemprop="name">erlang-thursday-lists-map-2</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-09-15T19:53:09+08:00"
-              content="2016-09-15" >
-          09-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/09/15/erlang-thursday-lists-flatten-1/" itemprop="url">
-              
-                <span itemprop="name">Erlang Thursday – lists:flatten/1</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-09-15T19:44:42+08:00"
-              content="2016-09-15" >
-          09-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/09/15/erlang-thursday-lists-max-1/" itemprop="url">
-              
-                <span itemprop="name">Erlang Thursday – lists:max/1</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-09-15T16:43:49+08:00"
-              content="2016-09-15" >
-          09-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/09/15/erlang-thursday-lists-seq/" itemprop="url">
-              
-                <span itemprop="name">Erlang Thursday – lists:seq</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-09-15T16:02:18+08:00"
-              content="2016-09-15" >
-          09-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/09/15/erlang-thursday-lists-member-2/" itemprop="url">
-              
-                <span itemprop="name">Erlang Thursday – lists:member/2</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-09-15T14:09:19+08:00"
-              content="2016-09-15" >
-          09-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-    
-  </section>
 
   
+  
 
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                erlang-thursday-lists-map-2
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-15T19:53:09+08:00" content="2016-09-15">
+              2016-09-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/lists/" itemprop="url" rel="index">
+                    <span itemprop="name">lists</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/15/erlang-thursday-lists-map-2/" class="leancloud_visitors" data-flag-title="erlang-thursday-lists-map-2">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>今天的Erlang Thursday讲的是函数 <a href="http://www.erlang.org/doc/man/lists.html#map-2" target="_blank" rel="external">lists:map/2</a> 。</p>
+<p>lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。</p>
+<a id="more"></a>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X + <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [2,3,4,5]</span></div><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X * X <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [1,4,9,16]</span></div></pre></td></tr></table></figure>
+<p>因为字符串在Erlang里就是整数列表，所以你也可以将map函数应用在字符串上。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X - <span class="number">1</span> <span class="keyword">end</span>, <span class="string">"IBM"</span>).</div><div class="line"><span class="comment">% "HAL"</span></div></pre></td></tr></table></figure>
+<p>###Erlang里的函数</p>
+<p>如果你仔细观察上面第一个例子，你会发现第一个入参我们传递的是一个 fun(X) -&gt; X + 1 end. 这是Erlang的匿名函数的语法。 一个匿名函数的格式如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">fun</span><span class="params">(Args1)</span> O<span class="title">ptionalGuardClause1</span> -&gt;</span></div><div class="line">        Expression1, Expression2;</div><div class="line">   (Args2) OptionalGuardClause2 -&gt;</div><div class="line">        Expression3, Expression4;</div><div class="line">   (Args3) OptionalGuardClause3 -&gt;</div><div class="line">        Expression5, Expression6;</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>因为我们可以像普通函数一样使用匿名函数，除了在17.0以前的版本不能递归调用一个匿名函数外，所以我们可以将一个有多个子句的匿名函数传给lists:map/2 函数。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) <span class="keyword">when</span> is_atom(X) -&gt; atom; (X) -&gt; nil <span class="keyword">end</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[nil,atom,nil,nil,atom]</div></pre></td></tr></table></figure>
+<p>###传递命名函数给lists:map/2</p>
+<p>虽然一些场合我们用匿名函数，但是更多时候为了清晰明了，我们还是想用命名函数。我们可以通过函数的限定名称方式来传递一个命名函数给lists:map/2，采用的格式是，在module:function_name/arity 前面加上 fun 。下面的例子用math:log10/1和erlang:is_atom/1两个函数来演示：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span> math:log10/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">10</span>, <span class="number">100</span>, <span class="number">1000</span>, <span class="number">10000</span>]).</div><div class="line">[<span class="number">0.0</span>,<span class="number">1.0</span>,<span class="number">2.0</span>,<span class="number">3.0</span>,<span class="number">4.0</span>]</div><div class="line">lists:map(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[<span class="literal">false</span>,<span class="literal">true</span>,<span class="literal">false</span>,<span class="literal">false</span>,<span class="literal">true</span>]</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/lists/" rel="tag">#lists</a>
+          
+            <a href="/tags/map/" rel="tag">#map</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/15/erlang-thursday-lists-flatten-1/" rel="next" title="Erlang Thursday – lists:flatten/1">
+                <i class="fa fa-chevron-left"></i> Erlang Thursday – lists:flatten/1
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -409,6 +433,10 @@
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -428,8 +456,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.jpg"
@@ -545,6 +582,17 @@
       </section>
 
       
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+        </section>
+      
 
     </div>
   </aside>
@@ -647,6 +695,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
 
   
 

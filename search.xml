@@ -4,6 +4,42 @@
   
     
     <entry>
+      <title><![CDATA[erlang-thursday-lists-map-2]]></title>
+      <url>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-map-2/</url>
+      <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是函数 <a href="http://www.erlang.org/doc/man/lists.html#map-2" target="_blank" rel="external">lists:map/2</a> 。</p>
+<p>lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。</p>
+<a id="more"></a>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X + <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [2,3,4,5]</span></div><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X * X <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [1,4,9,16]</span></div></pre></td></tr></table></figure>
+<p>因为字符串在Erlang里就是整数列表，所以你也可以将map函数应用在字符串上。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X - <span class="number">1</span> <span class="keyword">end</span>, <span class="string">"IBM"</span>).</div><div class="line"><span class="comment">% "HAL"</span></div></pre></td></tr></table></figure>
+<p>###Erlang里的函数</p>
+<p>如果你仔细观察上面第一个例子，你会发现第一个入参我们传递的是一个 fun(X) -&gt; X + 1 end. 这是Erlang的匿名函数的语法。 一个匿名函数的格式如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">fun</span><span class="params">(Args1)</span> O<span class="title">ptionalGuardClause1</span> -&gt;</span></div><div class="line">        Expression1, Expression2;</div><div class="line">   (Args2) OptionalGuardClause2 -&gt;</div><div class="line">        Expression3, Expression4;</div><div class="line">   (Args3) OptionalGuardClause3 -&gt;</div><div class="line">        Expression5, Expression6;</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>因为我们可以像普通函数一样使用匿名函数，除了在17.0以前的版本不能递归调用一个匿名函数外，所以我们可以将一个有多个子句的匿名函数传给lists:map/2 函数。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) <span class="keyword">when</span> is_atom(X) -&gt; atom; (X) -&gt; nil <span class="keyword">end</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[nil,atom,nil,nil,atom]</div></pre></td></tr></table></figure>
+<p>###传递命名函数给lists:map/2</p>
+<p>虽然一些场合我们用匿名函数，但是更多时候为了清晰明了，我们还是想用命名函数。我们可以通过函数的限定名称方式来传递一个命名函数给lists:map/2，采用的格式是，在module:function_name/arity 前面加上 fun 。下面的例子用math:log10/1和erlang:is_atom/1两个函数来演示：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span> math:log10/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">10</span>, <span class="number">100</span>, <span class="number">1000</span>, <span class="number">10000</span>]).</div><div class="line">[<span class="number">0.0</span>,<span class="number">1.0</span>,<span class="number">2.0</span>,<span class="number">3.0</span>,<span class="number">4.0</span>]</div><div class="line">lists:map(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[<span class="literal">false</span>,<span class="literal">true</span>,<span class="literal">false</span>,<span class="literal">false</span>,<span class="literal">true</span>]</div></pre></td></tr></table></figure>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Erlang Thursday – lists:flatten/1]]></title>
+      <url>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-flatten-1/</url>
+      <content type="html"><![CDATA[<p>Erlang Thursday今天要讲的函数是 lists:flatten/1。</p>
+<p>lists:flatten/1 函数将一个任意深度的由Erlang的term组成的列表展平为一个“扁平”的列表。</p>
+<a id="more"></a>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">lists:flatten([]).</div><div class="line"><span class="comment">% []</span></div><div class="line">lists:flatten([a, b, c]).</div><div class="line"><span class="comment">% [a,b,c]</span></div><div class="line">lists:flatten([a, b, [<span class="number">1</span>, [x, y], <span class="number">3</span>], c]).</div><div class="line"><span class="comment">% [a,b,1,x,y,3,c]</span></div><div class="line">lists:flatten([a, b, [<span class="number">1</span>, [x, &#123;some, tuple&#125;], <span class="number">3</span>], c]).</div><div class="line"><span class="comment">% [a,b,1,x,&#123;some,tuple&#125;,3,c]</span></div></pre></td></tr></table></figure>
+<p>注意！它会把所有的列表都展平，比如下面的例子：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:flatten([a, <span class="string">"foo"</span>, b]).</div><div class="line"><span class="comment">% [a,102,111,111,b]</span></div></pre></td></tr></table></figure>
+<p>上面的例子，你得到的结果有整数在列表里，因为字符串实际上在底层就是一个整数列表，所以你得到的是字符串“foo”里f和o的ASCII字符码。</p>
+<p>如果你要保留字符串的格式，你必须使用二进制格式的字符串，如下所示：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:flatten([a, &lt;&lt;<span class="string">"foo"</span>&gt;&gt;, b]).</div><div class="line"><span class="comment">% [a,&lt;&lt;"foo"&gt;&gt;,b]</span></div></pre></td></tr></table></figure>
+<p>作为一个奖励，还有一个lists:flatten/2 函数，它将一个列表展平，并且接收另外一个入参 Tail，这个入参将附加在展平列表的后面从而形成一个新的列表，例子如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:flatten([a, [<span class="number">1</span>, [b, [<span class="number">2</span>]]]], [x, y, z]).</div><div class="line"><span class="comment">% [a,1,b,2,x,y,z]</span></div></pre></td></tr></table></figure>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Erlang Thursday – lists:max/1]]></title>
       <url>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-max-1/</url>
       <content type="html"><![CDATA[<p>今天我们来学习 lists:max/1。</p>
