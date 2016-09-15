@@ -86,16 +86,22 @@
 
 
 
-<meta name="description" content="Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地">
+<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-seq/
+
+Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday – lists:seq">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-seq/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地">
-<meta property="og:updated_time" content="2016-09-15T08:10:07.000Z">
+<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-seq/
+
+Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希">
+<meta property="og:updated_time" content="2016-09-15T12:50:17.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday – lists:seq">
-<meta name="twitter:description" content="Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地">
+<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-seq/
+
+Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希">
 
 
 
@@ -351,7 +357,10 @@
       
 
       
-        <p>Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地让读者接受和理解的一些想法。<br><a id="more"></a><br>因为这周我在<a href="https://www.proctor-it.com/ruby-tuesday-ranges/" target="_blank" rel="external">Ruby Tuesday</a>里谈到了Ruby的Range方法，那么今天我要讲的Erlang函数就是lists:seq/2和lists:seq/3。</p>
+        <blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-seq/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-seq/</a></p>
+</blockquote>
+<p>Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地让读者接受和理解的一些想法。<br><a id="more"></a><br>因为这周我在<a href="https://www.proctor-it.com/ruby-tuesday-ranges/" target="_blank" rel="external">Ruby Tuesday</a>里谈到了Ruby的Range方法，那么今天我要讲的Erlang函数就是lists:seq/2和lists:seq/3。</p>
 <p>如果你还记得上周<a href="https://www.proctor-it.com/erlang-thursday-lists-member/" target="_blank" rel="external">Erlang Thursday</a>里的Erlang扫盲小知识里讲到的，在函数名字后面的数字表示是这个函数的arity，也就是入参的个数。</p>
 <p>函数 lists:seq/2 接受两个整数入参，一个表示起始整数，一个表示结束整数，它产生一个包括这两个入参的整数列表。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>).</div><div class="line"><span class="comment">% [1,2,3,4,5,6,7,8,9,10]</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% [1]</span></div></pre></td></tr></table></figure>
@@ -361,6 +370,7 @@
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">20</span>, <span class="number">10</span>, -<span class="number">1</span>).</div><div class="line"><span class="comment">% [20,19,18,17,16,15,14,13,12,11,10]</span></div><div class="line">lists:seq(<span class="number">20</span>, <span class="number">10</span>, -<span class="number">5</span>).</div><div class="line"><span class="comment">% [20,15,10]</span></div></pre></td></tr></table></figure>
 <p>如果给了不合适的起始和结束入参，lists:seq 函数不像Rang Range那样返回一个空集合，它会抛出一个异常。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">10</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching lists:seq(10,1) (lists.erl, line 241)</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, -<span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div><div class="line">lists:seq(<span class="number">10</span>, <span class="number">1</span>, <span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div></pre></td></tr></table></figure>
+
       
     </div>
 
@@ -473,7 +483,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -490,7 +500,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

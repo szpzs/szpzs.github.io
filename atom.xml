@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.github.io/"/>
-  <updated>2016-09-15T11:58:38.000Z</updated>
+  <updated>2016-09-15T12:53:08.000Z</updated>
   <id>http://szpzs.github.io/</id>
   
   <author>
@@ -16,13 +16,63 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>erlang-thursday-lists-foldl-3-and-lists-foldr-3</title>
+    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-foldl-3-and-lists-foldr-3/"/>
+    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-foldl-3-and-lists-foldr-3/</id>
+    <published>2016-09-15T12:38:40.000Z</published>
+    <updated>2016-09-15T12:53:08.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/</a></p>
+</blockquote>
+<p>今天Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#foldl-3" target="_blank" rel="external">lists:foldl/3</a> 和 <a href="http://www.erlang.org/doc/man/lists.html#foldr-3" target="_blank" rel="external">lists:foldr/3</a> 。</p>
+<p>lists:foldl/3 是Erlang版的 reduce 函数。 lists:foldl/3 接收三个入参：一个函数，一个初始的累加器，一个列表，输出一个单一的值。</p>
+<a id="more"></a>
+<p>foldl的第一个入参是一个接收两个参数的函数，一个是当前循环到的列表元素，另一个是积累的值。这个函数的输出值作为循环到下一个列表元素的时候的累加器，或者当循环结束的时候作为foldl函数的输出值。</p>
+<p>foldl的第二个入参是一个累加器的初始值。与其他一些语言不同，在其他语言里这个累加器的初始值是可选的，而且常常是使用循环列表的第一个元素作为默认值，但是在Erlang里，累加器的初始值必需作为lists:foldl/3和lists:foldr/3两个函数的入参。</p>
+<p>第三个入参，也就是最后一个入参是将被循环遍历的列表。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Sum) -&gt; Sum + X <span class="keyword">end</span>, <span class="number">0</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 15</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Product) -&gt; Product * X <span class="keyword">end</span>, <span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 120</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; io:format(<span class="string">"~p "</span>, [X]) <span class="keyword">end</span>, void, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 1 2 3 4 5 ok</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; io:format(<span class="string">"~p "</span>, [X]), Accum <span class="keyword">end</span>, void, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 1 2 3 4 5 void</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; Accum + X <span class="keyword">end</span>, <span class="number">1</span>, []).</div><div class="line"><span class="comment">% 1</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Result) -&gt; lists:umerge(Result, X) <span class="keyword">end</span>, [], [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>], [<span class="number">11</span>, <span class="number">13</span>, <span class="number">17</span>]]).</div><div class="line"><span class="comment">% [1,2,3,5,8,11,13,17]</span></div></pre></td></tr></table></figure>
+<p>在Erlang的lists模块里也包含foldr/3函数，它是从左到右（译者注：应该是从右到左，可能是作者手误）遍历列表或者说是从最后一个元素到第一个元素遍历列表。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:foldr(<span class="keyword">fun</span>(X, Accum) -&gt; io:format(<span class="string">"~p "</span>, [X]), Accum <span class="keyword">end</span>, void, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 5 4 3 2 1 void</span></div><div class="line">lists:foldr(<span class="keyword">fun</span>(X, Accum) -&gt; Accum + X <span class="keyword">end</span>, <span class="number">1</span>, []).</div><div class="line"><span class="comment">% 1</span></div></pre></td></tr></table></figure>
+<p>Erlang文档里指出foldl/3通常比foldr/3更好，因为foldl/3是尾递归，而foldr/3不是。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;原文链接：&lt;/em&gt;  &lt;a href=&quot;https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/&quot;&gt;https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;今天Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#foldl-3&quot;&gt;lists:foldl/3&lt;/a&gt; 和 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#foldr-3&quot;&gt;lists:foldr/3&lt;/a&gt; 。&lt;/p&gt;
+&lt;p&gt;lists:foldl/3 是Erlang版的 reduce 函数。 lists:foldl/3 接收三个入参：一个函数，一个初始的累加器，一个列表，输出一个单一的值。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
+    
+      <category term="foldl" scheme="http://szpzs.github.io/tags/foldl/"/>
+    
+      <category term="foldr" scheme="http://szpzs.github.io/tags/foldr/"/>
+    
+  </entry>
+  
+  <entry>
     <title>erlang-thursday-lists-map-2</title>
     <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-map-2/"/>
     <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-map-2/</id>
     <published>2016-09-15T11:53:09.000Z</published>
-    <updated>2016-09-15T11:58:38.000Z</updated>
+    <updated>2016-09-15T12:51:46.000Z</updated>
     
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是函数 <a href="http://www.erlang.org/doc/man/lists.html#map-2" target="_blank" rel="external">lists:map/2</a> 。</p>
+    <content type="html"><![CDATA[<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-map-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-map-2/</a></p>
+</blockquote>
+<p>今天的Erlang Thursday讲的是函数 <a href="http://www.erlang.org/doc/man/lists.html#map-2" target="_blank" rel="external">lists:map/2</a> 。</p>
 <p>lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。</p>
 <a id="more"></a>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X + <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [2,3,4,5]</span></div><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X * X <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [1,4,9,16]</span></div></pre></td></tr></table></figure>
@@ -40,7 +90,10 @@
     
     <summary type="html">
     
-      &lt;p&gt;今天的Erlang Thursday讲的是函数 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#map-2&quot;&gt;lists:map/2&lt;/a&gt; 。&lt;/p&gt;
+      &lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;原文链接：&lt;/em&gt;  &lt;a href=&quot;https://www.proctor-it.com/erlang-thursday-lists-map-2/&quot;&gt;https://www.proctor-it.com/erlang-thursday-lists-map-2/&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;今天的Erlang Thursday讲的是函数 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#map-2&quot;&gt;lists:map/2&lt;/a&gt; 。&lt;/p&gt;
 &lt;p&gt;lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。&lt;/p&gt;
     
     </summary>
@@ -63,9 +116,12 @@
     <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-flatten-1/"/>
     <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-flatten-1/</id>
     <published>2016-09-15T11:44:42.000Z</published>
-    <updated>2016-09-15T11:50:38.000Z</updated>
+    <updated>2016-09-15T12:52:08.000Z</updated>
     
-    <content type="html"><![CDATA[<p>Erlang Thursday今天要讲的函数是 lists:flatten/1。</p>
+    <content type="html"><![CDATA[<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-flatten-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-flatten-1/</a></p>
+</blockquote>
+<p>Erlang Thursday今天要讲的函数是 lists:flatten/1。</p>
 <p>lists:flatten/1 函数将一个任意深度的由Erlang的term组成的列表展平为一个“扁平”的列表。</p>
 <a id="more"></a>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">lists:flatten([]).</div><div class="line"><span class="comment">% []</span></div><div class="line">lists:flatten([a, b, c]).</div><div class="line"><span class="comment">% [a,b,c]</span></div><div class="line">lists:flatten([a, b, [<span class="number">1</span>, [x, y], <span class="number">3</span>], c]).</div><div class="line"><span class="comment">% [a,b,1,x,y,3,c]</span></div><div class="line">lists:flatten([a, b, [<span class="number">1</span>, [x, &#123;some, tuple&#125;], <span class="number">3</span>], c]).</div><div class="line"><span class="comment">% [a,b,1,x,&#123;some,tuple&#125;,3,c]</span></div></pre></td></tr></table></figure>
@@ -79,7 +135,10 @@
     
     <summary type="html">
     
-      &lt;p&gt;Erlang Thursday今天要讲的函数是 lists:flatten/1。&lt;/p&gt;
+      &lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;原文链接：&lt;/em&gt;  &lt;a href=&quot;https://www.proctor-it.com/erlang-thursday-lists-flatten-1/&quot;&gt;https://www.proctor-it.com/erlang-thursday-lists-flatten-1/&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Erlang Thursday今天要讲的函数是 lists:flatten/1。&lt;/p&gt;
 &lt;p&gt;lists:flatten/1 函数将一个任意深度的由Erlang的term组成的列表展平为一个“扁平”的列表。&lt;/p&gt;
     
     </summary>
@@ -102,9 +161,12 @@
     <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-max-1/"/>
     <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-max-1/</id>
     <published>2016-09-15T08:43:49.000Z</published>
-    <updated>2016-09-15T08:51:06.000Z</updated>
+    <updated>2016-09-15T12:51:17.000Z</updated>
     
-    <content type="html"><![CDATA[<p>今天我们来学习 lists:max/1。</p>
+    <content type="html"><![CDATA[<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-max-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-max-1/</a></p>
+</blockquote>
+<p>今天我们来学习 lists:max/1。</p>
 <p>lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：</p>
 <a id="more"></a>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:max([<span class="number">1</span>, <span class="number">39</span>, <span class="number">7</span>, <span class="number">63</span>, <span class="number">27</span>, <span class="number">52</span>, <span class="number">16</span>]).</div><div class="line"><span class="comment">% 63</span></div><div class="line">lists:max([q, w, a, r, c, f, m, b]).</div><div class="line"><span class="comment">% w</span></div><div class="line">lists:max([[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>]]).</div><div class="line"><span class="comment">% [1,2,4]</span></div></pre></td></tr></table></figure>
@@ -121,7 +183,10 @@
     
     <summary type="html">
     
-      &lt;p&gt;今天我们来学习 lists:max/1。&lt;/p&gt;
+      &lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;原文链接：&lt;/em&gt;  &lt;a href=&quot;https://www.proctor-it.com/erlang-thursday-lists-max-1/&quot;&gt;https://www.proctor-it.com/erlang-thursday-lists-max-1/&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;今天我们来学习 lists:max/1。&lt;/p&gt;
 &lt;p&gt;lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：&lt;/p&gt;
     
     </summary>
@@ -144,9 +209,12 @@
     <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-seq/"/>
     <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-seq/</id>
     <published>2016-09-15T08:02:18.000Z</published>
-    <updated>2016-09-15T08:10:07.000Z</updated>
+    <updated>2016-09-15T12:50:17.000Z</updated>
     
-    <content type="html"><![CDATA[<p>Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地让读者接受和理解的一些想法。<br><a id="more"></a><br>因为这周我在<a href="https://www.proctor-it.com/ruby-tuesday-ranges/" target="_blank" rel="external">Ruby Tuesday</a>里谈到了Ruby的Range方法，那么今天我要讲的Erlang函数就是lists:seq/2和lists:seq/3。</p>
+    <content type="html"><![CDATA[<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-seq/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-seq/</a></p>
+</blockquote>
+<p>Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地让读者接受和理解的一些想法。<br><a id="more"></a><br>因为这周我在<a href="https://www.proctor-it.com/ruby-tuesday-ranges/" target="_blank" rel="external">Ruby Tuesday</a>里谈到了Ruby的Range方法，那么今天我要讲的Erlang函数就是lists:seq/2和lists:seq/3。</p>
 <p>如果你还记得上周<a href="https://www.proctor-it.com/erlang-thursday-lists-member/" target="_blank" rel="external">Erlang Thursday</a>里的Erlang扫盲小知识里讲到的，在函数名字后面的数字表示是这个函数的arity，也就是入参的个数。</p>
 <p>函数 lists:seq/2 接受两个整数入参，一个表示起始整数，一个表示结束整数，它产生一个包括这两个入参的整数列表。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>).</div><div class="line"><span class="comment">% [1,2,3,4,5,6,7,8,9,10]</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% [1]</span></div></pre></td></tr></table></figure>
@@ -155,11 +223,15 @@
 <p>这个增量值可以是负数，这样就允许从一个整数减少低至另一个整数。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">20</span>, <span class="number">10</span>, -<span class="number">1</span>).</div><div class="line"><span class="comment">% [20,19,18,17,16,15,14,13,12,11,10]</span></div><div class="line">lists:seq(<span class="number">20</span>, <span class="number">10</span>, -<span class="number">5</span>).</div><div class="line"><span class="comment">% [20,15,10]</span></div></pre></td></tr></table></figure>
 <p>如果给了不合适的起始和结束入参，lists:seq 函数不像Rang Range那样返回一个空集合，它会抛出一个异常。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">10</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching lists:seq(10,1) (lists.erl, line 241)</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, -<span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div><div class="line">lists:seq(<span class="number">10</span>, <span class="number">1</span>, <span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div></pre></td></tr></table></figure>]]></content>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">10</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching lists:seq(10,1) (lists.erl, line 241)</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, -<span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div><div class="line">lists:seq(<span class="number">10</span>, <span class="number">1</span>, <span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div></pre></td></tr></table></figure>
+]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地让读者接受和理解的一些想法。&lt;br&gt;
+      &lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;原文链接：&lt;/em&gt;  &lt;a href=&quot;https://www.proctor-it.com/erlang-thursday-lists-seq/&quot;&gt;https://www.proctor-it.com/erlang-thursday-lists-seq/&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地让读者接受和理解的一些想法。&lt;br&gt;
     
     </summary>
     
@@ -181,9 +253,12 @@
     <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-member-2/"/>
     <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-member-2/</id>
     <published>2016-09-15T06:09:19.000Z</published>
-    <updated>2016-09-15T06:44:56.000Z</updated>
+    <updated>2016-09-15T12:50:32.000Z</updated>
     
-    <content type="html"><![CDATA[<p>为了和每周的 <a href="http://www.proctor-it.com/ruby-tuesday-enumerableinclude/" target="_blank" rel="external">Ruby Tuesday</a> 系列文章中关于Enumerable#include?函数来个跨界对比，我决定着重介绍 Erlang 中相同类型的函数，lists:member/2。</p>
+    <content type="html"><![CDATA[<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-member/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-member/</a></p>
+</blockquote>
+<p>为了和每周的 <a href="http://www.proctor-it.com/ruby-tuesday-enumerableinclude/" target="_blank" rel="external">Ruby Tuesday</a> 系列文章中关于Enumerable#include?函数来个跨界对比，我决定着重介绍 Erlang 中相同类型的函数，lists:member/2。</p>
 <a id="more"></a>
 <p>首先给不熟悉Erlang的同学们补充一下知识：lists:member/2 表达的意思是在lists模块里有个名字叫member的函数，它有两个参数。Arity这个词的意思表示这个函数接受的入参的个数。在Erlang中，模块很重要，因为它是所有函数赖以生存的容器－－另外也是因为模块在Erlang里是代码重新装载的单元－－为了重新载入某个方法的新版本，必需指定具体模块。</p>
 <p>总而言之，模块lists的函数member接受两个入参：一个是被查找的元素，它是Erlang的一种由任意数据类型组成的数据，另一个是被检索的由Erlang的各种类型数据组成的列表；如果被查找的元素在列表里被找到，则返回true。一个Erlang的term是任意Erlang数据类型组成的数据。</p>
@@ -203,7 +278,10 @@
     
     <summary type="html">
     
-      &lt;p&gt;为了和每周的 &lt;a href=&quot;http://www.proctor-it.com/ruby-tuesday-enumerableinclude/&quot;&gt;Ruby Tuesday&lt;/a&gt; 系列文章中关于Enumerable#include?函数来个跨界对比，我决定着重介绍 Erlang 中相同类型的函数，lists:member/2。&lt;/p&gt;
+      &lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;原文链接：&lt;/em&gt;  &lt;a href=&quot;https://www.proctor-it.com/erlang-thursday-lists-member/&quot;&gt;https://www.proctor-it.com/erlang-thursday-lists-member/&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;为了和每周的 &lt;a href=&quot;http://www.proctor-it.com/ruby-tuesday-enumerableinclude/&quot;&gt;Ruby Tuesday&lt;/a&gt; 系列文章中关于Enumerable#include?函数来个跨界对比，我决定着重介绍 Erlang 中相同类型的函数，lists:member/2。&lt;/p&gt;
     
     </summary>
     

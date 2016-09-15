@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Erlang,lists,max," />
+  <meta name="keywords" content="Erlang,lists,foldl,foldr," />
 
 
 
@@ -86,25 +86,25 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-max-1/
+<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/
 
-今天我们来学习 lists:max/1。
-lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：">
+今天Erlang Thursday讲的是 lists:foldl/3 和 lists:foldr/3 。
+lists:foldl/3 是Erlang版的 reduce 函数。 lists:foldl/3 接收三个入参：一个函数，一">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Erlang Thursday – lists:max/1">
-<meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-max-1/index.html">
+<meta property="og:title" content="erlang-thursday-lists-foldl-3-and-lists-foldr-3">
+<meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-foldl-3-and-lists-foldr-3/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-max-1/
+<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/
 
-今天我们来学习 lists:max/1。
-lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：">
-<meta property="og:updated_time" content="2016-09-15T12:51:17.000Z">
+今天Erlang Thursday讲的是 lists:foldl/3 和 lists:foldr/3 。
+lists:foldl/3 是Erlang版的 reduce 函数。 lists:foldl/3 接收三个入参：一个函数，一">
+<meta property="og:updated_time" content="2016-09-15T12:53:08.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Erlang Thursday – lists:max/1">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-max-1/
+<meta name="twitter:title" content="erlang-thursday-lists-foldl-3-and-lists-foldr-3">
+<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/
 
-今天我们来学习 lists:max/1。
-lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：">
+今天Erlang Thursday讲的是 lists:foldl/3 和 lists:foldr/3 。
+lists:foldl/3 是Erlang版的 reduce 函数。 lists:foldl/3 接收三个入参：一个函数，一">
 
 
 
@@ -125,9 +125,9 @@ lists:max/1 接收一个入参，这个入参是一个最少有一个元素的�
 
 
 
-  <link rel="canonical" href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-max-1/"/>
+  <link rel="canonical" href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-foldl-3-and-lists-foldr-3/"/>
 
-  <title> Erlang Thursday – lists:max/1 | Time is all </title>
+  <title> erlang-thursday-lists-foldl-3-and-lists-foldr-3 | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -280,7 +280,7 @@ lists:max/1 接收一个入参，这个入参是一个最少有一个元素的�
             
             
               
-                Erlang Thursday – lists:max/1
+                erlang-thursday-lists-foldl-3-and-lists-foldr-3
               
             
           </h1>
@@ -292,7 +292,7 @@ lists:max/1 接收一个入参，这个入参是一个最少有一个元素的�
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-15T16:43:49+08:00" content="2016-09-15">
+            <time itemprop="dateCreated" datetime="2016-09-15T20:38:40+08:00" content="2016-09-15">
               2016-09-15
             </time>
           </span>
@@ -338,7 +338,7 @@ lists:max/1 接收一个入参，这个入参是一个最少有一个元素的�
 
           
           
-             <span id="/2016/09/15/erlang-thursday-lists-max-1/" class="leancloud_visitors" data-flag-title="Erlang Thursday – lists:max/1">
+             <span id="/2016/09/15/erlang-thursday-lists-foldl-3-and-lists-foldr-3/" class="leancloud_visitors" data-flag-title="erlang-thursday-lists-foldl-3-and-lists-foldr-3">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -361,21 +361,18 @@ lists:max/1 接收一个入参，这个入参是一个最少有一个元素的�
 
       
         <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-max-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-max-1/</a></p>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/</a></p>
 </blockquote>
-<p>今天我们来学习 lists:max/1。</p>
-<p>lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：</p>
+<p>今天Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#foldl-3" target="_blank" rel="external">lists:foldl/3</a> 和 <a href="http://www.erlang.org/doc/man/lists.html#foldr-3" target="_blank" rel="external">lists:foldr/3</a> 。</p>
+<p>lists:foldl/3 是Erlang版的 reduce 函数。 lists:foldl/3 接收三个入参：一个函数，一个初始的累加器，一个列表，输出一个单一的值。</p>
 <a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:max([<span class="number">1</span>, <span class="number">39</span>, <span class="number">7</span>, <span class="number">63</span>, <span class="number">27</span>, <span class="number">52</span>, <span class="number">16</span>]).</div><div class="line"><span class="comment">% 63</span></div><div class="line">lists:max([q, w, a, r, c, f, m, b]).</div><div class="line"><span class="comment">% w</span></div><div class="line">lists:max([[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>]]).</div><div class="line"><span class="comment">% [1,2,4]</span></div></pre></td></tr></table></figure>
-<p>Erlang在不同类型的term之间有着截然不同的大小顺序，</p>
-<p>number &lt; atom &lt; reference &lt; fun &lt; port &lt; pid &lt; tuple &lt; list &lt; bit string<br>传给lists:max/1函数的列表可以由任意类型的term组成。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:max([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, a]).</div><div class="line"><span class="comment">% a</span></div><div class="line">lists:max([<span class="number">1</span>, a, [foo, bar], &#123;baz&#125;]).</div><div class="line"><span class="comment">% [foo,bar]</span></div></pre></td></tr></table></figure>
-<p>因为在Erlang中字符串实际上是数字列表，所以我们甚至可以比较字符串。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:max([<span class="string">"foo"</span>, <span class="string">"bar"</span>, <span class="string">"baz"</span>, <span class="string">"snafu"</span>]).</div><div class="line"><span class="string">"snafu"</span></div></pre></td></tr></table></figure>
-<p>如果你传入一个空列表给lists:max/1函数，一个 “no function clause matching”的错误将产生，因为该函数需要一个至少有一个元素的列表作为入参。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:max([]).</div><div class="line">** exception error: no function clause matching lists:max([]) (lists.erl, line <span class="number">326</span>)</div></pre></td></tr></table></figure>
-<p>请您告诉我在以后的Erlang Thursday系列文章里，哪些是您喜欢的Erlang函数，甚至只是你想看到的函数？</p>
-<p>如果您想比较Erlang的max函数和Ruby的max方法，别忘了看看上周的Ruby Tuesday系列文章： <a href="http://www.proctor-it.com/ruby-tuesday-enumerable-max/" target="_blank" rel="external">Ruby Tuesday on Enumerable#max</a>。</p>
+<p>foldl的第一个入参是一个接收两个参数的函数，一个是当前循环到的列表元素，另一个是积累的值。这个函数的输出值作为循环到下一个列表元素的时候的累加器，或者当循环结束的时候作为foldl函数的输出值。</p>
+<p>foldl的第二个入参是一个累加器的初始值。与其他一些语言不同，在其他语言里这个累加器的初始值是可选的，而且常常是使用循环列表的第一个元素作为默认值，但是在Erlang里，累加器的初始值必需作为lists:foldl/3和lists:foldr/3两个函数的入参。</p>
+<p>第三个入参，也就是最后一个入参是将被循环遍历的列表。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Sum) -&gt; Sum + X <span class="keyword">end</span>, <span class="number">0</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 15</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Product) -&gt; Product * X <span class="keyword">end</span>, <span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 120</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; io:format(<span class="string">"~p "</span>, [X]) <span class="keyword">end</span>, void, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 1 2 3 4 5 ok</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; io:format(<span class="string">"~p "</span>, [X]), Accum <span class="keyword">end</span>, void, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 1 2 3 4 5 void</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; Accum + X <span class="keyword">end</span>, <span class="number">1</span>, []).</div><div class="line"><span class="comment">% 1</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Result) -&gt; lists:umerge(Result, X) <span class="keyword">end</span>, [], [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>], [<span class="number">11</span>, <span class="number">13</span>, <span class="number">17</span>]]).</div><div class="line"><span class="comment">% [1,2,3,5,8,11,13,17]</span></div></pre></td></tr></table></figure>
+<p>在Erlang的lists模块里也包含foldr/3函数，它是从左到右（译者注：应该是从右到左，可能是作者手误）遍历列表或者说是从最后一个元素到第一个元素遍历列表。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:foldr(<span class="keyword">fun</span>(X, Accum) -&gt; io:format(<span class="string">"~p "</span>, [X]), Accum <span class="keyword">end</span>, void, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 5 4 3 2 1 void</span></div><div class="line">lists:foldr(<span class="keyword">fun</span>(X, Accum) -&gt; Accum + X <span class="keyword">end</span>, <span class="number">1</span>, []).</div><div class="line"><span class="comment">% 1</span></div></pre></td></tr></table></figure>
+<p>Erlang文档里指出foldl/3通常比foldr/3更好，因为foldl/3是尾递归，而foldr/3不是。</p>
 
       
     </div>
@@ -402,7 +399,9 @@ lists:max/1 接收一个入参，这个入参是一个最少有一个元素的�
           
             <a href="/tags/lists/" rel="tag">#lists</a>
           
-            <a href="/tags/max/" rel="tag">#max</a>
+            <a href="/tags/foldl/" rel="tag">#foldl</a>
+          
+            <a href="/tags/foldr/" rel="tag">#foldr</a>
           
         </div>
       
@@ -411,17 +410,13 @@ lists:max/1 接收一个入参，这个入参是一个最少有一个元素的�
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/09/15/erlang-thursday-lists-seq/" rel="next" title="Erlang Thursday – lists:seq">
-                <i class="fa fa-chevron-left"></i> Erlang Thursday – lists:seq
+              <a href="/2016/09/15/erlang-thursday-lists-map-2/" rel="next" title="erlang-thursday-lists-map-2">
+                <i class="fa fa-chevron-left"></i> erlang-thursday-lists-map-2
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/09/15/erlang-thursday-lists-flatten-1/" rel="prev" title="Erlang Thursday – lists:flatten/1">
-                Erlang Thursday – lists:flatten/1 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
