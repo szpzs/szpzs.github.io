@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Erlang,erlang,apply," />
+  <meta name="keywords" content="Erlang, Elixir, Hexo, NexT" />
 
 
 
@@ -86,25 +86,15 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-erlang-apply-3/
-
-今天的Erlang Thursday讲 erlang:apply/3.
-在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Erlang Thursday – erlang:apply/3">
-<meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-erlang-apply-3/index.html">
+<meta name="description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Time is all">
+<meta property="og:url" content="http://szpzs.github.io/tags/BEAM/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-erlang-apply-3/
-
-今天的Erlang Thursday讲 erlang:apply/3.
-在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这">
-<meta property="og:updated_time" content="2016-09-15T13:51:48.000Z">
+<meta property="og:description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Erlang Thursday – erlang:apply/3">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-erlang-apply-3/
-
-今天的Erlang Thursday讲 erlang:apply/3.
-在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这">
+<meta name="twitter:title" content="Time is all">
+<meta name="twitter:description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
 
 
 
@@ -125,9 +115,9 @@
 
 
 
-  <link rel="canonical" href="http://szpzs.github.io/2016/09/15/erlang-thursday-erlang-apply-3/"/>
+  <link rel="canonical" href="http://szpzs.github.io/tags/BEAM/"/>
 
-  <title> Erlang Thursday – erlang:apply/3 | Time is all </title>
+  <title> 标签: BEAM | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -148,7 +138,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left page-post-detail ">
+  <div class="container one-collumn sidebar-position-left  ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -259,173 +249,46 @@
           <div id="content" class="content">
             
 
-  <div id="posts" class="posts-expand">
-    
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                Erlang Thursday – erlang:apply/3
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-15T21:46:31+08:00" content="2016-09-15">
-              2016-09-15
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">erlang</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-erlang-apply-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-erlang-apply-3/</a></p>
-</blockquote>
-<p>今天的Erlang Thursday讲 <a href="http://www.erlang.org/doc/man/erlang.html#apply-3" target="_blank" rel="external">erlang:apply/3</a>.</p>
-<p>在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这样 Fun(Arg1, Arg2, …, ArgN) 来调用，但是如果我们遇到有不同参数数量的场景就没法这么干了。怎么办？还是让我们进入今天的主题：erlang:apply/3 。</p>
-<a id="more"></a>
-<p>erlang:apply/3，三个入参分别是模块名、函数名、一个要传给函数的实参组成的列表。传给erlang:apply/3的函数必需也是被导出的，否则将有错误发生。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">erlang:apply(lists, max, [[<span class="number">7</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">11</span>, <span class="number">1</span>]]).</div><div class="line"><span class="comment">% 11</span></div><div class="line">erlang:apply(lists, merge, [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [a, b, c]]).</div><div class="line"><span class="comment">% [1,2,3,a,b,c]</span></div><div class="line">erlang:apply(lists, merge, [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [a, b, c]]).</div><div class="line"><span class="comment">% [1,2,3,a,b,c]</span></div></pre></td></tr></table></figure>
-<p>Erlang的官方文档特别指出，erlang:apply/3仅仅是在我们不完全清楚函数的参数数量的时候来使用。否则我们只需按平常的函数调用来做，即使以匿名函数的方式来传递。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">fun</span> lists:max/<span class="number">1</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="number">4</span></div></pre></td></tr></table></figure>
-<p>erlang模块也包括另一个版本 erlang:apply/2 ，第一个入参是一个函数，第二个人才是这个函数的实参的列表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">erlang:apply(<span class="keyword">fun</span> lists:merge/<span class="number">2</span>, [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [a, b, c]]).</div><div class="line"><span class="comment">% [1,2,3,a,b,c]</span></div></pre></td></tr></table></figure>
-<p>erlang:apply/2 和 erlang:apply/3 并不是我们的通常用法，它在一些特殊场合，它是必要的，比如上星期的 <a href="http://www.proctor-it.com/erlang-thursday-timer-tc-3/" target="_blank" rel="external">timer:tc</a> 。虽然我们将很少用到它，但是了解它对我们也有帮助。</p>
-
-      
+  <div id="posts" class="posts-collapse">
+    <div class="collection-title">
+      <h2 >
+        BEAM
+        <small>标签</small>
+      </h2>
     </div>
 
-    <div>
+    
       
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
         
-
-      
-    </div>
-
-    <div>
-      
+            <a class="post-title-link" href="/2016/09/16/eli5-vm/" itemprop="url">
+              
+                <span itemprop="name">BEAM虚拟机之浅显易懂</span>
+              
+            </a>
         
+      </h1>
 
-      
-    </div>
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-16T22:11:05+08:00"
+              content="2016-09-16" >
+          09-16
+        </time>
+      </div>
 
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
-          
-            <a href="/tags/erlang/" rel="tag">#erlang</a>
-          
-            <a href="/tags/apply/" rel="tag">#apply</a>
-          
-        </div>
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2016/09/15/erlang-thursday-timer-tc-3/" rel="next" title="Erlang Thursday - timer:tc/3">
-                <i class="fa fa-chevron-left"></i> Erlang Thursday - timer:tc/3
-              </a>
-            
-          </div>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/09/15/erlang-thursday-httpc-request-1-and-httpc-request-4/" rel="prev" title="Erlang Thursday – httpc:request/1 and httpc:request/4">
-                Erlang Thursday – httpc:request/1 and httpc:request/4 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
+    </header>
   </article>
 
 
-
-    <div class="post-spread">
-      
-    </div>
+    
   </div>
+
+  
 
 
           </div>
@@ -433,10 +296,6 @@
 
 
           
-  <div class="comments" id="comments">
-    
-  </div>
-
 
         </div>
         
@@ -456,17 +315,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview sidebar-panel ">
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.jpg"
@@ -582,17 +432,6 @@
       </section>
 
       
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-            
-              
-            
-            
-              <p class="post-toc-empty">此文章未包含目录</p>
-            
-          </div>
-        </section>
-      
 
     </div>
   </aside>
@@ -695,10 +534,6 @@
 
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
-
-
 
   
 

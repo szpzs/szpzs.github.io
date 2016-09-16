@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Erlang,erlang,apply," />
+  <meta name="keywords" content="Erlang,BEAM," />
 
 
 
@@ -86,25 +86,22 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-erlang-apply-3/
+<meta name="description" content="原文链接：  http://beam-wisdoms.clau.se/en/latest/eli5-vm.html
 
-今天的Erlang Thursday讲 erlang:apply/3.
-在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这">
+BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Erlang Thursday – erlang:apply/3">
-<meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-erlang-apply-3/index.html">
+<meta property="og:title" content="BEAM虚拟机之浅显易懂">
+<meta property="og:url" content="http://szpzs.github.io/2016/09/16/eli5-vm/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-erlang-apply-3/
+<meta property="og:description" content="原文链接：  http://beam-wisdoms.clau.se/en/latest/eli5-vm.html
 
-今天的Erlang Thursday讲 erlang:apply/3.
-在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这">
-<meta property="og:updated_time" content="2016-09-15T13:51:48.000Z">
+BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
+<meta property="og:updated_time" content="2016-09-16T14:37:46.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Erlang Thursday – erlang:apply/3">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-erlang-apply-3/
+<meta name="twitter:title" content="BEAM虚拟机之浅显易懂">
+<meta name="twitter:description" content="原文链接：  http://beam-wisdoms.clau.se/en/latest/eli5-vm.html
 
-今天的Erlang Thursday讲 erlang:apply/3.
-在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这">
+BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
 
 
 
@@ -125,9 +122,9 @@
 
 
 
-  <link rel="canonical" href="http://szpzs.github.io/2016/09/15/erlang-thursday-erlang-apply-3/"/>
+  <link rel="canonical" href="http://szpzs.github.io/2016/09/16/eli5-vm/"/>
 
-  <title> Erlang Thursday – erlang:apply/3 | Time is all </title>
+  <title> BEAM虚拟机之浅显易懂 | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -280,7 +277,7 @@
             
             
               
-                Erlang Thursday – erlang:apply/3
+                BEAM虚拟机之浅显易懂
               
             
           </h1>
@@ -292,8 +289,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-15T21:46:31+08:00" content="2016-09-15">
-              2016-09-15
+            <time itemprop="dateCreated" datetime="2016-09-16T22:11:05+08:00" content="2016-09-16">
+              2016-09-16
             </time>
           </span>
 
@@ -318,8 +315,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">erlang</span>
+                  <a href="/categories/Erlang/BEAM/" itemprop="url" rel="index">
+                    <span itemprop="name">BEAM</span>
                   </a>
                 </span>
 
@@ -352,18 +349,24 @@
 
       
         <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-erlang-apply-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-erlang-apply-3/</a></p>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-vm.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-vm.html</a></p>
 </blockquote>
-<p>今天的Erlang Thursday讲 <a href="http://www.erlang.org/doc/man/erlang.html#apply-3" target="_blank" rel="external">erlang:apply/3</a>.</p>
-<p>在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这样 Fun(Arg1, Arg2, …, ArgN) 来调用，但是如果我们遇到有不同参数数量的场景就没法这么干了。怎么办？还是让我们进入今天的主题：erlang:apply/3 。</p>
+<p>BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。</p>
 <a id="more"></a>
-<p>erlang:apply/3，三个入参分别是模块名、函数名、一个要传给函数的实参组成的列表。传给erlang:apply/3的函数必需也是被导出的，否则将有错误发生。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">erlang:apply(lists, max, [[<span class="number">7</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">11</span>, <span class="number">1</span>]]).</div><div class="line"><span class="comment">% 11</span></div><div class="line">erlang:apply(lists, merge, [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [a, b, c]]).</div><div class="line"><span class="comment">% [1,2,3,a,b,c]</span></div><div class="line">erlang:apply(lists, merge, [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [a, b, c]]).</div><div class="line"><span class="comment">% [1,2,3,a,b,c]</span></div></pre></td></tr></table></figure>
-<p>Erlang的官方文档特别指出，erlang:apply/3仅仅是在我们不完全清楚函数的参数数量的时候来使用。否则我们只需按平常的函数调用来做，即使以匿名函数的方式来传递。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">fun</span> lists:max/<span class="number">1</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="number">4</span></div></pre></td></tr></table></figure>
-<p>erlang模块也包括另一个版本 erlang:apply/2 ，第一个入参是一个函数，第二个人才是这个函数的实参的列表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">erlang:apply(<span class="keyword">fun</span> lists:merge/<span class="number">2</span>, [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [a, b, c]]).</div><div class="line"><span class="comment">% [1,2,3,a,b,c]</span></div></pre></td></tr></table></figure>
-<p>erlang:apply/2 和 erlang:apply/3 并不是我们的通常用法，它在一些特殊场合，它是必要的，比如上星期的 <a href="http://www.proctor-it.com/erlang-thursday-timer-tc-3/" target="_blank" rel="external">timer:tc</a> 。虽然我们将很少用到它，但是了解它对我们也有帮助。</p>
+<h2 id="寄存器和调用"><a href="#寄存器和调用" class="headerlink" title="寄存器和调用"></a>寄存器和调用</h2><p>作为一个寄存器虚拟机就意味着在函数调用的时候不是通过栈而是用寄存器来传递参数。它们与我们所理解的CPU架构中的寄存器不一样，而只是一个Erlang数据结构的值所组成的数组。这样的寄存器有1024个，但是有这么多入参的函数几乎不存在，所以通常虚拟机仅仅使用了前面3到10个寄存器。</p>
+<p>例如，当调用一个有三个入参的函数的时候，寄存器x0，x1和x2分别被设置为三个入参值。如果我们需要进行递归调用，我们讲不得不改写寄存器并丢失它们的原始值。在这种情况下，我们将需要保存旧的值到栈中。除了栈帧没有动态栈分配，这是由编译器决定的。</p>
+<p>每一个进程有自己的寄存器集。</p>
+<h2 id="指令"><a href="#指令" class="headerlink" title="指令"></a>指令</h2><p>BEAM指令集包含大约158个基本指令，它们中的大部分可以通过调用 erlc -S yourfile.erl 生成汇编文件来查看到。每一个指令有零或多个参数。不同的技巧用来在便携方式和紧凑方式编码参数。例如，代码中的位置定位（也叫做标签）是用它们的索引来编码的，并且代码装载器后续会把它们翻译成内存地址。</p>
+<p>在BEAM代码装载过程中，一些混合的操作码被更快的操作码替换。这个优化的技巧叫做超级指令。对于每一个操作码，在beam_emu.c文件中都有一个C标签对应的一段代码。一个C标签组成的数组存储在同一个虚拟机循环例程的尾部并且被当作查询表来使用。</p>
+<p>请参见：<br>详细解释：<a href="http://beam-wisdoms.clau.se/en/latest/indepth-beam-file.html" target="_blank" rel="external">BEAM文件格式</a>。<br>详细解释：<a href="http://beam-wisdoms.clau.se/en/latest/indepth-beam-instructions.html" target="_blank" rel="external">BEAM指令代码</a>。</p>
+<h2 id="线程虚拟机循环"><a href="#线程虚拟机循环" class="headerlink" title="线程虚拟机循环"></a>线程虚拟机循环</h2><p>装载操作码被标签地址替换后，紧跟着它们的是参数。例如，操作码 ＃1，一个来自标签数组第一索引元素被置于在代码内存。</p>
+<p>这种方式很容易跳转到处理下一个操作码的 C 代码中的某个位置。只需要读一个 void<em> 指针并执行一个goto </em>p 的动作。此功能是C和C++编译器的一个扩展。这种类型的虚拟机循环称为直接线程调度虚拟机循环。</p>
+<p>其他虚拟机循环的类型有：</p>
+<ul>
+<li>切换调度虚拟机（如果使用 C 编译器拒绝支持标签扩展，则这种类型被BEAM虚拟机源使用）。它也比直接线程调度虚拟机慢 20 至 30%；</li>
+<li>直接调用线程</li>
+<li><a href="http://www.cs.toronto.edu/~matz/dissertation/matzDissertation-latex2html/node6.html" target="_blank" rel="external">其他</a></li>
+</ul>
 
       
     </div>
@@ -388,9 +391,7 @@
           
             <a href="/tags/Erlang/" rel="tag">#Erlang</a>
           
-            <a href="/tags/erlang/" rel="tag">#erlang</a>
-          
-            <a href="/tags/apply/" rel="tag">#apply</a>
+            <a href="/tags/BEAM/" rel="tag">#BEAM</a>
           
         </div>
       
@@ -399,17 +400,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/09/15/erlang-thursday-timer-tc-3/" rel="next" title="Erlang Thursday - timer:tc/3">
-                <i class="fa fa-chevron-left"></i> Erlang Thursday - timer:tc/3
+              <a href="/2016/09/16/erlang-thursday-dict-merge-3/" rel="next" title="Erlang Thursday – dict:merge/3">
+                <i class="fa fa-chevron-left"></i> Erlang Thursday – dict:merge/3
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/09/15/erlang-thursday-httpc-request-1-and-httpc-request-4/" rel="prev" title="Erlang Thursday – httpc:request/1 and httpc:request/4">
-                Erlang Thursday – httpc:request/1 and httpc:request/4 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -588,7 +585,7 @@
               
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#寄存器和调用"><span class="nav-number">1.</span> <span class="nav-text">寄存器和调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指令"><span class="nav-number">2.</span> <span class="nav-text">指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程虚拟机循环"><span class="nav-number">3.</span> <span class="nav-text">线程虚拟机循环</span></a></li></ol></div>
             
           </div>
         </section>
