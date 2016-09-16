@@ -98,7 +98,7 @@ lists:map/2 接收两个入参，一个是接收一个入参的函数，我们�
 
 今天的Erlang Thursday讲的是函数 lists:map/2 。
 lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表">
-<meta property="og:updated_time" content="2016-09-15T13:27:06.000Z">
+<meta property="og:updated_time" content="2016-09-16T06:46:09.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday - lists:map/2">
 <meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-map-2/
@@ -338,15 +338,6 @@ lists:map/2 接收两个入参，一个是接收一个入参的函数，我们�
 
           
           
-             <span id="/2016/09/15/erlang-thursday-lists-map-2/" class="leancloud_visitors" data-flag-title="Erlang Thursday - lists:map/2">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
 
           
         </div>
@@ -369,13 +360,11 @@ lists:map/2 接收两个入参，一个是接收一个入参的函数，我们�
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X + <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [2,3,4,5]</span></div><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X * X <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [1,4,9,16]</span></div></pre></td></tr></table></figure>
 <p>因为字符串在Erlang里就是整数列表，所以你也可以将map函数应用在字符串上。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X - <span class="number">1</span> <span class="keyword">end</span>, <span class="string">"IBM"</span>).</div><div class="line"><span class="comment">% "HAL"</span></div></pre></td></tr></table></figure>
-<p>###Erlang里的函数</p>
-<p>如果你仔细观察上面第一个例子，你会发现第一个入参我们传递的是一个 fun(X) -&gt; X + 1 end. 这是Erlang的匿名函数的语法。 一个匿名函数的格式如下：</p>
+<h1 id="Erlang里的函数"><a href="#Erlang里的函数" class="headerlink" title="Erlang里的函数"></a>Erlang里的函数</h1><p>如果你仔细观察上面第一个例子，你会发现第一个入参我们传递的是一个 fun(X) -&gt; X + 1 end. 这是Erlang的匿名函数的语法。 一个匿名函数的格式如下：</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">fun</span><span class="params">(Args1)</span> O<span class="title">ptionalGuardClause1</span> -&gt;</span></div><div class="line">        Expression1, Expression2;</div><div class="line">   (Args2) OptionalGuardClause2 -&gt;</div><div class="line">        Expression3, Expression4;</div><div class="line">   (Args3) OptionalGuardClause3 -&gt;</div><div class="line">        Expression5, Expression6;</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
 <p>因为我们可以像普通函数一样使用匿名函数，除了在17.0以前的版本不能递归调用一个匿名函数外，所以我们可以将一个有多个子句的匿名函数传给lists:map/2 函数。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) <span class="keyword">when</span> is_atom(X) -&gt; atom; (X) -&gt; nil <span class="keyword">end</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[nil,atom,nil,nil,atom]</div></pre></td></tr></table></figure>
-<p>###传递命名函数给lists:map/2</p>
-<p>虽然一些场合我们用匿名函数，但是更多时候为了清晰明了，我们还是想用命名函数。我们可以通过函数的限定名称方式来传递一个命名函数给lists:map/2，采用的格式是，在module:function_name/arity 前面加上 fun 。下面的例子用math:log10/1和erlang:is_atom/1两个函数来演示：</p>
+<h1 id="传递命名函数给lists-map-2"><a href="#传递命名函数给lists-map-2" class="headerlink" title="传递命名函数给lists:map/2"></a>传递命名函数给lists:map/2</h1><p>虽然一些场合我们用匿名函数，但是更多时候为了清晰明了，我们还是想用命名函数。我们可以通过函数的限定名称方式来传递一个命名函数给lists:map/2，采用的格式是，在module:function_name/arity 前面加上 fun 。下面的例子用math:log10/1和erlang:is_atom/1两个函数来演示：</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span> math:log10/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">10</span>, <span class="number">100</span>, <span class="number">1000</span>, <span class="number">10000</span>]).</div><div class="line">[<span class="number">0.0</span>,<span class="number">1.0</span>,<span class="number">2.0</span>,<span class="number">3.0</span>,<span class="number">4.0</span>]</div><div class="line">lists:map(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[<span class="literal">false</span>,<span class="literal">true</span>,<span class="literal">false</span>,<span class="literal">false</span>,<span class="literal">true</span>]</div></pre></td></tr></table></figure>
 
       
@@ -601,7 +590,7 @@ lists:map/2 接收两个入参，一个是接收一个入参的函数，我们�
               
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Erlang里的函数"><span class="nav-number">1.</span> <span class="nav-text">Erlang里的函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#传递命名函数给lists-map-2"><span class="nav-number">2.</span> <span class="nav-text">传递命名函数给lists:map/2</span></a></li></ol></div>
             
           </div>
         </section>
@@ -864,113 +853,6 @@ lists:map/2 接收两个入参，一个是接收一个入参的函数，我们�
   
 
   
-
-  
-  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
-  <script>AV.initialize("W7zrGOD56BwAtWVU45gh1gMD-gzGzoHsz", "EsIpyjK5hWVMxMvQfDgwcgVA");</script>
-  <script>
-    function showTime(Counter) {
-      var query = new AV.Query(Counter);
-      var entries = [];
-      var $visitors = $(".leancloud_visitors");
-
-      $visitors.each(function () {
-        entries.push( $(this).attr("id").trim() );
-      });
-
-      query.containedIn('url', entries);
-      query.find()
-        .done(function (results) {
-          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
-
-          if (results.length === 0) {
-            $visitors.find(COUNT_CONTAINER_REF).text(0);
-            return;
-          }
-
-          for (var i = 0; i < results.length; i++) {
-            var item = results[i];
-            var url = item.get('url');
-            var time = item.get('time');
-            var element = document.getElementById(url);
-
-            $(element).find(COUNT_CONTAINER_REF).text(time);
-          }
-          for(var i = 0; i < entries.length; i++) {
-            var url = entries[i];
-            var element = document.getElementById(url);
-            var countSpan = $(element).find(COUNT_CONTAINER_REF);
-            if( countSpan.text() == '') {
-              countSpan.text(0);
-            }
-          }
-        })
-        .fail(function (object, error) {
-          console.log("Error: " + error.code + " " + error.message);
-        });
-    }
-
-    function addCount(Counter) {
-      var $visitors = $(".leancloud_visitors");
-      var url = $visitors.attr('id').trim();
-      var title = $visitors.attr('data-flag-title').trim();
-      var query = new AV.Query(Counter);
-
-      query.equalTo("url", url);
-      query.find({
-        success: function(results) {
-          if (results.length > 0) {
-            var counter = results[0];
-            counter.fetchWhenSave(true);
-            counter.increment("time");
-            counter.save(null, {
-              success: function(counter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(counter.get('time'));
-              },
-              error: function(counter, error) {
-                console.log('Failed to save Visitor num, with error message: ' + error.message);
-              }
-            });
-          } else {
-            var newcounter = new Counter();
-            /* Set ACL */
-            var acl = new AV.ACL();
-            acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
-            newcounter.setACL(acl);
-            /* End Set ACL */
-            newcounter.set("title", title);
-            newcounter.set("url", url);
-            newcounter.set("time", 1);
-            newcounter.save(null, {
-              success: function(newcounter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-              },
-              error: function(newcounter, error) {
-                console.log('Failed to create');
-              }
-            });
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
-    }
-
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
-    });
-  </script>
-
-
 
   
 

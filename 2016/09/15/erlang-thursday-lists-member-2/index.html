@@ -96,7 +96,7 @@
 <meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-member/
 
 为了和每周的 Ruby Tuesday 系列文章中关于Enumerable#include?函数来个跨界对比，我决定着重介绍 Erlang 中相同类型的函数，lists:member/2。">
-<meta property="og:updated_time" content="2016-09-15T12:50:32.000Z">
+<meta property="og:updated_time" content="2016-09-16T06:43:46.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday – lists:member/2">
 <meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-member/
@@ -335,15 +335,6 @@
 
           
           
-             <span id="/2016/09/15/erlang-thursday-lists-member-2/" class="leancloud_visitors" data-flag-title="Erlang Thursday – lists:member/2">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
 
           
         </div>
@@ -375,7 +366,6 @@
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:member($a, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member(<span class="number">97</span>, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member($A, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
 <p>如果你仔细观察，你会发现，在Erlang里字符串实际上是由整数组成的列表。</p>
 <p>希望这是一个有趣的Ruby和Erlang的比较；同时如果你对它不熟悉的话，能让你更了解Erlang。</p>
-<p>原文链接：<a href="https://www.proctor-it.com/erlang-thursday-lists-member/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-member/</a></p>
 
       
     </div>
@@ -859,113 +849,6 @@
   
 
   
-
-  
-  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
-  <script>AV.initialize("W7zrGOD56BwAtWVU45gh1gMD-gzGzoHsz", "EsIpyjK5hWVMxMvQfDgwcgVA");</script>
-  <script>
-    function showTime(Counter) {
-      var query = new AV.Query(Counter);
-      var entries = [];
-      var $visitors = $(".leancloud_visitors");
-
-      $visitors.each(function () {
-        entries.push( $(this).attr("id").trim() );
-      });
-
-      query.containedIn('url', entries);
-      query.find()
-        .done(function (results) {
-          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
-
-          if (results.length === 0) {
-            $visitors.find(COUNT_CONTAINER_REF).text(0);
-            return;
-          }
-
-          for (var i = 0; i < results.length; i++) {
-            var item = results[i];
-            var url = item.get('url');
-            var time = item.get('time');
-            var element = document.getElementById(url);
-
-            $(element).find(COUNT_CONTAINER_REF).text(time);
-          }
-          for(var i = 0; i < entries.length; i++) {
-            var url = entries[i];
-            var element = document.getElementById(url);
-            var countSpan = $(element).find(COUNT_CONTAINER_REF);
-            if( countSpan.text() == '') {
-              countSpan.text(0);
-            }
-          }
-        })
-        .fail(function (object, error) {
-          console.log("Error: " + error.code + " " + error.message);
-        });
-    }
-
-    function addCount(Counter) {
-      var $visitors = $(".leancloud_visitors");
-      var url = $visitors.attr('id').trim();
-      var title = $visitors.attr('data-flag-title').trim();
-      var query = new AV.Query(Counter);
-
-      query.equalTo("url", url);
-      query.find({
-        success: function(results) {
-          if (results.length > 0) {
-            var counter = results[0];
-            counter.fetchWhenSave(true);
-            counter.increment("time");
-            counter.save(null, {
-              success: function(counter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(counter.get('time'));
-              },
-              error: function(counter, error) {
-                console.log('Failed to save Visitor num, with error message: ' + error.message);
-              }
-            });
-          } else {
-            var newcounter = new Counter();
-            /* Set ACL */
-            var acl = new AV.ACL();
-            acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
-            newcounter.setACL(acl);
-            /* End Set ACL */
-            newcounter.set("title", title);
-            newcounter.set("url", url);
-            newcounter.set("time", 1);
-            newcounter.save(null, {
-              success: function(newcounter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-              },
-              error: function(newcounter, error) {
-                console.log('Failed to create');
-              }
-            });
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
-    }
-
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
-    });
-  </script>
-
-
 
   
 

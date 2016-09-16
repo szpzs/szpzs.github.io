@@ -333,7 +333,7 @@
     <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-map-2/"/>
     <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-map-2/</id>
     <published>2016-09-15T11:53:09.000Z</published>
-    <updated>2016-09-15T13:27:06.000Z</updated>
+    <updated>2016-09-16T06:46:09.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-map-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-map-2/</a></p>
@@ -344,13 +344,11 @@
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X + <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [2,3,4,5]</span></div><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X * X <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [1,4,9,16]</span></div></pre></td></tr></table></figure>
 <p>因为字符串在Erlang里就是整数列表，所以你也可以将map函数应用在字符串上。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X - <span class="number">1</span> <span class="keyword">end</span>, <span class="string">"IBM"</span>).</div><div class="line"><span class="comment">% "HAL"</span></div></pre></td></tr></table></figure>
-<p>###Erlang里的函数</p>
-<p>如果你仔细观察上面第一个例子，你会发现第一个入参我们传递的是一个 fun(X) -&gt; X + 1 end. 这是Erlang的匿名函数的语法。 一个匿名函数的格式如下：</p>
+<h1 id="Erlang里的函数"><a href="#Erlang里的函数" class="headerlink" title="Erlang里的函数"></a>Erlang里的函数</h1><p>如果你仔细观察上面第一个例子，你会发现第一个入参我们传递的是一个 fun(X) -&gt; X + 1 end. 这是Erlang的匿名函数的语法。 一个匿名函数的格式如下：</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">fun</span><span class="params">(Args1)</span> O<span class="title">ptionalGuardClause1</span> -&gt;</span></div><div class="line">        Expression1, Expression2;</div><div class="line">   (Args2) OptionalGuardClause2 -&gt;</div><div class="line">        Expression3, Expression4;</div><div class="line">   (Args3) OptionalGuardClause3 -&gt;</div><div class="line">        Expression5, Expression6;</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
 <p>因为我们可以像普通函数一样使用匿名函数，除了在17.0以前的版本不能递归调用一个匿名函数外，所以我们可以将一个有多个子句的匿名函数传给lists:map/2 函数。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) <span class="keyword">when</span> is_atom(X) -&gt; atom; (X) -&gt; nil <span class="keyword">end</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[nil,atom,nil,nil,atom]</div></pre></td></tr></table></figure>
-<p>###传递命名函数给lists:map/2</p>
-<p>虽然一些场合我们用匿名函数，但是更多时候为了清晰明了，我们还是想用命名函数。我们可以通过函数的限定名称方式来传递一个命名函数给lists:map/2，采用的格式是，在module:function_name/arity 前面加上 fun 。下面的例子用math:log10/1和erlang:is_atom/1两个函数来演示：</p>
+<h1 id="传递命名函数给lists-map-2"><a href="#传递命名函数给lists-map-2" class="headerlink" title="传递命名函数给lists:map/2"></a>传递命名函数给lists:map/2</h1><p>虽然一些场合我们用匿名函数，但是更多时候为了清晰明了，我们还是想用命名函数。我们可以通过函数的限定名称方式来传递一个命名函数给lists:map/2，采用的格式是，在module:function_name/arity 前面加上 fun 。下面的例子用math:log10/1和erlang:is_atom/1两个函数来演示：</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span> math:log10/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">10</span>, <span class="number">100</span>, <span class="number">1000</span>, <span class="number">10000</span>]).</div><div class="line">[<span class="number">0.0</span>,<span class="number">1.0</span>,<span class="number">2.0</span>,<span class="number">3.0</span>,<span class="number">4.0</span>]</div><div class="line">lists:map(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[<span class="literal">false</span>,<span class="literal">true</span>,<span class="literal">false</span>,<span class="literal">false</span>,<span class="literal">true</span>]</div></pre></td></tr></table></figure>
 ]]></content>
     
@@ -519,7 +517,7 @@
     <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-member-2/"/>
     <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-member-2/</id>
     <published>2016-09-15T06:09:19.000Z</published>
-    <updated>2016-09-15T12:50:32.000Z</updated>
+    <updated>2016-09-16T06:43:46.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-member/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-member/</a></p>
@@ -539,7 +537,6 @@
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:member($a, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member(<span class="number">97</span>, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member($A, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
 <p>如果你仔细观察，你会发现，在Erlang里字符串实际上是由整数组成的列表。</p>
 <p>希望这是一个有趣的Ruby和Erlang的比较；同时如果你对它不熟悉的话，能让你更了解Erlang。</p>
-<p>原文链接：<a href="https://www.proctor-it.com/erlang-thursday-lists-member/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-member/</a></p>
 ]]></content>
     
     <summary type="html">
