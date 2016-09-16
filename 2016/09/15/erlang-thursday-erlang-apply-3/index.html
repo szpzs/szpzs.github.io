@@ -86,25 +86,19 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-erlang-apply-3/
-
-今天的Erlang Thursday讲 erlang:apply/3.
-在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这">
+<meta name="description" content="今天的Erlang Thursday讲 erlang:apply/3.
+在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这样 Fun(Arg1, Arg2, …, ArgN) 来调用，但是如果我们遇到有不同参数数量的场景就没法这么干了。怎么办？还是让我们进入">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday – erlang:apply/3">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-erlang-apply-3/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-erlang-apply-3/
-
-今天的Erlang Thursday讲 erlang:apply/3.
-在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这">
-<meta property="og:updated_time" content="2016-09-15T13:51:48.000Z">
+<meta property="og:description" content="今天的Erlang Thursday讲 erlang:apply/3.
+在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这样 Fun(Arg1, Arg2, …, ArgN) 来调用，但是如果我们遇到有不同参数数量的场景就没法这么干了。怎么办？还是让我们进入">
+<meta property="og:updated_time" content="2016-09-16T15:14:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday – erlang:apply/3">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-erlang-apply-3/
-
-今天的Erlang Thursday讲 erlang:apply/3.
-在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这">
+<meta name="twitter:description" content="今天的Erlang Thursday讲 erlang:apply/3.
+在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这样 Fun(Arg1, Arg2, …, ArgN) 来调用，但是如果我们遇到有不同参数数量的场景就没法这么干了。怎么办？还是让我们进入">
 
 
 
@@ -351,10 +345,7 @@
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-erlang-apply-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-erlang-apply-3/</a></p>
-</blockquote>
-<p>今天的Erlang Thursday讲 <a href="http://www.erlang.org/doc/man/erlang.html#apply-3" target="_blank" rel="external">erlang:apply/3</a>.</p>
+        <p>今天的Erlang Thursday讲 <a href="http://www.erlang.org/doc/man/erlang.html#apply-3" target="_blank" rel="external">erlang:apply/3</a>.</p>
 <p>在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这样 Fun(Arg1, Arg2, …, ArgN) 来调用，但是如果我们遇到有不同参数数量的场景就没法这么干了。怎么办？还是让我们进入今天的主题：erlang:apply/3 。</p>
 <a id="more"></a>
 <p>erlang:apply/3，三个入参分别是模块名、函数名、一个要传给函数的实参组成的列表。传给erlang:apply/3的函数必需也是被导出的，否则将有错误发生。</p>
@@ -364,6 +355,9 @@
 <p>erlang模块也包括另一个版本 erlang:apply/2 ，第一个入参是一个函数，第二个人才是这个函数的实参的列表。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">erlang:apply(<span class="keyword">fun</span> lists:merge/<span class="number">2</span>, [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [a, b, c]]).</div><div class="line"><span class="comment">% [1,2,3,a,b,c]</span></div></pre></td></tr></table></figure>
 <p>erlang:apply/2 和 erlang:apply/3 并不是我们的通常用法，它在一些特殊场合，它是必要的，比如上星期的 <a href="http://www.proctor-it.com/erlang-thursday-timer-tc-3/" target="_blank" rel="external">timer:tc</a> 。虽然我们将很少用到它，但是了解它对我们也有帮助。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-erlang-apply-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-erlang-apply-3/</a></p>
+</blockquote>
 
       
     </div>

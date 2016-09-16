@@ -86,25 +86,19 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-map-2/
-
-今天的Erlang Thursday讲的是函数 lists:map/2 。
-lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表">
+<meta name="description" content="今天的Erlang Thursday讲的是函数 lists:map/2 。
+lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday - lists:map/2">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-map-2/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-map-2/
-
-今天的Erlang Thursday讲的是函数 lists:map/2 。
-lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表">
-<meta property="og:updated_time" content="2016-09-16T06:46:09.000Z">
+<meta property="og:description" content="今天的Erlang Thursday讲的是函数 lists:map/2 。
+lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。">
+<meta property="og:updated_time" content="2016-09-16T15:13:02.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday - lists:map/2">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-map-2/
-
-今天的Erlang Thursday讲的是函数 lists:map/2 。
-lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表">
+<meta name="twitter:description" content="今天的Erlang Thursday讲的是函数 lists:map/2 。
+lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。">
 
 
 
@@ -351,10 +345,7 @@ lists:map/2 接收两个入参，一个是接收一个入参的函数，我们�
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-map-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-map-2/</a></p>
-</blockquote>
-<p>今天的Erlang Thursday讲的是函数 <a href="http://www.erlang.org/doc/man/lists.html#map-2" target="_blank" rel="external">lists:map/2</a> 。</p>
+        <p>今天的Erlang Thursday讲的是函数 <a href="http://www.erlang.org/doc/man/lists.html#map-2" target="_blank" rel="external">lists:map/2</a> 。</p>
 <p>lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。</p>
 <a id="more"></a>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X + <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [2,3,4,5]</span></div><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X * X <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [1,4,9,16]</span></div></pre></td></tr></table></figure>
@@ -366,6 +357,9 @@ lists:map/2 接收两个入参，一个是接收一个入参的函数，我们�
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) <span class="keyword">when</span> is_atom(X) -&gt; atom; (X) -&gt; nil <span class="keyword">end</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[nil,atom,nil,nil,atom]</div></pre></td></tr></table></figure>
 <h1 id="传递命名函数给lists-map-2"><a href="#传递命名函数给lists-map-2" class="headerlink" title="传递命名函数给lists:map/2"></a>传递命名函数给lists:map/2</h1><p>虽然一些场合我们用匿名函数，但是更多时候为了清晰明了，我们还是想用命名函数。我们可以通过函数的限定名称方式来传递一个命名函数给lists:map/2，采用的格式是，在module:function_name/arity 前面加上 fun 。下面的例子用math:log10/1和erlang:is_atom/1两个函数来演示：</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span> math:log10/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">10</span>, <span class="number">100</span>, <span class="number">1000</span>, <span class="number">10000</span>]).</div><div class="line">[<span class="number">0.0</span>,<span class="number">1.0</span>,<span class="number">2.0</span>,<span class="number">3.0</span>,<span class="number">4.0</span>]</div><div class="line">lists:map(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[<span class="literal">false</span>,<span class="literal">true</span>,<span class="literal">false</span>,<span class="literal">false</span>,<span class="literal">true</span>]</div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-map-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-map-2/</a></p>
+</blockquote>
 
       
     </div>

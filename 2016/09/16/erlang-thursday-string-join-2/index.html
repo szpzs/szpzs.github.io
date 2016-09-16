@@ -86,28 +86,22 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-string-join-2/
-
-今天的Erlang Thursday讲的是 string:join/2.
+<meta name="description" content="今天的Erlang Thursday讲的是 string:join/2.
 string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。
-123491&amp;gt; string:j">
+123491&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;&quot;).&quot;abc&quot;92&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday – string:join/2">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/16/erlang-thursday-string-join-2/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-string-join-2/
-
-今天的Erlang Thursday讲的是 string:join/2.
+<meta property="og:description" content="今天的Erlang Thursday讲的是 string:join/2.
 string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。
-123491&amp;gt; string:j">
-<meta property="og:updated_time" content="2016-09-16T07:18:14.000Z">
+123491&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;&quot;).&quot;abc&quot;92&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;">
+<meta property="og:updated_time" content="2016-09-16T15:10:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday – string:join/2">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-string-join-2/
-
-今天的Erlang Thursday讲的是 string:join/2.
+<meta name="twitter:description" content="今天的Erlang Thursday讲的是 string:join/2.
 string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。
-123491&amp;gt; string:j">
+123491&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;&quot;).&quot;abc&quot;92&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;">
 
 
 
@@ -354,16 +348,16 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-string-join-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-string-join-2/</a></p>
-</blockquote>
-<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/string.html#join-2" target="_blank" rel="external">string:join/2</a>.</p>
+        <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/string.html#join-2" target="_blank" rel="external">string:join/2</a>.</p>
 <p>string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">91</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">""</span>).</div><div class="line"><span class="string">"abc"</span></div><div class="line"><span class="number">92</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">"-"</span>).</div><div class="line"><span class="string">"a-b-c"</span></div></pre></td></tr></table></figure>
 <p>分隔符字符串可以是任意长度的字符串，也不必仅仅是单个字符。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">93</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">"___"</span>).</div><div class="line"><span class="string">"a___b___c"</span></div><div class="line"><span class="number">94</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">" "</span>).</div><div class="line"><span class="string">"a b c"</span></div></pre></td></tr></table></figure>
 <p>而且任何字符串，字符列表，或者甚至是整数列表，都可以用作分隔符字符串。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [$A]).</div><div class="line"><span class="string">"aAbAc"</span></div><div class="line">string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="number">52</span>]).</div><div class="line"><span class="string">"a4b4c"</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-string-join-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-string-join-2/</a></p>
+</blockquote>
 
       
     </div>

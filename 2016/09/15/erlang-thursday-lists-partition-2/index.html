@@ -86,28 +86,22 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-partition-2/
-
-今天的Erlang Thursday讲的是 lists:partition/2.
+<meta name="description" content="今天的Erlang Thursday讲的是 lists:partition/2.
 lists:partition/2 接收两个入参，第一个入参是一个断言函数，它将被调用对列表里的每个元素进行处理然后返回一个布尔值。第二个入参是一个将被分隔的列表。
-lists">
+lists:parition/2 返回一个两元素的元组，这个元组的第一个元素是一个列表，这个列表的元素是断言函数返回真值所对应的元素组成；元组第二个元素">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday - lists:partition/2">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-partition-2/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-partition-2/
-
-今天的Erlang Thursday讲的是 lists:partition/2.
+<meta property="og:description" content="今天的Erlang Thursday讲的是 lists:partition/2.
 lists:partition/2 接收两个入参，第一个入参是一个断言函数，它将被调用对列表里的每个元素进行处理然后返回一个布尔值。第二个入参是一个将被分隔的列表。
-lists">
-<meta property="og:updated_time" content="2016-09-15T13:35:16.000Z">
+lists:parition/2 返回一个两元素的元组，这个元组的第一个元素是一个列表，这个列表的元素是断言函数返回真值所对应的元素组成；元组第二个元素">
+<meta property="og:updated_time" content="2016-09-16T15:12:22.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday - lists:partition/2">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-partition-2/
-
-今天的Erlang Thursday讲的是 lists:partition/2.
+<meta name="twitter:description" content="今天的Erlang Thursday讲的是 lists:partition/2.
 lists:partition/2 接收两个入参，第一个入参是一个断言函数，它将被调用对列表里的每个元素进行处理然后返回一个布尔值。第二个入参是一个将被分隔的列表。
-lists">
+lists:parition/2 返回一个两元素的元组，这个元组的第一个元素是一个列表，这个列表的元素是断言函数返回真值所对应的元素组成；元组第二个元素">
 
 
 
@@ -354,13 +348,13 @@ lists">
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-partition-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-partition-2/</a></p>
-</blockquote>
-<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#partition-2" target="_blank" rel="external">lists:partition/2</a>.</p>
+        <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#partition-2" target="_blank" rel="external">lists:partition/2</a>.</p>
 <p>lists:partition/2 接收两个入参，第一个入参是一个断言函数，它将被调用对列表里的每个元素进行处理然后返回一个布尔值。第二个入参是一个将被分隔的列表。</p>
 <p>lists:parition/2 返回一个两元素的元组，这个元组的第一个元素是一个列表，这个列表的元素是断言函数返回真值所对应的元素组成；元组第二个元素也是一个列表，它是断言函数返回false所对应的元素组成。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">lists:partition(<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% &#123;[1,3,5,7],[2,4,6]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">3</span> == <span class="number">0</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% &#123;[3,6],[1,2,4,5,7]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [a, <span class="number">1</span>, [b, c], 'B', <span class="keyword">fun</span> lists:sum/<span class="number">1</span>]).</div><div class="line"><span class="comment">% &#123;[a,'B'],[1,[b,c],#Fun&lt;lists.sum.1&gt;]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [a, <span class="number">1</span>, &#123;b, [z]&#125;, 'B', <span class="keyword">fun</span> lists:sum/<span class="number">1</span>]).</div><div class="line"><span class="comment">% &#123;[a,'B'],[1,&#123;b,[z]&#125;,#Fun&lt;lists.sum.1&gt;]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, []).</div><div class="line"><span class="comment">% &#123;[],[]&#125;</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-partition-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-partition-2/</a></p>
+</blockquote>
 
       
     </div>

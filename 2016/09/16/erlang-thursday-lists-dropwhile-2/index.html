@@ -86,25 +86,19 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-dropwhile-2/
-
-今天的Erlang Thursday讲的是 lists:dropwhile/2 。
-lists:dropwhile/2 接收一个断言函数和一个列表作为入参并且返回一个列表。从入参列表第一个元素开始逐个代入断言函数，如果断言函数返回值为true，则拿掉该元素，">
+<meta name="description" content="今天的Erlang Thursday讲的是 lists:dropwhile/2 。
+lists:dropwhile/2 接收一个断言函数和一个列表作为入参并且返回一个列表。从入参列表第一个元素开始逐个代入断言函数，如果断言函数返回值为true，则拿掉该元素，当遇到第一个使得判断函数返回值为false的元素，则停止继续判断。剩下的元素组成的列表作为结果返回。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday – lists:dropwhile/2">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/16/erlang-thursday-lists-dropwhile-2/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-dropwhile-2/
-
-今天的Erlang Thursday讲的是 lists:dropwhile/2 。
-lists:dropwhile/2 接收一个断言函数和一个列表作为入参并且返回一个列表。从入参列表第一个元素开始逐个代入断言函数，如果断言函数返回值为true，则拿掉该元素，">
-<meta property="og:updated_time" content="2016-09-16T07:09:11.000Z">
+<meta property="og:description" content="今天的Erlang Thursday讲的是 lists:dropwhile/2 。
+lists:dropwhile/2 接收一个断言函数和一个列表作为入参并且返回一个列表。从入参列表第一个元素开始逐个代入断言函数，如果断言函数返回值为true，则拿掉该元素，当遇到第一个使得判断函数返回值为false的元素，则停止继续判断。剩下的元素组成的列表作为结果返回。">
+<meta property="og:updated_time" content="2016-09-16T15:11:08.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday – lists:dropwhile/2">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-dropwhile-2/
-
-今天的Erlang Thursday讲的是 lists:dropwhile/2 。
-lists:dropwhile/2 接收一个断言函数和一个列表作为入参并且返回一个列表。从入参列表第一个元素开始逐个代入断言函数，如果断言函数返回值为true，则拿掉该元素，">
+<meta name="twitter:description" content="今天的Erlang Thursday讲的是 lists:dropwhile/2 。
+lists:dropwhile/2 接收一个断言函数和一个列表作为入参并且返回一个列表。从入参列表第一个元素开始逐个代入断言函数，如果断言函数返回值为true，则拿掉该元素，当遇到第一个使得判断函数返回值为false的元素，则停止继续判断。剩下的元素组成的列表作为结果返回。">
 
 
 
@@ -351,15 +345,15 @@ lists:dropwhile/2 接收一个断言函数和一个列表作为入参并且返�
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-dropwhile-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-dropwhile-2/</a></p>
-</blockquote>
-<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#dropwhile-2" target="_blank" rel="external">lists:dropwhile/2</a> 。</p>
+        <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#dropwhile-2" target="_blank" rel="external">lists:dropwhile/2</a> 。</p>
 <p>lists:dropwhile/2 接收一个断言函数和一个列表作为入参并且返回一个列表。从入参列表第一个元素开始逐个代入断言函数，如果断言函数返回值为true，则拿掉该元素，当遇到第一个使得判断函数返回值为false的元素，则停止继续判断。剩下的元素组成的列表作为结果返回。</p>
 <a id="more"></a>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">lists:dropwhile(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [hello, 'World', foo, <span class="number">1</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [1,3,4]</span></div><div class="line">lists:dropwhile(<span class="keyword">fun</span> (X) -&gt; X &gt; <span class="number">0</span> <span class="keyword">end</span>, [-<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).</div><div class="line"><span class="comment">% [-1,0,1,2,3]</span></div><div class="line">lists:dropwhile(<span class="keyword">fun</span> (X) -&gt; X &gt; <span class="number">0</span> <span class="keyword">end</span>, [-<span class="number">2</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).</div><div class="line"><span class="comment">% [-2,-1,0,1,2,3]</span></div><div class="line">lists:dropwhile(<span class="keyword">fun</span> (X) -&gt; X &lt; <span class="number">0</span> <span class="keyword">end</span>, [-<span class="number">2</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).</div><div class="line"><span class="comment">% [0,1,2,3]</span></div><div class="line">lists:dropwhile(<span class="keyword">fun</span> (X) -&gt; X &lt; <span class="number">0</span> <span class="keyword">end</span>, [<span class="number">0</span>, -<span class="number">1</span>, -<span class="number">2</span>, -<span class="number">3</span>, -<span class="number">4</span>, -<span class="number">5</span>]).</div><div class="line"><span class="comment">% [0,-1,-2,-3,-4,-5]</span></div><div class="line">lists:dropwhile(<span class="keyword">fun</span> (X) -&gt; <span class="literal">true</span> <span class="keyword">end</span>, [hello, 'World', foo, <span class="number">1</span>, <span class="number">3</span>, bar, <span class="number">4</span>]).</div><div class="line"><span class="comment">% []</span></div><div class="line">lists:dropwhile(<span class="keyword">fun</span> (X) -&gt; <span class="literal">false</span> <span class="keyword">end</span>, [hello, 'World', foo, <span class="number">1</span>, <span class="number">3</span>, bar, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [hello,'World',foo,1,3,bar,4]</span></div></pre></td></tr></table></figure>
 <p>不像 <a href="http://www.proctor-it.com/erlang-thursday-lists-filter-2" target="_blank" rel="external">lists:filter/2</a>，lists:dropwhile/2 在断言函数返回false的时候就立即停止检查入参列表。这就意味着那些代入断言函数将返回true的元素仍然可以出现在返回列表里，只要它们排在那个使得断言函数返回false的元素之后。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">lists:dropwhile(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [hello, 'World', foo, <span class="number">1</span>, <span class="number">3</span>, bar, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [1,3,bar,4]</span></div><div class="line">lists:filter(<span class="keyword">fun</span> (X) -&gt; <span class="keyword">not</span> is_atom(X) <span class="keyword">end</span>, [hello, 'World', foo, <span class="number">1</span>, <span class="number">3</span>, bar, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [1,3,4]</span></div><div class="line">lists:dropwhile(<span class="keyword">fun</span> (X) -&gt; X &lt; <span class="number">0</span> <span class="keyword">end</span>, [-<span class="number">2</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, -<span class="number">5</span>, <span class="number">3</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% [0,1,-5,3,7]</span></div><div class="line">lists:filter(<span class="keyword">fun</span> (X) -&gt; X &gt;= <span class="number">0</span> <span class="keyword">end</span>, [-<span class="number">2</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, -<span class="number">5</span>, <span class="number">3</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% [0,1,3,7]</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-dropwhile-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-dropwhile-2/</a></p>
+</blockquote>
 
       
     </div>

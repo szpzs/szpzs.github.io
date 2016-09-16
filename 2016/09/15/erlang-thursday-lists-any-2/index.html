@@ -86,25 +86,19 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-any-2/
-
-今天的 Erlang Thursday 要讲的函数是 lists:any/2.
-lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历的列表作为第二个入参。如果这个断言函数对于任意一个给定列表的元素返回 true 的话lists:any/2 返回 true">
+<meta name="description" content="今天的 Erlang Thursday 要讲的函数是 lists:any/2.
+lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历的列表作为第二个入参。如果这个断言函数对于任意一个给定列表的元素返回 true 的话lists:any/2 返回 true ，否则， lists:any/2 返回 false 。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday - lists:any/2">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-any-2/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-any-2/
-
-今天的 Erlang Thursday 要讲的函数是 lists:any/2.
-lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历的列表作为第二个入参。如果这个断言函数对于任意一个给定列表的元素返回 true 的话lists:any/2 返回 true">
-<meta property="og:updated_time" content="2016-09-15T13:40:12.000Z">
+<meta property="og:description" content="今天的 Erlang Thursday 要讲的函数是 lists:any/2.
+lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历的列表作为第二个入参。如果这个断言函数对于任意一个给定列表的元素返回 true 的话lists:any/2 返回 true ，否则， lists:any/2 返回 false 。">
+<meta property="og:updated_time" content="2016-09-16T15:13:37.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday - lists:any/2">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-any-2/
-
-今天的 Erlang Thursday 要讲的函数是 lists:any/2.
-lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历的列表作为第二个入参。如果这个断言函数对于任意一个给定列表的元素返回 true 的话lists:any/2 返回 true">
+<meta name="twitter:description" content="今天的 Erlang Thursday 要讲的函数是 lists:any/2.
+lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历的列表作为第二个入参。如果这个断言函数对于任意一个给定列表的元素返回 true 的话lists:any/2 返回 true ，否则， lists:any/2 返回 false 。">
 
 
 
@@ -351,10 +345,7 @@ lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历�
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-any-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-any-2/</a></p>
-</blockquote>
-<p>今天的 Erlang Thursday 要讲的函数是 <a href="http://www.erlang.org/doc/man/lists.html#any-2" target="_blank" rel="external">lists:any/2</a>.</p>
+        <p>今天的 Erlang Thursday 要讲的函数是 <a href="http://www.erlang.org/doc/man/lists.html#any-2" target="_blank" rel="external">lists:any/2</a>.</p>
 <p>lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历的列表作为第二个入参。如果这个断言函数对于任意一个给定列表的元素返回 true 的话lists:any/2 返回 true ，否则， lists:any/2 返回 false 。</p>
 <a id="more"></a>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">lists:any(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% false</span></div><div class="line">lists:any(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, a, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:any(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [&#123;<span class="number">1</span>, <span class="number">2</span>&#125;, <span class="number">3</span>, <span class="number">4</span>, a, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:any(<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:any(<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
@@ -364,6 +355,10 @@ lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历�
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:all(<span class="keyword">fun</span> erlang:is_number/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, a, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% false</span></div><div class="line">lists:all(<span class="keyword">fun</span> erlang:is_number/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
 <p>lists:all/2 也是一个急性子，一旦某个列表元素使得断言函数返回false，它就立即返回false，并且忽略后续的列表元素。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">timer:tc(lists, all, [<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">0</span> <span class="keyword">end</span>, lists:seq(<span class="number">2</span>, <span class="number">200000</span>, <span class="number">2</span>)]).</div><div class="line"><span class="comment">% &#123;235276,true&#125;</span></div><div class="line">timer:tc(lists, all, [<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">1</span> <span class="keyword">end</span>, lists:seq(<span class="number">2</span>, <span class="number">200000</span>, <span class="number">2</span>)]).</div><div class="line"><span class="comment">% &#123;14,false&#125;</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-any-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-any-2/</a></p>
+</blockquote>
+
       
     </div>
 

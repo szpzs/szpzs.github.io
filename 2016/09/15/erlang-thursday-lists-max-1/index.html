@@ -86,24 +86,18 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-max-1/
-
-今天我们来学习 lists:max/1。
+<meta name="description" content="今天我们来学习 lists:max/1。
 lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday – lists:max/1">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-max-1/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-max-1/
-
-今天我们来学习 lists:max/1。
+<meta property="og:description" content="今天我们来学习 lists:max/1。
 lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：">
-<meta property="og:updated_time" content="2016-09-15T12:51:17.000Z">
+<meta property="og:updated_time" content="2016-09-16T15:12:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday – lists:max/1">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-lists-max-1/
-
-今天我们来学习 lists:max/1。
+<meta name="twitter:description" content="今天我们来学习 lists:max/1。
 lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：">
 
 
@@ -351,10 +345,7 @@ lists:max/1 接收一个入参，这个入参是一个最少有一个元素的�
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-max-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-max-1/</a></p>
-</blockquote>
-<p>今天我们来学习 lists:max/1。</p>
+        <p>今天我们来学习 lists:max/1。</p>
 <p>lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：</p>
 <a id="more"></a>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:max([<span class="number">1</span>, <span class="number">39</span>, <span class="number">7</span>, <span class="number">63</span>, <span class="number">27</span>, <span class="number">52</span>, <span class="number">16</span>]).</div><div class="line"><span class="comment">% 63</span></div><div class="line">lists:max([q, w, a, r, c, f, m, b]).</div><div class="line"><span class="comment">% w</span></div><div class="line">lists:max([[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>]]).</div><div class="line"><span class="comment">% [1,2,4]</span></div></pre></td></tr></table></figure>
@@ -367,6 +358,9 @@ lists:max/1 接收一个入参，这个入参是一个最少有一个元素的�
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:max([]).</div><div class="line">** exception error: no function clause matching lists:max([]) (lists.erl, line <span class="number">326</span>)</div></pre></td></tr></table></figure>
 <p>请您告诉我在以后的Erlang Thursday系列文章里，哪些是您喜欢的Erlang函数，甚至只是你想看到的函数？</p>
 <p>如果您想比较Erlang的max函数和Ruby的max方法，别忘了看看上周的Ruby Tuesday系列文章： <a href="http://www.proctor-it.com/ruby-tuesday-enumerable-max/" target="_blank" rel="external">Ruby Tuesday on Enumerable#max</a>。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-max-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-max-1/</a></p>
+</blockquote>
 
       
     </div>

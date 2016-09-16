@@ -86,24 +86,18 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-dict-merge-3/
-
-今天的Erlang Thursday讲的是 dict:merge/3.
+<meta name="description" content="今天的Erlang Thursday讲的是 dict:merge/3.
 dict:merge/3 有三个入参，第一个入参是一个合并函数，它在发生键冲突的时候被调用，第二和第三个入参都是字典。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday – dict:merge/3">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/16/erlang-thursday-dict-merge-3/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-dict-merge-3/
-
-今天的Erlang Thursday讲的是 dict:merge/3.
+<meta property="og:description" content="今天的Erlang Thursday讲的是 dict:merge/3.
 dict:merge/3 有三个入参，第一个入参是一个合并函数，它在发生键冲突的时候被调用，第二和第三个入参都是字典。">
-<meta property="og:updated_time" content="2016-09-16T07:31:21.000Z">
+<meta property="og:updated_time" content="2016-09-16T15:11:19.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday – dict:merge/3">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-dict-merge-3/
-
-今天的Erlang Thursday讲的是 dict:merge/3.
+<meta name="twitter:description" content="今天的Erlang Thursday讲的是 dict:merge/3.
 dict:merge/3 有三个入参，第一个入参是一个合并函数，它在发生键冲突的时候被调用，第二和第三个入参都是字典。">
 
 
@@ -351,10 +345,7 @@ dict:merge/3 有三个入参，第一个入参是一个合并函数，它在发�
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-dict-merge-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-dict-merge-3/</a></p>
-</blockquote>
-<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/dict.html#merge-3" target="_blank" rel="external">dict:merge/3</a>.</p>
+        <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/dict.html#merge-3" target="_blank" rel="external">dict:merge/3</a>.</p>
 <p>dict:merge/3 有三个入参，第一个入参是一个合并函数，它在发生键冲突的时候被调用，第二和第三个入参都是字典。</p>
 <a id="more"></a>
 <p>合并函数用键作为第一个入参，第一个字典对应的值作为第二个入参，第二个字典来对于的值作为第三个入参。</p>
@@ -366,6 +357,9 @@ dict:merge/3 有三个入参，第一个入参是一个合并函数，它在发�
 <p>如果你想保持第一个字典里的所有键和值，仅仅是将那些不在第一个字典里而在第二个字典里的键和值加进来，合并函数只需要返回第一个字典的相关值。</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">dict:merge(<span class="keyword">fun</span> (_Key, Value1, _Value2) -&gt; Value1 <span class="keyword">end</span>,</div><div class="line">           dict:from_list([&#123;a, <span class="number">1</span>&#125;, &#123;b, <span class="number">2</span>&#125;, &#123;x, <span class="number">5</span>&#125;]),</div><div class="line">           dict:from_list([&#123;x, <span class="number">7</span>&#125;, &#123;y, <span class="number">8</span>&#125;, &#123;z, <span class="number">10</span>&#125;])).</div><div class="line"><span class="comment">% &#123;dict,5,16,16,8,80,48,</span></div><div class="line"><span class="comment">%       &#123;[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]&#125;,</span></div><div class="line"><span class="comment">%       &#123;&#123;[],</span></div><div class="line"><span class="comment">%         [[a|1]],</span></div><div class="line"><span class="comment">%         [[b|2]],</span></div><div class="line"><span class="comment">%         [],[],[],[],[],</span></div><div class="line"><span class="comment">%         [[x|5]],</span></div><div class="line"><span class="comment">%         [[y|8]],</span></div><div class="line"><span class="comment">%         [[z|10]],</span></div><div class="line"><span class="comment">%         [],[],[],[],[]&#125;&#125;&#125;</span></div></pre></td></tr></table></figure>
 <p>另外，大家可以关注Erlang 17.0中引入的新数据类型Maps。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-dict-merge-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-dict-merge-3/</a></p>
+</blockquote>
 
       
     </div>

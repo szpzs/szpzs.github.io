@@ -86,22 +86,19 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-httpc-request-1-and-httpc-request-4/
-
-今天的 Erlang Thursday 讲的是 httpc:request/1 和 httpc:request/4 。httpc模块是erlang的HTTP1.1 客户端，request函数是erlang的功能强大的web">
+<meta name="description" content="今天的 Erlang Thursday 讲的是 httpc:request/1 和 httpc:request/4 。httpc模块是erlang的HTTP1.1 客户端，request函数是erlang的功能强大的web请求工具。
+要使用httpc模块，我们必需先确保 inets 已经启动。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday – httpc:request/1 and httpc:request/4">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-httpc-request-1-and-httpc-request-4/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-httpc-request-1-and-httpc-request-4/
-
-今天的 Erlang Thursday 讲的是 httpc:request/1 和 httpc:request/4 。httpc模块是erlang的HTTP1.1 客户端，request函数是erlang的功能强大的web">
-<meta property="og:updated_time" content="2016-09-16T06:54:54.000Z">
+<meta property="og:description" content="今天的 Erlang Thursday 讲的是 httpc:request/1 和 httpc:request/4 。httpc模块是erlang的HTTP1.1 客户端，request函数是erlang的功能强大的web请求工具。
+要使用httpc模块，我们必需先确保 inets 已经启动。">
+<meta property="og:updated_time" content="2016-09-16T15:13:48.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday – httpc:request/1 and httpc:request/4">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-httpc-request-1-and-httpc-request-4/
-
-今天的 Erlang Thursday 讲的是 httpc:request/1 和 httpc:request/4 。httpc模块是erlang的HTTP1.1 客户端，request函数是erlang的功能强大的web">
+<meta name="twitter:description" content="今天的 Erlang Thursday 讲的是 httpc:request/1 和 httpc:request/4 。httpc模块是erlang的HTTP1.1 客户端，request函数是erlang的功能强大的web请求工具。
+要使用httpc模块，我们必需先确保 inets 已经启动。">
 
 
 
@@ -348,10 +345,7 @@
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-httpc-request-1-and-httpc-request-4/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-httpc-request-1-and-httpc-request-4/</a></p>
-</blockquote>
-<p>今天的 Erlang Thursday 讲的是 <a href="http://www.erlang.org/doc/man/httpc.html#request-1" target="_blank" rel="external">httpc:request/1</a> 和 <a href="http://www.erlang.org/doc/man/httpc.html#request-4" target="_blank" rel="external">httpc:request/4</a> 。httpc模块是erlang的HTTP1.1 客户端，request函数是erlang的功能强大的web请求工具。</p>
+        <p>今天的 Erlang Thursday 讲的是 <a href="http://www.erlang.org/doc/man/httpc.html#request-1" target="_blank" rel="external">httpc:request/1</a> 和 <a href="http://www.erlang.org/doc/man/httpc.html#request-4" target="_blank" rel="external">httpc:request/4</a> 。httpc模块是erlang的HTTP1.1 客户端，request函数是erlang的功能强大的web请求工具。</p>
 <p>要使用httpc模块，我们必需先确保 inets 已经启动。</p>
 <a id="more"></a>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">inets:start().</div><div class="line"><span class="comment">% ok</span></div></pre></td></tr></table></figure>
@@ -368,6 +362,9 @@
 <p>或者如果你想返回结果用Erlang二进制而不是Erlang字符串，你可以这么指定选项：</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">httpc:request(get, &#123;<span class="string">"http://www.example.com"</span>, []&#125;, [], [&#123;body_format, binary&#125;]).</div><div class="line"><span class="comment">% &#123;ok,&#123;&#123;"HTTP/1.1",200,"OK"&#125;,</span></div><div class="line"><span class="comment">%      [&#123;"cache-control","max-age=604800"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"date","Thu, 22 Jan 2015 03:58:55 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"accept-ranges","bytes"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"etag",""359670651""&#125;,</span></div><div class="line"><span class="comment">%       &#123;"server","ECS (ftw/FBE4)"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"content-length","1270"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"content-type","text/html"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"expires","Thu, 29 Jan 2015 03:58:55 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"last-modified","Fri, 09 Aug 2013 23:54:35 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"x-cache","HIT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"x-ec-custom-error","1"&#125;],</span></div><div class="line"><span class="comment">%      &lt;&lt;"&lt;!doctype html&gt;n&lt;html&gt;n&lt;head&gt;n    &lt;title&gt;Example Domain&lt;/title&gt;nn    &lt;meta "...&gt;&gt;&#125;&#125;</span></div></pre></td></tr></table></figure>
 <p>这篇文章仅仅是描述了你可以用httpc:request/4 来做一些很简单的事情。我强烈建议你阅读Erlang官方文档的<a href="http://www.erlang.org/doc/man/httpc.html" target="_blank" rel="external">httpc模块</a>部分。更多的例子和信息也可以阅读 <a href="http://www.erlang.org/doc/apps/inets/inets_services.html" target="_blank" rel="external">Erlang inets User Guide</a>，和 <a href="http://www.erlang.org/doc/apps/inets/http_client.html" target="_blank" rel="external">HTTP Client</a> 章节。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-httpc-request-1-and-httpc-request-4/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-httpc-request-1-and-httpc-request-4/</a></p>
+</blockquote>
 
       
     </div>

@@ -86,22 +86,16 @@
 
 
 
-<meta name="description" content="原文链接：  http://beam-wisdoms.clau.se/en/latest/eli5-vm.html
-
-BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
+<meta name="description" content="BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="BEAM虚拟机之浅显易懂">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/16/eli5-vm/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  http://beam-wisdoms.clau.se/en/latest/eli5-vm.html
-
-BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
-<meta property="og:updated_time" content="2016-09-16T14:52:18.000Z">
+<meta property="og:description" content="BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
+<meta property="og:updated_time" content="2016-09-16T15:11:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="BEAM虚拟机之浅显易懂">
-<meta name="twitter:description" content="原文链接：  http://beam-wisdoms.clau.se/en/latest/eli5-vm.html
-
-BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
+<meta name="twitter:description" content="BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
 
 
 
@@ -348,10 +342,7 @@ BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-vm.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-vm.html</a></p>
-</blockquote>
-<p>BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。</p>
+        <p>BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。</p>
 <a id="more"></a>
 <h2 id="寄存器和调用"><a href="#寄存器和调用" class="headerlink" title="寄存器和调用"></a>寄存器和调用</h2><p>作为一个寄存器虚拟机就意味着在函数调用的时候不是通过栈而是用寄存器来传递参数。它们与我们所理解的CPU架构中的寄存器不一样，而只是一个Erlang数据结构的值所组成的数组。这样的寄存器有1024个，但是有这么多入参的函数几乎不存在，所以通常虚拟机仅仅使用了前面3到10个寄存器。</p>
 <p>例如，当调用一个有三个入参的函数的时候，寄存器x0，x1和x2分别被设置为三个入参值。如果我们需要进行递归调用，我们将不得不改写寄存器并丢失它们的原始值。在这种情况下，我们将需要保存旧的值到栈中。除了栈帧外没有动态栈分配，这是由编译器决定的。</p>
@@ -367,6 +358,9 @@ BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机
 <li>直接调用线程</li>
 <li><a href="http://www.cs.toronto.edu/~matz/dissertation/matzDissertation-latex2html/node6.html" target="_blank" rel="external">其他</a></li>
 </ul>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-vm.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-vm.html</a></p>
+</blockquote>
 
       
     </div>

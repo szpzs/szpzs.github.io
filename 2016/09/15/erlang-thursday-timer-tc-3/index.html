@@ -86,24 +86,18 @@
 
 
 
-<meta name="description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-timer-tc-3/
-
-今天的Erlang Thursday要讲的函数是 timer:tc/3.
+<meta name="description" content="今天的Erlang Thursday要讲的函数是 timer:tc/3.
 我相信我们所有人写测量目标代码执行耗时的代码都是先获取当前时间，接着执行目标代码，再获取当前时间，最后将前后两个时间的差作为目标代码的执行耗时。在Erlang里，按这种方式来写的话将像下面这样：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday - timer:tc/3">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/15/erlang-thursday-timer-tc-3/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-timer-tc-3/
-
-今天的Erlang Thursday要讲的函数是 timer:tc/3.
+<meta property="og:description" content="今天的Erlang Thursday要讲的函数是 timer:tc/3.
 我相信我们所有人写测量目标代码执行耗时的代码都是先获取当前时间，接着执行目标代码，再获取当前时间，最后将前后两个时间的差作为目标代码的执行耗时。在Erlang里，按这种方式来写的话将像下面这样：">
-<meta property="og:updated_time" content="2016-09-15T13:47:55.000Z">
+<meta property="og:updated_time" content="2016-09-16T15:11:48.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday - timer:tc/3">
-<meta name="twitter:description" content="原文链接：  https://www.proctor-it.com/erlang-thursday-timer-tc-3/
-
-今天的Erlang Thursday要讲的函数是 timer:tc/3.
+<meta name="twitter:description" content="今天的Erlang Thursday要讲的函数是 timer:tc/3.
 我相信我们所有人写测量目标代码执行耗时的代码都是先获取当前时间，接着执行目标代码，再获取当前时间，最后将前后两个时间的差作为目标代码的执行耗时。在Erlang里，按这种方式来写的话将像下面这样：">
 
 
@@ -351,10 +345,7 @@
       
 
       
-        <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-timer-tc-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-timer-tc-3/</a></p>
-</blockquote>
-<p>今天的Erlang Thursday要讲的函数是 <a href="http://www.erlang.org/doc/man/timer.html#tc-3" target="_blank" rel="external">timer:tc/3</a>.</p>
+        <p>今天的Erlang Thursday要讲的函数是 <a href="http://www.erlang.org/doc/man/timer.html#tc-3" target="_blank" rel="external">timer:tc/3</a>.</p>
 <p>我相信我们所有人写测量目标代码执行耗时的代码都是先获取当前时间，接着执行目标代码，再获取当前时间，最后将前后两个时间的差作为目标代码的执行耗时。在Erlang里，按这种方式来写的话将像下面这样：</p>
 <a id="more"></a>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Time1 = now().</div><div class="line"><span class="comment">% &#123;1420,519186,111375&#125;</span></div><div class="line">timer:sleep(<span class="number">4000</span>).  <span class="comment">% Do something</span></div><div class="line"><span class="comment">% ok</span></div><div class="line">Time2 = now().</div><div class="line"><span class="comment">% &#123;1420,519190,118280&#125;</span></div><div class="line">timer:now_diff(Time2, Time1).</div><div class="line"><span class="comment">% 4006905</span></div></pre></td></tr></table></figure>
@@ -365,6 +356,10 @@
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">timer:tc(timer, sleep, [<span class="number">4000</span>]).</div><div class="line"><span class="comment">% &#123;4003097,ok&#125;</span></div><div class="line">timer:tc(lists, foldl, [<span class="keyword">fun</span>(X, Accum) -&gt; X + Accum <span class="keyword">end</span>, <span class="number">0</span>, lists:seq(<span class="number">1</span>, <span class="number">2000000</span>)]).</div><div class="line"><span class="comment">% &#123;5099481,2000001000000&#125;</span></div></pre></td></tr></table></figure>
 <p>另外还有timer:tc/1，它仅接收一个函数并执行它；还有timer:tc/2，它接收一个函数和一个入参列表，然后执行它。例子如下：</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">timer:tc(<span class="keyword">fun</span>() -&gt; lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; X + Accum <span class="keyword">end</span>, <span class="number">0</span>, lists:seq(<span class="number">1</span>, <span class="number">2000000</span>)) <span class="keyword">end</span>).</div><div class="line"><span class="comment">% &#123;5709293,2000001000000&#125;</span></div><div class="line">timer:tc(<span class="keyword">fun</span> lists:foldl/<span class="number">3</span>, [<span class="keyword">fun</span>(X, Accum) -&gt; X + Accum <span class="keyword">end</span>, <span class="number">0</span>, lists:seq(<span class="number">1</span>, <span class="number">2000000</span>)]).</div><div class="line"><span class="comment">% &#123;5766480,2000001000000&#125;</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-timer-tc-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-timer-tc-3/</a></p>
+</blockquote>
+
       
     </div>
 
