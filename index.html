@@ -347,17 +347,12 @@
 
       
         
-          
-            <p><img src="/images/eli5-atom-tab.png" alt="Atom Table"></p>
-<p>原子表是一个全局表，它将原子内部值（一个整数值）映射到一个字符串。同时也有一个反向到查询表，它将一个字符串映射到一个原子内部值。原子表有一个固定的记录条数上限：1048576。如果它一旦到达了这个上限，当前节点将崩溃 －－ 这就是为什么在运行时动态创建原子是很危险的做法。原子表的记录条数上限可以通过给erl命令指定 +t 标签来设置。</p>
-<p>原子是在运行时不能改变它的值的一个符号。当一个新的原子被创建，它得到一个唯一的值来给当前节点来使用。原子在系统内部仅仅是指向原子表对应记录索引的整数值。这就是为什么原子的操作如此廉价的原因。</p>
-<p>BEAM装载器例程读取原子值并且在原子表里查询它们。它将它们的整数值标记为原子<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-immed" target="_blank" rel="external">立即数</a>来替代原子名称。然后代码只是操作这些立即数而不是它们的名称。</p>
-<p>这些内部值不能当做整数（通过网络或磁盘）离开节点。这是因为其他节点对于相通的原子有不同的内部值。因此当原子离开当前节点的时候都被转换为字符串。这会影响到BEAM文件，外部pid，外部port，Mnesia或DETS里的原子等等。这就是为什么一些开发者更喜欢给数据库字段名使用短原子名称的原因 －－ 它们将以字符串的形式出现在数据库数据中。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-atoms.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-atoms.html</a></p>
-</blockquote>
-
-          
+          <p><img src="/images/eli5-atom-tab.png" alt="Atom Table"></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/09/17/eli5-atoms/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
