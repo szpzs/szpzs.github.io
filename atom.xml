@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.github.io/"/>
-  <updated>2016-09-17T07:51:48.000Z</updated>
+  <updated>2016-09-17T08:49:29.000Z</updated>
   <id>http://szpzs.github.io/</id>
   
   <author>
@@ -14,6 +14,128 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Erlang Thursday – queue:head/1</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-queue-head-1/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-queue-head-1/</id>
+    <published>2016-09-17T08:44:16.000Z</published>
+    <updated>2016-09-17T08:49:29.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday我们继续挖掘Erlang的queue模块的Okazaki API，这次来看看<a href="http://erlang.org/doc/man/queue.html#head-1" target="_blank" rel="external">queue:head/1</a>.</p>
+<p>queue:head/1 入参是一个队列，它的输出是这个队列的第一个元素。</p>
+<a id="more"></a>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Queue = queue:from_list([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% &#123;[5,4],[1,2,3]&#125;</span></div><div class="line">queue:head(Queue).</div><div class="line"><span class="comment">% 1</span></div><div class="line">Queue.</div><div class="line"><span class="comment">% &#123;[5,4],[1,2,3]&#125;</span></div></pre></td></tr></table></figure>
+<p>上述例子显示，queue:head/1 函数没有修改原来的队列，而仅是返回它的第一个元素。</p>
+<p>因为 queue:head/1 仅仅是返回队列头部能找到的值，而且不是一个标签元组，如果我们尝试从一个空的队列获取它的头部元素则会抛出一个错误。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">EmptyQueue = queue:new().</div><div class="line"><span class="comment">% &#123;[],[]&#125;</span></div><div class="line">queue:head(EmptyQueue).</div><div class="line"><span class="comment">%** exception error: empty</span></div><div class="line"><span class="comment">%     in function  queue:head/1</span></div><div class="line"><span class="comment">%        called as queue:head(&#123;[],[]&#125;)</span></div></pre></td></tr></table></figure>
+<p>为了安全起见，让我们不在一个空队列上运行该函数而造成抛出异常，queue模块也定义了一个函数 queue:is_empty/1 ，你可以用它来检查一个队列是否为空。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">queue:is_empty(EmptyQueue).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>像 queue:cons/2 和Okazaki API的其它函数一样，模块里也有一个函数<a href="http://erlang.org/doc/man/queue.html#daeh-1" target="_blank" rel="external">queue:dash</a> （head单词倒过来写），它从队列获取最后一个元素，它也是 <a href="http://erlang.org/doc/man/queue.html#last-1" target="_blank" rel="external">queue:last/1</a> 的别名函数。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">queue:daeh(Queue).</div><div class="line"><span class="comment">% 5</span></div><div class="line">queue:last(Queue).</div><div class="line"><span class="comment">% 5</span></div></pre></td></tr></table></figure>
+<p>如果你调用 queue:dash/1 和 queue:last/1 的时候用空队列做入参也会引起错误。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">queue:daeh(EmptyQueue).</div><div class="line"><span class="comment">% ** exception error: empty</span></div><div class="line"><span class="comment">%      in function  queue:get_r/1</span></div><div class="line"><span class="comment">%         called as queue:get_r(&#123;[],[]&#125;)</span></div><div class="line">queue:last(EmptyQueue).</div><div class="line"><span class="comment">% ** exception error: empty</span></div><div class="line"><span class="comment">%      in function  queue:get_r/1</span></div><div class="line"><span class="comment">%         called as queue:get_r(&#123;[],[]&#125;)</span></div></pre></td></tr></table></figure>
+<p>如果我们仔细看 queue:dash/1 和 queue:last/1 引起的错误，我们看到这个错误来自扩展API的 queue:get_r/1 。如果我们仔细看 queue:get_r/1 的执行情况，他看起来像 queue:tail/1 和 queue:dash/1 ，而这两个函数真的仅是 <a href="http://erlang.org/doc/man/queue.html#get_r-1" target="_blank" rel="external">queue:get_r/1</a> 别名函数。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">queue:get_r(Queue).</div><div class="line"><span class="comment">% 5</span></div><div class="line">queue:get_r(EmptyQueue).</div><div class="line"><span class="comment">% ** exception error: empty</span></div><div class="line"><span class="comment">%      in function  queue:get_r/1</span></div><div class="line"><span class="comment">%         called as queue:get_r(&#123;[],[]&#125;)</span></div><div class="line">queue:get_r(Queue).</div><div class="line"><span class="comment">% 5</span></div><div class="line">Queue.</div><div class="line"><span class="comment">% &#123;[5,4],[1,2,3]&#125;</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-queue-head-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-queue-head-1/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday我们继续挖掘Erlang的queue模块的Okazaki API，这次来看看&lt;a href=&quot;http://erlang.org/doc/man/queue.html#head-1&quot;&gt;queue:head/1&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;queue:head/1 入参是一个队列，它的输出是这个队列的第一个元素。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="queue" scheme="http://szpzs.github.io/categories/Erlang/queue/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="queue" scheme="http://szpzs.github.io/tags/queue/"/>
+    
+      <category term="head" scheme="http://szpzs.github.io/tags/head/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – queue:cons/2</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-queue-cons-2/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-queue-cons-2/</id>
+    <published>2016-09-17T08:39:51.000Z</published>
+    <updated>2016-09-17T08:43:23.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday我们稍微深入一下queue模块，我们讲讲来自Okazaki的API：<a href="http://www.erlang.org/doc/man/queue.html#cons-2" target="_blank" rel="external">queue:cons/2</a> 。</p>
+<p>queue:cons/2 有两个入参，一个是元素，一个是队列，它执行后返回一个元素加在队列头部形成的新队列。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">queue:cons(<span class="number">7</span>, queue:new()).</div><div class="line"><span class="comment">% &#123;[],[7]&#125;</span></div><div class="line">queue:cons(<span class="number">3</span>, queue:cons(<span class="number">7</span>, queue:new())).</div><div class="line"><span class="comment">% &#123;[7],[3]&#125;</span></div><div class="line">queue:cons(nil, queue:new()).</div><div class="line"><span class="comment">% &#123;[],[nil]&#125;</span></div><div class="line">queue:cons(<span class="number">5</span>, queue:from_list([<span class="number">7</span>, <span class="number">9</span>, <span class="number">13</span>, <span class="number">21</span>])).</div><div class="line"><span class="comment">% &#123;[21],[5,7,9,13]&#125;</span></div></pre></td></tr></table></figure>
+<p>如果我们传入一个列表给 queue:cons/2 ，我们看到它出错，表明它想要一个队列，而不会隐式地将一个列表转成一个队列。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">queue:cons(<span class="number">5</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% ** exception error: bad argument</span></div><div class="line"><span class="comment">%      in function  queue:in_r/2</span></div><div class="line"><span class="comment">%         called as queue:in_r(5,[1,2,3,4])</span></div></pre></td></tr></table></figure>
+<p>因为队列被设置成一个双端队列，Okasaki API 也提供了一个对应的函数 <a href="http://www.erlang.org/doc/man/queue.html#snoc-2" target="_blank" rel="external">queque:snoc/2</a> ，它将元素加在传入的队列的尾部。注意，queue:snoc/2 和 queue:cons/2 两个函数的两个入参的顺序也是相反的；queue:snoc/2 的第一个入参上一个队列，而要加在它尾部的元素做为第二个入参。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">queue:snoc(queue:new(), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5],[]&#125;</span></div><div class="line">queue:snoc(queue:from_list([<span class="number">7</span>]), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5],[7]&#125;</span></div><div class="line">queue:snoc(queue:snoc(queue:new(), <span class="number">7</span>), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5],[7]&#125;</span></div><div class="line">queue:snoc(queue:from_list([<span class="number">7</span>, <span class="number">9</span>, <span class="number">13</span>, <span class="number">21</span>]), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5,21],[7,9,13]&#125;</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-queue-cons-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-queue-cons-2/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday我们稍微深入一下queue模块，我们讲讲来自Okazaki的API：&lt;a href=&quot;http://www.erlang.org/doc/man/queue.html#cons-2&quot; target=&quot;_blank&quot; rel=&quot;extern
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="queue" scheme="http://szpzs.github.io/categories/Erlang/queue/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="queue" scheme="http://szpzs.github.io/tags/queue/"/>
+    
+      <category term="cons" scheme="http://szpzs.github.io/tags/cons/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – filelib:is_file/1</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-filelib-is-file-1/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-filelib-is-file-1/</id>
+    <published>2016-09-17T08:35:45.000Z</published>
+    <updated>2016-09-17T08:38:22.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/filelib.html#is_file-1" target="_blank" rel="external">filelib:is_file/1</a>.</p>
+<p>filelib:is_file/1 入参是一个表示文件名的字符串，它根据这个文件名所指的是否是文件或目录而返回true或者false。</p>
+<p>这个函数在你正在需要从一个配置文件读取内容并且在尝试处理前确认这个文件或目录是否存在的时候有用，以便你可以在退出前得到一个友好的错误信息而不仅是引起一个系统错误。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">filelib:is_file(<span class="string">"foo"</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(<span class="string">"junk"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"tmp"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"tempmp"</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(<span class="string">"temp"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"/usr/local/bin"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"/usr/local/var"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"/usr/local/vars"</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(<span class="string">"."</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">".."</span>).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>filelib:is_file/1 的入参也可以是一个原子，或者甚至也可以是一个嵌套的列表来表示一个文件名。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">filelib:is_file(foo).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(junk).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file([<span class="string">"/usr"</span>, ['/local', '/bin']]).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-filelib-is_file-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-filelib-is_file-1/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/filelib.html#is_file-1&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;filelib:is_file/1&lt;/a&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="filelib" scheme="http://szpzs.github.io/categories/Erlang/filelib/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="filelib" scheme="http://szpzs.github.io/tags/filelib/"/>
+    
+      <category term="is_file" scheme="http://szpzs.github.io/tags/is-file/"/>
+    
+  </entry>
   
   <entry>
     <title>Erlang Thursday – calendar:iso_week_number/1</title>
@@ -740,140 +862,6 @@
       <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
     
       <category term="filter" scheme="http://szpzs.github.io/tags/filter/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – httpc:request/1 and httpc:request/4</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-httpc-request-1-and-httpc-request-4/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-httpc-request-1-and-httpc-request-4/</id>
-    <published>2016-09-15T13:52:49.000Z</published>
-    <updated>2016-09-16T15:13:48.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的 Erlang Thursday 讲的是 <a href="http://www.erlang.org/doc/man/httpc.html#request-1" target="_blank" rel="external">httpc:request/1</a> 和 <a href="http://www.erlang.org/doc/man/httpc.html#request-4" target="_blank" rel="external">httpc:request/4</a> 。httpc模块是erlang的HTTP1.1 客户端，request函数是erlang的功能强大的web请求工具。</p>
-<p>要使用httpc模块，我们必需先确保 inets 已经启动。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">inets:start().</div><div class="line"><span class="comment">% ok</span></div></pre></td></tr></table></figure>
-<p>httpc:requst/1 接收一个入参，就是一个RUL，它是一个erlang字符串，也就是你需要访问的地址。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">httpc:request(<span class="string">"http://www.example.com"</span>).</div><div class="line"><span class="comment">% &#123;ok,&#123;&#123;"HTTP/1.1",200,"OK"&#125;,</span></div><div class="line"><span class="comment">%      [&#123;"cache-control","max-age=604800"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"date","Thu, 22 Jan 2015 02:57:06 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"accept-ranges","bytes"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"etag",""359670651""&#125;,</span></div><div class="line"><span class="comment">%       &#123;"server","ECS (ftw/FBE4)"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"content-length","1270"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"content-type","text/html"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"expires","Thu, 29 Jan 2015 02:57:06 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"last-modified","Fri, 09 Aug 2013 23:54:35 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"x-cache","HIT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"x-ec-custom-error","1"&#125;],</span></div><div class="line"><span class="comment">%      "&lt;!doctype html&gt;n&lt;html&gt;n&lt;head&gt;n    &lt;title&gt;Example Domain&lt;/title&gt;nn    &lt;meta ..."&#125;&#125;</span></div></pre></td></tr></table></figure>
-<p>httpc:request/1 和 httpc:request/4 功能是一样的， 相当于 httpc:request(get, {Url, []}, [], []) 这样被调用一样。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">httpc:request(get, &#123;<span class="string">"http://www.example.com"</span>, []&#125;, [], []).</div><div class="line"><span class="comment">% &#123;ok,&#123;&#123;"HTTP/1.1",200,"OK"&#125;,</span></div><div class="line"><span class="comment">%      [&#123;"cache-control","max-age=604800"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"date","Thu, 22 Jan 2015 03:04:31 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"accept-ranges","bytes"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"etag",""359670651""&#125;,</span></div><div class="line"><span class="comment">%       &#123;"server","ECS (ftw/FBE4)"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"content-length","1270"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"content-type","text/html"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"expires","Thu, 29 Jan 2015 03:04:31 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"last-modified","Fri, 09 Aug 2013 23:54:35 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"x-cache","HIT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"x-ec-custom-error","1"&#125;],</span></div><div class="line"><span class="comment">%      "&lt;!doctype html&gt;n&lt;html&gt;n&lt;head&gt;n    &lt;title&gt;Example Domain&lt;/title&gt;nn    &lt;meta ..."&#125;&#125;</span></div></pre></td></tr></table></figure>
-<p>我们可以指定我们请求的头部内容。比如，我们想得到在瑞典的DuckDuckGo主页来纪念Erlang由由爱立信创建。为了实现这个功能，我们增加一个元组{“Accept-Language”, “sv”}到请求的头部列表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">httpc:request(get, &#123;<span class="string">"http://duckduckgo.com/"</span>, [&#123;<span class="string">"Accept-Language"</span>, <span class="string">"sv"</span>&#125;]&#125;, [], []).</div><div class="line"><span class="comment">% &#123;ok,&#123;&#123;"HTTP/1.1",200,"OK"&#125;,</span></div><div class="line"><span class="comment">%      [&#123;"cache-control","max-age=1"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"connection","keep-alive"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"date","Thu, 22 Jan 2015 03:19:29 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"accept-ranges","bytes"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"etag",""54bfe2a8-1488""&#125;,</span></div><div class="line"><span class="comment">%       &#123;"server","nginx"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"content-length","5256"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"content-type","text/html; charset=UTF-8"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"expires","Thu, 22 Jan 2015 03:19:30 GMT"&#125;],</span></div><div class="line"><span class="comment">%      "&lt;!DOCTYPE html&gt;n&lt;!--[if IEMobile 7 ]&gt; &lt;html lang="sv_SE" class="no-js iem7"&gt; ..."&#125;&#125;</span></div></pre></td></tr></table></figure>
-<p>httpc:request/4 的第三个入参是一个HTTP选项元组组成的列表。比如，你必需设置一个返回超时来避免从一个不可靠的或者一个不能及时返回的慢网站等待结果，请求代码需要回撤并稍后再尝试从而避免触发服务拒绝的攻击后果。下面的例子，我指定一个超时时间为0，单位是毫秒，来确保上述描述的目的。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">httpc:request(get, &#123;<span class="string">"http://erlang.org/"</span>, []&#125;, [&#123;timeout, <span class="number">0</span>&#125;], []).</div><div class="line">&#123;error,&#123;failed_connect,[&#123;to_address,&#123;<span class="string">"erlang.org"</span>,<span class="number">80</span>&#125;&#125;,</div><div class="line">                        &#123;inet,[inet],timeout&#125;]&#125;&#125;</div></pre></td></tr></table></figure>
-<p>httpc:request/4 的最后一个入参是一个选项列表，它们是Erlang这端如何工作的选项。比如，你想异步请求，并在它完成后收到一条消息，这样你需要指定元组{sync, false}作为选项。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">&#123;ok, RequestId&#125; = httpc:request(get, &#123;<span class="string">"http://www.example.com"</span>, []&#125;, [], [&#123;sync, false&#125;]).</div><div class="line"><span class="comment">% &#123;ok,#Ref&lt;0.0.0.179&gt;&#125;</span></div><div class="line"><span class="keyword">receive</span> &#123;http, &#123;RequestId, Result&#125;&#125; -&gt; Result <span class="keyword">after</span> <span class="number">500</span> -&gt; error <span class="keyword">end</span>.</div><div class="line"><span class="comment">% &#123;&#123;"HTTP/1.1",200,"OK"&#125;,</span></div><div class="line"><span class="comment">%  [&#123;"cache-control","max-age=604800"&#125;,</span></div><div class="line"><span class="comment">%   &#123;"date","Thu, 22 Jan 2015 03:08:41 GMT"&#125;,</span></div><div class="line"><span class="comment">%   &#123;"accept-ranges","bytes"&#125;,</span></div><div class="line"><span class="comment">%   &#123;"etag",""359670651""&#125;,</span></div><div class="line"><span class="comment">%   &#123;"server","ECS (ftw/FBE4)"&#125;,</span></div><div class="line"><span class="comment">%   &#123;"content-length","1270"&#125;,</span></div><div class="line"><span class="comment">%   &#123;"content-type","text/html"&#125;,</span></div><div class="line"><span class="comment">%   &#123;"expires","Thu, 29 Jan 2015 03:08:41 GMT"&#125;,</span></div><div class="line"><span class="comment">%   &#123;"last-modified","Fri, 09 Aug 2013 23:54:35 GMT"&#125;,</span></div><div class="line"><span class="comment">%   &#123;"x-cache","HIT"&#125;,</span></div><div class="line"><span class="comment">%   &#123;"x-ec-custom-error","1"&#125;],</span></div><div class="line"><span class="comment">%  &lt;&lt;"&lt;!doctype html&gt;n&lt;html&gt;n&lt;head&gt;n    &lt;title&gt;Example Domain&lt;/title&gt;nn    &lt;meta "...&gt;&gt;&#125;</span></div></pre></td></tr></table></figure>
-<p>或者如果你想返回结果用Erlang二进制而不是Erlang字符串，你可以这么指定选项：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">httpc:request(get, &#123;<span class="string">"http://www.example.com"</span>, []&#125;, [], [&#123;body_format, binary&#125;]).</div><div class="line"><span class="comment">% &#123;ok,&#123;&#123;"HTTP/1.1",200,"OK"&#125;,</span></div><div class="line"><span class="comment">%      [&#123;"cache-control","max-age=604800"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"date","Thu, 22 Jan 2015 03:58:55 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"accept-ranges","bytes"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"etag",""359670651""&#125;,</span></div><div class="line"><span class="comment">%       &#123;"server","ECS (ftw/FBE4)"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"content-length","1270"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"content-type","text/html"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"expires","Thu, 29 Jan 2015 03:58:55 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"last-modified","Fri, 09 Aug 2013 23:54:35 GMT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"x-cache","HIT"&#125;,</span></div><div class="line"><span class="comment">%       &#123;"x-ec-custom-error","1"&#125;],</span></div><div class="line"><span class="comment">%      &lt;&lt;"&lt;!doctype html&gt;n&lt;html&gt;n&lt;head&gt;n    &lt;title&gt;Example Domain&lt;/title&gt;nn    &lt;meta "...&gt;&gt;&#125;&#125;</span></div></pre></td></tr></table></figure>
-<p>这篇文章仅仅是描述了你可以用httpc:request/4 来做一些很简单的事情。我强烈建议你阅读Erlang官方文档的<a href="http://www.erlang.org/doc/man/httpc.html" target="_blank" rel="external">httpc模块</a>部分。更多的例子和信息也可以阅读 <a href="http://www.erlang.org/doc/apps/inets/inets_services.html" target="_blank" rel="external">Erlang inets User Guide</a>，和 <a href="http://www.erlang.org/doc/apps/inets/http_client.html" target="_blank" rel="external">HTTP Client</a> 章节。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-httpc-request-1-and-httpc-request-4/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-httpc-request-1-and-httpc-request-4/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的 Erlang Thursday 讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/httpc.html#request-1&quot;&gt;httpc:request/1&lt;/a&gt; 和 &lt;a href=&quot;http://www.erlang.org/doc/man/httpc.html#request-4&quot;&gt;httpc:request/4&lt;/a&gt; 。httpc模块是erlang的HTTP1.1 客户端，request函数是erlang的功能强大的web请求工具。&lt;/p&gt;
-&lt;p&gt;要使用httpc模块，我们必需先确保 inets 已经启动。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="httpc" scheme="http://szpzs.github.io/categories/Erlang/httpc/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="httpc" scheme="http://szpzs.github.io/tags/httpc/"/>
-    
-      <category term="request" scheme="http://szpzs.github.io/tags/request/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – erlang:apply/3</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-erlang-apply-3/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-erlang-apply-3/</id>
-    <published>2016-09-15T13:46:31.000Z</published>
-    <updated>2016-09-16T15:14:06.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲 <a href="http://www.erlang.org/doc/man/erlang.html#apply-3" target="_blank" rel="external">erlang:apply/3</a>.</p>
-<p>在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这样 Fun(Arg1, Arg2, …, ArgN) 来调用，但是如果我们遇到有不同参数数量的场景就没法这么干了。怎么办？还是让我们进入今天的主题：erlang:apply/3 。</p>
-<a id="more"></a>
-<p>erlang:apply/3，三个入参分别是模块名、函数名、一个要传给函数的实参组成的列表。传给erlang:apply/3的函数必需也是被导出的，否则将有错误发生。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">erlang:apply(lists, max, [[<span class="number">7</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">11</span>, <span class="number">1</span>]]).</div><div class="line"><span class="comment">% 11</span></div><div class="line">erlang:apply(lists, merge, [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [a, b, c]]).</div><div class="line"><span class="comment">% [1,2,3,a,b,c]</span></div><div class="line">erlang:apply(lists, merge, [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [a, b, c]]).</div><div class="line"><span class="comment">% [1,2,3,a,b,c]</span></div></pre></td></tr></table></figure>
-<p>Erlang的官方文档特别指出，erlang:apply/3仅仅是在我们不完全清楚函数的参数数量的时候来使用。否则我们只需按平常的函数调用来做，即使以匿名函数的方式来传递。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">fun</span> lists:max/<span class="number">1</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="number">4</span></div></pre></td></tr></table></figure>
-<p>erlang模块也包括另一个版本 erlang:apply/2 ，第一个入参是一个函数，第二个人才是这个函数的实参的列表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">erlang:apply(<span class="keyword">fun</span> lists:merge/<span class="number">2</span>, [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [a, b, c]]).</div><div class="line"><span class="comment">% [1,2,3,a,b,c]</span></div></pre></td></tr></table></figure>
-<p>erlang:apply/2 和 erlang:apply/3 并不是我们的通常用法，它在一些特殊场合，它是必要的，比如上星期的 <a href="http://www.proctor-it.com/erlang-thursday-timer-tc-3/" target="_blank" rel="external">timer:tc</a> 。虽然我们将很少用到它，但是了解它对我们也有帮助。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-erlang-apply-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-erlang-apply-3/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲 &lt;a href=&quot;http://www.erlang.org/doc/man/erlang.html#apply-3&quot;&gt;erlang:apply/3&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;在函数式语言里，我们喜欢将函数当做第一等公民看待将它在程序中传递。但是有些时候，我们并不知道我们将要调用哪一个函数，从而导致我们不确定函数的参数是什么。如果我们知道要调用哪个函数，我们只需像这样 Fun(Arg1, Arg2, …, ArgN) 来调用，但是如果我们遇到有不同参数数量的场景就没法这么干了。怎么办？还是让我们进入今天的主题：erlang:apply/3 。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="erlang" scheme="http://szpzs.github.io/categories/Erlang/erlang/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="erlang" scheme="http://szpzs.github.io/tags/erlang/"/>
-    
-      <category term="apply" scheme="http://szpzs.github.io/tags/apply/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday - timer:tc/3</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-timer-tc-3/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-timer-tc-3/</id>
-    <published>2016-09-15T13:42:03.000Z</published>
-    <updated>2016-09-16T15:11:48.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday要讲的函数是 <a href="http://www.erlang.org/doc/man/timer.html#tc-3" target="_blank" rel="external">timer:tc/3</a>.</p>
-<p>我相信我们所有人写测量目标代码执行耗时的代码都是先获取当前时间，接着执行目标代码，再获取当前时间，最后将前后两个时间的差作为目标代码的执行耗时。在Erlang里，按这种方式来写的话将像下面这样：</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Time1 = now().</div><div class="line"><span class="comment">% &#123;1420,519186,111375&#125;</span></div><div class="line">timer:sleep(<span class="number">4000</span>).  <span class="comment">% Do something</span></div><div class="line"><span class="comment">% ok</span></div><div class="line">Time2 = now().</div><div class="line"><span class="comment">% &#123;1420,519190,118280&#125;</span></div><div class="line">timer:now_diff(Time2, Time1).</div><div class="line"><span class="comment">% 4006905</span></div></pre></td></tr></table></figure>
-<p>我们可以注意到这么一个现象：因为now()函数返回一个元组格式的时间戳，所以我们不能将两个元组相减来得到时间差，就像我们在其他语言里能够将两个时间相减；因此我们必需使用 <a href="http://www.erlang.org/doc/man/timer.html#now_diff-2" target="_blank" rel="external">timer:now_diff/2</a> 。</p>
-<p>作为一个好的“工程师”，我们知道因为我们必需在应用的不同地方做一些事情，那么我们可以在一个地方创建我们自己的函数让这个函数去做这些事情。</p>
-<p>难过的是（意思是我们不需要这么做了）：聪明的Erlang语言团队已经为我们做了这个事情并且以timer:tc/3这个函数的方式提供给我们用。</p>
-<p>timer:tc/3接收模块名，函数名以及一个参数列表作为入参。因为我们通常要得到我们调用的函数的结果，另外还有时长，这个结果就是一个元组，其中第一个元素是时长，它的单位是微妙，另一个元素是传给timer:tc/3的第二个参数（它是一个函数）的执行结果。例子如下：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">timer:tc(timer, sleep, [<span class="number">4000</span>]).</div><div class="line"><span class="comment">% &#123;4003097,ok&#125;</span></div><div class="line">timer:tc(lists, foldl, [<span class="keyword">fun</span>(X, Accum) -&gt; X + Accum <span class="keyword">end</span>, <span class="number">0</span>, lists:seq(<span class="number">1</span>, <span class="number">2000000</span>)]).</div><div class="line"><span class="comment">% &#123;5099481,2000001000000&#125;</span></div></pre></td></tr></table></figure>
-<p>另外还有timer:tc/1，它仅接收一个函数并执行它；还有timer:tc/2，它接收一个函数和一个入参列表，然后执行它。例子如下：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">timer:tc(<span class="keyword">fun</span>() -&gt; lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; X + Accum <span class="keyword">end</span>, <span class="number">0</span>, lists:seq(<span class="number">1</span>, <span class="number">2000000</span>)) <span class="keyword">end</span>).</div><div class="line"><span class="comment">% &#123;5709293,2000001000000&#125;</span></div><div class="line">timer:tc(<span class="keyword">fun</span> lists:foldl/<span class="number">3</span>, [<span class="keyword">fun</span>(X, Accum) -&gt; X + Accum <span class="keyword">end</span>, <span class="number">0</span>, lists:seq(<span class="number">1</span>, <span class="number">2000000</span>)]).</div><div class="line"><span class="comment">% &#123;5766480,2000001000000&#125;</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-timer-tc-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-timer-tc-3/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday要讲的函数是 &lt;a href=&quot;http://www.erlang.org/doc/man/timer.html#tc-3&quot;&gt;timer:tc/3&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;我相信我们所有人写测量目标代码执行耗时的代码都是先获取当前时间，接着执行目标代码，再获取当前时间，最后将前后两个时间的差作为目标代码的执行耗时。在Erlang里，按这种方式来写的话将像下面这样：&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="timer" scheme="http://szpzs.github.io/categories/Erlang/timer/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="timer" scheme="http://szpzs.github.io/tags/timer/"/>
-    
-      <category term="tc" scheme="http://szpzs.github.io/tags/tc/"/>
     
   </entry>
   
