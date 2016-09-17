@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Erlang,lists,join," />
+  <meta name="keywords" content="Erlang, Elixir, Hexo, NexT" />
 
 
 
@@ -86,22 +86,15 @@
 
 
 
-<meta name="description" content="今天的Erlang Thursday讲的是 string:join/2.
-string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。
-123491&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;&quot;).&quot;abc&quot;92&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Erlang Thursday – string:join/2">
-<meta property="og:url" content="http://szpzs.github.io/2016/09/16/erlang-thursday-string-join-2/index.html">
+<meta name="description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Time is all">
+<meta property="og:url" content="http://szpzs.github.io/categories/Erlang/BAEM/Atom/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="今天的Erlang Thursday讲的是 string:join/2.
-string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。
-123491&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;&quot;).&quot;abc&quot;92&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;">
-<meta property="og:updated_time" content="2016-09-16T15:10:27.000Z">
+<meta property="og:description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Erlang Thursday – string:join/2">
-<meta name="twitter:description" content="今天的Erlang Thursday讲的是 string:join/2.
-string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。
-123491&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;&quot;).&quot;abc&quot;92&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;">
+<meta name="twitter:title" content="Time is all">
+<meta name="twitter:description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
 
 
 
@@ -122,9 +115,9 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
 
 
 
-  <link rel="canonical" href="http://szpzs.github.io/2016/09/16/erlang-thursday-string-join-2/"/>
+  <link rel="canonical" href="http://szpzs.github.io/categories/Erlang/BAEM/Atom/"/>
 
-  <title> Erlang Thursday – string:join/2 | Time is all </title>
+  <title> 分类: Atom | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -145,7 +138,7 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
     
   
 
-  <div class="container one-collumn sidebar-position-left page-post-detail ">
+  <div class="container one-collumn sidebar-position-left  ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -256,170 +249,47 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
           <div id="content" class="content">
             
 
-  <div id="posts" class="posts-expand">
-    
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                Erlang Thursday – string:join/2
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-16T15:13:58+08:00" content="2016-09-16">
-              2016-09-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/lists/" itemprop="url" rel="index">
-                    <span itemprop="name">lists</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/string.html#join-2" target="_blank" rel="external">string:join/2</a>.</p>
-<p>string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">91</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">""</span>).</div><div class="line"><span class="string">"abc"</span></div><div class="line"><span class="number">92</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">"-"</span>).</div><div class="line"><span class="string">"a-b-c"</span></div></pre></td></tr></table></figure>
-<p>分隔符字符串可以是任意长度的字符串，也不必仅仅是单个字符。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">93</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">"___"</span>).</div><div class="line"><span class="string">"a___b___c"</span></div><div class="line"><span class="number">94</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">" "</span>).</div><div class="line"><span class="string">"a b c"</span></div></pre></td></tr></table></figure>
-<p>而且任何字符串，字符列表，或者甚至是整数列表，都可以用作分隔符字符串。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [$A]).</div><div class="line"><span class="string">"aAbAc"</span></div><div class="line">string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="number">52</span>]).</div><div class="line"><span class="string">"a4b4c"</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-string-join-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-string-join-2/</a></p>
-</blockquote>
-
-      
+  <section id="posts" class="posts-collapse">
+    <div class="collection-title">
+      <h2 >
+        Atom
+        <small>分类</small>
+      </h2>
     </div>
 
-    <div>
+    
       
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
         
-
-      
-    </div>
-
-    <div>
-      
+            <a class="post-title-link" href="/2016/09/17/eli5-atoms/" itemprop="url">
+              
+                <span itemprop="name">原子之浅显易懂</span>
+              
+            </a>
         
+      </h1>
 
-      
-    </div>
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-17T13:36:59+08:00"
+              content="2016-09-17" >
+          09-17
+        </time>
+      </div>
 
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
-          
-            <a href="/tags/lists/" rel="tag">#lists</a>
-          
-            <a href="/tags/join/" rel="tag">#join</a>
-          
-        </div>
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2016/09/16/erlang-thursday-string-tokens-2/" rel="next" title="Erlang Thursday – string:tokens/2">
-                <i class="fa fa-chevron-left"></i> Erlang Thursday – string:tokens/2
-              </a>
-            
-          </div>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/09/16/erlang-thursday-dict-merge-3/" rel="prev" title="Erlang Thursday – dict:merge/3">
-                Erlang Thursday – dict:merge/3 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
+    </header>
   </article>
 
 
+    
+  </section>
 
-    <div class="post-spread">
-      
-    </div>
-  </div>
+  
+
 
 
           </div>
@@ -427,10 +297,6 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
 
 
           
-  <div class="comments" id="comments">
-    
-  </div>
-
 
         </div>
         
@@ -450,17 +316,8 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview sidebar-panel ">
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.jpg"
@@ -576,17 +433,6 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
       </section>
 
       
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-            
-              
-            
-            
-              <p class="post-toc-empty">此文章未包含目录</p>
-            
-          </div>
-        </section>
-      
 
     </div>
   </aside>
@@ -689,10 +535,6 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
 
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
-
-
 
   
 

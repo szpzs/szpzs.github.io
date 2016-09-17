@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Erlang,lists,join," />
+  <meta name="keywords" content="Erlang,calendar," />
 
 
 
@@ -86,22 +86,22 @@
 
 
 
-<meta name="description" content="今天的Erlang Thursday讲的是 string:join/2.
-string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。
-123491&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;&quot;).&quot;abc&quot;92&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;">
+<meta name="description" content="（译者注：本文里的例子结果在中国时区是不同的）
+为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.
+为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 calendar:local_time_to_un">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Erlang Thursday – string:join/2">
-<meta property="og:url" content="http://szpzs.github.io/2016/09/16/erlang-thursday-string-join-2/index.html">
+<meta property="og:title" content="Erlang Thursday – calendar:local_time_to_universal_time_dst/1">
+<meta property="og:url" content="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="今天的Erlang Thursday讲的是 string:join/2.
-string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。
-123491&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;&quot;).&quot;abc&quot;92&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;">
-<meta property="og:updated_time" content="2016-09-16T15:10:27.000Z">
+<meta property="og:description" content="（译者注：本文里的例子结果在中国时区是不同的）
+为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.
+为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 calendar:local_time_to_un">
+<meta property="og:updated_time" content="2016-09-17T06:48:51.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Erlang Thursday – string:join/2">
-<meta name="twitter:description" content="今天的Erlang Thursday讲的是 string:join/2.
-string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。
-123491&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;&quot;).&quot;abc&quot;92&amp;gt; string:join([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], &quot;">
+<meta name="twitter:title" content="Erlang Thursday – calendar:local_time_to_universal_time_dst/1">
+<meta name="twitter:description" content="（译者注：本文里的例子结果在中国时区是不同的）
+为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.
+为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 calendar:local_time_to_un">
 
 
 
@@ -122,9 +122,9 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
 
 
 
-  <link rel="canonical" href="http://szpzs.github.io/2016/09/16/erlang-thursday-string-join-2/"/>
+  <link rel="canonical" href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/"/>
 
-  <title> Erlang Thursday – string:join/2 | Time is all </title>
+  <title> Erlang Thursday – calendar:local_time_to_universal_time_dst/1 | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -277,7 +277,7 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
             
             
               
-                Erlang Thursday – string:join/2
+                Erlang Thursday – calendar:local_time_to_universal_time_dst/1
               
             
           </h1>
@@ -289,8 +289,8 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-16T15:13:58+08:00" content="2016-09-16">
-              2016-09-16
+            <time itemprop="dateCreated" datetime="2016-09-17T14:38:49+08:00" content="2016-09-17">
+              2016-09-17
             </time>
           </span>
 
@@ -315,8 +315,8 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/lists/" itemprop="url" rel="index">
-                    <span itemprop="name">lists</span>
+                  <a href="/categories/Erlang/calendar/" itemprop="url" rel="index">
+                    <span itemprop="name">calendar</span>
                   </a>
                 </span>
 
@@ -348,15 +348,37 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
       
 
       
-        <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/string.html#join-2" target="_blank" rel="external">string:join/2</a>.</p>
-<p>string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">91</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">""</span>).</div><div class="line"><span class="string">"abc"</span></div><div class="line"><span class="number">92</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">"-"</span>).</div><div class="line"><span class="string">"a-b-c"</span></div></pre></td></tr></table></figure>
-<p>分隔符字符串可以是任意长度的字符串，也不必仅仅是单个字符。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">93</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">"___"</span>).</div><div class="line"><span class="string">"a___b___c"</span></div><div class="line"><span class="number">94</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">" "</span>).</div><div class="line"><span class="string">"a b c"</span></div></pre></td></tr></table></figure>
-<p>而且任何字符串，字符列表，或者甚至是整数列表，都可以用作分隔符字符串。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [$A]).</div><div class="line"><span class="string">"aAbAc"</span></div><div class="line">string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="number">52</span>]).</div><div class="line"><span class="string">"a4b4c"</span></div></pre></td></tr></table></figure>
+        <p>（译者注：本文里的例子结果在中国时区是不同的）</p>
+<p>为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time_dst-1" target="_blank" rel="external">calendar:local_time_to_universal_time_dst/1</a>.</p>
+<p>为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time-1" target="_blank" rel="external">calendar:local_time_to_universal_time/1</a> 进行比较。</p>
+<p>即将到来的星期日我们将在临晨两点把时钟拨快一个小时，那么让我们来看看在临晨一点五十九分的时候UTC时间是多少？</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">1</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,3,8&#125;,&#123;7,59,59&#125;&#125;</span></div></pre></td></tr></table></figure>
+<p>现在让我们看看当日临晨两点的时候 calendar:local_time_to_universal_time/1 返回的UTC时间是多少，实际上当日临晨两点我们根本没有到达过，因为我们直接将时间向前拨快了到临晨三点。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">2</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,3,8&#125;,&#123;8,0,0&#125;&#125;</span></div></pre></td></tr></table></figure>
+<p>但是当我们深入函数库里，我们看到也有另外一个函数 calendar:local_time_to_universal_time_dst/1. calendar:local_time_to_universal_time_dst/1 返回值是一个由时间元组组成的列表，让我们开始看看为什么这很重要。</p>
+<p>此时，让我调用 calendar:local_time_to_universal_time_dst/1 并传入当日临晨两点作为参数，然后我们看到的结果是什么呢。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">2</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% []</span></div></pre></td></tr></table></figure>
+<p>一个空列表！</p>
+<p>如果你花一点时间来想一想，这是有道理的，因为临晨两点根本就没发生过，所以就没有UTC时间和它对应上。</p>
+<p>那么当我们跳到临晨三点我们看到什么呢？我们将得到早上八点UTC时间，这仅仅是在临晨一点五十九分五十九秒的一秒之后的UTC时间。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">3</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,3,8&#125;,&#123;8,0,0&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
+<p>为了涵盖本周末的情况，让我们来看看在今年晚些时候也就是11月1日将时钟拨慢一小时会发生什么。</p>
+<p>从一个基准时间开始，让我们看看零点五十九分五十九秒（译者注：原文是12:59:59AM，应该是作者手误）是多少UTC时间，我们知道这个时间我们将仅遇到一次。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">0</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,11,1&#125;,&#123;5,59,59&#125;&#125;</span></div><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">0</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;5,59,59&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
+<p>而且即使时间的变化发生在临晨两点，我们仍然只是遇到一次，因为我们第一次直接移动到临晨一点。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">2</span>,<span class="number">0</span>,<span class="number">0</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;8,0,0&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
+<p>所以零点五十九分五十九秒，我们得到UTC时间五点五十九分五十九秒，而两点，我们得到UTC时间是八点。现在到了棘手的部分，凌晨一点。</p>
+<p>临晨一点是一个奇怪的场景，当日晚上我们将度过两个临晨一点。那么让我们看看Erlang在这种情况下做了什么。</p>
+<p>首先，我们看看在临晨一点的时候我们调用 calendar:local_time_to_universal_time 得到的UTC时间是多少。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,11,1&#125;,&#123;6,0,0&#125;&#125;</span></div></pre></td></tr></table></figure>
+<p>我们得到UTC时间是六点。我们从UTC时间五点五十九分五十九秒移动到UTC时间六点；这是合理的，直到我们开始怀疑我们第二次遇到临晨一点。</p>
+<p>现在，让我们看看在临晨一点的时候我们调用 calendar:local_time_to_universal_time_dst/1 会得到什么UTC时间。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;6,0,0&#125;&#125;,&#123;&#123;2015,11,1&#125;,&#123;7,0,0&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
+<p>我们得到由两个UTC时间组成的列表，一个是我们第一次遇到临晨一点时的UTC时间六点，另一个是我们第二次遇到临晨一点的UTC时间七点。这个返回两个UTC时间的情况也在临晨一点内的每秒钟出现。（译者注：原文是every time，译者认为应该是every second）</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;6,59,59&#125;&#125;,&#123;&#123;2015,11,1&#125;,&#123;7,59,59&#125;&#125;]</span></div></pre></td></tr></table></figure>
+<p>通过返回没有元素、一个元素或者两个元素的列表，Erlang提供给你最精确的信息为你所用，同时让你做出希望如何处理时间的明智的决定，而不是为你做出一些决定即使它们不符合你的系统需要。</p>
 <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-string-join-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-string-join-2/</a></p>
+<p><em>原文链接：</em>  <a href="https://coyee.com/article/10452-erlang-thursday-calendar-local-time-to-universal-time-dst-1" target="_blank" rel="external">https://coyee.com/article/10452-erlang-thursday-calendar-local-time-to-universal-time-dst-1</a></p>
 </blockquote>
 
       
@@ -382,9 +404,7 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
           
             <a href="/tags/Erlang/" rel="tag">#Erlang</a>
           
-            <a href="/tags/lists/" rel="tag">#lists</a>
-          
-            <a href="/tags/join/" rel="tag">#join</a>
+            <a href="/tags/calendar/" rel="tag">#calendar</a>
           
         </div>
       
@@ -393,17 +413,13 @@ string:join/2 有两个入参，第一个是由字符串为元素组成的列表
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/09/16/erlang-thursday-string-tokens-2/" rel="next" title="Erlang Thursday – string:tokens/2">
-                <i class="fa fa-chevron-left"></i> Erlang Thursday – string:tokens/2
+              <a href="/2016/09/17/eli5-atoms/" rel="next" title="原子之浅显易懂">
+                <i class="fa fa-chevron-left"></i> 原子之浅显易懂
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/09/16/erlang-thursday-dict-merge-3/" rel="prev" title="Erlang Thursday – dict:merge/3">
-                Erlang Thursday – dict:merge/3 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>

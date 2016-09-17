@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.github.io/"/>
-  <updated>2016-09-17T06:02:20.000Z</updated>
+  <updated>2016-09-17T06:48:51.000Z</updated>
   <id>http://szpzs.github.io/</id>
   
   <author>
@@ -16,11 +16,70 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Erlang Thursday – calendar:local_time_to_universal_time_dst/1</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/</id>
+    <published>2016-09-17T06:38:49.000Z</published>
+    <updated>2016-09-17T06:48:51.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>（译者注：本文里的例子结果在中国时区是不同的）</p>
+<p>为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time_dst-1" target="_blank" rel="external">calendar:local_time_to_universal_time_dst/1</a>.</p>
+<p>为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time-1" target="_blank" rel="external">calendar:local_time_to_universal_time/1</a> 进行比较。</p>
+<p>即将到来的星期日我们将在临晨两点把时钟拨快一个小时，那么让我们来看看在临晨一点五十九分的时候UTC时间是多少？</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">1</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,3,8&#125;,&#123;7,59,59&#125;&#125;</span></div></pre></td></tr></table></figure>
+<p>现在让我们看看当日临晨两点的时候 calendar:local_time_to_universal_time/1 返回的UTC时间是多少，实际上当日临晨两点我们根本没有到达过，因为我们直接将时间向前拨快了到临晨三点。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">2</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,3,8&#125;,&#123;8,0,0&#125;&#125;</span></div></pre></td></tr></table></figure>
+<p>但是当我们深入函数库里，我们看到也有另外一个函数 calendar:local_time_to_universal_time_dst/1. calendar:local_time_to_universal_time_dst/1 返回值是一个由时间元组组成的列表，让我们开始看看为什么这很重要。</p>
+<p>此时，让我调用 calendar:local_time_to_universal_time_dst/1 并传入当日临晨两点作为参数，然后我们看到的结果是什么呢。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">2</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% []</span></div></pre></td></tr></table></figure>
+<p>一个空列表！</p>
+<p>如果你花一点时间来想一想，这是有道理的，因为临晨两点根本就没发生过，所以就没有UTC时间和它对应上。</p>
+<p>那么当我们跳到临晨三点我们看到什么呢？我们将得到早上八点UTC时间，这仅仅是在临晨一点五十九分五十九秒的一秒之后的UTC时间。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">3</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,3,8&#125;,&#123;8,0,0&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
+<p>为了涵盖本周末的情况，让我们来看看在今年晚些时候也就是11月1日将时钟拨慢一小时会发生什么。</p>
+<p>从一个基准时间开始，让我们看看零点五十九分五十九秒（译者注：原文是12:59:59AM，应该是作者手误）是多少UTC时间，我们知道这个时间我们将仅遇到一次。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">0</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,11,1&#125;,&#123;5,59,59&#125;&#125;</span></div><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">0</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;5,59,59&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
+<p>而且即使时间的变化发生在临晨两点，我们仍然只是遇到一次，因为我们第一次直接移动到临晨一点。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">2</span>,<span class="number">0</span>,<span class="number">0</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;8,0,0&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
+<p>所以零点五十九分五十九秒，我们得到UTC时间五点五十九分五十九秒，而两点，我们得到UTC时间是八点。现在到了棘手的部分，凌晨一点。</p>
+<p>临晨一点是一个奇怪的场景，当日晚上我们将度过两个临晨一点。那么让我们看看Erlang在这种情况下做了什么。</p>
+<p>首先，我们看看在临晨一点的时候我们调用 calendar:local_time_to_universal_time 得到的UTC时间是多少。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,11,1&#125;,&#123;6,0,0&#125;&#125;</span></div></pre></td></tr></table></figure>
+<p>我们得到UTC时间是六点。我们从UTC时间五点五十九分五十九秒移动到UTC时间六点；这是合理的，直到我们开始怀疑我们第二次遇到临晨一点。</p>
+<p>现在，让我们看看在临晨一点的时候我们调用 calendar:local_time_to_universal_time_dst/1 会得到什么UTC时间。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;6,0,0&#125;&#125;,&#123;&#123;2015,11,1&#125;,&#123;7,0,0&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
+<p>我们得到由两个UTC时间组成的列表，一个是我们第一次遇到临晨一点时的UTC时间六点，另一个是我们第二次遇到临晨一点的UTC时间七点。这个返回两个UTC时间的情况也在临晨一点内的每秒钟出现。（译者注：原文是every time，译者认为应该是every second）</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;6,59,59&#125;&#125;,&#123;&#123;2015,11,1&#125;,&#123;7,59,59&#125;&#125;]</span></div></pre></td></tr></table></figure>
+<p>通过返回没有元素、一个元素或者两个元素的列表，Erlang提供给你最精确的信息为你所用，同时让你做出希望如何处理时间的明智的决定，而不是为你做出一些决定即使它们不符合你的系统需要。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://coyee.com/article/10452-erlang-thursday-calendar-local-time-to-universal-time-dst-1" target="_blank" rel="external">https://coyee.com/article/10452-erlang-thursday-calendar-local-time-to-universal-time-dst-1</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;（译者注：本文里的例子结果在中国时区是不同的）&lt;/p&gt;
+&lt;p&gt;为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#local_time_t
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
+    
+  </entry>
+  
+  <entry>
     <title>原子之浅显易懂</title>
     <link href="http://szpzs.github.io/2016/09/17/eli5-atoms/"/>
     <id>http://szpzs.github.io/2016/09/17/eli5-atoms/</id>
     <published>2016-09-17T05:36:59.000Z</published>
-    <updated>2016-09-17T06:02:20.000Z</updated>
+    <updated>2016-09-17T06:36:03.000Z</updated>
     
     <content type="html"><![CDATA[<p><img alt="Atom Table" src="/images/eli5-atom-tab.png" style="border: 0;"><br><a id="more"></a><br>原子表是一个全局表，它将原子内部值（一个整数值）映射到一个字符串。同时也有一个反向到查询表，它将一个字符串映射到一个原子内部值。原子表有一个固定的记录条数上限：1048576。如果它一旦到达了这个上限，当前节点将崩溃 －－ 这就是为什么在运行时动态创建原子是很危险的做法。原子表的记录条数上限可以通过给erl命令指定 +t 标签来设置。</p>
 <p>原子是在运行时不能改变它的值的一个符号。当一个新的原子被创建，它得到一个唯一的值来给当前节点来使用。原子在系统内部仅仅是指向原子表对应记录索引的整数值。这就是为什么原子的操作如此廉价的原因。</p>
@@ -39,7 +98,9 @@
     
       <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
     
-      <category term="Atom" scheme="http://szpzs.github.io/categories/Erlang/Atom/"/>
+      <category term="BAEM" scheme="http://szpzs.github.io/categories/Erlang/BAEM/"/>
+    
+      <category term="Atom" scheme="http://szpzs.github.io/categories/Erlang/BAEM/Atom/"/>
     
     
       <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
