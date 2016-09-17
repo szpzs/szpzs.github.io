@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.github.io/"/>
-  <updated>2016-09-17T06:48:51.000Z</updated>
+  <updated>2016-09-17T07:51:48.000Z</updated>
   <id>http://szpzs.github.io/</id>
   
   <author>
@@ -16,14 +16,408 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Erlang Thursday – calendar:iso_week_number/1</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-iso-week-number-1/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-iso-week-number-1/</id>
+    <published>2016-09-17T07:49:18.000Z</published>
+    <updated>2016-09-17T07:51:48.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#iso_week_number-1" target="_blank" rel="external">calendar:iso_week_number/1</a>.</p>
+<p>calendar:iso_week_number/1 接收一个日期元组做为入参，然后返回一个由年份和周数字组成的元组。年份是入参里的年份，而周数字是一个1到53的整数。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">calendar:iso_week_number(&#123;<span class="number">2015</span>, <span class="number">05</span>, <span class="number">04</span>&#125;).</div><div class="line">&#123;<span class="number">2015</span>,<span class="number">19</span>&#125;</div><div class="line">calendar:iso_week_number(&#123;<span class="number">2015</span>, <span class="number">05</span>, <span class="number">03</span>&#125;).</div><div class="line">&#123;<span class="number">2015</span>,<span class="number">18</span>&#125;</div></pre></td></tr></table></figure>
+<p>如果我们拿本周做为一个例子，我们可以看到本周是从星期一（五月四日）开始，而前一个星期天（五月三日）是属于上一个星期的。</p>
+<p>我们看到一月一日是这一年的第一周，这没什么奇怪，而2015年的十二月三十一日是这一年的第53周。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">calendar:iso_week_number(&#123;<span class="number">2015</span>, <span class="number">1</span>, <span class="number">1</span>&#125;).</div><div class="line">&#123;<span class="number">2015</span>,<span class="number">1</span>&#125;</div><div class="line">calendar:iso_week_number(&#123;<span class="number">2015</span>, <span class="number">12</span>, <span class="number">31</span>&#125;).</div><div class="line">&#123;<span class="number">2015</span>,<span class="number">53</span>&#125;</div></pre></td></tr></table></figure>
+<p>一开始听到一年有53周我们会很惊讶，因为几乎每个人都认为一年只有52周，直到你意识到有些十二月三十一日有时候是处于一周的开始，所以造成了它处在第53周，而它仅仅是这周的一部分。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-iso_week_number-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-iso_week_number-1/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#iso_week_number-1&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;calendar:iso
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
+    
+      <category term="iso_week_number" scheme="http://szpzs.github.io/tags/iso-week-number/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – calendar:is_leap_year/1</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-is-leap-year-1/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-is-leap-year-1/</id>
+    <published>2016-09-17T07:43:16.000Z</published>
+    <updated>2016-09-17T07:52:30.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#is_leap_year-1" target="_blank" rel="external">calendar:is_leap_year/1</a>.</p>
+<p>calendar:is_leap_year/1 接收一个非负整数表示的年份，如果这个年份是闰年，则返回true，否则返回false。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">calendar:is_leap_year(<span class="number">2015</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">2012</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:is_leap_year(<span class="number">2017</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">2000</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:is_leap_year(<span class="number">1900</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">0</span>).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>有了这个Erlang核心库的内置函数，意味着你不需要编写代码或者甚至不需要查找规则来记住如何判断某个年份到底是不是闰年。</p>
+<p>如果你传递一个负数来表示年份，Erlang将抛出一个异常，因为没有一个函数分支能匹配用负数来表示的年份。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">calendar:is_leap_year(-<span class="number">1</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:is_leap_year(-1) (calendar.erl, line 183)</span></div><div class="line">calendar:is_leap_year(-<span class="number">4</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:is_leap_year(-4) (calendar.erl, line 183)</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-is_leap_year-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-is_leap_year-1/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#is_leap_year-1&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;calendar:is_lea
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
+    
+      <category term="is_leap_year" scheme="http://szpzs.github.io/tags/is-leap-year/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – calendar:valid_date/3</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-valid-date-3/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-valid-date-3/</id>
+    <published>2016-09-17T07:38:52.000Z</published>
+    <updated>2016-09-17T07:42:23.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#valid_date-3" target="_blank" rel="external">calendar:valid_date/3</a>.</p>
+<p>本来这次我是想讲函数 calendar:time_difference/3 ，但是当我详细看了 <a href="http://www.erlang.org/doc/man/calendar.html" target="_blank" rel="external">calendar</a> 模块的官方文档后，发现文档里已经说这个函数被淘汰了，所以今天我讲 calendar:valid_date/3 。</p>
+<a id="more"></a>
+<p>calendar:valid_date/3 的入参分别是一个表示年份的整数、一个表示月份的整数以及一个表示日的整数。如果传入的日期是有效的，则 calendar:valid_date/3 返回原子true，如果传入的日期是无效的，则 calendar:valid_date/3 返回原子false。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">04</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">04</span>, <span class="number">30</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">02</span>, <span class="number">29</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2012</span>, <span class="number">02</span>, <span class="number">29</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">11</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">11</span>, <span class="number">76</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">17</span>, <span class="number">13</span>).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
+<p>我们也可以快速地检查一下本篇文章发布的日期也是有效日期。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">04</span>, <span class="number">23</span>).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>现在让我们看看入参中有0或负整数情况会怎么样？</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">calendar:valid_date(-<span class="number">1</span>, <span class="number">04</span>, <span class="number">23</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, -<span class="number">7</span>, <span class="number">21</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">7</span>, -<span class="number">13</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
+<p>正如人们所希望的，除非你要经常处理公元前的日期，不然的话有一个负数的日期是无效的。</p>
+<p>Erlang也提供了函数 calendar:valid_date/1 ，它的入参是由年、月、日三个整数组成的元组。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">calendar:valid_date(&#123;<span class="number">2015</span>, <span class="number">11</span>, <span class="number">76</span>&#125;).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(&#123;<span class="number">2015</span>, <span class="number">04</span>, <span class="number">23</span>&#125;).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-valid_date-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-valid_date-3/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#valid_date-3&quot;&gt;calendar:valid_date/3&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;本来这次我是想讲函数 calendar:time_difference/3 ，但是当我详细看了 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html&quot;&gt;calendar&lt;/a&gt; 模块的官方文档后，发现文档里已经说这个函数被淘汰了，所以今天我讲 calendar:valid_date/3 。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
+    
+      <category term="valid_date" scheme="http://szpzs.github.io/tags/valid-date/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – calendar:date_to_gregorian_days/3</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-date-to-gregorian-days-3/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-date-to-gregorian-days-3/</id>
+    <published>2016-09-17T07:33:21.000Z</published>
+    <updated>2016-09-17T07:38:05.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#date_to_gregorian_days-3" target="_blank" rel="external">calendar:date_to_gregorian_days/3</a>.</p>
+<p>正如我们上星期在 <a href="http://www.proctor-it.com/erlang-thursday-calendar-day_of_the_week-3/" target="_blank" rel="external">Erlang Thursday calendar:day_of_the_week/3</a> 中讲到的，当我们看到一些错误消息的时候，我们看到错误来自于 calendar:date_to_gregorian_days/3。</p>
+<a id="more"></a>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">calendar:day_of_the_week(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:date_to_gregorian_days(0,0,0) (calendar.erl, line 114)</span></div><div class="line"><span class="comment">%      in function  calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div><div class="line">calendar:day_of_the_week(<span class="number">1970</span>, <span class="number">2</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  calendar:date_to_gregorian_days/3 (calendar.erl, line 116)</span></div><div class="line"><span class="comment">%      in call from calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div><div class="line">calendar:day_of_the_week(<span class="number">1970</span>, <span class="number">13</span>, <span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:last_day_of_the_month1(1970,13) (calendar.erl, line 243)</span></div><div class="line"><span class="comment">%      in function  calendar:date_to_gregorian_days/3 (calendar.erl, line 115)</span></div><div class="line"><span class="comment">%      in call from calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div></pre></td></tr></table></figure>
+<p>在上星期那篇文章里我保证我们下次将深入了解 calendar:date_to_gregorian_days/3 ，所以现在让我们来完成这个任务。</p>
+<p>calendar:date_to_gregorian_days/3 有三个入参，一个代表年份的非负整数，一个代表月份的从1到12的整数，一个代表某月第几日的从1到31的整数，该函数返回的值是从公元元年1月1日截止到入参日期的天数。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">calendar:date_to_gregorian_days(<span class="number">2015</span>, <span class="number">4</span>, <span class="number">16</span>).</div><div class="line"><span class="comment">% 736069</span></div><div class="line">calendar:date_to_gregorian_days(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 0</span></div><div class="line">calendar:date_to_gregorian_days(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 366</span></div><div class="line">calendar:date_to_gregorian_days(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 719528</span></div><div class="line">calendar:date_to_gregorian_days(<span class="number">1999</span>, <span class="number">12</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% 730484</span></div></pre></td></tr></table></figure>
+<p>还有一个只接收一个入参的版本 calendar:date_to_gregorian_days/1，它的入参是由年、月、日三个整数组成元组。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">calendar:date_to_gregorian_days(&#123;<span class="number">2015</span>, <span class="number">4</span>, <span class="number">16</span>&#125;).</div><div class="line"><span class="comment">% 736069</span></div><div class="line">calendar:date_to_gregorian_days(&#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>&#125;).</div><div class="line"><span class="comment">% 0</span></div><div class="line">calendar:date_to_gregorian_days(&#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>&#125;).</div><div class="line"><span class="comment">% 366</span></div></pre></td></tr></table></figure>
+<p>如果我们传给 calendar:date_to_gregorian_days/1 无效的日期，我们就会在错误消息里看到它正在调用 calendar:date_to_gregorian_days/3 。所以它是一个不错的辅助函数，不破坏我们的模式匹配。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:date_to_gregorian_days(&#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>&#125;).</div><div class="line">** exception error: no function clause matching calendar:date_to_gregorian_days(<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>) (calendar.erl, line <span class="number">114</span>)</div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-date_to_gregorian_days-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-date_to_gregorian_days-3/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#date_to_gregorian_days-3&quot;&gt;calendar:date_to_gregorian_days/3&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;正如我们上星期在 &lt;a href=&quot;http://www.proctor-it.com/erlang-thursday-calendar-day_of_the_week-3/&quot;&gt;Erlang Thursday calendar:day_of_the_week/3&lt;/a&gt; 中讲到的，当我们看到一些错误消息的时候，我们看到错误来自于 calendar:date_to_gregorian_days/3。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – calendar:day_of_the_week/3</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-day-of-the-week-3/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-day-of-the-week-3/</id>
+    <published>2016-09-17T07:27:44.000Z</published>
+    <updated>2016-09-17T07:31:48.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#day_of_the_week-3" target="_blank" rel="external">calendar:day_of_the_week/3</a>.</p>
+<p>calendar:day_of_the_week/3 允许你传入年、月、日然后得到这个日子在一个星期里是第几天。</p>
+<a id="more"></a>
+<p>第一个入参表示年份而且必须是非负整数。第二个入参是月份而且必须是1到12的整数（包括1和12），它表示公历的12个月份，1表示1月份。最后一个入参是第几日，必须是1到31（包括1和31）的整数。</p>
+<p>calendar:day_of_the_week/3 返回一个1到7（包括1和7）的整数值，1表示星期一，7表示星期日。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">calendar:day_of_the_week(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 1</span></div><div class="line">calendar:day_of_the_week(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 4</span></div><div class="line">calendar:day_of_the_week(<span class="number">1999</span>, <span class="number">12</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% 5</span></div><div class="line">calendar:day_of_the_week(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 6</span></div></pre></td></tr></table></figure>
+<p>本篇文章的发布日期是2015年4月9日，把它传给 calendar:day_of_the_week/3 ，得到返回值是4，正好表示星期四，也就是本系列文章发布的日子。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:day_of_the_week(<span class="number">2015</span>, <span class="number">4</span>, <span class="number">9</span>).</div><div class="line"><span class="comment">% 4</span></div></pre></td></tr></table></figure>
+<p>还有一个 calendar:day_of_the_week/1 函数，它和上面的函数功能和参数要求基本一样，只是它只接收一个入参，这个入参是由年、月、日组成的三元素元组。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">calendar:day_of_the_week(&#123;<span class="number">2015</span>, <span class="number">4</span>, <span class="number">9</span>&#125;).</div><div class="line"><span class="comment">% 4</span></div><div class="line">calendar:day_of_the_week(&#123;<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>&#125;).</div><div class="line"><span class="comment">% 4</span></div><div class="line">calendar:day_of_the_week(&#123;<span class="number">1999</span>, <span class="number">12</span>, <span class="number">31</span>&#125;).</div><div class="line"><span class="comment">% 5</span></div></pre></td></tr></table></figure>
+<p>为了帮助大家认识 calendar:day_of_the_week/3 函数返回的错误消息，让我们看看，当我们给该函数传递无效日期，我们会得到什么。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">calendar:day_of_the_week(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:date_to_gregorian_days(0,0,0) (calendar.erl, line 114)</span></div><div class="line"><span class="comment">%      in function  calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div><div class="line">calendar:day_of_the_week(<span class="number">1970</span>, <span class="number">2</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  calendar:date_to_gregorian_days/3 (calendar.erl, line 116)</span></div><div class="line"><span class="comment">%      in call from calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div><div class="line">calendar:day_of_the_week(<span class="number">1970</span>, <span class="number">13</span>, <span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:last_day_of_the_month1(1970,13) (calendar.erl, line 243)</span></div><div class="line"><span class="comment">%      in function  calendar:date_to_gregorian_days/3 (calendar.erl, line 115)</span></div><div class="line"><span class="comment">%      in call from calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div></pre></td></tr></table></figure>
+<p>如果你仔细看这些错误消息，你会看到 calendar:day_of_the_week/3 调用了 calendar:date_to_gregorian_days/3 ，我们将在下个星期的Erlang Thursday来介绍它。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-day_of_the_week-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-day_of_the_week-3/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#day_of_the_week-3&quot;&gt;calendar:day_of_the_week/3&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;calendar:day_of_the_week/3 允许你传入年、月、日然后得到这个日子在一个星期里是第几天。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
+    
+      <category term="day_of_the_week" scheme="http://szpzs.github.io/tags/day-of-the-week/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thurday – lists:delete/2</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thurday-lists-delete-2/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thurday-lists-delete-2/</id>
+    <published>2016-09-17T07:21:28.000Z</published>
+    <updated>2016-09-17T07:26:45.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#delete-2" target="_blank" rel="external">lists:delete/2</a> 。</p>
+<p>lists:delete/2 接收一个Erlang term作为它的第一个入参，它将把该term从第二个入参－－一个列表里删除掉。</p>
+<a id="more"></a>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">lists:delete(<span class="number">1</span>, [<span class="number">8</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>]).</div><div class="line"><span class="comment">% [8,7,6,5,4,3,2]</span></div><div class="line">lists:delete(<span class="number">4</span>, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>]).</div><div class="line"><span class="comment">% [1,1,2,3,5,8]</span></div><div class="line">lists:delete(<span class="number">72</span>, <span class="string">"Hello World!"</span>).</div><div class="line"><span class="comment">% "ello World!"</span></div><div class="line">lists:delete(d, [a, b, c, d]).</div><div class="line"><span class="comment">% [a,b,c]</span></div><div class="line">lists:delete(<span class="number">4</span>, []).</div><div class="line"><span class="comment">% []</span></div><div class="line">lists:delete(&#123;b, <span class="number">2</span>&#125;, [&#123;a, <span class="number">1</span>&#125;, &#123;b, <span class="number">2</span>&#125;, &#123;c, <span class="number">3</span>&#125;]).</div><div class="line"><span class="comment">% [&#123;a,1&#125;,&#123;c,3&#125;]</span></div><div class="line">lists:delete([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>], [<span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]]).</div><div class="line"><span class="comment">% [[4,5,6],[7,8,9]]</span></div></pre></td></tr></table></figure>
+<p>注意：lists:delete/2 仅仅是将第一个在列表里发现的term删掉，而其他任何在列表里同样的term它不会删除。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:delete(<span class="number">1</span>, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>]).</div><div class="line"><span class="comment">% [1,2,3,5,8]</span></div></pre></td></tr></table></figure>
+<p>因为 lists:delete/2 是一个非常简单就能讲清楚用法的函数，这样这篇文章将可能非常短，所以我想在下面我们展示一下如何自己来写一个非常简单(1) 的 lists:delete/2 实现是非常值得的。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(my_lists)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([delete/<span class="number">2</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, List)</span> -&gt;</span></div><div class="line">    delete(Item, [], List).</div><div class="line"></div><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, Checked, [Item|Rest])</span> -&gt;</span></div><div class="line">    lists:reverse(Checked) ++ Rest;</div><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, Checked, [Head|Rest])</span> -&gt;</span></div><div class="line">    delete(Item, [Head | Checked], Rest);</div><div class="line"><span class="function"><span class="title">delete</span><span class="params">(_Item, Checked, [])</span> -&gt;</span></div><div class="line">    lists:reverse(Checked).</div></pre></td></tr></table></figure>
+<p>让我们一起看看我们的delete函数在被调用的时候是如何执行的？</p>
+<p>my_lists:delete/2 是一个友好的API函数，它仅仅是调用一个“私有”函数（没有导出的函数）－－ delete/3，所以调用者不需要担心那个我们传递的已经检查了的一个空列表作为初始值的累加器。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(my_lists)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([delete/<span class="number">2</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, List)</span> -&gt;</span></div><div class="line">    delete(Item, [], List).</div></pre></td></tr></table></figure>
+<p>delete/3函数的第一个分支用模式匹配来检查我们想要删除掉元素是否也是需要检查的列表的第一个元素。如果模式匹配成果，我们会看到第一个元素被删除！接着我们就能停止处理列表并返回的结果，而这个结果是由我们已经检查过的元素组成列表的反转列表和那些剩下的我们还没有检查的元素组成的列表一起构成的。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, Checked, [Item|Rest])</span> -&gt;</span></div><div class="line">    lists:reverse(Checked) ++ Rest;</div></pre></td></tr></table></figure>
+<p>第二个分支“知道”我们想删除掉元素和剩下的列表的第一个元素不匹配。它是怎么“知道”的？因为如果它们匹配，第一个分支将模式匹配成功而第二个分支将得不到执行的机会。因为我们找不到元素需要被删除，我们通过将元素加到被检查过的元素组成的列表头部，并且继续调用 delete/3 。我们通过在被检查过的元素组成的列表头部加上元素形成新的被检查过元素组成的列表的做法就是为什么我们在第一分支和第三分支需要反转被检查元素组成的列表的原因。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, Checked, [Head|Rest])</span> -&gt;</span></div><div class="line">    delete(Item, [Head | Checked], Rest);</div></pre></td></tr></table></figure>
+<p>第三个也是最后一个 delete/3 函数的分支已经搜索到列表的结尾并且没有发现相同的元素，所以我们只是将被检查过的元素组成的列表反转后返回。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">delete</span><span class="params">(_Item, Checked, [])</span> -&gt;</span></div><div class="line">    lists:reverse(Checked).</div></pre></td></tr></table></figure>
+<p>这就是你自己的简单(1)版 lists:delete/2 的实现。</p>
+<p>1、简单的意思是因为这个版本没有进行性能优化，或者没有做彻底的是否完全符合 lists:delete/2 规范的测试。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thurday-lists-delete-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thurday-lists-delete-2/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#delete-2&quot;&gt;lists:delete/2&lt;/a&gt; 。&lt;/p&gt;
+&lt;p&gt;lists:delete/2 接收一个Erlang term作为它的第一个入参，它将把该term从第二个入参－－一个列表里删除掉。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
+    
+      <category term="delete" scheme="http://szpzs.github.io/tags/delete/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – erlang:list_to_atom/1</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-erlang-list-to-atom-1/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-erlang-list-to-atom-1/</id>
+    <published>2016-09-17T07:15:31.000Z</published>
+    <updated>2016-09-17T07:20:19.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/erlang.html#list_to_atom-1" target="_blank" rel="external">erlang:list_to_atom/1</a>.</p>
+<p>erlang:list_to_atom/1 的入参是一个字符串，返回的是一个Erlang的原子。</p>
+<a id="more"></a>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">list_to_atom</span><span class="params">(<span class="string">"foo"</span>)</span>.</span></div><div class="line">% <span class="title">foo</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"Foo"</span>)</span>.</div><div class="line">% <span class="title">'Foo'</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"Foo_bar"</span>)</span>.</div><div class="line">% <span class="title">'Foo_bar'</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"foo_bar"</span>)</span>.</div><div class="line">% <span class="title">foo_bar</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"foo"</span>++<span class="string">"bar"</span>)</span>.</div><div class="line">% <span class="title">foobar</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"Erlang"</span>)</span>.</div><div class="line">% <span class="title">'Erlang'</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"Elixir"</span>)</span>.</div><div class="line">% <span class="title">'Elixir'</span></div></pre></td></tr></table></figure>
+<p>这个函数在你必须要基于从外部系统读到的字符串，比如解析一个CSV类型的头部，生成键或标识符的时候有用。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span> erlang:list_to_atom/<span class="number">1</span>,      	     string:tokens(<span class="string">"firstName,lastName,age,gender,preferredName,dateOfBirth"</span>, <span class="string">","</span>)).</div><div class="line"><span class="comment">% [firstName,lastName,age,gender,preferredName,dateOfBirth]</span></div></pre></td></tr></table></figure>
+<p>当你用 erlang:list_to_atom/1 将从外部系统获取的字符串转换成原子的时候一定要小心，因为它只能处理值为256以下的字符。任何字符值在256（注1）以下的字符串都能正常地用该函数转成一个原子。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">list_to_atom("Joe, Mike, and Robert").</div><div class="line">% 'Joe, Mike, and Robert'</div><div class="line">list_to_atom("it's").</div><div class="line">% 'it's'</div><div class="line">list_to_atom("heyn").</div><div class="line">% 'heyn'</div><div class="line">list_to_atom("with_supported_char"++[255]).</div><div class="line">% with_supported_charÿ</div><div class="line">list_to_atom("with_non_supported_char"++[256]).</div><div class="line">% ** exception error: bad argument</div><div class="line">%      in function  list_to_atom/1</div><div class="line">%         called as list_to_atom([119,105,116,104,95,110,111,110,95,115,117,112,112,111,114,</div><div class="line">%                                 116,101,100,95,99,104,97,114,256])</div></pre></td></tr></table></figure>
+<p>1、字符值必须是非负整数，范围是0到255。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-erlang-list_to_atom-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-erlang-list_to_atom-1/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/erlang.html#list_to_atom-1&quot;&gt;erlang:list_to_atom/1&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;erlang:list_to_atom/1 的入参是一个字符串，返回的是一个Erlang的原子。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="erlang" scheme="http://szpzs.github.io/categories/Erlang/erlang/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="erlang" scheme="http://szpzs.github.io/tags/erlang/"/>
+    
+      <category term="list_to_atom" scheme="http://szpzs.github.io/tags/list-to-atom/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thurday – ordsets:is_disjoint/2</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thurday-ordsets-is-disjoint-2/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thurday-ordsets-is-disjoint-2/</id>
+    <published>2016-09-17T07:04:57.000Z</published>
+    <updated>2016-09-17T07:12:19.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/ordsets.html#is_disjoint-2" target="_blank" rel="external">ordsets:is_disjoint/2</a>.</p>
+<p>在日常的编码中，你应该会碰到这样的问题，如何判断一个给定的列表，它的元素不在另一个列表里出现。</p>
+<a id="more"></a>
+<p>你的第一个直觉可能写出的代码像如下这样：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">not</span><span class="params">( lists:any(<span class="keyword">fun</span>(Item) -&gt; lists:member(Item, [<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>]) <span class="keyword">end</span>, [<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>]))</span>.</span></div><div class="line">% <span class="title">true</span></div></pre></td></tr></table></figure>
+<p>如果你更多地在数学的范畴里定义你的问题，你可以从集合方向上开始思考，那么这个问题会更清晰。当你开始在集合的方向上思考，你会意识到你可以检查两个集合的交集是否是空集合。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ordsets:intersection([<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>], [<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>]) =:= [].</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>这样不仅更加简洁，而且更加明确你需要检查的是什么。</p>
+<p>实际上，当你通过判断两个列表是否是不相交的，你可以做的更好。下面我们开始看看 ordsets:is_disjoint/2 。</p>
+<p>ordsets:is_disjoint/2 接收两个列表做为入参，当两个列表没有共同的元素的时候函数返回true。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ordsets:is_disjoint([<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>], [<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>]).</div><div class="line"><span class="comment">% true</span></div><div class="line">ordsets:is_disjoint([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>], [<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>]).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
+<p>因为 ordsets:is_disjoint/2 是对两个列表进行判断，所以我们没必要先调用所谓的 ordsets:disjoint/2 来确定列表元素是唯一的。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ordsets:is_disjoint([<span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">5</span>, <span class="number">3</span>], [<span class="number">2</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">6</span>]).</div><div class="line"><span class="comment">% true</span></div><div class="line">ordsets:is_disjoint([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>], [<span class="number">2</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">6</span>]).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
+<p>如果任何一个入参是空列表，则 ordsets:is_disjoint/2 返回的结果都是说这两个列表是不相交的。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">ordsets:is_disjoint([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>], []).</div><div class="line"><span class="comment">% true</span></div><div class="line">ordsets:is_disjoint([], [<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>]).</div><div class="line"><span class="comment">% true</span></div><div class="line">ordsets:is_disjoint([], []).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>另外，如果你很好奇，想看看用 timer:tc/3 来测量 ordsets:is_disjoint/2 的运行时间，那么我们可以看到，只要 Erlang 知道了两个列表是不相交的，它就立马返回false，如果你记得我们前面的文章 <a href="http://www.proctor-it.com/erlang-thursday-timer-tc-3/" target="_blank" rel="external">Erlang Thursday on timer:tc/3</a> ，你就知道它的返回值是一个元组，元组的第一个元素就是代表被测量函数运行时间，其单位是微秒。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">timer:tc(ordsets, is_disjoint, [lists:seq(<span class="number">1</span>, <span class="number">1000000</span>), lists:seq(<span class="number">2000000</span>, <span class="number">3000000</span>)]).</div><div class="line"><span class="comment">% &#123;19032,true&#125;</span></div><div class="line">timer:tc(ordsets, is_disjoint, [lists:seq(<span class="number">1</span>, <span class="number">1000000</span>), lists:seq(<span class="number">1</span>, <span class="number">3000000</span>)]).</div><div class="line"><span class="comment">% &#123;2,false&#125;</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thurday-ordsets-is_disjoint-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thurday-ordsets-is_disjoint-2/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/ordsets.html#is_disjoint-2&quot;&gt;ordsets:is_disjoint/2&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;在日常的编码中，你应该会碰到这样的问题，如何判断一个给定的列表，它的元素不在另一个列表里出现。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="ordsets" scheme="http://szpzs.github.io/categories/Erlang/ordsets/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="ordsets" scheme="http://szpzs.github.io/tags/ordsets/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – lists:flatmap/2</title>
+    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-lists-flatmap-2/"/>
+    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-lists-flatmap-2/</id>
+    <published>2016-09-17T06:56:00.000Z</published>
+    <updated>2016-09-17T07:07:29.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#flatmap-2" target="_blank" rel="external">lists:flatmap/2</a>.</p>
+<p>选择这个函数来讲是因为这个星期早些时候我做的一些 <a href="http://elixir-lang.org/" target="_blank" rel="external">Elixir</a> 练习，在这些练习中我使用 Enum.flat_map/2 函数而它却不是像我期待的那样起作用，这个情况让我很困惑。</p>
+<a id="more"></a>
+<p>于是我回到Erlang来研究 lists:flatmap/2 的执行情况，然后在完全了解了该函数在Erlang里没有正确执行的原因后，我终于明白了这个函数的运行模式，同时我也意识到原来我对这个函数有错误的认识，所以是时候回来说清楚 lists:flatmap/2 实际上做了些什么。</p>
+<p>不知何故，我曾误以为 lists:flatmap/2 就是接收一个任意嵌套深度的列表做为入参，并将他们的扁平化后每个元素都应用在map函数上，就相当于下面的例子：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X * X <span class="keyword">end</span>, lists:flatten([<span class="number">1</span>, [[<span class="number">2</span>, [<span class="number">3</span>]], <span class="number">4</span>]])).</div><div class="line"><span class="comment">% [1,4,9,16]</span></div></pre></td></tr></table></figure>
+<p>即使更近一步阅读 Ruby 文档，甚至在尝试 Ruby 的 flat_map 函数后，很显然我依然完全不理解它上如何工作的，所以是时候仔细阅读 Erlang 文档了。</p>
+<p>Erlang文档说明 lists:flatmap/2 第一个入参是一个函数，这个入参函数接收一个类型A的元素然后返回一个由类型B的元素组成的列表；lists:flatmap/2 的第二个入参是一个由类型A的元素组成的列表。</p>
+<p>我已经困惑于它到底是如何工作的，而且文档也没说明，直到我看到文档的一部分描述了 lists:flatmap/2 的工作原理入下面的定义一样：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">flatmap</span><span class="params">(Fun, List1)</span> -&gt;</span></div><div class="line">    append(map(Fun, List1)).</div></pre></td></tr></table></figure>
+<p>这个定义一下子让我明白了 lists:flatmap/2 到底是如何执行的。以前在我的脑海里，我认为首先是扁平化列表，然后在将各个列表元素应用于map函数上，但是实际上，它首先将各个列表元素应用于map函数上，然后再简单地扁平化，而且仅仅是做了一个层级的扁平化。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">lists:flatmap(<span class="keyword">fun</span>(&#123;Item, Count&#125;) -&gt;</div><div class="line">                  lists:duplicate(Count, Item)</div><div class="line">              <span class="keyword">end</span>,</div><div class="line">              [&#123;a, <span class="number">1</span>&#125;, &#123;b, <span class="number">2</span>&#125;, &#123;'C', <span class="number">3</span>&#125;, &#123;'_d_', <span class="number">4</span>&#125;]).</div><div class="line"><span class="comment">% [a,b,b,'C','C','C','_d_','_d_','_d_','_d_']</span></div></pre></td></tr></table></figure>
+<p>而如果我们将相同的数据先传给map函数，然后再将其结果传给append函数，我们会得到相同的结果。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:append(</div><div class="line">    lists:map(<span class="keyword">fun</span>(&#123;Item, Count&#125;) -&gt;</div><div class="line">                  lists:duplicate(Count, Item)</div><div class="line">              <span class="keyword">end</span>,</div><div class="line">              [&#123;a, <span class="number">1</span>&#125;, &#123;b, <span class="number">2</span>&#125;, &#123;'C', <span class="number">3</span>&#125;, &#123;'_d_', <span class="number">4</span>&#125;])).</div><div class="line"><span class="comment">% [a,b,b,'C','C','C','_d_','_d_','_d_','_d_']</span></div></pre></td></tr></table></figure>
+<p>同时我们更进一步了解到，lists:flatmap/2 甚至不将列表扁平化，而只是简单地将map函数返回的列表链接起来。如下面的例子，最后的结果仍然是一个嵌套的列表结构，而不是只有一个层级的列表。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:flatmap(<span class="keyword">fun</span>(X) -&gt; [X, [X]] <span class="keyword">end</span>, [a, b, c, d]).</div><div class="line"><span class="comment">% [a,[a],b,[b],c,,d,[d]]</span></div></pre></td></tr></table></figure>
+<p>希望本文能让你不要陷入我曾经的困惑。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-flatmap-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-flatmap-2/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#flatmap-2&quot;&gt;lists:flatmap/2&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;选择这个函数来讲是因为这个星期早些时候我做的一些 &lt;a href=&quot;http://elixir-lang.org/&quot;&gt;Elixir&lt;/a&gt; 练习，在这些练习中我使用 Enum.flat_map/2 函数而它却不是像我期待的那样起作用，这个情况让我很困惑。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
+    
+      <category term="flatmap" scheme="http://szpzs.github.io/tags/flatmap/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Erlang Thursday – calendar:local_time_to_universal_time_dst/1</title>
     <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/"/>
     <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/</id>
     <published>2016-09-17T06:38:49.000Z</published>
-    <updated>2016-09-17T06:48:51.000Z</updated>
+    <updated>2016-09-17T07:08:11.000Z</updated>
     
     <content type="html"><![CDATA[<p>（译者注：本文里的例子结果在中国时区是不同的）</p>
 <p>为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time_dst-1" target="_blank" rel="external">calendar:local_time_to_universal_time_dst/1</a>.</p>
+<a id="more"></a>
 <p>为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time-1" target="_blank" rel="external">calendar:local_time_to_universal_time/1</a> 进行比较。</p>
 <p>即将到来的星期日我们将在临晨两点把时钟拨快一个小时，那么让我们来看看在临晨一点五十九分的时候UTC时间是多少？</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">1</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,3,8&#125;,&#123;7,59,59&#125;&#125;</span></div></pre></td></tr></table></figure>
@@ -52,14 +446,14 @@
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;6,59,59&#125;&#125;,&#123;&#123;2015,11,1&#125;,&#123;7,59,59&#125;&#125;]</span></div></pre></td></tr></table></figure>
 <p>通过返回没有元素、一个元素或者两个元素的列表，Erlang提供给你最精确的信息为你所用，同时让你做出希望如何处理时间的明智的决定，而不是为你做出一些决定即使它们不符合你的系统需要。</p>
 <blockquote>
-<p><em>原文链接：</em>  <a href="https://coyee.com/article/10452-erlang-thursday-calendar-local-time-to-universal-time-dst-1" target="_blank" rel="external">https://coyee.com/article/10452-erlang-thursday-calendar-local-time-to-universal-time-dst-1</a></p>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-local_time_to_universal_time_dst-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-local_time_to_universal_time_dst-1/</a></p>
 </blockquote>
 ]]></content>
     
     <summary type="html">
     
       &lt;p&gt;（译者注：本文里的例子结果在中国时区是不同的）&lt;/p&gt;
-&lt;p&gt;为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#local_time_t
+&lt;p&gt;为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time_dst-1&quot;&gt;calendar:local_time_to_universal_time_dst/1&lt;/a&gt;.&lt;/p&gt;
     
     </summary>
     
@@ -79,7 +473,7 @@
     <link href="http://szpzs.github.io/2016/09/17/eli5-atoms/"/>
     <id>http://szpzs.github.io/2016/09/17/eli5-atoms/</id>
     <published>2016-09-17T05:36:59.000Z</published>
-    <updated>2016-09-17T06:36:03.000Z</updated>
+    <updated>2016-09-17T06:54:27.000Z</updated>
     
     <content type="html"><![CDATA[<p><img alt="Atom Table" src="/images/eli5-atom-tab.png" style="border: 0;"><br><a id="more"></a><br>原子表是一个全局表，它将原子内部值（一个整数值）映射到一个字符串。同时也有一个反向到查询表，它将一个字符串映射到一个原子内部值。原子表有一个固定的记录条数上限：1048576。如果它一旦到达了这个上限，当前节点将崩溃 －－ 这就是为什么在运行时动态创建原子是很危险的做法。原子表的记录条数上限可以通过给erl命令指定 +t 标签来设置。</p>
 <p>原子是在运行时不能改变它的值的一个符号。当一个新的原子被创建，它得到一个唯一的值来给当前节点来使用。原子在系统内部仅仅是指向原子表对应记录索引的整数值。这就是为什么原子的操作如此廉价的原因。</p>
@@ -96,16 +490,12 @@
     
     </summary>
     
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+      <category term="BEAM" scheme="http://szpzs.github.io/categories/BEAM/"/>
     
-      <category term="BAEM" scheme="http://szpzs.github.io/categories/Erlang/BAEM/"/>
-    
-      <category term="Atom" scheme="http://szpzs.github.io/categories/Erlang/BAEM/Atom/"/>
+      <category term="Atom" scheme="http://szpzs.github.io/categories/BEAM/Atom/"/>
     
     
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="BAEM" scheme="http://szpzs.github.io/tags/BAEM/"/>
+      <category term="BEAM" scheme="http://szpzs.github.io/tags/BEAM/"/>
     
       <category term="Atom" scheme="http://szpzs.github.io/tags/Atom/"/>
     
@@ -116,7 +506,7 @@
     <link href="http://szpzs.github.io/2016/09/16/eli5-vm/"/>
     <id>http://szpzs.github.io/2016/09/16/eli5-vm/</id>
     <published>2016-09-16T14:11:05.000Z</published>
-    <updated>2016-09-16T15:11:33.000Z</updated>
+    <updated>2016-09-17T06:54:42.000Z</updated>
     
     <content type="html"><![CDATA[<p>BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。</p>
 <a id="more"></a>
@@ -145,14 +535,14 @@
     
     </summary>
     
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+      <category term="BEAM" scheme="http://szpzs.github.io/categories/BEAM/"/>
     
-      <category term="BEAM" scheme="http://szpzs.github.io/categories/Erlang/BEAM/"/>
+      <category term="VM" scheme="http://szpzs.github.io/categories/BEAM/VM/"/>
     
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
     
       <category term="BEAM" scheme="http://szpzs.github.io/tags/BEAM/"/>
+    
+      <category term="VM" scheme="http://szpzs.github.io/tags/VM/"/>
     
   </entry>
   
@@ -484,388 +874,6 @@
       <category term="timer" scheme="http://szpzs.github.io/tags/timer/"/>
     
       <category term="tc" scheme="http://szpzs.github.io/tags/tc/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday - lists:any/2</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-any-2/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-any-2/</id>
-    <published>2016-09-15T13:36:55.000Z</published>
-    <updated>2016-09-16T15:13:37.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的 Erlang Thursday 要讲的函数是 <a href="http://www.erlang.org/doc/man/lists.html#any-2" target="_blank" rel="external">lists:any/2</a>.</p>
-<p>lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历的列表作为第二个入参。如果这个断言函数对于任意一个给定列表的元素返回 true 的话lists:any/2 返回 true ，否则， lists:any/2 返回 false 。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">lists:any(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% false</span></div><div class="line">lists:any(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, a, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:any(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [&#123;<span class="number">1</span>, <span class="number">2</span>&#125;, <span class="number">3</span>, <span class="number">4</span>, a, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:any(<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:any(<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
-<p>lists:any/2 是个急性子，只要它发现某个元素使得断言函数返回true，它就立即返回true，并且忽略剩下的列表元素。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">timer:tc(lists, any, [<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">1</span> <span class="keyword">end</span>, lists:seq(<span class="number">2</span>, <span class="number">200000</span>, <span class="number">2</span>)]).</div><div class="line"><span class="comment">% &#123;248410,false&#125;</span></div><div class="line">timer:tc(lists, any, [<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">0</span> <span class="keyword">end</span>, lists:seq(<span class="number">2</span>, <span class="number">200000</span>, <span class="number">2</span>)]).</div><div class="line"><span class="comment">% &#123;13,true&#125;</span></div></pre></td></tr></table></figure>
-<p>lists模块也包含 lists:all/2 函数，它和 lists:any/2 有点类似，不过它是通过断言函数检查每一个列表的元素，如果都返回true，则它就返回true。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:all(<span class="keyword">fun</span> erlang:is_number/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, a, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% false</span></div><div class="line">lists:all(<span class="keyword">fun</span> erlang:is_number/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>lists:all/2 也是一个急性子，一旦某个列表元素使得断言函数返回false，它就立即返回false，并且忽略后续的列表元素。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">timer:tc(lists, all, [<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">0</span> <span class="keyword">end</span>, lists:seq(<span class="number">2</span>, <span class="number">200000</span>, <span class="number">2</span>)]).</div><div class="line"><span class="comment">% &#123;235276,true&#125;</span></div><div class="line">timer:tc(lists, all, [<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">1</span> <span class="keyword">end</span>, lists:seq(<span class="number">2</span>, <span class="number">200000</span>, <span class="number">2</span>)]).</div><div class="line"><span class="comment">% &#123;14,false&#125;</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-any-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-any-2/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的 Erlang Thursday 要讲的函数是 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#any-2&quot;&gt;lists:any/2&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;lists:any/2 接收一个断言函数作为第一个入参，一个将被遍历的列表作为第二个入参。如果这个断言函数对于任意一个给定列表的元素返回 true 的话lists:any/2 返回 true ，否则， lists:any/2 返回 false 。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
-    
-      <category term="any" scheme="http://szpzs.github.io/tags/any/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday - lists:partition/2</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-partition-2/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-partition-2/</id>
-    <published>2016-09-15T13:32:57.000Z</published>
-    <updated>2016-09-16T15:12:22.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#partition-2" target="_blank" rel="external">lists:partition/2</a>.</p>
-<p>lists:partition/2 接收两个入参，第一个入参是一个断言函数，它将被调用对列表里的每个元素进行处理然后返回一个布尔值。第二个入参是一个将被分隔的列表。</p>
-<p>lists:parition/2 返回一个两元素的元组，这个元组的第一个元素是一个列表，这个列表的元素是断言函数返回真值所对应的元素组成；元组第二个元素也是一个列表，它是断言函数返回false所对应的元素组成。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">lists:partition(<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% &#123;[1,3,5,7],[2,4,6]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">3</span> == <span class="number">0</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% &#123;[3,6],[1,2,4,5,7]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [a, <span class="number">1</span>, [b, c], 'B', <span class="keyword">fun</span> lists:sum/<span class="number">1</span>]).</div><div class="line"><span class="comment">% &#123;[a,'B'],[1,[b,c],#Fun&lt;lists.sum.1&gt;]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [a, <span class="number">1</span>, &#123;b, [z]&#125;, 'B', <span class="keyword">fun</span> lists:sum/<span class="number">1</span>]).</div><div class="line"><span class="comment">% &#123;[a,'B'],[1,&#123;b,[z]&#125;,#Fun&lt;lists.sum.1&gt;]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, []).</div><div class="line"><span class="comment">% &#123;[],[]&#125;</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-partition-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-partition-2/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#partition-2&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;lists:partition/2&lt;/a&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
-    
-      <category term="partition" scheme="http://szpzs.github.io/tags/partition/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday - lists:zip/2</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-zip-2/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-zip-2/</id>
-    <published>2016-09-15T13:24:52.000Z</published>
-    <updated>2016-09-16T15:12:02.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的函数是 <a href="http://www.erlang.org/doc/man/lists.html#zip-2" target="_blank" rel="external">lists:zip/2</a>.</p>
-<p>lists:zip/2 返回一个由两元素元组组成的列表，其中两元素元组是由两个入参列表位置相对应的元素组成。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:zip([a, b, c, d], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [&#123;a,1&#125;,&#123;b,2&#125;,&#123;c,3&#125;,&#123;d,4&#125;]</span></div><div class="line">lists:zip([a, b, c, d], [&#123;<span class="number">1</span>, <span class="number">3</span>&#125;, &#123;<span class="number">2</span>, <span class="number">5</span>&#125;, &#123;<span class="number">3</span>, <span class="number">7</span>&#125;, &#123;<span class="number">4</span>, <span class="number">11</span>&#125;]).</div><div class="line"><span class="comment">% [&#123;a,&#123;1,3&#125;&#125;,&#123;b,&#123;2,5&#125;&#125;,&#123;c,&#123;3,7&#125;&#125;,&#123;d,&#123;4,11&#125;&#125;]</span></div><div class="line">lists:zip([a, b], [<span class="keyword">fun</span> lists:map/<span class="number">3</span>, <span class="keyword">fun</span> lists:foldl/<span class="number">3</span>]).</div><div class="line"><span class="comment">% [&#123;a,#Fun&lt;lists.map.3&gt;&#125;,&#123;b,#Fun&lt;lists.foldl.3&gt;&#125;]</span></div></pre></td></tr></table></figure>
-<p>如果两个入参列表的长度不同，将抛出一个函数子句不匹配（function clause match）的异常。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">lists:zip([a, b, c, d], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).</div><div class="line"><span class="comment">% ** exception error: no function clause matching lists:zip([d],[]) (lists.erl, line 385)</span></div><div class="line"><span class="comment">%      in function  lists:zip/2 (lists.erl, line 385)</span></div><div class="line"><span class="comment">%      in call from lists:zip/2 (lists.erl, line 385)</span></div><div class="line">lists:zip([a, b, c], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% ** exception error: no function clause matching lists:zip([],[4]) (lists.erl, line 385)</span></div><div class="line"><span class="comment">%      in function  lists:zip/2 (lists.erl, line 385)</span></div><div class="line"><span class="comment">%      in call from lists:zip/2 (lists.erl, line 385)</span></div></pre></td></tr></table></figure>
-<p>也有接收3个入参版本的zip函数：lists:zip3/3，它的功能和 lists:zip/2 一样，只是入参为3个列表而不是2个列表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:zip3([a, b, c, d], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>], [<span class="string">"alpha"</span>, <span class="string">"bravo"</span>, <span class="string">"charlie"</span>, <span class="string">"delta"</span>]).</div><div class="line"><span class="comment">% [&#123;a,1,"alpha"&#125;,&#123;b,2,"bravo"&#125;,&#123;c,3,"charlie"&#125;,&#123;d,4,"delta"&#125;]</span></div></pre></td></tr></table></figure>
-<p>如果你想用不同的方式来组合列表中的元素，你可以用 <a href="http://www.erlang.org/doc/man/lists.html#zipwith-3" target="_blank" rel="external">lists:zipwith/3</a> 或者 <a href="http://www.erlang.org/doc/man/lists.html#zipwith3-4" target="_blank" rel="external">lists:zipwith3/4</a>，它们的第一个入参是一个接收两个入参的组合函数。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">lists:zipwith(<span class="keyword">fun</span>(X, Y) -&gt; X * Y <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>], [<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% [2,6,12,20]</span></div><div class="line">lists:zipwith(<span class="keyword">fun</span>(X, Y) -&gt; X + Y <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>], [<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% [3,5,7,9]</span></div><div class="line">lists:zipwith3(<span class="keyword">fun</span>(X, Y, Z) -&gt; X * Y * Z <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>], [<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>], [<span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>]).</div><div class="line"><span class="comment">% [8,18,24,20]</span></div><div class="line">lists:zipwith3(<span class="keyword">fun</span>(X, Y, Z) -&gt; &#123;&#123;X, Y&#125;, Z&#125; <span class="keyword">end</span>, [a, b, c, d], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>], [<span class="string">"alpha"</span>, <span class="string">"bravo"</span>, <span class="string">"charlie"</span>, <span class="string">"delta"</span>]).</div><div class="line"><span class="comment">% [&#123;&#123;a,1&#125;,"alpha"&#125;,</span></div><div class="line"><span class="comment">%  &#123;&#123;b,2&#125;,"bravo"&#125;,</span></div><div class="line"><span class="comment">%  &#123;&#123;c,3&#125;,"charlie"&#125;,</span></div><div class="line"><span class="comment">%  &#123;&#123;d,4&#125;,"delta"&#125;]</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-zip-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-zip-2/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的函数是 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#zip-2&quot;&gt;lists:zip/2&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;lists:zip/2 返回一个由两元素元组组成的列表，其中两元素元组是由两个入参列表位置相对应的元素组成。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
-    
-      <category term="zip" scheme="http://szpzs.github.io/tags/zip/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday - lists:foldl/3 and lists:foldr/3</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-foldl-3-and-lists-foldr-3/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-foldl-3-and-lists-foldr-3/</id>
-    <published>2016-09-15T12:38:40.000Z</published>
-    <updated>2016-09-16T15:13:14.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#foldl-3" target="_blank" rel="external">lists:foldl/3</a> 和 <a href="http://www.erlang.org/doc/man/lists.html#foldr-3" target="_blank" rel="external">lists:foldr/3</a> 。</p>
-<p>lists:foldl/3 是Erlang版的 reduce 函数。 lists:foldl/3 接收三个入参：一个函数，一个初始的累加器，一个列表，输出一个单一的值。</p>
-<a id="more"></a>
-<p>foldl的第一个入参是一个接收两个参数的函数，一个是当前循环到的列表元素，另一个是积累的值。这个函数的输出值作为循环到下一个列表元素的时候的累加器，或者当循环结束的时候作为foldl函数的输出值。</p>
-<p>foldl的第二个入参是一个累加器的初始值。与其他一些语言不同，在其他语言里这个累加器的初始值是可选的，而且常常是使用循环列表的第一个元素作为默认值，但是在Erlang里，累加器的初始值必需作为lists:foldl/3和lists:foldr/3两个函数的入参。</p>
-<p>第三个入参，也就是最后一个入参是将被循环遍历的列表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Sum) -&gt; Sum + X <span class="keyword">end</span>, <span class="number">0</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 15</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Product) -&gt; Product * X <span class="keyword">end</span>, <span class="number">1</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 120</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; io:format(<span class="string">"~p "</span>, [X]) <span class="keyword">end</span>, void, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 1 2 3 4 5 ok</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; io:format(<span class="string">"~p "</span>, [X]), Accum <span class="keyword">end</span>, void, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 1 2 3 4 5 void</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Accum) -&gt; Accum + X <span class="keyword">end</span>, <span class="number">1</span>, []).</div><div class="line"><span class="comment">% 1</span></div><div class="line">lists:foldl(<span class="keyword">fun</span>(X, Result) -&gt; lists:umerge(Result, X) <span class="keyword">end</span>, [], [[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>], [<span class="number">11</span>, <span class="number">13</span>, <span class="number">17</span>]]).</div><div class="line"><span class="comment">% [1,2,3,5,8,11,13,17]</span></div></pre></td></tr></table></figure>
-<p>在Erlang的lists模块里也包含foldr/3函数，它是从左到右（译者注：应该是从右到左，可能是作者手误）遍历列表或者说是从最后一个元素到第一个元素遍历列表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:foldr(<span class="keyword">fun</span>(X, Accum) -&gt; io:format(<span class="string">"~p "</span>, [X]), Accum <span class="keyword">end</span>, void, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]).</div><div class="line"><span class="comment">% 5 4 3 2 1 void</span></div><div class="line">lists:foldr(<span class="keyword">fun</span>(X, Accum) -&gt; Accum + X <span class="keyword">end</span>, <span class="number">1</span>, []).</div><div class="line"><span class="comment">% 1</span></div></pre></td></tr></table></figure>
-<p>Erlang文档里指出foldl/3通常比foldr/3更好，因为foldl/3是尾递归，而foldr/3不是。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-foldl-3-and-lists-foldr-3/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#foldl-3&quot;&gt;lists:foldl/3&lt;/a&gt; 和 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#foldr-3&quot;&gt;lists:foldr/3&lt;/a&gt; 。&lt;/p&gt;
-&lt;p&gt;lists:foldl/3 是Erlang版的 reduce 函数。 lists:foldl/3 接收三个入参：一个函数，一个初始的累加器，一个列表，输出一个单一的值。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
-    
-      <category term="foldl" scheme="http://szpzs.github.io/tags/foldl/"/>
-    
-      <category term="foldr" scheme="http://szpzs.github.io/tags/foldr/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday - lists:map/2</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-map-2/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-map-2/</id>
-    <published>2016-09-15T11:53:09.000Z</published>
-    <updated>2016-09-16T15:13:02.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是函数 <a href="http://www.erlang.org/doc/man/lists.html#map-2" target="_blank" rel="external">lists:map/2</a> 。</p>
-<p>lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X + <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [2,3,4,5]</span></div><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X * X <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% [1,4,9,16]</span></div></pre></td></tr></table></figure>
-<p>因为字符串在Erlang里就是整数列表，所以你也可以将map函数应用在字符串上。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) -&gt; X - <span class="number">1</span> <span class="keyword">end</span>, <span class="string">"IBM"</span>).</div><div class="line"><span class="comment">% "HAL"</span></div></pre></td></tr></table></figure>
-<h1 id="Erlang里的函数"><a href="#Erlang里的函数" class="headerlink" title="Erlang里的函数"></a>Erlang里的函数</h1><p>如果你仔细观察上面第一个例子，你会发现第一个入参我们传递的是一个 fun(X) -&gt; X + 1 end. 这是Erlang的匿名函数的语法。 一个匿名函数的格式如下：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">fun</span><span class="params">(Args1)</span> O<span class="title">ptionalGuardClause1</span> -&gt;</span></div><div class="line">        Expression1, Expression2;</div><div class="line">   (Args2) OptionalGuardClause2 -&gt;</div><div class="line">        Expression3, Expression4;</div><div class="line">   (Args3) OptionalGuardClause3 -&gt;</div><div class="line">        Expression5, Expression6;</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>因为我们可以像普通函数一样使用匿名函数，除了在17.0以前的版本不能递归调用一个匿名函数外，所以我们可以将一个有多个子句的匿名函数传给lists:map/2 函数。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span>(X) <span class="keyword">when</span> is_atom(X) -&gt; atom; (X) -&gt; nil <span class="keyword">end</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[nil,atom,nil,nil,atom]</div></pre></td></tr></table></figure>
-<h1 id="传递命名函数给lists-map-2"><a href="#传递命名函数给lists-map-2" class="headerlink" title="传递命名函数给lists:map/2"></a>传递命名函数给lists:map/2</h1><p>虽然一些场合我们用匿名函数，但是更多时候为了清晰明了，我们还是想用命名函数。我们可以通过函数的限定名称方式来传递一个命名函数给lists:map/2，采用的格式是，在module:function_name/arity 前面加上 fun 。下面的例子用math:log10/1和erlang:is_atom/1两个函数来演示：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span> math:log10/<span class="number">1</span>, [<span class="number">1</span>, <span class="number">10</span>, <span class="number">100</span>, <span class="number">1000</span>, <span class="number">10000</span>]).</div><div class="line">[<span class="number">0.0</span>,<span class="number">1.0</span>,<span class="number">2.0</span>,<span class="number">3.0</span>,<span class="number">4.0</span>]</div><div class="line">lists:map(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [<span class="number">1</span>, x, &#123;x&#125;, [], 'B']).</div><div class="line">[<span class="literal">false</span>,<span class="literal">true</span>,<span class="literal">false</span>,<span class="literal">false</span>,<span class="literal">true</span>]</div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-map-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-map-2/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是函数 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#map-2&quot;&gt;lists:map/2&lt;/a&gt; 。&lt;/p&gt;
-&lt;p&gt;lists:map/2 接收两个入参，一个是接收一个入参的函数，我们称它为“mapping”函数，另一个是一个Erlang term组成的列表。lists:map/2 的结果是一个列表，这个列表是由入参的列表的每个元素应用于“mapping”函数得到结果组成的。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
-    
-      <category term="map" scheme="http://szpzs.github.io/tags/map/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – lists:flatten/1</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-flatten-1/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-flatten-1/</id>
-    <published>2016-09-15T11:44:42.000Z</published>
-    <updated>2016-09-16T15:13:25.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Erlang Thursday今天要讲的函数是 lists:flatten/1。</p>
-<p>lists:flatten/1 函数将一个任意深度的由Erlang的term组成的列表展平为一个“扁平”的列表。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">lists:flatten([]).</div><div class="line"><span class="comment">% []</span></div><div class="line">lists:flatten([a, b, c]).</div><div class="line"><span class="comment">% [a,b,c]</span></div><div class="line">lists:flatten([a, b, [<span class="number">1</span>, [x, y], <span class="number">3</span>], c]).</div><div class="line"><span class="comment">% [a,b,1,x,y,3,c]</span></div><div class="line">lists:flatten([a, b, [<span class="number">1</span>, [x, &#123;some, tuple&#125;], <span class="number">3</span>], c]).</div><div class="line"><span class="comment">% [a,b,1,x,&#123;some,tuple&#125;,3,c]</span></div></pre></td></tr></table></figure>
-<p>注意！它会把所有的列表都展平，比如下面的例子：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:flatten([a, <span class="string">"foo"</span>, b]).</div><div class="line"><span class="comment">% [a,102,111,111,b]</span></div></pre></td></tr></table></figure>
-<p>上面的例子，你得到的结果有整数在列表里，因为字符串实际上在底层就是一个整数列表，所以你得到的是字符串“foo”里f和o的ASCII字符码。</p>
-<p>如果你要保留字符串的格式，你必须使用二进制格式的字符串，如下所示：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:flatten([a, &lt;&lt;<span class="string">"foo"</span>&gt;&gt;, b]).</div><div class="line"><span class="comment">% [a,&lt;&lt;"foo"&gt;&gt;,b]</span></div></pre></td></tr></table></figure>
-<p>作为一个奖励，还有一个lists:flatten/2 函数，它将一个列表展平，并且接收另外一个入参 Tail，这个入参将附加在展平列表的后面从而形成一个新的列表，例子如下：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:flatten([a, [<span class="number">1</span>, [b, [<span class="number">2</span>]]]], [x, y, z]).</div><div class="line"><span class="comment">% [a,1,b,2,x,y,z]</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-flatten-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-flatten-1/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Erlang Thursday今天要讲的函数是 lists:flatten/1。&lt;/p&gt;
-&lt;p&gt;lists:flatten/1 函数将一个任意深度的由Erlang的term组成的列表展平为一个“扁平”的列表。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
-    
-      <category term="flatten" scheme="http://szpzs.github.io/tags/flatten/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – lists:max/1</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-max-1/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-max-1/</id>
-    <published>2016-09-15T08:43:49.000Z</published>
-    <updated>2016-09-16T15:12:50.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天我们来学习 lists:max/1。</p>
-<p>lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:max([<span class="number">1</span>, <span class="number">39</span>, <span class="number">7</span>, <span class="number">63</span>, <span class="number">27</span>, <span class="number">52</span>, <span class="number">16</span>]).</div><div class="line"><span class="comment">% 63</span></div><div class="line">lists:max([q, w, a, r, c, f, m, b]).</div><div class="line"><span class="comment">% w</span></div><div class="line">lists:max([[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>]]).</div><div class="line"><span class="comment">% [1,2,4]</span></div></pre></td></tr></table></figure>
-<p>Erlang在不同类型的term之间有着截然不同的大小顺序，</p>
-<p>number &lt; atom &lt; reference &lt; fun &lt; port &lt; pid &lt; tuple &lt; list &lt; bit string<br>传给lists:max/1函数的列表可以由任意类型的term组成。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:max([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, a]).</div><div class="line"><span class="comment">% a</span></div><div class="line">lists:max([<span class="number">1</span>, a, [foo, bar], &#123;baz&#125;]).</div><div class="line"><span class="comment">% [foo,bar]</span></div></pre></td></tr></table></figure>
-<p>因为在Erlang中字符串实际上是数字列表，所以我们甚至可以比较字符串。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:max([<span class="string">"foo"</span>, <span class="string">"bar"</span>, <span class="string">"baz"</span>, <span class="string">"snafu"</span>]).</div><div class="line"><span class="string">"snafu"</span></div></pre></td></tr></table></figure>
-<p>如果你传入一个空列表给lists:max/1函数，一个 “no function clause matching”的错误将产生，因为该函数需要一个至少有一个元素的列表作为入参。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:max([]).</div><div class="line">** exception error: no function clause matching lists:max([]) (lists.erl, line <span class="number">326</span>)</div></pre></td></tr></table></figure>
-<p>请您告诉我在以后的Erlang Thursday系列文章里，哪些是您喜欢的Erlang函数，甚至只是你想看到的函数？</p>
-<p>如果您想比较Erlang的max函数和Ruby的max方法，别忘了看看上周的Ruby Tuesday系列文章： <a href="http://www.proctor-it.com/ruby-tuesday-enumerable-max/" target="_blank" rel="external">Ruby Tuesday on Enumerable#max</a>。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-max-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-max-1/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天我们来学习 lists:max/1。&lt;/p&gt;
-&lt;p&gt;lists:max/1 接收一个入参，这个入参是一个最少有一个元素的列表，并且它返回这个列表里最大值的元素。这个列表可以由任何Erlang term组成：&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
-    
-      <category term="max" scheme="http://szpzs.github.io/tags/max/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – lists:seq</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-seq/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-seq/</id>
-    <published>2016-09-15T08:02:18.000Z</published>
-    <updated>2016-09-16T15:12:12.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地让读者接受和理解的一些想法。<br><a id="more"></a><br>因为这周我在<a href="https://www.proctor-it.com/ruby-tuesday-ranges/" target="_blank" rel="external">Ruby Tuesday</a>里谈到了Ruby的Range方法，那么今天我要讲的Erlang函数就是lists:seq/2和lists:seq/3。</p>
-<p>如果你还记得上周<a href="https://www.proctor-it.com/erlang-thursday-lists-member/" target="_blank" rel="external">Erlang Thursday</a>里的Erlang扫盲小知识里讲到的，在函数名字后面的数字表示是这个函数的arity，也就是入参的个数。</p>
-<p>函数 lists:seq/2 接受两个整数入参，一个表示起始整数，一个表示结束整数，它产生一个包括这两个入参的整数列表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>).</div><div class="line"><span class="comment">% [1,2,3,4,5,6,7,8,9,10]</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% [1]</span></div></pre></td></tr></table></figure>
-<p>有三个入参的lists:seq函数引入一个增量作为第三个参数：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, <span class="number">3</span>).</div><div class="line"><span class="comment">% [1,4,7,10]</span></div></pre></td></tr></table></figure>
-<p>这个增量值可以是负数，这样就允许从一个整数减少低至另一个整数。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">20</span>, <span class="number">10</span>, -<span class="number">1</span>).</div><div class="line"><span class="comment">% [20,19,18,17,16,15,14,13,12,11,10]</span></div><div class="line">lists:seq(<span class="number">20</span>, <span class="number">10</span>, -<span class="number">5</span>).</div><div class="line"><span class="comment">% [20,15,10]</span></div></pre></td></tr></table></figure>
-<p>如果给了不合适的起始和结束入参，lists:seq 函数不像Rang Range那样返回一个空集合，它会抛出一个异常。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">lists:seq(<span class="number">10</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching lists:seq(10,1) (lists.erl, line 241)</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div><div class="line">lists:seq(<span class="number">1</span>, <span class="number">10</span>, -<span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div><div class="line">lists:seq(<span class="number">10</span>, <span class="number">1</span>, <span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  lists:seq/3 (lists.erl, line 262)</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-seq/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-seq/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Erlang Thursday系列文章的下一个目标是详细描述那些与Ruby Tuesday系列文章里着重阐述的方法所相对应的Erlang函数。我希望通过每个星期与Ruby Tuesday配合的Erlang Thursday系列文章能使得读者渐渐不再对Erlang陌生；我也希望通过这种方式建立一个共同讨论的渠道来使得读者不再认为Erlang是令人生畏的一门语言。我很想知道您对我这个目标如何才能更好地让读者接受和理解的一些想法。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
-    
-      <category term="seq" scheme="http://szpzs.github.io/tags/seq/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – lists:member/2</title>
-    <link href="http://szpzs.github.io/2016/09/15/erlang-thursday-lists-member-2/"/>
-    <id>http://szpzs.github.io/2016/09/15/erlang-thursday-lists-member-2/</id>
-    <published>2016-09-15T06:09:19.000Z</published>
-    <updated>2016-09-16T15:12:34.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>为了和每周的 <a href="http://www.proctor-it.com/ruby-tuesday-enumerableinclude/" target="_blank" rel="external">Ruby Tuesday</a> 系列文章中关于Enumerable#include?函数来个跨界对比，我决定着重介绍 Erlang 中相同类型的函数，lists:member/2。</p>
-<a id="more"></a>
-<p>首先给不熟悉Erlang的同学们补充一下知识：lists:member/2 表达的意思是在lists模块里有个名字叫member的函数，它有两个参数。Arity这个词的意思表示这个函数接受的入参的个数。在Erlang中，模块很重要，因为它是所有函数赖以生存的容器－－另外也是因为模块在Erlang里是代码重新装载的单元－－为了重新载入某个方法的新版本，必需指定具体模块。</p>
-<p>总而言之，模块lists的函数member接受两个入参：一个是被查找的元素，它是Erlang的一种由任意数据类型组成的数据，另一个是被检索的由Erlang的各种类型数据组成的列表；如果被查找的元素在列表里被找到，则返回true。一个Erlang的term是任意Erlang数据类型组成的数据。</p>
-<p>为了方便大家运行，下面的表达式是通用的写法，返回值则加上了%符号，这个符号是Erlang注释符号，这样就方便大家直接拷贝下面的表达式然后复制到Erlang的shell上运行。</p>
-<p>这个函数能够很方便地判断一个数字是否在一个由数字组成的列表里：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:member(<span class="number">4</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">13</span>, <span class="number">21</span>]).</div><div class="line"><span class="comment">% false</span></div><div class="line">lists:member(<span class="number">13</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">13</span>, <span class="number">21</span>]).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>或者判断一个原子是否在一个由原子组成的列表里：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">lists:member(c, [a, b, c, d]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member(q, [a, b, c, d]).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
-<p>或者由更复杂的term组成的列表，比如元组，或者包含列表的元组：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:member(&#123;d, <span class="number">4</span>&#125;, [&#123;a, <span class="number">1</span>&#125;, &#123;b, <span class="number">2</span>&#125;, &#123;c, <span class="number">3</span>&#125;, &#123;d, <span class="number">4</span>&#125;]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member(&#123;'Foo', [bar, baz]&#125;, [a, <span class="number">1</span>, &#123;'Foo', [bar, baz]&#125;]).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member(&#123;fu, [bar, baz]&#125;, [a, <span class="number">1</span>, &#123;'Foo', [bar, baz]&#125;]).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
-<p>甚至是判断一个整数或字符是否在一个字符串里：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lists:member($a, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member(<span class="number">97</span>, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">lists:member($A, <span class="string">"banana"</span>).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
-<p>如果你仔细观察，你会发现，在Erlang里字符串实际上是由整数组成的列表。</p>
-<p>希望这是一个有趣的Ruby和Erlang的比较；同时如果你对它不熟悉的话，能让你更了解Erlang。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-member/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-member/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;为了和每周的 &lt;a href=&quot;http://www.proctor-it.com/ruby-tuesday-enumerableinclude/&quot;&gt;Ruby Tuesday&lt;/a&gt; 系列文章中关于Enumerable#include?函数来个跨界对比，我决定着重介绍 Erlang 中相同类型的函数，lists:member/2。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
-    
-      <category term="member" scheme="http://szpzs.github.io/tags/member/"/>
     
   </entry>
   

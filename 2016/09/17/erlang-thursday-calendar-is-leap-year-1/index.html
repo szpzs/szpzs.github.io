@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Erlang, Elixir, Hexo, NexT" />
+  <meta name="keywords" content="Erlang,calendar,is_leap_year," />
 
 
 
@@ -86,15 +86,22 @@
 
 
 
-<meta name="description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Time is all">
-<meta property="og:url" content="http://szpzs.github.io/categories/Erlang/Atom/index.html">
+<meta name="description" content="今天的Erlang Thursday讲的是 calendar:is_leap_year/1.
+calendar:is_leap_year/1 接收一个非负整数表示的年份，如果这个年份是闰年，则返回true，否则返回false。
+123456789101112calendar:is_leap_year(2015).% falsecalendar:is_leap_year(2012).% trueca">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Erlang Thursday – calendar:is_leap_year/1">
+<meta property="og:url" content="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-is-leap-year-1/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
+<meta property="og:description" content="今天的Erlang Thursday讲的是 calendar:is_leap_year/1.
+calendar:is_leap_year/1 接收一个非负整数表示的年份，如果这个年份是闰年，则返回true，否则返回false。
+123456789101112calendar:is_leap_year(2015).% falsecalendar:is_leap_year(2012).% trueca">
+<meta property="og:updated_time" content="2016-09-17T07:52:30.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Time is all">
-<meta name="twitter:description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
+<meta name="twitter:title" content="Erlang Thursday – calendar:is_leap_year/1">
+<meta name="twitter:description" content="今天的Erlang Thursday讲的是 calendar:is_leap_year/1.
+calendar:is_leap_year/1 接收一个非负整数表示的年份，如果这个年份是闰年，则返回true，否则返回false。
+123456789101112calendar:is_leap_year(2015).% falsecalendar:is_leap_year(2012).% trueca">
 
 
 
@@ -115,9 +122,9 @@
 
 
 
-  <link rel="canonical" href="http://szpzs.github.io/categories/Erlang/Atom/"/>
+  <link rel="canonical" href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-is-leap-year-1/"/>
 
-  <title> 分类: Atom | Time is all </title>
+  <title> Erlang Thursday – calendar:is_leap_year/1 | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -138,7 +145,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -249,47 +256,176 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <div class="collection-title">
-      <h2 >
-        Atom
-        <small>分类</small>
-      </h2>
-    </div>
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
 
     
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Erlang Thursday – calendar:is_leap_year/1
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-17T15:43:16+08:00" content="2016-09-17">
+              2016-09-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/calendar/" itemprop="url" rel="index">
+                    <span itemprop="name">calendar</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/17/erlang-thursday-calendar-is-leap-year-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/17/erlang-thursday-calendar-is-leap-year-1/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
       
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+      
+        <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#is_leap_year-1" target="_blank" rel="external">calendar:is_leap_year/1</a>.</p>
+<p>calendar:is_leap_year/1 接收一个非负整数表示的年份，如果这个年份是闰年，则返回true，否则返回false。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">calendar:is_leap_year(<span class="number">2015</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">2012</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:is_leap_year(<span class="number">2017</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">2000</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:is_leap_year(<span class="number">1900</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">0</span>).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>有了这个Erlang核心库的内置函数，意味着你不需要编写代码或者甚至不需要查找规则来记住如何判断某个年份到底是不是闰年。</p>
+<p>如果你传递一个负数来表示年份，Erlang将抛出一个异常，因为没有一个函数分支能匹配用负数来表示的年份。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">calendar:is_leap_year(-<span class="number">1</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:is_leap_year(-1) (calendar.erl, line 183)</span></div><div class="line">calendar:is_leap_year(-<span class="number">4</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:is_leap_year(-4) (calendar.erl, line 183)</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-is_leap_year-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-is_leap_year-1/</a></p>
+</blockquote>
 
-      <h1 class="post-title">
+      
+    </div>
+
+    <div>
+      
         
-            <a class="post-title-link" href="/2016/09/17/eli5-atoms/" itemprop="url">
-              
-                <span itemprop="name">原子之浅显易懂</span>
-              
-            </a>
+
+      
+    </div>
+
+    <div>
+      
         
-      </h1>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-09-17T13:36:59+08:00"
-              content="2016-09-17" >
-          09-17
-        </time>
-      </div>
+      
+    </div>
 
-    </header>
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/calendar/" rel="tag">#calendar</a>
+          
+            <a href="/tags/is-leap-year/" rel="tag">#is_leap_year</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/17/erlang-thursday-calendar-valid-date-3/" rel="next" title="Erlang Thursday – calendar:valid_date/3">
+                <i class="fa fa-chevron-left"></i> Erlang Thursday – calendar:valid_date/3
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/17/erlang-thursday-calendar-iso-week-number-1/" rel="prev" title="Erlang Thursday – calendar:iso_week_number/1">
+                Erlang Thursday – calendar:iso_week_number/1 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </article>
 
 
-    
-  </section>
 
-  
-
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -297,6 +433,14 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/17/erlang-thursday-calendar-is-leap-year-1/"
+           data-title="Erlang Thursday – calendar:is_leap_year/1" data-url="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-is-leap-year-1/">
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -316,8 +460,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.jpg"
@@ -328,7 +481,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">19</span>
+              <span class="site-state-item-count">29</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -336,7 +489,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -345,7 +498,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">28</span>
+                <span class="site-state-item-count">37</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -432,6 +585,17 @@
 
       </section>
 
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+        </section>
       
 
     </div>
@@ -535,6 +699,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
 
   
 
@@ -545,9 +713,30 @@
 
   
 
+  
+    
+  
 
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
 
   
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
 
 
 

@@ -87,21 +87,18 @@
 
 
 <meta name="description" content="（译者注：本文里的例子结果在中国时区是不同的）
-为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.
-为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 calendar:local_time_to_un">
+为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang Thursday – calendar:local_time_to_universal_time_dst/1">
 <meta property="og:url" content="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/index.html">
 <meta property="og:site_name" content="Time is all">
 <meta property="og:description" content="（译者注：本文里的例子结果在中国时区是不同的）
-为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.
-为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 calendar:local_time_to_un">
-<meta property="og:updated_time" content="2016-09-17T06:48:51.000Z">
+为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.">
+<meta property="og:updated_time" content="2016-09-17T07:08:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang Thursday – calendar:local_time_to_universal_time_dst/1">
 <meta name="twitter:description" content="（译者注：本文里的例子结果在中国时区是不同的）
-为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.
-为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 calendar:local_time_to_un">
+为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.">
 
 
 
@@ -329,6 +326,13 @@
 
           
             
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -350,6 +354,7 @@
       
         <p>（译者注：本文里的例子结果在中国时区是不同的）</p>
 <p>为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time_dst-1" target="_blank" rel="external">calendar:local_time_to_universal_time_dst/1</a>.</p>
+<a id="more"></a>
 <p>为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time-1" target="_blank" rel="external">calendar:local_time_to_universal_time/1</a> 进行比较。</p>
 <p>即将到来的星期日我们将在临晨两点把时钟拨快一个小时，那么让我们来看看在临晨一点五十九分的时候UTC时间是多少？</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">1</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,3,8&#125;,&#123;7,59,59&#125;&#125;</span></div></pre></td></tr></table></figure>
@@ -378,7 +383,7 @@
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;6,59,59&#125;&#125;,&#123;&#123;2015,11,1&#125;,&#123;7,59,59&#125;&#125;]</span></div></pre></td></tr></table></figure>
 <p>通过返回没有元素、一个元素或者两个元素的列表，Erlang提供给你最精确的信息为你所用，同时让你做出希望如何处理时间的明智的决定，而不是为你做出一些决定即使它们不符合你的系统需要。</p>
 <blockquote>
-<p><em>原文链接：</em>  <a href="https://coyee.com/article/10452-erlang-thursday-calendar-local-time-to-universal-time-dst-1" target="_blank" rel="external">https://coyee.com/article/10452-erlang-thursday-calendar-local-time-to-universal-time-dst-1</a></p>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-local_time_to_universal_time_dst-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-local_time_to_universal_time_dst-1/</a></p>
 </blockquote>
 
       
@@ -421,6 +426,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2016/09/17/erlang-thursday-lists-flatmap-2/" rel="prev" title="Erlang Thursday – lists:flatmap/2">
+                Erlang Thursday – lists:flatmap/2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -444,6 +453,10 @@
 
           
   <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/"
+           data-title="Erlang Thursday – calendar:local_time_to_universal_time_dst/1" data-url="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/">
+      </div>
     
   </div>
 
@@ -487,7 +500,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">20</span>
+              <span class="site-state-item-count">29</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -495,7 +508,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -504,7 +517,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-count">37</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -719,9 +732,30 @@
 
   
 
+  
+    
+  
 
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
 
   
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
 
 
 
