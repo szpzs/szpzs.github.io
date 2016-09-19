@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.github.io/"/>
-  <updated>2016-09-18T12:29:25.000Z</updated>
+  <updated>2016-09-19T07:54:57.000Z</updated>
   <id>http://szpzs.github.io/</id>
   
   <author>
@@ -14,6 +14,88 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Erlang Thursday Bonus – Functional fizzbuzz</title>
+    <link href="http://szpzs.github.io/2016/09/19/erlang-thursday-bonus-functional-fizzbuzz/"/>
+    <id>http://szpzs.github.io/2016/09/19/erlang-thursday-bonus-functional-fizzbuzz/</id>
+    <published>2016-09-19T07:50:40.000Z</published>
+    <updated>2016-09-19T07:54:57.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天给大家一个Erlang Thursday红包。</p>
+<p>过去的这个周末我读了文章  <a href="http://comp-phil.blogspot.com/2015/08/bro-do-you-even-fizzbuzz.html" target="_blank" rel="external">Bro, Do You Even FizzBuzz?!?</a> ，它阐述如何在Clojure里不用取模运算符来解决 FizzBuzz 问题。</p>
+<a id="more"></a>
+<p>在以同样的算法用Ruby来解决这个问题并发布<a href="http://www.proctor-it.com/ruby-tuesday-functional-fizzbuzz/" target="_blank" rel="external">博客</a>后，我想我应该将这个问题用Erlang也来解决，同时也看看有何不同。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(fizzbuzz)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([fizzbuzz/<span class="number">1</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">fizzbuzz</span><span class="params">(N)</span> -&gt;</span></div><div class="line">    Results = do_fizzbuzz(N),</div><div class="line">    lists:foreach(<span class="keyword">fun</span>(X) -&gt; io:format(<span class="string">"~p~n"</span>, [X]) <span class="keyword">end</span>, Results).</div><div class="line"></div><div class="line"><span class="function"><span class="title">do_fizzbuzz</span><span class="params">(N)</span> -&gt;</span></div><div class="line">    Fizzes = cycle([<span class="string">""</span>, <span class="string">""</span>, <span class="string">"fizz"</span>], N),</div><div class="line">    Buzzes = cycle([<span class="string">""</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"buzz"</span>], N),</div><div class="line">    FizzBuzzes = lists:zipwith(<span class="keyword">fun</span> lists:append/<span class="number">2</span>, Fizzes, Buzzes),</div><div class="line">    Numbers = lists:seq(<span class="number">1</span>, N),</div><div class="line">    lists:zipwith(fun translate/2, Numbers, FizzBuzzes).</div><div class="line"></div><div class="line"><span class="function"><span class="title">cycle</span><span class="params">(List, N)</span> -&gt;</span></div><div class="line">    lists:sublist(lists:append(lists:duplicate(N, List)), N).</div><div class="line"></div><div class="line"><span class="function"><span class="title">translate</span><span class="params">(Number, <span class="string">""</span>)</span> -&gt;</span></div><div class="line">    integer_to_list(Number);</div><div class="line"><span class="function"><span class="title">translate</span><span class="params">(_, Translation)</span> -&gt;</span></div><div class="line">    Translation.</div></pre></td></tr></table></figure>
+<p>在Erlang的解决方案里有几个点要注意。</p>
+<p>首先，Erlang没有任何懒列表或序列的直接概念，也没有 cycle 函数，所以我只能临时凑合着调用 lists:duplicate, lists:append 和 lists:sublist 来处理一个列表，从而循环处理原列表来生成一个有N个元素的列表。虽然这个做法不是最高效的方式，但是它是可行的。</p>
+<p>其次，lists:zipwith 的能力对于一些管道的想法有帮助，因为我们可以处理这些链在一起的元素，而不是必须在不同的步骤中去处理它们。</p>
+<p>第三，我们不用case语句，而是用一个有guard分支的函数来决定一个翻译存在与否，如果是是否用这个翻译，如果不是是否用这个数字。</p>
+<p>我希望这起到抛砖引玉的作用，也希望听到你怎样更高效的方案，或者除了用一般的有guard分支来检查剩余元素的模式匹配的其他方法来解决FizzBuzz问题。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-bonus-functional-fizzbuzz/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-bonus-functional-fizzbuzz/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天给大家一个Erlang Thursday红包。&lt;/p&gt;
+&lt;p&gt;过去的这个周末我读了文章  &lt;a href=&quot;http://comp-phil.blogspot.com/2015/08/bro-do-you-even-fizzbuzz.html&quot;&gt;Bro, Do You Even FizzBuzz?!?&lt;/a&gt; ，它阐述如何在Clojure里不用取模运算符来解决 FizzBuzz 问题。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="Functional" scheme="http://szpzs.github.io/categories/Erlang/Functional/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="fizzbuzz" scheme="http://szpzs.github.io/tags/fizzbuzz/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – c:m/1</title>
+    <link href="http://szpzs.github.io/2016/09/19/erlang-thursday-c-m-1/"/>
+    <id>http://szpzs.github.io/2016/09/19/erlang-thursday-c-m-1/</id>
+    <published>2016-09-19T07:47:15.000Z</published>
+    <updated>2016-09-19T07:50:12.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday继续研究c模块，讲的函数是 <a href="http://erlang.org/doc/man/c.html#m-1" target="_blank" rel="external">c:m/1</a>.</p>
+<p>c:m/1 入参是一个表示模块名字的原子，返回值是这个模块的信息。它打印出来的信息包括编译的日期、时间和编译选项，还有装载的目标（BEAM）文件以及这个模块中导出函数组成的列表。</p>
+<a id="more"></a>
+<p>我们来看看erlang中的string模块。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">c:m(string).</div><div class="line"><span class="comment">% Module string compiled: Date: November 28 2014, Time: 06.47</span></div><div class="line"><span class="comment">% Compiler options:  [&#123;outdir,"/private/tmp/erlang-pY1Kv2/otp-OTP-17.3.4/lib/stdlib/src/../ebin"&#125;,</span></div><div class="line"><span class="comment">%                     &#123;i,"/private/tmp/erlang-pY1Kv2/otp-OTP-17.3.4/lib/stdlib/src/../include"&#125;,</span></div><div class="line"><span class="comment">%                     &#123;i,"/private/tmp/erlang-pY1Kv2/otp-OTP-17.3.4/lib/stdlib/src/../../kernel/include"&#125;,</span></div><div class="line"><span class="comment">%                     warnings_as_errors,debug_info]</span></div><div class="line"><span class="comment">% Object file: /usr/local/Cellar/erlang/17.3.4/lib/erlang/lib/stdlib-2.2/ebin/string.beam</span></div><div class="line"><span class="comment">% Exports:</span></div><div class="line"><span class="comment">% centre/2                      rstr/2</span></div><div class="line"><span class="comment">% centre/3                      span/2</span></div><div class="line"><span class="comment">% chars/3                       str/2</span></div><div class="line"><span class="comment">% chars/2                       strip/1</span></div><div class="line"><span class="comment">% chr/2                         strip/2</span></div><div class="line"><span class="comment">% concat/2                      strip/3</span></div><div class="line"><span class="comment">% copies/2                      sub_string/2</span></div><div class="line"><span class="comment">% cspan/2                       sub_string/3</span></div><div class="line"><span class="comment">% equal/2                       sub_word/2</span></div><div class="line"><span class="comment">% join/2                        sub_word/3</span></div><div class="line"><span class="comment">% left/2                        substr/2</span></div><div class="line"><span class="comment">% left/3                        substr/3</span></div><div class="line"><span class="comment">% len/1                         to_float/1</span></div><div class="line"><span class="comment">% module_info/0                 to_integer/1</span></div><div class="line"><span class="comment">% module_info/1                 to_lower/1</span></div><div class="line"><span class="comment">% rchr/2                        to_upper/1</span></div><div class="line"><span class="comment">% right/2                       tokens/2</span></div><div class="line"><span class="comment">% right/3                       words/1</span></div><div class="line"><span class="comment">%                               words/2</span></div><div class="line"><span class="comment">% ok</span></div></pre></td></tr></table></figure>
+<p>我们可以看到这个模块是2014年11月28日在我的机器上编译的，还看到 warnings_as_errors 和 debug_info 这两个编译选项打开了，还有beam文件的路径以及string模块所有导出的不同函数。</p>
+<p>接着我们看看在erlang shell里编译的模块。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">c(fizzbuzz).</div><div class="line">% &#123;ok,fizzbuzz&#125;</div><div class="line">c:m(fizzbuzz).</div><div class="line">% Module fizzbuzz compiled: Date: August 5 2015, Time: 22.14</div><div class="line">% Compiler options:  []</div><div class="line">% Object file: /Users/proctor/tmp/fizzbuzz.beam</div><div class="line">% Exports:</div><div class="line">%          fizzbuzz/1</div><div class="line">%          module_info/0</div><div class="line">%          module_info/1</div><div class="line">% ok</div></pre></td></tr></table></figure>
+<p>c:m(fizzubzz)的输出显示fizzbuzz被编译了，并且是从我的用户目录下的tmp目录装载的，同时还有一个导出函数fizzbuzz/1 和在每个模块都有的两个版本导出函数module_info。</p>
+<p>今天讲的这个函数不是你每天都可能用的函数，不过了解它对你调试和检查你的erlang应用很有帮助。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-c-m-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-c-m-1/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday继续研究c模块，讲的函数是 &lt;a href=&quot;http://erlang.org/doc/man/c.html#m-1&quot;&gt;c:m/1&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;c:m/1 入参是一个表示模块名字的原子，返回值是这个模块的信息。它打印出来的信息包括编译的日期、时间和编译选项，还有装载的目标（BEAM）文件以及这个模块中导出函数组成的列表。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="c" scheme="http://szpzs.github.io/categories/Erlang/c/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="c" scheme="http://szpzs.github.io/tags/c/"/>
+    
+      <category term="xm" scheme="http://szpzs.github.io/tags/xm/"/>
+    
+  </entry>
   
   <entry>
     <title>Erlang Thursday – c:xm/1</title>
@@ -757,98 +839,6 @@
       <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
     
       <category term="day_of_the_week" scheme="http://szpzs.github.io/tags/day-of-the-week/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thurday – lists:delete/2</title>
-    <link href="http://szpzs.github.io/2016/09/17/erlang-thurday-lists-delete-2/"/>
-    <id>http://szpzs.github.io/2016/09/17/erlang-thurday-lists-delete-2/</id>
-    <published>2016-09-17T07:21:28.000Z</published>
-    <updated>2016-09-17T07:26:45.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#delete-2" target="_blank" rel="external">lists:delete/2</a> 。</p>
-<p>lists:delete/2 接收一个Erlang term作为它的第一个入参，它将把该term从第二个入参－－一个列表里删除掉。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">lists:delete(<span class="number">1</span>, [<span class="number">8</span>, <span class="number">7</span>, <span class="number">6</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">2</span>, <span class="number">1</span>]).</div><div class="line"><span class="comment">% [8,7,6,5,4,3,2]</span></div><div class="line">lists:delete(<span class="number">4</span>, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>]).</div><div class="line"><span class="comment">% [1,1,2,3,5,8]</span></div><div class="line">lists:delete(<span class="number">72</span>, <span class="string">"Hello World!"</span>).</div><div class="line"><span class="comment">% "ello World!"</span></div><div class="line">lists:delete(d, [a, b, c, d]).</div><div class="line"><span class="comment">% [a,b,c]</span></div><div class="line">lists:delete(<span class="number">4</span>, []).</div><div class="line"><span class="comment">% []</span></div><div class="line">lists:delete(&#123;b, <span class="number">2</span>&#125;, [&#123;a, <span class="number">1</span>&#125;, &#123;b, <span class="number">2</span>&#125;, &#123;c, <span class="number">3</span>&#125;]).</div><div class="line"><span class="comment">% [&#123;a,1&#125;,&#123;c,3&#125;]</span></div><div class="line">lists:delete([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>], [<span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]]).</div><div class="line"><span class="comment">% [[4,5,6],[7,8,9]]</span></div></pre></td></tr></table></figure>
-<p>注意：lists:delete/2 仅仅是将第一个在列表里发现的term删掉，而其他任何在列表里同样的term它不会删除。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:delete(<span class="number">1</span>, [<span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">8</span>]).</div><div class="line"><span class="comment">% [1,2,3,5,8]</span></div></pre></td></tr></table></figure>
-<p>因为 lists:delete/2 是一个非常简单就能讲清楚用法的函数，这样这篇文章将可能非常短，所以我想在下面我们展示一下如何自己来写一个非常简单(1) 的 lists:delete/2 实现是非常值得的。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(my_lists)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([delete/<span class="number">2</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, List)</span> -&gt;</span></div><div class="line">    delete(Item, [], List).</div><div class="line"></div><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, Checked, [Item|Rest])</span> -&gt;</span></div><div class="line">    lists:reverse(Checked) ++ Rest;</div><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, Checked, [Head|Rest])</span> -&gt;</span></div><div class="line">    delete(Item, [Head | Checked], Rest);</div><div class="line"><span class="function"><span class="title">delete</span><span class="params">(_Item, Checked, [])</span> -&gt;</span></div><div class="line">    lists:reverse(Checked).</div></pre></td></tr></table></figure>
-<p>让我们一起看看我们的delete函数在被调用的时候是如何执行的？</p>
-<p>my_lists:delete/2 是一个友好的API函数，它仅仅是调用一个“私有”函数（没有导出的函数）－－ delete/3，所以调用者不需要担心那个我们传递的已经检查了的一个空列表作为初始值的累加器。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(my_lists)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([delete/<span class="number">2</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, List)</span> -&gt;</span></div><div class="line">    delete(Item, [], List).</div></pre></td></tr></table></figure>
-<p>delete/3函数的第一个分支用模式匹配来检查我们想要删除掉元素是否也是需要检查的列表的第一个元素。如果模式匹配成果，我们会看到第一个元素被删除！接着我们就能停止处理列表并返回的结果，而这个结果是由我们已经检查过的元素组成列表的反转列表和那些剩下的我们还没有检查的元素组成的列表一起构成的。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, Checked, [Item|Rest])</span> -&gt;</span></div><div class="line">    lists:reverse(Checked) ++ Rest;</div></pre></td></tr></table></figure>
-<p>第二个分支“知道”我们想删除掉元素和剩下的列表的第一个元素不匹配。它是怎么“知道”的？因为如果它们匹配，第一个分支将模式匹配成功而第二个分支将得不到执行的机会。因为我们找不到元素需要被删除，我们通过将元素加到被检查过的元素组成的列表头部，并且继续调用 delete/3 。我们通过在被检查过的元素组成的列表头部加上元素形成新的被检查过元素组成的列表的做法就是为什么我们在第一分支和第三分支需要反转被检查元素组成的列表的原因。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">delete</span><span class="params">(Item, Checked, [Head|Rest])</span> -&gt;</span></div><div class="line">    delete(Item, [Head | Checked], Rest);</div></pre></td></tr></table></figure>
-<p>第三个也是最后一个 delete/3 函数的分支已经搜索到列表的结尾并且没有发现相同的元素，所以我们只是将被检查过的元素组成的列表反转后返回。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">delete</span><span class="params">(_Item, Checked, [])</span> -&gt;</span></div><div class="line">    lists:reverse(Checked).</div></pre></td></tr></table></figure>
-<p>这就是你自己的简单(1)版 lists:delete/2 的实现。</p>
-<p>1、简单的意思是因为这个版本没有进行性能优化，或者没有做彻底的是否完全符合 lists:delete/2 规范的测试。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thurday-lists-delete-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thurday-lists-delete-2/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/lists.html#delete-2&quot;&gt;lists:delete/2&lt;/a&gt; 。&lt;/p&gt;
-&lt;p&gt;lists:delete/2 接收一个Erlang term作为它的第一个入参，它将把该term从第二个入参－－一个列表里删除掉。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/categories/Erlang/lists/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="lists" scheme="http://szpzs.github.io/tags/lists/"/>
-    
-      <category term="delete" scheme="http://szpzs.github.io/tags/delete/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – erlang:list_to_atom/1</title>
-    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-erlang-list-to-atom-1/"/>
-    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-erlang-list-to-atom-1/</id>
-    <published>2016-09-17T07:15:31.000Z</published>
-    <updated>2016-09-17T07:20:19.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/erlang.html#list_to_atom-1" target="_blank" rel="external">erlang:list_to_atom/1</a>.</p>
-<p>erlang:list_to_atom/1 的入参是一个字符串，返回的是一个Erlang的原子。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">list_to_atom</span><span class="params">(<span class="string">"foo"</span>)</span>.</span></div><div class="line">% <span class="title">foo</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"Foo"</span>)</span>.</div><div class="line">% <span class="title">'Foo'</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"Foo_bar"</span>)</span>.</div><div class="line">% <span class="title">'Foo_bar'</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"foo_bar"</span>)</span>.</div><div class="line">% <span class="title">foo_bar</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"foo"</span>++<span class="string">"bar"</span>)</span>.</div><div class="line">% <span class="title">foobar</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"Erlang"</span>)</span>.</div><div class="line">% <span class="title">'Erlang'</span></div><div class="line"><span class="title">list_to_atom</span><span class="params">(<span class="string">"Elixir"</span>)</span>.</div><div class="line">% <span class="title">'Elixir'</span></div></pre></td></tr></table></figure>
-<p>这个函数在你必须要基于从外部系统读到的字符串，比如解析一个CSV类型的头部，生成键或标识符的时候有用。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lists:map(<span class="keyword">fun</span> erlang:list_to_atom/<span class="number">1</span>,      	     string:tokens(<span class="string">"firstName,lastName,age,gender,preferredName,dateOfBirth"</span>, <span class="string">","</span>)).</div><div class="line"><span class="comment">% [firstName,lastName,age,gender,preferredName,dateOfBirth]</span></div></pre></td></tr></table></figure>
-<p>当你用 erlang:list_to_atom/1 将从外部系统获取的字符串转换成原子的时候一定要小心，因为它只能处理值为256以下的字符。任何字符值在256（注1）以下的字符串都能正常地用该函数转成一个原子。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">list_to_atom("Joe, Mike, and Robert").</div><div class="line">% 'Joe, Mike, and Robert'</div><div class="line">list_to_atom("it's").</div><div class="line">% 'it's'</div><div class="line">list_to_atom("heyn").</div><div class="line">% 'heyn'</div><div class="line">list_to_atom("with_supported_char"++[255]).</div><div class="line">% with_supported_charÿ</div><div class="line">list_to_atom("with_non_supported_char"++[256]).</div><div class="line">% ** exception error: bad argument</div><div class="line">%      in function  list_to_atom/1</div><div class="line">%         called as list_to_atom([119,105,116,104,95,110,111,110,95,115,117,112,112,111,114,</div><div class="line">%                                 116,101,100,95,99,104,97,114,256])</div></pre></td></tr></table></figure>
-<p>1、字符值必须是非负整数，范围是0到255。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-erlang-list_to_atom-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-erlang-list_to_atom-1/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/erlang.html#list_to_atom-1&quot;&gt;erlang:list_to_atom/1&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;erlang:list_to_atom/1 的入参是一个字符串，返回的是一个Erlang的原子。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="erlang" scheme="http://szpzs.github.io/categories/Erlang/erlang/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="erlang" scheme="http://szpzs.github.io/tags/erlang/"/>
-    
-      <category term="list_to_atom" scheme="http://szpzs.github.io/tags/list-to-atom/"/>
     
   </entry>
   
