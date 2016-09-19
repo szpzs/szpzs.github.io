@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.github.io/"/>
-  <updated>2016-09-19T07:54:57.000Z</updated>
+  <updated>2016-09-19T13:37:23.000Z</updated>
   <id>http://szpzs.github.io/</id>
   
   <author>
@@ -14,6 +14,137 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Erlang Thursday – user_default</title>
+    <link href="http://szpzs.github.io/2016/09/19/erlang-thursday-user-default/"/>
+    <id>http://szpzs.github.io/2016/09/19/erlang-thursday-user-default/</id>
+    <published>2016-09-19T13:30:25.000Z</published>
+    <updated>2016-09-19T13:37:23.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday我们来看看user_default模块。</p>
+<p>我是在想验证当我在erl shell中调用 c/1 和 l/1 的函数的版本的时候偶然发现这个模块的，然后研究 <a href="http://www.erlang.org/doc/man/shell_default.html" target="_blank" rel="external">shell_default</a> 的文档。</p>
+<a id="more"></a>
+<p>文档中提到，如果我们想让一些函数在shell里直接可用，我们可以生成一个名字为user_default的模块，然后在自己的 .erlang 文件里指定该模块的路径，这样的话user_default模块里的导出函数就可以直接在shell里可用了。</p>
+<p>既然我手上有一个 fizzbuzz 的例子，那么让我们开始按文档的说明生成一个user_default模块证明我们可以让它正常工作。我们将把它放在我们home目录的tmp目录里。</p>
+<p>~/tmp/user_default.erl</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">-module(user_default).</div><div class="line"></div><div class="line">-export([fizzbuzz/1]).</div><div class="line"></div><div class="line">fizzbuzz(N) -&gt;</div><div class="line">    Translations = lists:map(fun translate/1, lists:seq(1, N)),</div><div class="line">    lists:foreach(fun(Item) -&gt; io:format("~s~n", [Item]) end, Translations).</div><div class="line"></div><div class="line">translate(N) when N rem 3 =:= 0 andalso N rem 5 =:= 0 -&gt;</div><div class="line">   'FizzBuzz';</div><div class="line">translate(N) when N rem 3 =:= 0 -&gt;</div><div class="line">   'Fizz';</div><div class="line">translate(N) when N rem 5 =:= 0 -&gt;</div><div class="line">   'Buzz';</div><div class="line">translate(N) -&gt;</div><div class="line">   integer_to_list(N).</div></pre></td></tr></table></figure>
+<p>在我们的home目录下新建一个 .erlang 文件，添加如下内容，指明我们刚刚创建的user_default文件的路径。</p>
+<p>～/.erlang<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">code:load_abs(<span class="string">"tmp/user_default"</span>).</div></pre></td></tr></table></figure></p>
+<p>如果你已经有一个 .erlang 文件，那么在这个文件的第一行必须是 <a href="http://www.erlang.org/doc/man/code.html#load_abs-1" target="_blank" rel="external">code:load_abs/1</a> 函数，其参数为 user_default 模块。</p>
+<p>确定上述两个文件都保存好了，然后打开erlang shell来尝试调用 fizzbuzz/1 。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ erl</div><div class="line">Erlang/OTP <span class="number">17</span> [erts-<span class="number">6.2</span>.<span class="number">1</span>]  [<span class="number">64</span>-bit] [smp:<span class="number">8</span>:<span class="number">8</span>] [async-threads:<span class="number">10</span>] [hipe] [kernel-poll:<span class="literal">false</span>] [dtrace]</div><div class="line"></div><div class="line">Eshell V6.<span class="number">2.1</span>  (abort with ^G)</div><div class="line"><span class="number">1</span>&gt; fizzbuzz(<span class="number">20</span>).</div><div class="line">** exception error: undefined shell command fizzbuzz/<span class="number">1</span></div><div class="line"><span class="number">2</span>&gt; q().</div><div class="line">ok</div></pre></td></tr></table></figure>
+<p>然而并没有像文档里讲的那样起作用。我意识到，我们用的是 load_abs 函数，并且 user_default 是一个新模块，这个错误可能是因为没有文件可装载。让我们用erlc编译这个模块，然后再尝试。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ cd tmp/</div><div class="line">$ erlc user_default.erl</div><div class="line">$ ls user_default.*</div><div class="line">user_default.beam user_default.erl</div><div class="line">$ cd ..</div></pre></td></tr></table></figure>
+<p>我们现在有一个BEAM文件在~/tmp目录里，所以让我们再次启动Erlang shell并尝试调用 fizzbuzz/1 。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">$ erl</div><div class="line">Erlang/OTP <span class="number">17</span> [erts-<span class="number">6.2</span>.<span class="number">1</span>]  [<span class="number">64</span>-bit] [smp:<span class="number">8</span>:<span class="number">8</span>] [async-threads:<span class="number">10</span>] [hipe] [kernel-poll:<span class="literal">false</span>] [dtrace]</div><div class="line"></div><div class="line">Eshell V6.<span class="number">2.1</span>  (abort with ^G)</div><div class="line"><span class="number">1</span>&gt; fizzbuzz(<span class="number">20</span>).</div><div class="line"><span class="number">1</span></div><div class="line"><span class="number">2</span></div><div class="line">Fizz</div><div class="line"><span class="number">4</span></div><div class="line">Buzz</div><div class="line">Fizz</div><div class="line"><span class="number">7</span></div><div class="line"><span class="number">8</span></div><div class="line">Fizz</div><div class="line">Buzz</div><div class="line"><span class="number">11</span></div><div class="line">Fizz</div><div class="line"><span class="number">13</span></div><div class="line"><span class="number">14</span></div><div class="line">FizzBuzz</div><div class="line"><span class="number">16</span></div><div class="line"><span class="number">17</span></div><div class="line">Fizz</div><div class="line"><span class="number">19</span></div><div class="line">Buzz</div><div class="line">ok</div><div class="line"><span class="number">2</span>&gt;</div></pre></td></tr></table></figure>
+<p>终于正常工作了！我们现在可以在shell里不需要指定模块名而直接调用 fizzbuzz/1 。</p>
+<p>更多的关于 .erlang 文件的信息可以阅读 <a href="http://www.erlang.org/documentation/doc-5.1/doc/getting_started/getting_started.html#1.7" target="_blank" rel="external">Erlang中关于配置部分的文档</a> 。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-user_default/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-user_default/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday我们来看看user_default模块。&lt;/p&gt;
+&lt;p&gt;我是在想验证当我在erl shell中调用 c/1 和 l/1 的函数的版本的时候偶然发现这个模块的，然后研究 &lt;a href=&quot;http://www.erlang.org/doc/man/shell_default.html&quot;&gt;shell_default&lt;/a&gt; 的文档。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="user_default" scheme="http://szpzs.github.io/categories/Erlang/user-default/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="user_default" scheme="http://szpzs.github.io/tags/user-default/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – c:i/0</title>
+    <link href="http://szpzs.github.io/2016/09/19/erlang-thursday-c-i-0/"/>
+    <id>http://szpzs.github.io/2016/09/19/erlang-thursday-c-i-0/</id>
+    <published>2016-09-19T13:24:00.000Z</published>
+    <updated>2016-09-19T13:29:53.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday继续讲c模块的另一个函数 <a href="http://erlang.org/doc/man/c.html#i-0" target="_blank" rel="external">c:i/0</a> 。</p>
+<p>c:i/0 输出系统的信息，展示本节点的所有进程信息。</p>
+<a id="more"></a>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div></pre></td><td class="code"><pre><div class="line">c:i().</div><div class="line"><span class="comment">% Pid                   Initial Call                          Heap     Reds Msgs</span></div><div class="line"><span class="comment">% Registered            Current Function                     Stack</span></div><div class="line"><span class="comment">% &lt;0.0.0&gt;               otp_ring0:start/2                      987     4987    0</span></div><div class="line"><span class="comment">% init                  init:loop/1                              2</span></div><div class="line"><span class="comment">% &lt;0.3.0&gt;               erlang:apply/2                        6772   823443    0</span></div><div class="line"><span class="comment">% erl_prim_loader       erl_prim_loader:loop/3                   6</span></div><div class="line"><span class="comment">% &lt;0.6.0&gt;               gen_event:init_it/6                    376      220    0</span></div><div class="line"><span class="comment">% error_logger          gen_event:fetch_msg/5                    8</span></div><div class="line"><span class="comment">% &lt;0.7.0&gt;               erlang:apply/2                        1598      463    0</span></div><div class="line"><span class="comment">% application_controlle gen_server:loop/6                        7</span></div><div class="line"><span class="comment">% &lt;0.9.0&gt;               application_master:init/4              376       44    0</span></div><div class="line"><span class="comment">%                       application_master:main_loop/2           6</span></div><div class="line"><span class="comment">% &lt;0.10.0&gt;              application_master:start_it/4          233       69    0</span></div><div class="line"><span class="comment">%                       application_master:loop_it/4             5</span></div><div class="line"><span class="comment">% &lt;0.11.0&gt;              supervisor:kernel/1                   4185    49109    0</span></div><div class="line"><span class="comment">% kernel_sup            gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.12.0&gt;              rpc:init/1                             233       35    0</span></div><div class="line"><span class="comment">% rex                   gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.13.0&gt;              global:init/1                          233       51    0</span></div><div class="line"><span class="comment">% global_name_server    gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.14.0&gt;              erlang:apply/2                         233       19    0</span></div><div class="line"><span class="comment">%                       global:loop_the_locker/1                 5</span></div><div class="line"><span class="comment">% &lt;0.15.0&gt;              erlang:apply/2                         233        3    0</span></div><div class="line"><span class="comment">%                       global:loop_the_registrar/0              2</span></div><div class="line"><span class="comment">% &lt;0.16.0&gt;              inet_db:init/1                         233      206    0</span></div><div class="line"><span class="comment">% inet_db               gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.17.0&gt;              global_group:init/1                    233       59    0</span></div><div class="line"><span class="comment">% global_group          gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.18.0&gt;              file_server:init/1                    2586     2562    0</span></div><div class="line"><span class="comment">% file_server_2         gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.19.0&gt;              erlang:apply/2                        2586   155919    0</span></div><div class="line"><span class="comment">% code_server           code_server:loop/1                       3</span></div><div class="line"><span class="comment">% &lt;0.20.0&gt;              supervisor_bridge:standard_error/      233       41    0</span></div><div class="line"><span class="comment">% standard_error_sup    gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.21.0&gt;              erlang:apply/2                         233        9    0</span></div><div class="line"><span class="comment">% standard_error        standard_error:server_loop/1             2</span></div><div class="line"><span class="comment">% &lt;0.22.0&gt;              supervisor_bridge:user_sup/1           610       87    0</span></div><div class="line"><span class="comment">%                       gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.23.0&gt;              erlang:apply/2                         233       24    0</span></div><div class="line"><span class="comment">% user                  user:server_loop/2                       5</span></div><div class="line"><span class="comment">% &lt;0.24.0&gt;              kernel_config:init/1                   233      286    0</span></div><div class="line"><span class="comment">%                       gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.25.0&gt;              supervisor:kernel/1                    233       58    0</span></div><div class="line"><span class="comment">% kernel_safe_sup       gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.29.0&gt;              kjell_profile:init/1                   987    27100    0</span></div><div class="line"><span class="comment">% kjell_profile         gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.30.0&gt;              kjell_extension:init/1                2586     3903    0</span></div><div class="line"><span class="comment">% kjell_extension       gen_server:loop/6                        9</span></div><div class="line"><span class="comment">% &lt;0.45.0&gt;              k_user_drv:server/2                    987     2218    0</span></div><div class="line"><span class="comment">% user_drv              k_user_drv:server_loop/5                 8</span></div><div class="line"><span class="comment">% &lt;0.46.0&gt;              k_group:server/3                       987    14541    0</span></div><div class="line"><span class="comment">%                       k_group:server_loop/3                    4</span></div><div class="line"><span class="comment">% &lt;0.47.0&gt;              erlang:apply/2                       28690     4406    0</span></div><div class="line"><span class="comment">%                       kjell:shell_rep/4                       17</span></div><div class="line"><span class="comment">% &lt;0.48.0&gt;              erlang:apply/2                        1598    20585    0</span></div><div class="line"><span class="comment">%                       c:pinfo/1                               49</span></div><div class="line"><span class="comment">% Total                                                      58707  1110447    0</span></div><div class="line"><span class="comment">%                                                              237</span></div><div class="line"><span class="comment">% ok</span></div></pre></td></tr></table></figure>
+<p>我们可以看到这个函数返回进程的id，进程的初始化函数即启动进程的函数，进程堆的大小，进程的规约数，进程消息队列里的消息数，进程的注册名字，进程当前所处的函数，以及进程的栈大小。</p>
+<p>c:i/0 的输出也包括堆大小、规约数，消息队列大小以及栈大小的各项数据的总和。</p>
+<p>c模块也提供 c:ni/0 函数，它展示所有联通的节点的系统信息。</p>
+<p>从该函数输出的进程信息来看，我们可以找到几个和 <a href="https://karlll.github.io/kjell/" target="_blank" rel="external">kjell</a> 相关的进程，kjell是我用来替换 erl shell的，它易于查找进程的信息。</p>
+<p>查看一个kjell相关的进程，我们可以获得其pid，然后通过调用 <a href="http://erlang.org/doc/man/c.html#i-3" target="_blank" rel="external">c:i/3</a> 展示进程的信息来深入观察该进程，我们可以用pid的3个整数做为此函数的入参。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">c:i(<span class="number">0</span>, <span class="number">47</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% [&#123;current_function,&#123;kjell,shell_rep,4&#125;&#125;,</span></div><div class="line"><span class="comment">%  &#123;initial_call,&#123;erlang,apply,2&#125;&#125;,</span></div><div class="line"><span class="comment">%  &#123;status,waiting&#125;,</span></div><div class="line"><span class="comment">%  &#123;message_queue_len,0&#125;,</span></div><div class="line"><span class="comment">%  &#123;messages,[]&#125;,</span></div><div class="line"><span class="comment">%  &#123;links,[&lt;0.48.0&gt;,&lt;0.46.0&gt;]&#125;,</span></div><div class="line"><span class="comment">%  &#123;dictionary,[&#123;&#123;result,1&#125;,ok&#125;,</span></div><div class="line"><span class="comment">%               &#123;&#123;command,1&#125;,[&#123;call,1,&#123;remote,1,&#123;atom,1,c&#125;,&#123;atom,1,i&#125;&#125;,[]&#125;]&#125;,</span></div><div class="line"><span class="comment">%               &#123;evaluator,&lt;0.48.0&gt;&#125;]&#125;,</span></div><div class="line"><span class="comment">%  &#123;trap_exit,true&#125;,</span></div><div class="line"><span class="comment">%  &#123;error_handler,error_handler&#125;,</span></div><div class="line"><span class="comment">%  &#123;priority,normal&#125;,</span></div><div class="line"><span class="comment">%  &#123;group_leader,&lt;0.46.0&gt;&#125;,</span></div><div class="line"><span class="comment">%  &#123;total_heap_size,46421&#125;,</span></div><div class="line"><span class="comment">%  &#123;heap_size,28690&#125;,</span></div><div class="line"><span class="comment">%  &#123;stack_size,17&#125;,</span></div><div class="line"><span class="comment">%  &#123;reductions,4479&#125;,</span></div><div class="line"><span class="comment">%  &#123;garbage_collection,[&#123;min_bin_vheap_size,46422&#125;,</span></div><div class="line"><span class="comment">%                       &#123;min_heap_size,233&#125;,</span></div><div class="line"><span class="comment">%                       &#123;fullsweep_after,65535&#125;,</span></div><div class="line"><span class="comment">%                       &#123;minor_gcs,2&#125;]&#125;,</span></div><div class="line"><span class="comment">%  &#123;suspending,[]&#125;]</span></div></pre></td></tr></table></figure>
+<p>当我们查看指定的进程的信息，我们可以看到它的链接进程，消息和消息队列长度，堆栈的信息，以及其他各种可能有用的相关设置。</p>
+<p>同样，这几个函数也没有observer那样有漂亮的界面，不过它们在你无法直接通过一个终端来访问节点的时候可以派上用场，比如在一个跳板机上工作；它们能给你一个好的方式使得你能知道你的erlang节点的运行情况。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-c-i-0/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-c-i-0/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday继续讲c模块的另一个函数 &lt;a href=&quot;http://erlang.org/doc/man/c.html#i-0&quot;&gt;c:i/0&lt;/a&gt; 。&lt;/p&gt;
+&lt;p&gt;c:i/0 输出系统的信息，展示本节点的所有进程信息。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="c" scheme="http://szpzs.github.io/categories/Erlang/c/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="c" scheme="http://szpzs.github.io/tags/c/"/>
+    
+      <category term="i" scheme="http://szpzs.github.io/tags/i/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – c:regs/0</title>
+    <link href="http://szpzs.github.io/2016/09/19/erlang-thursday-c-regs-0/"/>
+    <id>http://szpzs.github.io/2016/09/19/erlang-thursday-c-regs-0/</id>
+    <published>2016-09-19T12:58:00.000Z</published>
+    <updated>2016-09-19T13:22:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday继续看看c模块并研究 <a href="http://erlang.org/doc/man/c.html#regs-0" target="_blank" rel="external">c:regs/0</a>.</p>
+<p>c:regs/0 输出当前节点上注册的进程的信息，比如进程的名字，进程的id，执行规约数，以及其他信息。</p>
+<a id="more"></a>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">c:regs().</div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% ** Registered procs on node nonode@nohost **</span></div><div class="line"><span class="comment">% Name                  Pid          Initial Call                      Reds Msgs</span></div><div class="line"><span class="comment">% application_controlle &lt;0.7.0&gt;      erlang:apply/2                     463    0</span></div><div class="line"><span class="comment">% code_server           &lt;0.19.0&gt;     erlang:apply/2                  121202    0</span></div><div class="line"><span class="comment">% erl_prim_loader       &lt;0.3.0&gt;      erlang:apply/2                  156994    0</span></div><div class="line"><span class="comment">% error_logger          &lt;0.6.0&gt;      gen_event:init_it/6                220    0</span></div><div class="line"><span class="comment">% file_server_2         &lt;0.18.0&gt;     file_server:init/1                  92    0</span></div><div class="line"><span class="comment">% global_group          &lt;0.17.0&gt;     global_group:init/1                 59    0</span></div><div class="line"><span class="comment">% global_name_server    &lt;0.13.0&gt;     global:init/1                       51    0</span></div><div class="line"><span class="comment">% inet_db               &lt;0.16.0&gt;     inet_db:init/1                     206    0</span></div><div class="line"><span class="comment">% init                  &lt;0.0.0&gt;      otp_ring0:start/2                 3398    0</span></div><div class="line"><span class="comment">% kernel_safe_sup       &lt;0.28.0&gt;     supervisor:kernel/1                 58    0</span></div><div class="line"><span class="comment">% kernel_sup            &lt;0.11.0&gt;     supervisor:kernel/1              49109    0</span></div><div class="line"><span class="comment">% rex                   &lt;0.12.0&gt;     rpc:init/1                          35    0</span></div><div class="line"><span class="comment">% standard_error        &lt;0.21.0&gt;     erlang:apply/2                       9    0</span></div><div class="line"><span class="comment">% standard_error_sup    &lt;0.20.0&gt;     supervisor_bridge:standar           41    0</span></div><div class="line"><span class="comment">% user                  &lt;0.24.0&gt;     group:server/3                      36    0</span></div><div class="line"><span class="comment">% user_drv              &lt;0.23.0&gt;     user_drv:server/2                 1219    0</span></div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% ** Registered ports on node nonode@nohost **</span></div><div class="line"><span class="comment">% Name                  Id              Command</span></div><div class="line"><span class="comment">% ok</span></div></pre></td></tr></table></figure>
+<p>尽管这个函数的输出没有observer函数提供的图形界面漂亮，但是它是一个有用的工具，在你无法运行observer函数来获得图形界面的时候能够帮助你得到这些进程是什么进程以及这些进程在做什么。</p>
+<p>c模块还提供了一个 c:nregs/0 函数，它展示本节点以及与本节点联通的所有节点的所有注册进程的信息。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div></pre></td><td class="code"><pre><div class="line">node().</div><div class="line">% 'foo@127.0.0.1'</div><div class="line">nodes().</div><div class="line">% ['bar@127.0.0.1']</div><div class="line">c:nregs().</div><div class="line">%</div><div class="line">% ** Registered procs on node 'foo@127.0.0.1' **</div><div class="line">% Name                  Pid          Initial Call                      Reds Msgs</div><div class="line">% application_controlle &lt;0.7.0&gt;      erlang:apply/2                     463    0</div><div class="line">% auth                  &lt;0.19.0&gt;     auth:init/1                        880    0</div><div class="line">% code_server           &lt;0.25.0&gt;     erlang:apply/2                  122302    0</div><div class="line">% erl_epmd              &lt;0.18.0&gt;     erl_epmd:init/1                    268    0</div><div class="line">% erl_prim_loader       &lt;0.3.0&gt;      erlang:apply/2                  163458    0</div><div class="line">% error_logger          &lt;0.6.0&gt;      gen_event:init_it/6                264    0</div><div class="line">% file_server_2         &lt;0.24.0&gt;     file_server:init/1                  92    0</div><div class="line">% global_group          &lt;0.23.0&gt;     global_group:init/1                 67    0</div><div class="line">% global_name_server    &lt;0.13.0&gt;     global:init/1                      339    0</div><div class="line">% inet_db               &lt;0.16.0&gt;     inet_db:init/1                     255    0</div><div class="line">% init                  &lt;0.0.0&gt;      otp_ring0:start/2                 5405    0</div><div class="line">% kernel_safe_sup       &lt;0.34.0&gt;     supervisor:kernel/1                 58    0</div><div class="line">% kernel_sup            &lt;0.11.0&gt;     supervisor:kernel/1              57226    0</div><div class="line">% net_kernel            &lt;0.20.0&gt;     net_kernel:init/1                  792    0</div><div class="line">% net_sup               &lt;0.17.0&gt;     supervisor:erl_distributi          285    0</div><div class="line">% rex                   &lt;0.12.0&gt;     rpc:init/1                          35    0</div><div class="line">% standard_error        &lt;0.27.0&gt;     erlang:apply/2                       9    0</div><div class="line">% standard_error_sup    &lt;0.26.0&gt;     supervisor_bridge:standar           41    0</div><div class="line">% user                  &lt;0.30.0&gt;     group:server/3                      36    0</div><div class="line">% user_drv              &lt;0.29.0&gt;     user_drv:server/2                 1661    0</div><div class="line">%</div><div class="line">% ** Registered ports on node 'foo@127.0.0.1' **</div><div class="line">% Name                  Id              Command</div><div class="line">%</div><div class="line">% ** Registered procs on node 'bar@127.0.0.1' **</div><div class="line">% Name                  Pid          Initial Call                      Reds Msgs</div><div class="line">% application_controlle &lt;6108.7.0&gt;   erlang:apply/2                     463    0</div><div class="line">% auth                  &lt;6108.19.0&gt;  auth:init/1                        880    0</div><div class="line">% code_server           &lt;6108.25.0&gt;  erlang:apply/2                  124588    0</div><div class="line">% erl_epmd              &lt;6108.18.0&gt;  erl_epmd:init/1                    268    0</div><div class="line">% erl_prim_loader       &lt;6108.3.0&gt;   erlang:apply/2                  164400    0</div><div class="line">% error_logger          &lt;6108.6.0&gt;   gen_event:init_it/6                301    0</div><div class="line">% file_server_2         &lt;6108.24.0&gt;  file_server:init/1                  92    0</div><div class="line">% global_group          &lt;6108.23.0&gt;  global_group:init/1                 67    0</div><div class="line">% global_name_server    &lt;6108.13.0&gt;  global:init/1                      341    0</div><div class="line">% inet_db               &lt;6108.16.0&gt;  inet_db:init/1                     255    0</div><div class="line">% inet_gethost_native   &lt;6108.42.0&gt;  inet_gethost_native:serve           83    0</div><div class="line">% inet_gethost_native_s &lt;6108.41.0&gt;  supervisor_bridge:inet_ge           41    0</div><div class="line">% init                  &lt;6108.0.0&gt;   otp_ring0:start/2                 5515    0</div><div class="line">% kernel_safe_sup       &lt;6108.34.0&gt;  supervisor:kernel/1                127    0</div><div class="line">% kernel_sup            &lt;6108.11.0&gt;  supervisor:kernel/1              57226    0</div><div class="line">% net_kernel            &lt;6108.20.0&gt;  net_kernel:init/1                  796    0</div><div class="line">% net_sup               &lt;6108.17.0&gt;  supervisor:erl_distributi          285    0</div><div class="line">% rex                   &lt;6108.12.0&gt;  rpc:init/1                        1302    0</div><div class="line">% standard_error        &lt;6108.27.0&gt;  erlang:apply/2                       9    0</div><div class="line">% standard_error_sup    &lt;6108.26.0&gt;  supervisor_bridge:standar           41    0</div><div class="line">% user                  &lt;6108.30.0&gt;  group:server/3                      36    0</div><div class="line">% user_drv              &lt;6108.29.0&gt;  user_drv:server/2                 2801    0</div><div class="line">%</div><div class="line">% ** Registered ports on node 'bar@127.0.0.1' **</div><div class="line">% Name                  Id              Command</div><div class="line">% ok</div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-c-regs-0/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-c-regs-0/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday继续看看c模块并研究 &lt;a href=&quot;http://erlang.org/doc/man/c.html#regs-0&quot;&gt;c:regs/0&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;c:regs/0 输出当前节点上注册的进程的信息，比如进程的名字，进程的id，执行规约数，以及其他信息。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="c" scheme="http://szpzs.github.io/categories/Erlang/c/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="c" scheme="http://szpzs.github.io/tags/c/"/>
+    
+      <category term="regs" scheme="http://szpzs.github.io/tags/regs/"/>
+    
+  </entry>
   
   <entry>
     <title>Erlang Thursday Bonus – Functional fizzbuzz</title>
@@ -709,136 +840,6 @@
       <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
     
       <category term="is_leap_year" scheme="http://szpzs.github.io/tags/is-leap-year/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – calendar:valid_date/3</title>
-    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-valid-date-3/"/>
-    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-valid-date-3/</id>
-    <published>2016-09-17T07:38:52.000Z</published>
-    <updated>2016-09-17T07:42:23.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#valid_date-3" target="_blank" rel="external">calendar:valid_date/3</a>.</p>
-<p>本来这次我是想讲函数 calendar:time_difference/3 ，但是当我详细看了 <a href="http://www.erlang.org/doc/man/calendar.html" target="_blank" rel="external">calendar</a> 模块的官方文档后，发现文档里已经说这个函数被淘汰了，所以今天我讲 calendar:valid_date/3 。</p>
-<a id="more"></a>
-<p>calendar:valid_date/3 的入参分别是一个表示年份的整数、一个表示月份的整数以及一个表示日的整数。如果传入的日期是有效的，则 calendar:valid_date/3 返回原子true，如果传入的日期是无效的，则 calendar:valid_date/3 返回原子false。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">04</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">04</span>, <span class="number">30</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">02</span>, <span class="number">29</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2012</span>, <span class="number">02</span>, <span class="number">29</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">11</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">11</span>, <span class="number">76</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">17</span>, <span class="number">13</span>).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
-<p>我们也可以快速地检查一下本篇文章发布的日期也是有效日期。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">04</span>, <span class="number">23</span>).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>现在让我们看看入参中有0或负整数情况会怎么样？</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">calendar:valid_date(-<span class="number">1</span>, <span class="number">04</span>, <span class="number">23</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, -<span class="number">7</span>, <span class="number">21</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">2015</span>, <span class="number">7</span>, -<span class="number">13</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
-<p>正如人们所希望的，除非你要经常处理公元前的日期，不然的话有一个负数的日期是无效的。</p>
-<p>Erlang也提供了函数 calendar:valid_date/1 ，它的入参是由年、月、日三个整数组成的元组。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">calendar:valid_date(&#123;<span class="number">2015</span>, <span class="number">11</span>, <span class="number">76</span>&#125;).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:valid_date(&#123;<span class="number">2015</span>, <span class="number">04</span>, <span class="number">23</span>&#125;).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-valid_date-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-valid_date-3/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#valid_date-3&quot;&gt;calendar:valid_date/3&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;本来这次我是想讲函数 calendar:time_difference/3 ，但是当我详细看了 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html&quot;&gt;calendar&lt;/a&gt; 模块的官方文档后，发现文档里已经说这个函数被淘汰了，所以今天我讲 calendar:valid_date/3 。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
-    
-      <category term="valid_date" scheme="http://szpzs.github.io/tags/valid-date/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – calendar:date_to_gregorian_days/3</title>
-    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-date-to-gregorian-days-3/"/>
-    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-date-to-gregorian-days-3/</id>
-    <published>2016-09-17T07:33:21.000Z</published>
-    <updated>2016-09-17T07:38:05.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#date_to_gregorian_days-3" target="_blank" rel="external">calendar:date_to_gregorian_days/3</a>.</p>
-<p>正如我们上星期在 <a href="http://www.proctor-it.com/erlang-thursday-calendar-day_of_the_week-3/" target="_blank" rel="external">Erlang Thursday calendar:day_of_the_week/3</a> 中讲到的，当我们看到一些错误消息的时候，我们看到错误来自于 calendar:date_to_gregorian_days/3。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">calendar:day_of_the_week(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:date_to_gregorian_days(0,0,0) (calendar.erl, line 114)</span></div><div class="line"><span class="comment">%      in function  calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div><div class="line">calendar:day_of_the_week(<span class="number">1970</span>, <span class="number">2</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  calendar:date_to_gregorian_days/3 (calendar.erl, line 116)</span></div><div class="line"><span class="comment">%      in call from calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div><div class="line">calendar:day_of_the_week(<span class="number">1970</span>, <span class="number">13</span>, <span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:last_day_of_the_month1(1970,13) (calendar.erl, line 243)</span></div><div class="line"><span class="comment">%      in function  calendar:date_to_gregorian_days/3 (calendar.erl, line 115)</span></div><div class="line"><span class="comment">%      in call from calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div></pre></td></tr></table></figure>
-<p>在上星期那篇文章里我保证我们下次将深入了解 calendar:date_to_gregorian_days/3 ，所以现在让我们来完成这个任务。</p>
-<p>calendar:date_to_gregorian_days/3 有三个入参，一个代表年份的非负整数，一个代表月份的从1到12的整数，一个代表某月第几日的从1到31的整数，该函数返回的值是从公元元年1月1日截止到入参日期的天数。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">calendar:date_to_gregorian_days(<span class="number">2015</span>, <span class="number">4</span>, <span class="number">16</span>).</div><div class="line"><span class="comment">% 736069</span></div><div class="line">calendar:date_to_gregorian_days(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 0</span></div><div class="line">calendar:date_to_gregorian_days(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 366</span></div><div class="line">calendar:date_to_gregorian_days(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 719528</span></div><div class="line">calendar:date_to_gregorian_days(<span class="number">1999</span>, <span class="number">12</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% 730484</span></div></pre></td></tr></table></figure>
-<p>还有一个只接收一个入参的版本 calendar:date_to_gregorian_days/1，它的入参是由年、月、日三个整数组成元组。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">calendar:date_to_gregorian_days(&#123;<span class="number">2015</span>, <span class="number">4</span>, <span class="number">16</span>&#125;).</div><div class="line"><span class="comment">% 736069</span></div><div class="line">calendar:date_to_gregorian_days(&#123;<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>&#125;).</div><div class="line"><span class="comment">% 0</span></div><div class="line">calendar:date_to_gregorian_days(&#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>&#125;).</div><div class="line"><span class="comment">% 366</span></div></pre></td></tr></table></figure>
-<p>如果我们传给 calendar:date_to_gregorian_days/1 无效的日期，我们就会在错误消息里看到它正在调用 calendar:date_to_gregorian_days/3 。所以它是一个不错的辅助函数，不破坏我们的模式匹配。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:date_to_gregorian_days(&#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>&#125;).</div><div class="line">** exception error: no function clause matching calendar:date_to_gregorian_days(<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>) (calendar.erl, line <span class="number">114</span>)</div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-date_to_gregorian_days-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-date_to_gregorian_days-3/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#date_to_gregorian_days-3&quot;&gt;calendar:date_to_gregorian_days/3&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;正如我们上星期在 &lt;a href=&quot;http://www.proctor-it.com/erlang-thursday-calendar-day_of_the_week-3/&quot;&gt;Erlang Thursday calendar:day_of_the_week/3&lt;/a&gt; 中讲到的，当我们看到一些错误消息的时候，我们看到错误来自于 calendar:date_to_gregorian_days/3。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – calendar:day_of_the_week/3</title>
-    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-day-of-the-week-3/"/>
-    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-day-of-the-week-3/</id>
-    <published>2016-09-17T07:27:44.000Z</published>
-    <updated>2016-09-17T07:31:48.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#day_of_the_week-3" target="_blank" rel="external">calendar:day_of_the_week/3</a>.</p>
-<p>calendar:day_of_the_week/3 允许你传入年、月、日然后得到这个日子在一个星期里是第几天。</p>
-<a id="more"></a>
-<p>第一个入参表示年份而且必须是非负整数。第二个入参是月份而且必须是1到12的整数（包括1和12），它表示公历的12个月份，1表示1月份。最后一个入参是第几日，必须是1到31（包括1和31）的整数。</p>
-<p>calendar:day_of_the_week/3 返回一个1到7（包括1和7）的整数值，1表示星期一，7表示星期日。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">calendar:day_of_the_week(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 1</span></div><div class="line">calendar:day_of_the_week(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 4</span></div><div class="line">calendar:day_of_the_week(<span class="number">1999</span>, <span class="number">12</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% 5</span></div><div class="line">calendar:day_of_the_week(<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>).</div><div class="line"><span class="comment">% 6</span></div></pre></td></tr></table></figure>
-<p>本篇文章的发布日期是2015年4月9日，把它传给 calendar:day_of_the_week/3 ，得到返回值是4，正好表示星期四，也就是本系列文章发布的日子。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:day_of_the_week(<span class="number">2015</span>, <span class="number">4</span>, <span class="number">9</span>).</div><div class="line"><span class="comment">% 4</span></div></pre></td></tr></table></figure>
-<p>还有一个 calendar:day_of_the_week/1 函数，它和上面的函数功能和参数要求基本一样，只是它只接收一个入参，这个入参是由年、月、日组成的三元素元组。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">calendar:day_of_the_week(&#123;<span class="number">2015</span>, <span class="number">4</span>, <span class="number">9</span>&#125;).</div><div class="line"><span class="comment">% 4</span></div><div class="line">calendar:day_of_the_week(&#123;<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>&#125;).</div><div class="line"><span class="comment">% 4</span></div><div class="line">calendar:day_of_the_week(&#123;<span class="number">1999</span>, <span class="number">12</span>, <span class="number">31</span>&#125;).</div><div class="line"><span class="comment">% 5</span></div></pre></td></tr></table></figure>
-<p>为了帮助大家认识 calendar:day_of_the_week/3 函数返回的错误消息，让我们看看，当我们给该函数传递无效日期，我们会得到什么。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">calendar:day_of_the_week(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:date_to_gregorian_days(0,0,0) (calendar.erl, line 114)</span></div><div class="line"><span class="comment">%      in function  calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div><div class="line">calendar:day_of_the_week(<span class="number">1970</span>, <span class="number">2</span>, <span class="number">31</span>).</div><div class="line"><span class="comment">% ** exception error: no true branch found when evaluating an if expression</span></div><div class="line"><span class="comment">%      in function  calendar:date_to_gregorian_days/3 (calendar.erl, line 116)</span></div><div class="line"><span class="comment">%      in call from calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div><div class="line">calendar:day_of_the_week(<span class="number">1970</span>, <span class="number">13</span>, <span class="number">2</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:last_day_of_the_month1(1970,13) (calendar.erl, line 243)</span></div><div class="line"><span class="comment">%      in function  calendar:date_to_gregorian_days/3 (calendar.erl, line 115)</span></div><div class="line"><span class="comment">%      in call from calendar:day_of_the_week/3 (calendar.erl, line 151)</span></div></pre></td></tr></table></figure>
-<p>如果你仔细看这些错误消息，你会看到 calendar:day_of_the_week/3 调用了 calendar:date_to_gregorian_days/3 ，我们将在下个星期的Erlang Thursday来介绍它。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-day_of_the_week-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-day_of_the_week-3/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#day_of_the_week-3&quot;&gt;calendar:day_of_the_week/3&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;calendar:day_of_the_week/3 允许你传入年、月、日然后得到这个日子在一个星期里是第几天。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
-    
-      <category term="day_of_the_week" scheme="http://szpzs.github.io/tags/day-of-the-week/"/>
     
   </entry>
   
