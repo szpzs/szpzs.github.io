@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.github.io/"/>
-  <updated>2016-09-19T13:37:23.000Z</updated>
+  <updated>2016-09-20T09:02:25.000Z</updated>
   <id>http://szpzs.github.io/</id>
   
   <author>
@@ -14,6 +14,227 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Erlang Thursday – erl_tar:extract/1</title>
+    <link href="http://szpzs.github.io/2016/09/20/erlang-thursday-erl-tar-extract-1/"/>
+    <id>http://szpzs.github.io/2016/09/20/erlang-thursday-erl-tar-extract-1/</id>
+    <published>2016-09-20T08:45:02.000Z</published>
+    <updated>2016-09-20T09:02:25.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/erl_tar.html#extract-1" target="_blank" rel="external">erl_tar:extract/1</a> 。</p>
+<p>erl_tar:extract/1 有一个入参，这个入参可能是一个二进制元组、文件描述符元组或是文件名，函数把tar文件的内容解压到当前目录。</p>
+<a id="more"></a>
+<p>由于我们需要一个tar文件来演示解压它，那么我们来创建一些文件并将它们加入一个新的tar文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">echo</span> <span class="string">"woof"</span> &gt; dog.txt</div><div class="line">$ <span class="built_in">echo</span> <span class="string">"meow"</span> &gt; cat.txt</div><div class="line">$ <span class="built_in">echo</span> <span class="string">"sparkle"</span> &gt; pony.txt</div><div class="line">$ <span class="built_in">echo</span> <span class="string">'Wocka Wocka Wocka!'</span> &gt; bear.txt</div><div class="line">$ tar -cvf animal_sounds.tar dog.txt cat.txt pony.txt bear.txt</div><div class="line">a dog.txt</div><div class="line">a cat.txt</div><div class="line">a pony.txt</div><div class="line">a bear.txt</div></pre></td></tr></table></figure>
+<p>接着我们也创建一个压缩版本的tar文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ tar -cvzf animal_sounds.tar.gz dog.txt cat.txt pony.txt bear.txt</div><div class="line">a dog.txt</div><div class="line">a cat.txt</div><div class="line">a pony.txt</div><div class="line">a bear.txt</div></pre></td></tr></table></figure>
+<p>为了测试解压这两个tar文件，我们清空当前目录的已经加入tar文件的相关文件。</p>
+<p>`` bash<br>$ rm dog.txt cat.txt pony.txt bear.txt<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">确保我们准备好了用来试验的tar文件后，我们打开Erlang shell，然后调用 erl_tar:extract/1 函数。</div><div class="line"></div><div class="line">``` erlang</div><div class="line">erl_tar:extract(&quot;animal_sounds.tar&quot;).</div><div class="line">% ok</div></pre></td></tr></table></figure></p>
+<p>看起来直截了当，我们回到命令行看看我们解压出来的文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ ls dog.txt cat.txt pony.txt bear.txt</div><div class="line">bear.txt cat.txt  dog.txt  pony.txt</div><div class="line">$ rm dog.txt cat.txt pony.txt bear.txt</div></pre></td></tr></table></figure>
+<p>确认文件后，为了试验，我们把它们删除继续下面的试验。</p>
+<p><strong>erl_tar:extract/2</strong></p>
+<p>Erlang还有一个 <a href="http://www.erlang.org/doc/man/erl_tar.html#extract-2" target="_blank" rel="external">erl_tar:extract/2</a> 函数，它允许我们通过提供一个列表做为它第二个入参来做为解压的选项。</p>
+<p>我们可以用 erl_tra:extract/2 解压文件并让它在控制台打印相关的信息，并且可以增加指定另外的选项，不仅打印相关信息而且解压动作不重写已经存在的任何对应的文件。</p>
+<p>`` erlang<br>erl_tar:extract(“animal_sounds.tar”, [verbose]).<br>% x /Users/proctor/tmp/dog.txt<br>%<br>% x /Users/proctor/tmp/cat.txt<br>%<br>% x /Users/proctor/tmp/pony.txt<br>%<br>% x /Users/proctor/tmp/bear.txt<br>%<br>% ok<br>erl_tar:extract(“animal_sounds.tar”, [verbose, keep_old_files]).<br>% x /Users/proctor/tmp/dog.txt - exists, not created<br>%<br>% x /Users/proctor/tmp/cat.txt - exists, not created<br>%<br>% x /Users/proctor/tmp/pony.txt - exists, not created<br>%<br>% x /Users/proctor/tmp/bear.txt - exists, not created<br>%<br>% ok<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">接着还是回到命令行把解压出来的文件删除继续试验。</div><div class="line"></div><div class="line">``` bash</div><div class="line">$ rm dog.txt cat.txt pony.txt bear.txt</div></pre></td></tr></table></figure></p>
+<p>接下来我们通过传入有原子 compressed 组成的列表做为第二个参数来解压 animal_sounds.tar.gz。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">erl_tar:extract(<span class="string">"animal_sounds.tar.gz"</span>, [verbose, compressed, keep_old_files]).</div><div class="line"><span class="comment">% x /Users/proctor/tmp/dog.txt</span></div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% x /Users/proctor/tmp/cat.txt</span></div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% x /Users/proctor/tmp/pony.txt</span></div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% x /Users/proctor/tmp/bear.txt</span></div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% ok</span></div></pre></td></tr></table></figure>
+<p>有些时候在你的程序中处理tar文件的时候，你不想必需要在文件系统下操作所有tar里的文件而只是读取tar文件的内容，所以有一个选贤可以让tar文件内容保存在内存中</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">erl_tar:extract(<span class="string">"animal_sounds.tar.gz"</span>, [verbose, compressed, keep_old_files, memory]).</div><div class="line"><span class="comment">% &#123;ok,[&#123;"dog.txt",&lt;&lt;"woofn"&gt;&gt;&#125;,</span></div><div class="line"><span class="comment">%      &#123;"cat.txt",&lt;&lt;"meown"&gt;&gt;&#125;,</span></div><div class="line"><span class="comment">%      &#123;"pony.txt",&lt;&lt;"sparklen"&gt;&gt;&#125;,</span></div><div class="line"><span class="comment">%      &#123;"bear.txt",&lt;&lt;"Wocka Wocka Wocka!n"&gt;&gt;&#125;]&#125;</span></div></pre></td></tr></table></figure>
+<p>当传入 memory 这个选项，erl_tar:extract/2 的返回值变为一个状态元组，其中有一个包含了被解压tar文件内每一个文件的文件名和它们的二进制内容组成的元组形成的列表。<br>如果一个错误在解压文件到内存的时候发生，比如我们忘了传入 compressed 选项给一个压缩tar文件，函数将返回一个错误元组。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">erl_tar:extract(<span class="string">"animal_sounds.tar.gz"</span>, [verbose, memory]).</div><div class="line"><span class="comment">% &#123;error,eof&#125;</span></div></pre></td></tr></table></figure>
+<p>erl_tar:extract/2 还可以接收跟多的选项，所以我强烈建议你仔细阅读官方文档获取全部可选项。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-erl_tar-extract-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-erl_tar-extract-1/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/erl_tar.html#extract-1&quot;&gt;erl_tar:extract/1&lt;/a&gt; 。&lt;/p&gt;
+&lt;p&gt;erl_tar:extract/1 有一个入参，这个入参可能是一个二进制元组、文件描述符元组或是文件名，函数把tar文件的内容解压到当前目录。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="erl_tar" scheme="http://szpzs.github.io/categories/Erlang/erl-tar/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="erl_tar" scheme="http://szpzs.github.io/tags/erl-tar/"/>
+    
+      <category term="extract" scheme="http://szpzs.github.io/tags/extract/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – erl_tar:create/2</title>
+    <link href="http://szpzs.github.io/2016/09/20/erlang-thursday-erl-tar-create-2/"/>
+    <id>http://szpzs.github.io/2016/09/20/erlang-thursday-erl-tar-create-2/</id>
+    <published>2016-09-20T08:36:09.000Z</published>
+    <updated>2016-09-20T08:45:52.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://erlang.org/doc/man/erl_tar.html#create-2" target="_blank" rel="external">erl_tar:create/2</a> 。</p>
+<p>erl_tar:create/2 根据传入的文件名来创建一个tar文件并将参提供的文件列表加入到tar文件里。</p>
+<a id="more"></a>
+<p>erl_tar:create/2 有两个入参，第一个入参是一个要写入内容到文件名，第二个入参是一个将要加入tar文件里的文件列表。</p>
+<p>首先我们打开一个新的操作系统shell会话并且创建一些文件，这些文件将加入到一个新tar文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">echo</span> <span class="string">"foo"</span> &gt; foo.txt</div><div class="line">$ <span class="built_in">echo</span> <span class="string">"bar"</span> &gt; bar.txt</div><div class="line">$ <span class="built_in">echo</span> <span class="string">"baz"</span> &gt; baz.txt</div><div class="line">$ ls</div><div class="line">bar.txt  baz.txt  foo.txt  test.tar</div></pre></td></tr></table></figure>
+<p>现在我们有了一些可以归档的文件，我们可以打开一个新的erl shell，并且创建一个新的tar文件，它的名字是test.tar。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">erl_tar:create(<span class="string">"test.tar"</span>, [<span class="string">"foo.txt"</span>, <span class="string">"bar.txt"</span>, <span class="string">"baz.txt"</span>]).</div><div class="line"><span class="comment">% ok</span></div></pre></td></tr></table></figure>
+<p>看起来好像是有用的，所以我们回到OS shell，看看刚才我们给 erl_tar:create/2（译者注：作者手误写成了 erl_tar:create/3 ） 函数传的那个tar文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ tar -tf test.tar</div><div class="line">foo.txt</div><div class="line">bar.txt</div><div class="line">baz.txt</div></pre></td></tr></table></figure>
+<p>没错，tar可以读这个文件并且告诉我们，那三个我们传入的文件都真的在tar文件里。</p>
+<p>erl_tar:create/3</p>
+<p>Erlang也提供了 erl_tar:create/3 它最后一个入参是一个选项列表。</p>
+<p>我们将创建一个新的tar文件，它里面的文件和上面的例子是一样的，第三个入参我们表明我们想要这个tar文件被压缩而且执行过程中在控制台输出执行过程的内容。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">erl_tar:create(<span class="string">"options.tar.gz"</span>,</div><div class="line">               [<span class="string">"foo.txt"</span>, <span class="string">"bar.txt"</span>, <span class="string">"baz.txt"</span>],</div><div class="line">               [compressed, verbose]).</div><div class="line"><span class="comment">% a foo.txt</span></div><div class="line"><span class="comment">% a bar.txt</span></div><div class="line"><span class="comment">% a baz.txt</span></div><div class="line"><span class="comment">% ok</span></div></pre></td></tr></table></figure>
+<p>再次回到OS shell，来看看这个tar文件里包含的文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ tar -tf options.tar.gz</div><div class="line">foo.txt</div><div class="line">bar.txt</div><div class="line">baz.txt</div></pre></td></tr></table></figure>
+<p>然后我们来测试一下，这个文件是否能被gzip解压缩。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ gzip --test options.tar.gz</div><div class="line">$</div></pre></td></tr></table></figure>
+<p>结果gzip认为这个文件压缩完整性很好。接着我们来看看我们创建的这两个tar文件在大小上的差异。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ ls <span class="_">-l</span> test.tar options.tar.gz</div><div class="line">-rw-r--r--  1 -------  -----    154 Sep XX HH:MM options.tar.gz</div><div class="line">-rw-r--r--  1 -------  -----  10240 Sep XX HH:MM test.tar</div></pre></td></tr></table></figure>
+<p>从文件大小来看，options.tar.gz 的确是被压缩的，因为它比test.tar小了两个数量级。</p>
+<p>创建一个已经存在的文件</p>
+<p>我们刚刚创建了 test.tar 并且看了它内部的内容。现在我们来看看传入相同的文件名test.tar和一个空的文件列表来创建一个已经存在的文件，这样做会发生什么。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">erl_tar:create(<span class="string">"test.tar"</span>, []).</div><div class="line"><span class="comment">% ok</span></div></pre></td></tr></table></figure>
+<p>然后我们看看它的内容，发现它原来的内容被替换了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ tar -tf test.tar</div><div class="line">$</div></pre></td></tr></table></figure>
+<p>这说明，erl_tar:create/2 创建tar文件并且覆盖已经存在的文件，如果文件已经存在它不会输出错误（假设用户的shell有权限写该文件或目录）。</p>
+<p>在一个不存在的路径上创建tar文件</p>
+<p>如果我们给一个不存在的路径, 我们可以看到 erl_tar:create/2 将返回一个错误元组，包括了文件名以及错误原因。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">erl_tar:create('/path/does/<span class="keyword">not</span>/exist.tar', []).</div><div class="line"><span class="comment">% &#123;error,&#123;'/path/does/not/exist.tar',enoent&#125;&#125;</span></div></pre></td></tr></table></figure>
+<p>其他潜在的陷阱</p>
+<p>首先官方文档说该函数入参是文件名，但是它没有指明erl_tar模块中文件名的数据类型是什么。</p>
+<p>如果你用原子来做文件名，你会像我第一次用字符串做文件名前一样得到下面例子的错误。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">erl_tar:create('test.tar', ['foo.txt', 'bar.txt', 'baz.txt']).</div><div class="line">** exception error: no function clause matching filename:join([]) (filename.erl, line <span class="number">392</span>)</div><div class="line">     in function  erl_tar:split_filename/<span class="number">4</span> (erl_tar.erl, line <span class="number">423</span>)</div><div class="line">     in call from erl_tar:create_header/<span class="number">3</span> (erl_tar.erl, line <span class="number">352</span>)</div><div class="line">     in call from erl_tar:add1/<span class="number">4</span> (erl_tar.erl, line <span class="number">305</span>)</div><div class="line">     in call from erl_tar:foreach_while_ok/<span class="number">2</span> (erl_tar.erl, line <span class="number">940</span>)</div><div class="line">     in call from erl_tar:create/<span class="number">3</span> (erl_tar.erl, line <span class="number">114</span>)</div></pre></td></tr></table></figure>
+<p>其次，根据erl_tar官方文档的 <a href="http://erlang.org/doc/man/erl_tar.html#id180770" target="_blank" rel="external">限制</a> 这一节，为了最大的兼容性，在各种不同操作系统和tar程序版本中，文件名应该少于100个字符。</p>
+<p>最后，当我们指定文件名的时候，包不包括扩展名由我们使用者决定，这和 erl_tar:compress/2 函数一样不为我们使用者管理文件扩展名。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-erl_tar-create-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-erl_tar-create-2/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://erlang.org/doc/man/erl_tar.html#create-2&quot;&gt;erl_tar:create/2&lt;/a&gt; 。&lt;/p&gt;
+&lt;p&gt;erl_tar:create/2 根据传入的文件名来创建一个tar文件并将参提供的文件列表加入到tar文件里。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="erl_tar" scheme="http://szpzs.github.io/categories/Erlang/erl-tar/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="erl_tar" scheme="http://szpzs.github.io/tags/erl-tar/"/>
+    
+      <category term="create" scheme="http://szpzs.github.io/tags/create/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – erl_tidy:file/1</title>
+    <link href="http://szpzs.github.io/2016/09/20/erlang-thursday-erl-tidy-file-1/"/>
+    <id>http://szpzs.github.io/2016/09/20/erlang-thursday-erl-tidy-file-1/</id>
+    <published>2016-09-20T08:27:50.000Z</published>
+    <updated>2016-09-20T08:32:19.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday我们看看Erlang的 erl_tidy 模块，我们从 <a href="http://www.erlang.org/doc/man/erl_tidy.html#file-1" target="_blank" rel="external">erl_tidy:file/1</a> 开始。</p>
+<p>erl_tidy:file/1 入参是一个文件名，它整理并简洁美观地输出入参指定的文件的源码。</p>
+<a id="more"></a>
+<p>在我的tmp目录里有我解决 FizzBuzz 的快速实现模块，我将看看 erl_tidy:file/1 如何处理这个文件，因为我确定它的处理不是那么的漂亮。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">-module(fizzbuzz).</div><div class="line"></div><div class="line">-export([fizzbuzz/1]).</div><div class="line"></div><div class="line">fizzbuzz(N) -&gt;</div><div class="line">    Translations = lists:map(fun translate/1, lists:seq(1, N)),</div><div class="line">    lists:foreach(fun(Item) -&gt; io:format("~s~n", [Item]) end, Translations).</div><div class="line"></div><div class="line">translate(N) when N rem 3 =:= 0 andalso N rem 5 =:= 0 -&gt;</div><div class="line">   'FizzBuzz';</div><div class="line">translate(N) when N rem 3 =:= 0 -&gt;</div><div class="line">   'Fizz';</div><div class="line">translate(N) when N rem 5 =:= 0 -&gt;</div><div class="line">   'Buzz';</div><div class="line">translate(N) -&gt;</div><div class="line">   integer_to_list(N).</div></pre></td></tr></table></figure>
+<p>我们打开一个新的Erlang shell，然后用入参 fizzbuzz.erl 来调用 erl_tidy:file/1 。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">erl_tidy:file(<span class="string">"fizzbuzz.erl"</span>).</div><div class="line"><span class="comment">% fizzbuzz.erl:6: replacing call to `lists:map/2' with a list comprehension.</span></div><div class="line"><span class="comment">% fizzbuzz.erl:6: changing application of implicit fun to direct local call.</span></div><div class="line"><span class="comment">% ok</span></div></pre></td></tr></table></figure>
+<p>看起来它不喜欢我在代码中用map而且它修改了我调用 translate/1 函数的方式。</p>
+<p>关掉shell，我们来看看目录下多了什么。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ls <span class="_">-l</span></div><div class="line">total 16</div><div class="line">-rw-r--r--  1 proctor  staff  402 Sep  9 22:06 fizzbuzz.erl</div><div class="line">-rw-r--r--  1 proctor  staff  405 Sep  9 22:05 fizzbuzz.erl.bak</div></pre></td></tr></table></figure>
+<p>让我们来看看 fizzbuzz.erl.bak ，主要是确认它的内容是 fizzbuzz.erl 的原始内容。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">-module(fizzbuzz).</div><div class="line"></div><div class="line">-export([fizzbuzz/1]).</div><div class="line"></div><div class="line">fizzbuzz(N) -&gt;</div><div class="line">    Translations = lists:map(fun translate/1, lists:seq(1, N)),</div><div class="line">    lists:foreach(fun(Item) -&gt; io:format("~s~n", [Item]) end, Translations).</div><div class="line"></div><div class="line">translate(N) when N rem 3 =:= 0 andalso N rem 5 =:= 0 -&gt;</div><div class="line">   'FizzBuzz';</div><div class="line">translate(N) when N rem 3 =:= 0 -&gt;</div><div class="line">   'Fizz';</div><div class="line">translate(N) when N rem 5 =:= 0 -&gt;</div><div class="line">   'Buzz';</div><div class="line">translate(N) -&gt;</div><div class="line">   integer_to_list(N).</div></pre></td></tr></table></figure>
+<p>它的确是 fizzbuzz.erl 的原始内容。</p>
+<p>现在我们来看看被 erl_tidy:file/1 修改后的 fizzbuzz.erl 文件。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">-module(fizzbuzz).</div><div class="line"></div><div class="line">-export([fizzbuzz/1]).</div><div class="line"></div><div class="line">fizzbuzz(N) -&gt;</div><div class="line">    Translations = [translate(V1) || V1 &lt;- lists:seq(1, N)],</div><div class="line">    lists:foreach(fun (Item) -&gt; io:format("~s~n", [Item])</div><div class="line">		  end,</div><div class="line">		  Translations).</div><div class="line"></div><div class="line">translate(N) when N rem 3 =:= 0 andalso N rem 5 =:= 0 -&gt;</div><div class="line">    'FizzBuzz';</div><div class="line">translate(N) when N rem 3 =:= 0 -&gt; 'Fizz';</div><div class="line">translate(N) when N rem 5 =:= 0 -&gt; 'Buzz';</div><div class="line">translate(N) -&gt; integer_to_list(N).</div></pre></td></tr></table></figure>
+<p>正如函数输出的两行消息所说的，我们现在用一个列表解析替代map，并且直接调用 translate/1 函数。</p>
+<p>它还把传给 lists:foreach/2 的匿名函数的 end 放在新的一行，也把列表 Translations 放在新的一行。</p>
+<p>最后，translate/1 三个分支被改成一行，而且文件最后的换行符也被删掉。</p>
+<p>据官方文档所讲，如果 fizzbuzz.erl 有任何没使用的函数都会被删除，同时过时的结构和函数也会被修改。</p>
+<p>总的来说，这个好用的Erlang应用小工具可以帮助你的代码保持稳定的风格并将代码保持整洁。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-erl_tidy-file-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-erl_tidy-file-1/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday我们看看Erlang的 erl_tidy 模块，我们从 &lt;a href=&quot;http://www.erlang.org/doc/man/erl_tidy.html#file-1&quot;&gt;erl_tidy:file/1&lt;/a&gt; 开始。&lt;/p&gt;
+&lt;p&gt;erl_tidy:file/1 入参是一个文件名，它整理并简洁美观地输出入参指定的文件的源码。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="erl_tidy" scheme="http://szpzs.github.io/categories/Erlang/erl-tidy/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="erl_tidy" scheme="http://szpzs.github.io/tags/erl-tidy/"/>
+    
+      <category term="file" scheme="http://szpzs.github.io/tags/file/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Erlang Thursday – c:pid/3</title>
+    <link href="http://szpzs.github.io/2016/09/20/erlang-thursday-c-pid-3/"/>
+    <id>http://szpzs.github.io/2016/09/20/erlang-thursday-c-pid-3/</id>
+    <published>2016-09-20T08:14:28.000Z</published>
+    <updated>2016-09-20T08:27:14.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天的Erlang Thursday我们简单讲讲 <a href="http://erlang.org/doc/man/c.html#pid-3" target="_blank" rel="external">c:pid/3</a>.</p>
+<p>c:pid/3 三个入参分别是一个pid的三个部分的整数值，返回值的类型是与入参值对应的Pid类型。</p>
+<a id="more"></a>
+<p>我们调用 self 函数来得到当前的pid，然后我们可以调用 c:pid/3 和 self 返回的值进行比较。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">self().</div><div class="line">% &lt;0.42.0&gt;</div><div class="line">c:pid(0, 42, 0).</div><div class="line">% &lt;0.42.0&gt;</div><div class="line">self() =:= c:pid(0, 42, 0).</div><div class="line">% true</div></pre></td></tr></table></figure>
+<p>这个函数有什么用呢？有时候当我们检测一个在线系统的时候，在Erlang里有些调用是需要Pid类型的入参而不只是pid的三个整数值。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">c:regs().</div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% ** Registered procs on node nonode@nohost **</span></div><div class="line"><span class="comment">% Name                  Pid          Initial Call                      Reds Msgs</span></div><div class="line"><span class="comment">% application_controlle &lt;0.7.0&gt;      erlang:apply/2                     463    0</span></div><div class="line"><span class="comment">% code_server           &lt;0.19.0&gt;     erlang:apply/2                  128774    0</span></div><div class="line"><span class="comment">% erl_prim_loader       &lt;0.3.0&gt;      erlang:apply/2                  163760    0</span></div><div class="line"><span class="comment">% error_logger          &lt;0.6.0&gt;      gen_event:init_it/6                220    0</span></div><div class="line"><span class="comment">% file_server_2         &lt;0.18.0&gt;     file_server:init/1                 448    0</span></div><div class="line"><span class="comment">% global_group          &lt;0.17.0&gt;     global_group:init/1                 59    0</span></div><div class="line"><span class="comment">% global_name_server    &lt;0.13.0&gt;     global:init/1                       51    0</span></div><div class="line"><span class="comment">% inet_db               &lt;0.16.0&gt;     inet_db:init/1                     206    0</span></div><div class="line"><span class="comment">% init                  &lt;0.0.0&gt;      otp_ring0:start/2                 3398    0</span></div><div class="line"><span class="comment">% kernel_safe_sup       &lt;0.27.0&gt;     supervisor:kernel/1                 58    0</span></div><div class="line"><span class="comment">% kernel_sup            &lt;0.11.0&gt;     supervisor:kernel/1              49109    0</span></div><div class="line"><span class="comment">% rex                   &lt;0.12.0&gt;     rpc:init/1                          35    0</span></div><div class="line"><span class="comment">% standard_error        &lt;0.21.0&gt;     erlang:apply/2                       9    0</span></div><div class="line"><span class="comment">% standard_error_sup    &lt;0.20.0&gt;     supervisor_bridge:standar           41    0</span></div><div class="line"><span class="comment">% user                  &lt;0.24.0&gt;     group:server/3                      36    0</span></div><div class="line"><span class="comment">% user_drv              &lt;0.23.0&gt;     user_drv:server/2                17940    0</span></div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% ** Registered ports on node nonode@nohost **</span></div><div class="line"><span class="comment">% Name                  Id              Command</span></div><div class="line"><span class="comment">% ok</span></div><div class="line">erlang:is_process_alive(c:pid(<span class="number">0</span>, <span class="number">6</span>, <span class="number">0</span>)).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>让我们以正常的方式给这个函数传入一些让其异常的值看看它会发生什么？</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">c:pid(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).</div><div class="line"><span class="comment">% &lt;0.0.0&gt;</span></div><div class="line">c:pid(<span class="number">111110</span>, <span class="number">0</span>, <span class="number">1111110</span>).</div><div class="line"><span class="comment">% ** exception error: bad argument</span></div><div class="line"><span class="comment">%      in function  list_to_pid/1</span></div><div class="line"><span class="comment">%         called as list_to_pid("&lt;111110.0.1111110&gt;")</span></div><div class="line"><span class="comment">%      in call from c:pid/3 (c.erl, line 424)</span></div></pre></td></tr></table></figure>
+<p>像<0.0.0>这样的pid是有效的pid，但是传入无效的pid，函数抛出异常，从异常信息里我们看到它尝试调用 list_to_pid 。</0.0.0></p>
+<p>让我们快速看看 list_to_pid 。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">erlang:list_to_pid(<span class="string">"&lt;0.42.0&gt;"</span>).</div><div class="line"><span class="comment">% &lt;0.42.0&gt;</span></div><div class="line">c:pid(<span class="number">0</span>, <span class="number">42</span>, <span class="number">0</span>) =:= erlang:list_to_pid(<span class="string">"&lt;0.42.0&gt;"</span>).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>看起来 c:pid/3 是一个 list_to_pid 的封装函数，它把pid的三个部分的整数值构建成一个字符串，然后调用 list_to_pid 来得到一个 Pid 类型的值。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-c-pid-3/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-c-pid-3/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天的Erlang Thursday我们简单讲讲 &lt;a href=&quot;http://erlang.org/doc/man/c.html#pid-3&quot;&gt;c:pid/3&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;c:pid/3 三个入参分别是一个pid的三个部分的整数值，返回值的类型是与入参值对应的Pid类型。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="c" scheme="http://szpzs.github.io/categories/Erlang/c/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="c" scheme="http://szpzs.github.io/tags/c/"/>
+    
+      <category term="pid" scheme="http://szpzs.github.io/tags/pid/"/>
+    
+  </entry>
   
   <entry>
     <title>Erlang Thursday – user_default</title>
@@ -690,156 +911,6 @@
       <category term="queue" scheme="http://szpzs.github.io/tags/queue/"/>
     
       <category term="head" scheme="http://szpzs.github.io/tags/head/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – queue:cons/2</title>
-    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-queue-cons-2/"/>
-    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-queue-cons-2/</id>
-    <published>2016-09-17T08:39:51.000Z</published>
-    <updated>2016-09-17T08:43:23.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday我们稍微深入一下queue模块，我们讲讲来自Okazaki的API：<a href="http://www.erlang.org/doc/man/queue.html#cons-2" target="_blank" rel="external">queue:cons/2</a> 。</p>
-<p>queue:cons/2 有两个入参，一个是元素，一个是队列，它执行后返回一个元素加在队列头部形成的新队列。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">queue:cons(<span class="number">7</span>, queue:new()).</div><div class="line"><span class="comment">% &#123;[],[7]&#125;</span></div><div class="line">queue:cons(<span class="number">3</span>, queue:cons(<span class="number">7</span>, queue:new())).</div><div class="line"><span class="comment">% &#123;[7],[3]&#125;</span></div><div class="line">queue:cons(nil, queue:new()).</div><div class="line"><span class="comment">% &#123;[],[nil]&#125;</span></div><div class="line">queue:cons(<span class="number">5</span>, queue:from_list([<span class="number">7</span>, <span class="number">9</span>, <span class="number">13</span>, <span class="number">21</span>])).</div><div class="line"><span class="comment">% &#123;[21],[5,7,9,13]&#125;</span></div></pre></td></tr></table></figure>
-<p>如果我们传入一个列表给 queue:cons/2 ，我们看到它出错，表明它想要一个队列，而不会隐式地将一个列表转成一个队列。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">queue:cons(<span class="number">5</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% ** exception error: bad argument</span></div><div class="line"><span class="comment">%      in function  queue:in_r/2</span></div><div class="line"><span class="comment">%         called as queue:in_r(5,[1,2,3,4])</span></div></pre></td></tr></table></figure>
-<p>因为队列被设置成一个双端队列，Okasaki API 也提供了一个对应的函数 <a href="http://www.erlang.org/doc/man/queue.html#snoc-2" target="_blank" rel="external">queque:snoc/2</a> ，它将元素加在传入的队列的尾部。注意，queue:snoc/2 和 queue:cons/2 两个函数的两个入参的顺序也是相反的；queue:snoc/2 的第一个入参上一个队列，而要加在它尾部的元素做为第二个入参。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">queue:snoc(queue:new(), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5],[]&#125;</span></div><div class="line">queue:snoc(queue:from_list([<span class="number">7</span>]), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5],[7]&#125;</span></div><div class="line">queue:snoc(queue:snoc(queue:new(), <span class="number">7</span>), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5],[7]&#125;</span></div><div class="line">queue:snoc(queue:from_list([<span class="number">7</span>, <span class="number">9</span>, <span class="number">13</span>, <span class="number">21</span>]), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5,21],[7,9,13]&#125;</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-queue-cons-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-queue-cons-2/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday我们稍微深入一下queue模块，我们讲讲来自Okazaki的API：&lt;a href=&quot;http://www.erlang.org/doc/man/queue.html#cons-2&quot; target=&quot;_blank&quot; rel=&quot;extern
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="queue" scheme="http://szpzs.github.io/categories/Erlang/queue/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="queue" scheme="http://szpzs.github.io/tags/queue/"/>
-    
-      <category term="cons" scheme="http://szpzs.github.io/tags/cons/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – filelib:is_file/1</title>
-    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-filelib-is-file-1/"/>
-    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-filelib-is-file-1/</id>
-    <published>2016-09-17T08:35:45.000Z</published>
-    <updated>2016-09-17T08:38:22.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/filelib.html#is_file-1" target="_blank" rel="external">filelib:is_file/1</a>.</p>
-<p>filelib:is_file/1 入参是一个表示文件名的字符串，它根据这个文件名所指的是否是文件或目录而返回true或者false。</p>
-<p>这个函数在你正在需要从一个配置文件读取内容并且在尝试处理前确认这个文件或目录是否存在的时候有用，以便你可以在退出前得到一个友好的错误信息而不仅是引起一个系统错误。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">filelib:is_file(<span class="string">"foo"</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(<span class="string">"junk"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"tmp"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"tempmp"</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(<span class="string">"temp"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"/usr/local/bin"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"/usr/local/var"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"/usr/local/vars"</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(<span class="string">"."</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">".."</span>).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>filelib:is_file/1 的入参也可以是一个原子，或者甚至也可以是一个嵌套的列表来表示一个文件名。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">filelib:is_file(foo).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(junk).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file([<span class="string">"/usr"</span>, ['/local', '/bin']]).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-filelib-is_file-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-filelib-is_file-1/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/filelib.html#is_file-1&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;filelib:is_file/1&lt;/a&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="filelib" scheme="http://szpzs.github.io/categories/Erlang/filelib/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="filelib" scheme="http://szpzs.github.io/tags/filelib/"/>
-    
-      <category term="is_file" scheme="http://szpzs.github.io/tags/is-file/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – calendar:iso_week_number/1</title>
-    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-iso-week-number-1/"/>
-    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-iso-week-number-1/</id>
-    <published>2016-09-17T07:49:18.000Z</published>
-    <updated>2016-09-17T07:51:48.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#iso_week_number-1" target="_blank" rel="external">calendar:iso_week_number/1</a>.</p>
-<p>calendar:iso_week_number/1 接收一个日期元组做为入参，然后返回一个由年份和周数字组成的元组。年份是入参里的年份，而周数字是一个1到53的整数。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">calendar:iso_week_number(&#123;<span class="number">2015</span>, <span class="number">05</span>, <span class="number">04</span>&#125;).</div><div class="line">&#123;<span class="number">2015</span>,<span class="number">19</span>&#125;</div><div class="line">calendar:iso_week_number(&#123;<span class="number">2015</span>, <span class="number">05</span>, <span class="number">03</span>&#125;).</div><div class="line">&#123;<span class="number">2015</span>,<span class="number">18</span>&#125;</div></pre></td></tr></table></figure>
-<p>如果我们拿本周做为一个例子，我们可以看到本周是从星期一（五月四日）开始，而前一个星期天（五月三日）是属于上一个星期的。</p>
-<p>我们看到一月一日是这一年的第一周，这没什么奇怪，而2015年的十二月三十一日是这一年的第53周。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">calendar:iso_week_number(&#123;<span class="number">2015</span>, <span class="number">1</span>, <span class="number">1</span>&#125;).</div><div class="line">&#123;<span class="number">2015</span>,<span class="number">1</span>&#125;</div><div class="line">calendar:iso_week_number(&#123;<span class="number">2015</span>, <span class="number">12</span>, <span class="number">31</span>&#125;).</div><div class="line">&#123;<span class="number">2015</span>,<span class="number">53</span>&#125;</div></pre></td></tr></table></figure>
-<p>一开始听到一年有53周我们会很惊讶，因为几乎每个人都认为一年只有52周，直到你意识到有些十二月三十一日有时候是处于一周的开始，所以造成了它处在第53周，而它仅仅是这周的一部分。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-iso_week_number-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-iso_week_number-1/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#iso_week_number-1&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;calendar:iso
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
-    
-      <category term="iso_week_number" scheme="http://szpzs.github.io/tags/iso-week-number/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – calendar:is_leap_year/1</title>
-    <link href="http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-is-leap-year-1/"/>
-    <id>http://szpzs.github.io/2016/09/17/erlang-thursday-calendar-is-leap-year-1/</id>
-    <published>2016-09-17T07:43:16.000Z</published>
-    <updated>2016-09-17T07:52:30.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#is_leap_year-1" target="_blank" rel="external">calendar:is_leap_year/1</a>.</p>
-<p>calendar:is_leap_year/1 接收一个非负整数表示的年份，如果这个年份是闰年，则返回true，否则返回false。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">calendar:is_leap_year(<span class="number">2015</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">2012</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:is_leap_year(<span class="number">2017</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">2000</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:is_leap_year(<span class="number">1900</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">0</span>).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>有了这个Erlang核心库的内置函数，意味着你不需要编写代码或者甚至不需要查找规则来记住如何判断某个年份到底是不是闰年。</p>
-<p>如果你传递一个负数来表示年份，Erlang将抛出一个异常，因为没有一个函数分支能匹配用负数来表示的年份。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">calendar:is_leap_year(-<span class="number">1</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:is_leap_year(-1) (calendar.erl, line 183)</span></div><div class="line">calendar:is_leap_year(-<span class="number">4</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:is_leap_year(-4) (calendar.erl, line 183)</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-is_leap_year-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-is_leap_year-1/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/calendar.html#is_leap_year-1&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;calendar:is_lea
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="calendar" scheme="http://szpzs.github.io/categories/Erlang/calendar/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="calendar" scheme="http://szpzs.github.io/tags/calendar/"/>
-    
-      <category term="is_leap_year" scheme="http://szpzs.github.io/tags/is-leap-year/"/>
     
   </entry>
   
