@@ -1,0 +1,945 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,ETS,ets,match,select,query,lookup,match_object," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="今天的Erlang Thursday我们继续上周开始的从ETS获取数据研究。
+我们已经有一个模块 markov_words ，本周我们将添加一个函数 markov_words:create_word_triples/1 。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Erlang Thursday – 更多的ETS数据匹配和查询">
+<meta property="og:url" content="http://szpzs.github.io/2016/09/20/erlang-thursday-more-ets-data-matching-and-querying/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="今天的Erlang Thursday我们继续上周开始的从ETS获取数据研究。
+我们已经有一个模块 markov_words ，本周我们将添加一个函数 markov_words:create_word_triples/1 。">
+<meta property="og:updated_time" content="2016-09-20T14:02:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Erlang Thursday – 更多的ETS数据匹配和查询">
+<meta name="twitter:description" content="今天的Erlang Thursday我们继续上周开始的从ETS获取数据研究。
+我们已经有一个模块 markov_words ，本周我们将添加一个函数 markov_words:create_word_triples/1 。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.github.io/2016/09/20/erlang-thursday-more-ets-data-matching-and-querying/"/>
+
+  <title> Erlang Thursday – 更多的ETS数据匹配和查询 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Erlang Thursday – 更多的ETS数据匹配和查询
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-20T21:54:22+08:00" content="2016-09-20">
+              2016-09-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/ETS/" itemprop="url" rel="index">
+                    <span itemprop="name">ETS</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/ETS/match/" itemprop="url" rel="index">
+                    <span itemprop="name">match</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/20/erlang-thursday-more-ets-data-matching-and-querying/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-more-ets-data-matching-and-querying/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>今天的Erlang Thursday我们继续上周开始的从ETS获取数据研究。</p>
+<p>我们已经有一个模块 markov_words ，本周我们将添加一个函数 markov_words:create_word_triples/1 。</p>
+<a id="more"></a>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(markov_words)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([create_word_pairs/<span class="number">1</span>,</span></div><div class="line">         create_word_triples/<span class="number">1</span>]).</div><div class="line"></div><div class="line"><span class="keyword">-spec</span> create_word_pairs<span class="params">(string())</span> -&gt; list<span class="params">(&#123;string(), string()&#125;)</span>.</div><div class="line"><span class="function"><span class="title">create_word_pairs</span><span class="params">(Text)</span> -&gt;</span></div><div class="line">  Words = string:tokens(Text, <span class="string">" \t\n"</span>),</div><div class="line">  create_word_pairs([], Words).</div><div class="line"></div><div class="line"><span class="keyword">-spec</span> create_word_triples<span class="params">(string())</span> -&gt; list<span class="params">(&#123;string(), string(), string()&#125;)</span>.</div><div class="line"><span class="function"><span class="title">create_word_triples</span><span class="params">(Text)</span> -&gt;</span></div><div class="line">  Words = string:tokens(Text, <span class="string">" \t\n"</span>),</div><div class="line">  create_word_triples(Words, []).</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="title">create_word_pairs</span><span class="params">(WordPairs, [_Word|[]])</span> -&gt;</span></div><div class="line">    WordPairs;</div><div class="line"><span class="function"><span class="title">create_word_pairs</span><span class="params">(WordPairs, [Word|Words])</span> -&gt;</span></div><div class="line">    [Following|_] = Words,</div><div class="line">    UpdatedWordPairs = [&#123;Word, Following&#125; | WordPairs],</div><div class="line">    create_word_pairs(UpdatedWordPairs, Words).</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="title">create_word_triples</span><span class="params">([_Word, _SecondWord | []], WordTriples)</span> -&gt;</span></div><div class="line">    WordTriples;</div><div class="line"><span class="function"><span class="title">create_word_triples</span><span class="params">([FirstWord | Words], WordTriples)</span> -&gt;</span></div><div class="line">    [SecondWord, Following | _] = Words,</div><div class="line">    UpdatedWordTriples = [&#123;FirstWord, SecondWord, Following&#125; | WordTriples],</div><div class="line">    create_word_triples(Words, UpdatedWordTriples).</div></pre></td></tr></table></figure>
+<p>添加新函数的原因是它将允许我们得到更精确的马尔科夫链，这是通过能看到后续两个词的复合键的情形而提高获取下一个单词的概率。</p>
+<p>修改和重新定义我们的模块后，我们回到Erlang shell，编译我们的模块并转载我们的介绍文本给一个变量，测试开始。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">c(markov_words).</div><div class="line">% &#123;ok,markov_words&#125;</div><div class="line"></div><div class="line">ToTC = "It was the best of times, it was the worst of times,</div><div class="line">it was the age of wisdom, it was the age of foolishness,</div><div class="line">it was the epoch of belief, it was the epoch of incredulity,</div><div class="line">it was the season of Light, it was the season of Darkness,</div><div class="line">it was the spring of hope, it was the winter of despair,</div><div class="line">we had everything before us, we had nothing before us,</div><div class="line">we were all going direct to Heaven,</div><div class="line">we were all going direct the other way--in short,</div><div class="line">the period was so far like the present period,</div><div class="line">that some of its noisiest authorities insisted on its</div><div class="line">being received, for good or for evil, in the superlative</div><div class="line">degree of comparison only.</div><div class="line"></div><div class="line">There were a king with a large jaw and a queen with a</div><div class="line">plain face, on the throne of England; there were a king</div><div class="line">with a large jaw and a queen with a fair face,</div><div class="line">on the throne of France. In both countries it was</div><div class="line">clearer than crystal to the lords of the State preserves</div><div class="line">of loaves and fishes, that things in general were</div><div class="line">settled for ever.".</div></pre></td></tr></table></figure>
+<p>本周我们创建新的ETS表，创建一个新的进程并且把表转移给它（在例子中我们输入一些错误的东西来引起当前的shell进程崩溃）。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">MarkovWords = ets:new(markov_word_tuples, [public, duplicate_bag]).</div><div class="line"><span class="comment">% 16402</span></div><div class="line">Fun = <span class="keyword">fun</span>() -&gt; <span class="keyword">receive</span> <span class="keyword">after</span> infinity -&gt; ok <span class="keyword">end</span> <span class="keyword">end</span>.</div><div class="line"><span class="comment">% #Fun&lt;erl_eval.20.54118792&gt;</span></div><div class="line">SomeProcess = spawn(Fun).</div><div class="line"><span class="comment">% &lt;0.58.0&gt;</span></div><div class="line">ets:give_away(MarkovWords, SomeProcess, []).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>这周，除了添加我们的词对元组到ETS，我们也将添加新的词三元组到ETS的同样的表里。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[[ ets:insert(MarkovWords, WordPair) || WordPair &lt;- markov_words:create_word_pairs(ToTC)]].</div><div class="line"></div><div class="line">[[ ets:insert(MarkovWords, WordTriple) || WordTriple &lt;- markov_words:create_word_triples(ToTC)]].</div></pre></td></tr></table></figure>
+<p>既然我们已经有词对和三词组在同一个ETS表中，我们可以用 ets:match_object/2 函数并指定一个匹配模式仅获得二元组数据。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">ets:match_object(MarkovWords, &#123;<span class="string">"of"</span>, '$<span class="number">1</span>'&#125;).</div><div class="line"><span class="comment">% [&#123;"of","loaves"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","the"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","France."&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","England;"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","comparison"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","its"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","despair,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","hope,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Darkness,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Light,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","incredulity,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","belief,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","foolishness,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","wisdom,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","times,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","times,"&#125;]</span></div></pre></td></tr></table></figure>
+<p>或者指定另一个匹配模式仅获得三元组数据。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">ets:match_object(MarkovWords, &#123;<span class="string">"of"</span>, '$<span class="number">1</span>', '$<span class="number">2</span>'&#125;).</div><div class="line"><span class="comment">% [&#123;"of","loaves","and"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","the","State"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","France.","In"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","England;","there"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","comparison","only."&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","its","noisiest"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","despair,","we"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","hope,","it"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Darkness,","it"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Light,","it"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","incredulity,","it"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","belief,","it"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","foolishness,","it"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","wisdom,","it"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","times,","it"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","times,","it"&#125;]</span></div></pre></td></tr></table></figure>
+<p>而如果我们用 ets:lookup/2 函数并传入键，那么我们得到这个键的所有数据而不管它是二元组还是三元组。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">ets:lookup(MarkovWords, <span class="string">"of"</span>).</div><div class="line"><span class="comment">% [&#123;"of","loaves"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","the"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","France."&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","England;"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","comparison"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","its"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","despair,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","hope,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Darkness,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Light,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","incredulity,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","belief,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","foolishness,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","wisdom,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","times,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","times,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","loaves","and"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","the","State"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","France.","In"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","England;","there"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","comparison","only."&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","its","noisiest"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","despair,","we"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","hope,","it"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Darkness,","it"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Light,",[...]&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of",[...],...&#125;,</span></div><div class="line"><span class="comment">%  &#123;[...],...&#125;,</span></div><div class="line"><span class="comment">%  &#123;...&#125;|...]</span></div></pre></td></tr></table></figure>
+<p>和 ets:lookup/2 不一样，ets:match_object/2 可以匹配元组中的任何元素而不仅是键。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">ets:match_object(MarkovWords, &#123;'$<span class="number">1</span>', <span class="string">"the"</span>, '$<span class="number">2</span>'&#125;).</div><div class="line"><span class="comment">% [&#123;"on","the","throne"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"on","the","throne"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"direct","the","other"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"short,","the","period"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"like","the","present"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","the","State"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"to","the","lords"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"in","the","superlative"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","winter"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","spring"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","season"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","season"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","epoch"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","epoch"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","age"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","age"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","worst"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","best"&#125;]</span></div></pre></td></tr></table></figure>
+<p>和 ets:match_object/2 一样，ets:match/2 也可以如此匹配元组。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">ets:match(MarkovWords, &#123;<span class="string">"was"</span>, <span class="string">"the"</span>, '$<span class="number">1</span>'&#125;).</div><div class="line"><span class="comment">% [["winter"],</span></div><div class="line"><span class="comment">%  ["spring"],</span></div><div class="line"><span class="comment">%  ["season"],</span></div><div class="line"><span class="comment">%  ["season"],</span></div><div class="line"><span class="comment">%  ["epoch"],</span></div><div class="line"><span class="comment">%  ["epoch"],</span></div><div class="line"><span class="comment">%  ["age"],</span></div><div class="line"><span class="comment">%  ["age"],</span></div><div class="line"><span class="comment">%  ["worst"],</span></div><div class="line"><span class="comment">%  ["best"]]</span></div></pre></td></tr></table></figure>
+<p>但有时候我们可能想要对如何返回结果给我们有更细粒度的控制能力，比如用一个元素单列表而不是一个字符串嵌套列表。或者我们甚至有一些标准是我们想要的真正作为我们选择的数据的一部分。</p>
+<p>让我们开始研究 <a href="http://www.erlang.org/doc/man/ets.html#select-2" target="_blank" rel="external">ets:select/2</a> 。</p>
+<p>ets:select/2 第一个入参是一个表，第二个入参是一个匹配规则。</p>
+<p>这个匹配规则是一个三元组列表，元组的第一个元素是一个匹配模式，第二个元素是一个判断语句元组的列表，最后一个元素是一个表示每个匹配的结果。</p>
+<p>如果我们想让调用 ets:select/2 结果和 ets:match/2 相似，就如像下面输出一样。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">ets:select(MarkovWords, [&#123;&#123;<span class="string">"was"</span>, <span class="string">"the"</span>, '$<span class="number">1</span>'&#125;, [], [['$<span class="number">1</span>']]&#125;]).</div><div class="line"><span class="comment">% [["winter"],</span></div><div class="line"><span class="comment">%  ["spring"],</span></div><div class="line"><span class="comment">%  ["season"],</span></div><div class="line"><span class="comment">%  ["season"],</span></div><div class="line"><span class="comment">%  ["epoch"],</span></div><div class="line"><span class="comment">%  ["epoch"],</span></div><div class="line"><span class="comment">%  ["age"],</span></div><div class="line"><span class="comment">%  ["age"],</span></div><div class="line"><span class="comment">%  ["worst"],</span></div><div class="line"><span class="comment">%  ["best"]]</span></div></pre></td></tr></table></figure>
+<p>第二个入参是一个匹配规则列表，它只有一个元素，这个元素的组成是：<br>1）一个{“was”, “the”, ‘$1’}样式的匹配模式，它和我们传给 ets:match/2 的一样<br>2）一个空的条件判断元组列表3）一个返回结果的term： [[‘$1’]]，它是我们想要的结果格式列表，在本例子里我们想要每个结果都在它自己的列表里。</p>
+<p>如果我们只是想得到一个词组成的列表，我们可以修改匹配规则的返回结果的term为[‘$1’]。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ets:select(MarkovWords, [&#123;&#123;<span class="string">"was"</span>, <span class="string">"the"</span>, '$<span class="number">1</span>'&#125;, [], ['$<span class="number">1</span>']&#125;]).</div><div class="line"><span class="comment">% ["winter","spring","season","season","epoch","epoch","age",</span></div><div class="line"><span class="comment">%  "age","worst","best"]</span></div></pre></td></tr></table></figure>
+<p>如果我们想让返回结果看起来更像是一个 ets:match<em>object/2 返回的结果集，我们可以使用 ‘$</em>‘作为结果term，它表示整个元素。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">ets:select(MarkovWords, [&#123;&#123;<span class="string">"was"</span>, <span class="string">"the"</span>, '$<span class="number">1</span>'&#125;, [], ['$_']&#125;]).</div><div class="line"><span class="comment">% [&#123;"was","the","winter"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","spring"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","season"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","season"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","epoch"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","epoch"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","age"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","age"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","worst"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","best"&#125;]</span></div></pre></td></tr></table></figure>
+<p>如果你想要只是匹配某些元素并且提取元组中其它元素，我们可以用 ‘$$’ 作为结果term，它将返回所有匹配变量到一个列表里，返回列表里元素的顺序是按匹配模式里匹配变量的数值排序。</p>
+<p>用 ets:select/2 我们也可以有指定多个匹配规则的能力。这样就允许我们查找到所有中间的词是 of 或 the 的三元组数据。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">ets:select(MarkovWords, [&#123;&#123;'$<span class="number">1</span>', <span class="string">"the"</span>, '$<span class="number">2</span>'&#125;, [], ['$_']&#125;, &#123;&#123;'$<span class="number">1</span>', <span class="string">"of"</span>, '$<span class="number">2</span>'&#125;, [], ['$_']&#125;]).</div><div class="line"><span class="comment">% [&#123;"some","of","its"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"on","the","throne"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"on","the","throne"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"direct","the","other"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"preserves","of","loaves"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"throne","of","France."&#125;,</span></div><div class="line"><span class="comment">%  &#123;"throne","of","England;"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"worst","of","times,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"short,","the","period"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"winter","of","despair,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"degree","of","comparison"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"epoch","of","incredulity,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"epoch","of","belief,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"spring","of","hope,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"like","the","present"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","the","State"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"age","of","foolishness,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"age","of","wisdom,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"best","of","times,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"season","of","Darkness,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"season","of","Light,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"to","the","lords"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"in","the","superlative"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","winter"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the","spring"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was","the",[...]&#125;,</span></div><div class="line"><span class="comment">%  &#123;"was",[...],...&#125;,</span></div><div class="line"><span class="comment">%  &#123;[...],...&#125;,</span></div><div class="line"><span class="comment">%  &#123;...&#125;|...]</span></div></pre></td></tr></table></figure>
+<p>使用判断分支，我们可以找到在三元组数据里第一个元素是 was ，而且第二个词在字典排序上小于第三个词这样的第三个词。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ets:select(MarkovWords, [&#123;&#123;<span class="string">"was"</span>, '$<span class="number">1</span>', '$<span class="number">2</span>'&#125;, [&#123;'&lt;', '$<span class="number">1</span>', '$<span class="number">2</span>'&#125;], ['$<span class="number">2</span>']&#125;]).</div><div class="line"><span class="comment">% ["than","winter","worst"]</span></div></pre></td></tr></table></figure>
+<p>本周的文章我们已经学到使用 ets:match/2 和 ets:match_object/2 函数的其它方式，以及他们能克服使用 ets:lookup/2 的时候只能指定一个键的弱点，也可以能够通过使用 ets:select/2 来获得更强的查询能力。</p>
+<p>下周，我们将研究 ets:select/2 的更多使用方式，以及我们怎样用ets模块的其它函数来帮助创建查询来更容易地快速解构数据。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-more-ets-data-matching-and-querying/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-more-ets-data-matching-and-querying/</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/ETS/" rel="tag">#ETS</a>
+          
+            <a href="/tags/ets/" rel="tag">#ets</a>
+          
+            <a href="/tags/match/" rel="tag">#match</a>
+          
+            <a href="/tags/select/" rel="tag">#select</a>
+          
+            <a href="/tags/query/" rel="tag">#query</a>
+          
+            <a href="/tags/lookup/" rel="tag">#lookup</a>
+          
+            <a href="/tags/match-object/" rel="tag">#match_object</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/20/erlang-thursday-ets-data-matching/" rel="next" title="Erlang Thursday - ETS 数据匹配">
+                <i class="fa fa-chevron-left"></i> Erlang Thursday - ETS 数据匹配
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/20/erlang-thursday-ets-match-specs-and-functions/" rel="prev" title="Erlang Thursday - ETS，匹配规则和函数">
+                Erlang Thursday - ETS，匹配规则和函数 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/20/erlang-thursday-more-ets-data-matching-and-querying/"
+           data-title="Erlang Thursday – 更多的ETS数据匹配和查询" data-url="http://szpzs.github.io/2016/09/20/erlang-thursday-more-ets-data-matching-and-querying/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">71</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">83</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

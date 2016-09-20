@@ -283,8 +283,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/09/18/erlang-thursday-ordsets-is-subset-2/" itemprop="url">
-                  Erlang Thursday – ordsets:is_subset/2
+                <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-introduction-part-4-ets-access-protections/" itemprop="url">
+                  Erlang Thursday - ETS介绍第四篇：ETS的访问保护
                 </a>
               
             
@@ -297,8 +297,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-18T20:22:01+08:00" content="2016-09-18">
-              2016-09-18
+            <time itemprop="dateCreated" datetime="2016-09-20T21:20:20+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -323,8 +323,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/ordsets/" itemprop="url" rel="index">
-                    <span itemprop="name">ordsets</span>
+                  <a href="/categories/Erlang/ETS/" itemprop="url" rel="index">
+                    <span itemprop="name">ETS</span>
                   </a>
                 </span>
 
@@ -339,8 +339,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/18/erlang-thursday-ordsets-is-subset-2/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/18/erlang-thursday-ordsets-is-subset-2/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-thursday-ets-introduction-part-4-ets-access-protections/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-ets-introduction-part-4-ets-access-protections/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -364,10 +364,10 @@
 
       
         
-          <p>今天的Erlang Thursday讲的是 <a href="http://erlang.org/doc/man/ordsets.html#is_subset-2">ordsets:is_subset/2</a>.</p>
-<p>ordsets:is_subset/2 有两个有序集合的入参，函数会检测第一个入参是否是第二入参的子集。例如一个集合A，它是另一个集合B的子集，则集合A的每一个元素必须是集合B的元素。</p>
+          <p>今天的Erlang Thursday继续介绍ETS并研究ETS支持的不同访问级别。</p>
+<p>ETS支持的不同访问级别：public，protected和private。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/18/erlang-thursday-ordsets-is-subset-2/#more" rel="contents">
+            <a class="btn" href="/2016/09/20/erlang-thursday-ets-introduction-part-4-ets-access-protections/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -418,8 +418,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/09/18/erlang-thursday-ordsets-subtract-2/" itemprop="url">
-                  Erlang Thursday – ordsets:subtract/2
+                <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-introduction-part-3-ets-table-types/" itemprop="url">
+                  Erlang Thursday - ETS介绍第三篇：ETS表类型
                 </a>
               
             
@@ -432,8 +432,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-18T20:18:09+08:00" content="2016-09-18">
-              2016-09-18
+            <time itemprop="dateCreated" datetime="2016-09-20T21:14:05+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -458,8 +458,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/ordsets/" itemprop="url" rel="index">
-                    <span itemprop="name">ordsets</span>
+                  <a href="/categories/Erlang/ETS/" itemprop="url" rel="index">
+                    <span itemprop="name">ETS</span>
                   </a>
                 </span>
 
@@ -474,8 +474,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/18/erlang-thursday-ordsets-subtract-2/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/18/erlang-thursday-ordsets-subtract-2/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-thursday-ets-introduction-part-3-ets-table-types/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-ets-introduction-part-3-ets-table-types/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -499,10 +499,10 @@
 
       
         
-          <p>今天的Erlang Thursday讲的是 <a href="http://erlang.org/doc/man/ordsets.html#subtract-2">ordsets:subtract/2</a>.</p>
-<p>ordsets:substract/2 有两个入参，它们都是有序集合，返回值是一个由只在第一个有序集合入参而不在第二个有序集合入参的元素组成的有序集合。</p>
+          <p>今天的Erlang Thursday继续介绍ETS并且研究一下ETS支持的不同存储策略类型。</p>
+<p>ETS支持的不同存储类型是：set，ordered_set，bag，和duplicate bag。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/18/erlang-thursday-ordsets-subtract-2/#more" rel="contents">
+            <a class="btn" href="/2016/09/20/erlang-thursday-ets-introduction-part-3-ets-table-types/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -553,8 +553,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/09/18/erlang-thursday-bonus-performace-of-erlang-length-1-on-a-list/" itemprop="url">
-                  Erlang Thursday Bonus! Performace of erlang:length/1 on a list
+                <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-introduction-part-2/" itemprop="url">
+                  Erlang Thursday - ETS介绍第二篇
                 </a>
               
             
@@ -567,8 +567,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-18T20:12:46+08:00" content="2016-09-18">
-              2016-09-18
+            <time itemprop="dateCreated" datetime="2016-09-20T21:07:34+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -593,8 +593,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">erlang</span>
+                  <a href="/categories/Erlang/ETS/" itemprop="url" rel="index">
+                    <span itemprop="name">ETS</span>
                   </a>
                 </span>
 
@@ -609,8 +609,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/18/erlang-thursday-bonus-performace-of-erlang-length-1-on-a-list/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/18/erlang-thursday-bonus-performace-of-erlang-length-1-on-a-list/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-thursday-ets-introduction-part-2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-ets-introduction-part-2/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -634,11 +634,10 @@
 
       
         
-          <p>今天给大家一个Erlang Thursday福利。</p>
-<p>上星期在达拉斯－沃斯堡的Erlang User group 演讲上，有一些Erlang新人参加我们的会议，有人提到了如下问题：</p>
-<p>有没有聪明的方法来获得列表的长度，或者还是必须要遍历列表的所有元素来计算它的长度呢？</p>
+          <p>今天的Erlang Thursday继续介绍 <a href="http://www.erlang.org/doc/man/ets.html">ets</a> 模块以及ETS的概况。</p>
+<p>上次我们看到ETS表在其父进程崩溃的时候被删除了，那么问题来了，我们怎么能够在其父进程崩溃的时候依然保持ETS表活着呢？</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/18/erlang-thursday-bonus-performace-of-erlang-length-1-on-a-list/#more" rel="contents">
+            <a class="btn" href="/2016/09/20/erlang-thursday-ets-introduction-part-2/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -689,8 +688,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/09/18/erlang-thursday-ordsets-intersection-2/" itemprop="url">
-                  Erlang Thursday – ordsets:intersection/2
+                <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-introduction-part-1/" itemprop="url">
+                  Erlang Thursday - ETS介绍第一篇
                 </a>
               
             
@@ -703,8 +702,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-18T20:08:06+08:00" content="2016-09-18">
-              2016-09-18
+            <time itemprop="dateCreated" datetime="2016-09-20T20:59:53+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -729,8 +728,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/ordsets/" itemprop="url" rel="index">
-                    <span itemprop="name">ordsets</span>
+                  <a href="/categories/Erlang/ETS/" itemprop="url" rel="index">
+                    <span itemprop="name">ETS</span>
                   </a>
                 </span>
 
@@ -745,8 +744,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/18/erlang-thursday-ordsets-intersection-2/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/18/erlang-thursday-ordsets-intersection-2/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-thursday-ets-introduction-part-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-ets-introduction-part-1/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -770,10 +769,10 @@
 
       
         
-          <p>今天的Erlang Thursday继续看ordsets模块并且讲讲 <a href="http://erlang.org/doc/man/ordsets.html#intersection-2">ordsets:intersection/2</a> 。</p>
-<p>ordsets:intersection/2 有两个有序集合的入参，它返回的结果是两个有序集合的交集形成的新的有序集合。对于那些没有集合理论背景的人，通俗的解释就是一个集合交集就是所有相交的集合的共同元素组成的集合。</p>
+          <p>今天的Erlang Thursday开始介绍 <a href="http://www.erlang.org/doc/man/ets.html">ets</a> 模块以及ETS的概况。</p>
+<p>ETS是 Erlang Term Storage的缩写，是Erlang term（各种Erlang数据类型）的内存存储，它提供对存储的数据恒定的访问时间。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/18/erlang-thursday-ordsets-intersection-2/#more" rel="contents">
+            <a class="btn" href="/2016/09/20/erlang-thursday-ets-introduction-part-1/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -824,8 +823,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/09/18/erlang-thursday-ordsets-union-2/" itemprop="url">
-                  Erlang Thursday – ordsets:union/2
+                <a class="post-title-link" href="/2016/09/20/erlang-thursday-digraph-del-path-3/" itemprop="url">
+                  Erlang Thursday – digraph:del_path/3
                 </a>
               
             
@@ -838,8 +837,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-18T19:55:20+08:00" content="2016-09-18">
-              2016-09-18
+            <time itemprop="dateCreated" datetime="2016-09-20T20:54:04+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -864,8 +863,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/ordsets/" itemprop="url" rel="index">
-                    <span itemprop="name">ordsets</span>
+                  <a href="/categories/Erlang/digraph/" itemprop="url" rel="index">
+                    <span itemprop="name">digraph</span>
                   </a>
                 </span>
 
@@ -880,8 +879,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/18/erlang-thursday-ordsets-union-2/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/18/erlang-thursday-ordsets-union-2/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-thursday-digraph-del-path-3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-digraph-del-path-3/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -905,10 +904,10 @@
 
       
         
-          <p>今天的Erlang Thursday讲的是 <a href="http://erlang.org/doc/man/ordsets.html#union-2">ordsets:union/2</a> 。</p>
-<p>ordsets:union/2 有两个有序集合类型的入参，它的输出是这两个入参合并得到的有序集合 。</p>
+          <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/digraph.html#del_path-3">digraph:del_path/3</a>.</p>
+<p>我们继续使用上次文章 <a href="http://www.proctor-it.com/erlang-thursday-digraph-get_path-3">digraph:get_path/3</a>  一样的有向图。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/18/erlang-thursday-ordsets-union-2/#more" rel="contents">
+            <a class="btn" href="/2016/09/20/erlang-thursday-digraph-del-path-3/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -959,8 +958,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/09/18/erlang-thrusday-queue-out-1/" itemprop="url">
-                  Erlang Thrusday – queue:out/1
+                <a class="post-title-link" href="/2016/09/20/erlang-thursday-digraph-get-cycle-2/" itemprop="url">
+                  Erlang Thursday – digraph:get_cycle/2
                 </a>
               
             
@@ -973,8 +972,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-18T19:49:21+08:00" content="2016-09-18">
-              2016-09-18
+            <time itemprop="dateCreated" datetime="2016-09-20T20:43:04+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -999,8 +998,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/queue/" itemprop="url" rel="index">
-                    <span itemprop="name">queue</span>
+                  <a href="/categories/Erlang/digraph/" itemprop="url" rel="index">
+                    <span itemprop="name">digraph</span>
                   </a>
                 </span>
 
@@ -1015,8 +1014,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/18/erlang-thrusday-queue-out-1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/18/erlang-thrusday-queue-out-1/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-thursday-digraph-get-cycle-2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-digraph-get-cycle-2/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -1040,10 +1039,10 @@
 
       
         
-          <p>今天的Erlang Thursday讲的的是queue模块原生API中的  <a href="http://erlang.org/doc/man/queue.html#out-1">queue:out/1</a> 函数。</p>
-<p>queue:out/1 是我见过的出镜率最高的队列函数或者说是队列方法。而且它在我所用到的各种语言或应用库中都存在。</p>
+          <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/digraph.html#get_cycle-2">digraph:get_cycle/2</a>.</p>
+<p>我们将继续在上一篇文章 <a href="http://www.proctor-it.com/erlang-thursday-digraph-get_path-3">digraph:get_path/3</a> 用的有向图上讲解。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/18/erlang-thrusday-queue-out-1/#more" rel="contents">
+            <a class="btn" href="/2016/09/20/erlang-thursday-digraph-get-cycle-2/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1094,8 +1093,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/09/18/erlang-thursday-queue-split-2/" itemprop="url">
-                  Erlang Thursday – queue:split/2
+                <a class="post-title-link" href="/2016/09/20/erlang-thursday-digraph-in-neighbors-2/" itemprop="url">
+                  Erlang Thursday – digraph:in_neighbors/2
                 </a>
               
             
@@ -1108,8 +1107,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-18T19:45:36+08:00" content="2016-09-18">
-              2016-09-18
+            <time itemprop="dateCreated" datetime="2016-09-20T20:25:52+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -1134,8 +1133,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/queue/" itemprop="url" rel="index">
-                    <span itemprop="name">queue</span>
+                  <a href="/categories/Erlang/digraph/" itemprop="url" rel="index">
+                    <span itemprop="name">digraph</span>
                   </a>
                 </span>
 
@@ -1150,8 +1149,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/18/erlang-thursday-queue-split-2/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/18/erlang-thursday-queue-split-2/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-thursday-digraph-in-neighbors-2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-digraph-in-neighbors-2/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -1175,10 +1174,10 @@
 
       
         
-          <p>今天的Erlang Thursday讲queue模块的原生API：<a href="http://erlang.org/doc/man/queue.html#split-2">queue:split/2</a> 。</p>
-<p>queue:split/2 有两个入参。第一个入参是一个从零到X的整数N，X是一个队列的元素个数，这个队列就是第二个入参，也就是我们想分隔的队列。函数的返回值是一个两元素元组，第一个元素是被分割队列的前N个元素组成的队列，第二个元素是被分割队列剩下的元素组成的队列。</p>
+          <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/digraph.html#in_neighbors-2">digraph:in_neighbors/2</a>.</p>
+<p>digraph:in_neighbors/2 第一个入参是一个有向图G，第二个入参是一个节点V，函数将返回一个由若干节点组成的列表，而且有从这些节点发出并进入节点V的边。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/18/erlang-thursday-queue-split-2/#more" rel="contents">
+            <a class="btn" href="/2016/09/20/erlang-thursday-digraph-in-neighbors-2/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1229,8 +1228,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/09/18/erlang-thursday-queue-peek-1/" itemprop="url">
-                  Erlang Thursday – queue:peek/1
+                <a class="post-title-link" href="/2016/09/20/erlang-thursday-digraph-get-path-3/" itemprop="url">
+                  Erlang Thursday – digraph:get_path/3
                 </a>
               
             
@@ -1243,8 +1242,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-18T19:39:35+08:00" content="2016-09-18">
-              2016-09-18
+            <time itemprop="dateCreated" datetime="2016-09-20T20:17:57+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -1269,8 +1268,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/queue/" itemprop="url" rel="index">
-                    <span itemprop="name">queue</span>
+                  <a href="/categories/Erlang/digraph/" itemprop="url" rel="index">
+                    <span itemprop="name">digraph</span>
                   </a>
                 </span>
 
@@ -1285,8 +1284,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/18/erlang-thursday-queue-peek-1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/18/erlang-thursday-queue-peek-1/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-thursday-digraph-get-path-3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-digraph-get-path-3/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -1310,10 +1309,10 @@
 
       
         
-          <p>今天的Erlang Thursday我们继续研究queue模块来看看扩展API里的 <a href="http://erlang.org/doc/man/queue.html#peek-1">queue:peek/1</a> 。</p>
-<p>queue:peek/1 接收一个队列为入参，如果这个队列是空的，它返回原子 empty ，否则它返回 {value, Item} 元组，其中 Item 是队列的头部元素。</p>
+          <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/digraph.html#get_path-3">digraph:get_path/3</a>.</p>
+<p>digraph:get_path/3 接收三个入参，一个有向图，一个开始节点和一个结束节点，该函数将尝试在图中找到一些大于0的路径，在路径里除了允许第一个节点和最后一个节点相同，其他所有的节点都不能相同。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/18/erlang-thursday-queue-peek-1/#more" rel="contents">
+            <a class="btn" href="/2016/09/20/erlang-thursday-digraph-get-path-3/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1364,8 +1363,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/09/18/erlang-thursday-queue-tail-1/" itemprop="url">
-                  Erlang Thursday – queue:tail/1
+                <a class="post-title-link" href="/2016/09/20/erlang-thursday-digraph-add-edge-4/" itemprop="url">
+                  Erlang Thursday – digraph:add_edge/4
                 </a>
               
             
@@ -1378,8 +1377,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-18T19:31:31+08:00" content="2016-09-18">
-              2016-09-18
+            <time itemprop="dateCreated" datetime="2016-09-20T20:11:34+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -1404,8 +1403,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/queue/" itemprop="url" rel="index">
-                    <span itemprop="name">queue</span>
+                  <a href="/categories/Erlang/digraph/" itemprop="url" rel="index">
+                    <span itemprop="name">digraph</span>
                   </a>
                 </span>
 
@@ -1420,8 +1419,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/18/erlang-thursday-queue-tail-1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/18/erlang-thursday-queue-tail-1/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-thursday-digraph-add-edge-4/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-digraph-add-edge-4/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -1445,10 +1444,10 @@
 
       
         
-          <p>今天的Erlang Thursday我们继续queue模块的Okazaki API，来讲讲 <a href="http://erlang.org/doc/man/queue.html#tail-1">queue:tail/1</a>.</p>
-<p>queue:tail/1 接收一个非空队列入参，返回移除了第一个元素的新队列。</p>
+          <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/digraph.html#add_edge-4">digraph:add_edge/4</a>.</p>
+<p>digraph:add_edge/4 第一个入参是一个有向图，第二个入参是原节点（<a href="http://www.erlang.org/doc/man/digraph.html#emanate">发出节点</a>），第三个入参是目标节点（<a href="http://www.erlang.org/doc/man/digraph.html#incident">接收节点</a>），最后一个入参是一个标签。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/18/erlang-thursday-queue-tail-1/#more" rel="contents">
+            <a class="btn" href="/2016/09/20/erlang-thursday-digraph-add-edge-4/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1499,8 +1498,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/09/17/erlang-thursday-queue-head-1/" itemprop="url">
-                  Erlang Thursday – queue:head/1
+                <a class="post-title-link" href="/2016/09/20/erlang-thursday-digraph-add-vertex-1/" itemprop="url">
+                  Erlang Thursday – digraph:add_vertex/1
                 </a>
               
             
@@ -1513,8 +1512,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-17T16:44:16+08:00" content="2016-09-17">
-              2016-09-17
+            <time itemprop="dateCreated" datetime="2016-09-20T20:07:20+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -1539,8 +1538,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/queue/" itemprop="url" rel="index">
-                    <span itemprop="name">queue</span>
+                  <a href="/categories/Erlang/digraph/" itemprop="url" rel="index">
+                    <span itemprop="name">digraph</span>
                   </a>
                 </span>
 
@@ -1555,8 +1554,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/17/erlang-thursday-queue-head-1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/17/erlang-thursday-queue-head-1/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-thursday-digraph-add-vertex-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-digraph-add-vertex-1/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -1580,10 +1579,10 @@
 
       
         
-          <p>今天的Erlang Thursday我们继续挖掘Erlang的queue模块的Okazaki API，这次来看看<a href="http://erlang.org/doc/man/queue.html#head-1">queue:head/1</a>.</p>
-<p>queue:head/1 入参是一个队列，它的输出是这个队列的第一个元素。</p>
+          <p>今天的Erlang Thursday如上星期保证的开始深入digraph模块，今天讲的是 <a href="http://www.erlang.org/doc/man/digraph.html#add_vertex-1">digraph:add_vertex/1</a>.</p>
+<p>首先我们创建一个新的有向图以便我们可以往里加节点。</p>
           <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/17/erlang-thursday-queue-head-1/#more" rel="contents">
+            <a class="btn" href="/2016/09/20/erlang-thursday-digraph-add-vertex-1/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1617,7 +1616,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1658,7 +1657,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-count">71</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1666,7 +1665,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1675,7 +1674,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-count">83</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

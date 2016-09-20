@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="BEAM,VM," />
+  <meta name="keywords" content="Erlang," />
 
 
 
@@ -86,16 +86,19 @@
 
 
 
-<meta name="description" content="BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
+<meta name="description" content="前几天，我收到了来自罗文大学的Dean Galvin的邮件。迪安在做一个项目，他问我“什么样的Erlang样例程序最能体现Erlang的特点”。
+他想要一个小程序，可以适合在十分钟里最好地展示Erlang这门语言的特点。我思考了一阵子然后快速地写出了我最喜欢的程序，它叫做“通用服务器”。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="BEAM虚拟机之浅显易懂">
-<meta property="og:url" content="http://szpzs.github.io/2016/09/16/eli5-vm/index.html">
+<meta property="og:title" content="我最喜欢的erlang程序">
+<meta property="og:url" content="http://szpzs.github.io/2016/09/20/erlang-and-other-things/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
-<meta property="og:updated_time" content="2016-09-17T06:54:42.000Z">
+<meta property="og:description" content="前几天，我收到了来自罗文大学的Dean Galvin的邮件。迪安在做一个项目，他问我“什么样的Erlang样例程序最能体现Erlang的特点”。
+他想要一个小程序，可以适合在十分钟里最好地展示Erlang这门语言的特点。我思考了一阵子然后快速地写出了我最喜欢的程序，它叫做“通用服务器”。">
+<meta property="og:updated_time" content="2016-09-20T15:34:13.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="BEAM虚拟机之浅显易懂">
-<meta name="twitter:description" content="BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。">
+<meta name="twitter:title" content="我最喜欢的erlang程序">
+<meta name="twitter:description" content="前几天，我收到了来自罗文大学的Dean Galvin的邮件。迪安在做一个项目，他问我“什么样的Erlang样例程序最能体现Erlang的特点”。
+他想要一个小程序，可以适合在十分钟里最好地展示Erlang这门语言的特点。我思考了一阵子然后快速地写出了我最喜欢的程序，它叫做“通用服务器”。">
 
 
 
@@ -116,9 +119,9 @@
 
 
 
-  <link rel="canonical" href="http://szpzs.github.io/2016/09/16/eli5-vm/"/>
+  <link rel="canonical" href="http://szpzs.github.io/2016/09/20/erlang-and-other-things/"/>
 
-  <title> BEAM虚拟机之浅显易懂 | Time is all </title>
+  <title> 我最喜欢的erlang程序 | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -281,7 +284,7 @@
             
             
               
-                BEAM虚拟机之浅显易懂
+                我最喜欢的erlang程序
               
             
           </h1>
@@ -293,8 +296,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-16T22:11:05+08:00" content="2016-09-16">
-              2016-09-16
+            <time itemprop="dateCreated" datetime="2016-09-20T23:17:15+08:00" content="2016-09-20">
+              2016-09-20
             </time>
           </span>
 
@@ -307,20 +310,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/BEAM/" itemprop="url" rel="index">
-                    <span itemprop="name">BEAM</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/BEAM/VM/" itemprop="url" rel="index">
-                    <span itemprop="name">VM</span>
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
                   </a>
                 </span>
 
@@ -335,8 +326,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/16/eli5-vm/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/16/eli5-vm/" itemprop="commentsCount"></span>
+                <a href="/2016/09/20/erlang-and-other-things/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-and-other-things/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -359,24 +350,28 @@
       
 
       
-        <p>BEAM是Bogdan/Björn Erlang Abstract machine的缩写。它是寄存器虚拟机，不过它也有栈。</p>
+        <p>前几天，我收到了来自罗文大学的Dean Galvin的邮件。迪安在做一个项目，他问我“什么样的Erlang样例程序最能体现Erlang的特点”。</p>
+<p>他想要一个小程序，可以适合在十分钟里最好地展示Erlang这门语言的特点。我思考了一阵子然后快速地写出了我最喜欢的程序，它叫做“通用服务器”。</p>
 <a id="more"></a>
-<h2 id="寄存器和调用"><a href="#寄存器和调用" class="headerlink" title="寄存器和调用"></a>寄存器和调用</h2><p>作为一个寄存器虚拟机就意味着在函数调用的时候不是通过栈而是用寄存器来传递参数。它们与我们所理解的CPU架构中的寄存器不一样，而只是一个Erlang数据结构的值所组成的数组。这样的寄存器有1024个，但是有这么多入参的函数几乎不存在，所以通常虚拟机仅仅使用了前面3到10个寄存器。</p>
-<p>例如，当调用一个有三个入参的函数的时候，寄存器x0，x1和x2分别被设置为三个入参值。如果我们需要进行递归调用，我们将不得不改写寄存器并丢失它们的原始值。在这种情况下，我们将需要保存旧的值到栈中。除了栈帧外没有动态栈分配，这是由编译器决定的。</p>
-<p>每一个进程有自己的寄存器集。</p>
-<h2 id="指令"><a href="#指令" class="headerlink" title="指令"></a>指令</h2><p>BEAM指令集包含大约158个基本指令，它们中的大部分可以通过调用 erlc -S yourfile.erl 生成汇编文件来查看到。每一个指令有零或多个参数。不同的技巧用来在便携方式和紧凑方式编码参数。例如，代码中的位置定位（也叫做标签）是用它们的索引来编码的，并且代码装载器后续会把它们翻译成内存地址。</p>
-<p>在BEAM代码装载过程中，一些混合的操作码被更快的操作码替换。这个优化的技巧叫做超级指令。对于每一个操作码，在beam_emu.c文件中都有一个C标签对应的一段代码。一个C标签组成的数组存储在同一个虚拟机循环例程的尾部并且被当作查询表来使用。</p>
-<p>请参见：<br>详细解释：<a href="http://beam-wisdoms.clau.se/en/latest/indepth-beam-file.html" target="_blank" rel="external">BEAM文件格式</a>。<br>详细解释：<a href="http://beam-wisdoms.clau.se/en/latest/indepth-beam-instructions.html" target="_blank" rel="external">BEAM指令代码</a>。</p>
-<h2 id="线程虚拟机循环"><a href="#线程虚拟机循环" class="headerlink" title="线程虚拟机循环"></a>线程虚拟机循环</h2><p>装载操作码被标签地址替换后，紧跟着它们的是参数。例如，操作码 ＃1，一个来自标签数组第一索引元素被置于在代码内存。</p>
-<p>这种方式很容易跳转到处理下一个操作码的 C 代码中的某个位置。只需要读一个 void* 指针并执行一个goto *p 的动作。此功能是C和C++编译器的一个扩展。这种类型的虚拟机循环称为直接线程调度虚拟机循环。</p>
-<p>其他虚拟机循环的类型有：</p>
-<ul>
-<li>切换调度虚拟机（如果C编译器拒绝支持标签扩展，则这种类型被BEAM虚拟机源使用）。它也比直接线程调度虚拟机慢20%至30%；</li>
-<li>直接调用线程</li>
-<li><a href="http://www.cs.toronto.edu/~matz/dissertation/matzDissertation-latex2html/node6.html" target="_blank" rel="external">其他</a></li>
-</ul>
+<h1 id="通用服务器"><a href="#通用服务器" class="headerlink" title="通用服务器"></a>通用服务器</h1><p>一般来说服务器都是做特定的事情的。一个HTTP服务器响应HTTP请求而一个FTP服务器响应FTP请求，等等。那么什么是通用服务器呢？我们肯定能归纳出一个服务器的概念，然后做出一个通用服务器，并且我们可以在晚些时候让它变成一个特定的服务器。</p>
+<p>下面就是我的通用服务器：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">universal_server</span><span class="params">()</span> -&gt;</span></div><div class="line">    <span class="keyword">receive</span></div><div class="line">        &#123;become, F&#125; -&gt;</div><div class="line">            F()</div><div class="line">    <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>这个服务器相当简单。一旦我创建了一个通用服务器，它只是呆在那里等待一个 {become, F}消息，收到这样的消息后，他就变成了F服务器。</p>
+<h1 id="阶乘服务器"><a href="#阶乘服务器" class="headerlink" title="阶乘服务器"></a>阶乘服务器</h1><p>一个阶乘服务器就是等待一个整数然后返回这个整数的阶乘。下面就是非常简单的例子：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">factorial_server</span><span class="params">()</span> -&gt;</span></div><div class="line">    <span class="keyword">receive</span></div><div class="line">        &#123;From, N&#125; -&gt;</div><div class="line">            From ! factorial(N),</div><div class="line">            factorial_server()</div><div class="line">    <span class="keyword">end</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">factorial</span><span class="params">(<span class="number">0</span>)</span> -&gt;</span></div><div class="line">    <span class="number">1</span>;</div><div class="line"><span class="function"><span class="title">factorial</span><span class="params">(N)</span> -&gt;</span> N * factorial(N-<span class="number">1</span>).</div></pre></td></tr></table></figure>
+<p>现在我们已经准备好high起来了。</p>
+<h1 id="把它们集成起来"><a href="#把它们集成起来" class="headerlink" title="把它们集成起来"></a>把它们集成起来</h1><p>我将写一个小函数来创建一个通用服务器，然后给它发送“变成阶乘服务器”消息，接着我将发送一个整数给它，等它返回结果并打印出来。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">test</span><span class="params">()</span> -&gt;</span></div><div class="line">    Pid = spawn(fun universal_server/0), Pid ! &#123;become, fun factorial_server/0&#125;,</div><div class="line">    Pid ! &#123;self(), <span class="number">50</span>&#125;,</div><div class="line">    <span class="keyword">receive</span></div><div class="line">        X -&gt;</div><div class="line">            X</div><div class="line">    <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>这些函数都属于这个模块  <a href="http://joearms.github.io/code/fav1.erl" target="_blank" rel="external">/code/fav1.erl</a>.</p>
+<p>现在我们需要做的就是启动一个Erlang shell并运行这个测试程序。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ erl</div><div class="line"><span class="number">1</span> &gt; c(fav1).</div><div class="line">&#123;ok, fav1&#125;</div><div class="line"><span class="number">2</span> &gt; fav1:test().</div><div class="line"><span class="number">30414093201713378043612608166064768844377641568960512000000000000</span></div></pre></td></tr></table></figure>
+<h1 id="小故事"><a href="#小故事" class="headerlink" title="小故事"></a>小故事</h1><p>多年前当我在SICS的时候，我接触到 <a href="http://www.planet-lab.org/" target="_blank" rel="external">Planet 实验室</a>。Planet 实验室是一个有9000台计算机的研究网络。加入Planet实验室很容易，你所要做的是买一台标准PC，将它连接到网络并捐献它的使用给Planet实验室组织。你捐献你的机器给这个网络，相应的你可以使用Planet实验室里的所有其他机器。</p>
+<p>Planet实验室是一个为分布式应用的真实世界的测试环境，它当前有1171个节点在562个站上。</p>
+<p>当时我要用Planet实验室来做什么呢？我也不知道。最终我做的是写一些脚本在所有Planet实验的机器上安装了空转的通用服务器（和本文的代码很相似）。然后我设计了一套goosip算法来给这个网络发送 <strong>become</strong> 消息。这样我就有了一个空转的网络，我可以在数秒内将它变成我想要的任何服务器。</p>
+<p>大概一年后，我必须要写一篇论文。作为一个研究者，最不划算的一个事情就是为了挣钱养家你必须要写关于这样或那样的论文，这样的论文所写的从来不是你当时感兴趣的，但是却一定是关于资助你研究的项目所期望读到的。</p>
+<p>我已经在Planet实验室上建立了我的gossip网络，我可以让它成为任何服务器，因此我让它成为一个内容分发网络并且用一个gossip算法来将一个同样的文件拷贝到这个网络上的所有机器上。最后我把这件事写成一篇论文然后大家都哈皮了。</p>
 <blockquote>
-<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-vm.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-vm.html</a></p>
+<p><em>原文链接：</em>  <a href="http://joearms.github.io/2013/11/21/My-favorite-erlang-program.html" target="_blank" rel="external">http://joearms.github.io/2013/11/21/My-favorite-erlang-program.html</a></p>
 </blockquote>
 
       
@@ -400,9 +395,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/BEAM/" rel="tag">#BEAM</a>
-          
-            <a href="/tags/VM/" rel="tag">#VM</a>
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
           
         </div>
       
@@ -411,16 +404,16 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/09/16/erlang-thursday-dict-merge-3/" rel="next" title="Erlang Thursday – dict:merge/3">
-                <i class="fa fa-chevron-left"></i> Erlang Thursday – dict:merge/3
+              <a href="/2016/09/20/erlang-event-driven-applications/" rel="next" title="Erlang的事件驱动应用">
+                <i class="fa fa-chevron-left"></i> Erlang的事件驱动应用
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/09/17/eli5-atoms/" rel="prev" title="原子之浅显易懂">
-                原子之浅显易懂 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/09/20/eli5-vm/" rel="prev" title="BEAM虚拟机之浅显易懂">
+                BEAM虚拟机之浅显易懂 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -447,8 +440,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/09/16/eli5-vm/"
-           data-title="BEAM虚拟机之浅显易懂" data-url="http://szpzs.github.io/2016/09/16/eli5-vm/">
+      <div class="ds-thread" data-thread-key="2016/09/20/erlang-and-other-things/"
+           data-title="我最喜欢的erlang程序" data-url="http://szpzs.github.io/2016/09/20/erlang-and-other-things/">
       </div>
     
   </div>
@@ -493,7 +486,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-count">71</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -501,7 +494,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -510,7 +503,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-count">83</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -604,7 +597,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#寄存器和调用"><span class="nav-number">1.</span> <span class="nav-text">寄存器和调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指令"><span class="nav-number">2.</span> <span class="nav-text">指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程虚拟机循环"><span class="nav-number">3.</span> <span class="nav-text">线程虚拟机循环</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#通用服务器"><span class="nav-number">1.</span> <span class="nav-text">通用服务器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#阶乘服务器"><span class="nav-number">2.</span> <span class="nav-text">阶乘服务器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#把它们集成起来"><span class="nav-number">3.</span> <span class="nav-text">把它们集成起来</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小故事"><span class="nav-number">4.</span> <span class="nav-text">小故事</span></a></li></ol></div>
             
           </div>
         </section>

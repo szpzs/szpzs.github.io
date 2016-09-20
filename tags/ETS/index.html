@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="BEAM,Atom," />
+  <meta name="keywords" content="Erlang, Elixir, Pengzhengsheng, 彭政生, Hexo, NexT" />
 
 
 
@@ -86,15 +86,15 @@
 
 
 
-<meta property="og:type" content="article">
-<meta property="og:title" content="原子之浅显易懂">
-<meta property="og:url" content="http://szpzs.github.io/2016/09/17/eli5-atoms/index.html">
+<meta name="description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Time is all">
+<meta property="og:url" content="http://szpzs.github.io/tags/ets/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:image" content="http://szpzs.github.io/images/eli5-atom-tab.png">
-<meta property="og:updated_time" content="2016-09-17T06:54:27.000Z">
+<meta property="og:description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="原子之浅显易懂">
-<meta name="twitter:image" content="http://szpzs.github.io/images/eli5-atom-tab.png">
+<meta name="twitter:title" content="Time is all">
+<meta name="twitter:description" content="盛年不重来，一日难再晨，及时宜自勉，岁月不待人。">
 
 
 
@@ -115,9 +115,9 @@
 
 
 
-  <link rel="canonical" href="http://szpzs.github.io/2016/09/17/eli5-atoms/"/>
+  <link rel="canonical" href="http://szpzs.github.io/tags/ets/"/>
 
-  <title> 原子之浅显易懂 | Time is all </title>
+  <title> 标签: ets | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -148,7 +148,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left page-post-detail ">
+  <div class="container one-collumn sidebar-position-left  ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -259,172 +259,298 @@
           <div id="content" class="content">
             
 
-  <div id="posts" class="posts-expand">
-    
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                原子之浅显易懂
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-17T13:36:59+08:00" content="2016-09-17">
-              2016-09-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/BEAM/" itemprop="url" rel="index">
-                    <span itemprop="name">BEAM</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/BEAM/Atom/" itemprop="url" rel="index">
-                    <span itemprop="name">Atom</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/09/17/eli5-atoms/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/17/eli5-atoms/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        <p><img alt="Atom Table" src="/images/eli5-atom-tab.png" style="border: 0;"><br><a id="more"></a><br>原子表是一个全局表，它将原子内部值（一个整数值）映射到一个字符串。同时也有一个反向到查询表，它将一个字符串映射到一个原子内部值。原子表有一个固定的记录条数上限：1048576。如果它一旦到达了这个上限，当前节点将崩溃 －－ 这就是为什么在运行时动态创建原子是很危险的做法。原子表的记录条数上限可以通过给erl命令指定 +t 标签来设置。</p>
-<p>原子是在运行时不能改变它的值的一个符号。当一个新的原子被创建，它得到一个唯一的值来给当前节点来使用。原子在系统内部仅仅是指向原子表对应记录索引的整数值。这就是为什么原子的操作如此廉价的原因。</p>
-<p>BEAM装载器例程读取原子值并且在原子表里查询它们。它将它们的整数值标记为原子<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-immed" target="_blank" rel="external">立即数</a>来替代原子名称。然后代码只是操作这些立即数而不是它们的名称。</p>
-<p>这些内部值不能当做整数（通过网络或磁盘）离开节点。这是因为其他节点对于相通的原子有不同的内部值。因此当原子离开当前节点的时候都被转换为字符串。这会影响到BEAM文件，外部pid，外部port，Mnesia或DETS里的原子等等。这就是为什么一些开发者更喜欢给数据库字段名使用短原子名称的原因 －－ 它们将以字符串的形式出现在数据库数据中。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-atoms.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-atoms.html</a></p>
-</blockquote>
-
-      
+  <div id="posts" class="posts-collapse">
+    <div class="collection-title">
+      <h2 >
+        ets
+        <small>标签</small>
+      </h2>
     </div>
 
-    <div>
+    
       
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
         
-
-      
-    </div>
-
-    <div>
-      
+            <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-selects-continuations-and-concurrent-inserts/" itemprop="url">
+              
+                <span itemprop="name">Erlang Thursday - ETS的查询、分页和并发的数据插入</span>
+              
+            </a>
         
+      </h1>
 
-      
-    </div>
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-20T22:18:06+08:00"
+              content="2016-09-20" >
+          09-20
+        </time>
+      </div>
 
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/BEAM/" rel="tag">#BEAM</a>
-          
-            <a href="/tags/Atom/" rel="tag">#Atom</a>
-          
-        </div>
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2016/09/16/eli5-vm/" rel="next" title="BEAM虚拟机之浅显易懂">
-                <i class="fa fa-chevron-left"></i> BEAM虚拟机之浅显易懂
-              </a>
-            
-          </div>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/" rel="prev" title="Erlang Thursday – calendar:local_time_to_universal_time_dst/1">
-                Erlang Thursday – calendar:local_time_to_universal_time_dst/1 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
+    </header>
   </article>
 
 
-
-    <div class="post-spread">
+    
       
-    </div>
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2016/09/20/erlang-thursday-using-ets-select-with-a-limit/" itemprop="url">
+              
+                <span itemprop="name">Erlang Thursday - 限制返回结果的ETS查询</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-20T22:10:28+08:00"
+              content="2016-09-20" >
+          09-20
+        </time>
+      </div>
+
+    </header>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-match-specs-and-functions/" itemprop="url">
+              
+                <span itemprop="name">Erlang Thursday - ETS，匹配规则和函数</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-20T22:03:29+08:00"
+              content="2016-09-20" >
+          09-20
+        </time>
+      </div>
+
+    </header>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2016/09/20/erlang-thursday-more-ets-data-matching-and-querying/" itemprop="url">
+              
+                <span itemprop="name">Erlang Thursday – 更多的ETS数据匹配和查询</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-20T21:54:22+08:00"
+              content="2016-09-20" >
+          09-20
+        </time>
+      </div>
+
+    </header>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-data-matching/" itemprop="url">
+              
+                <span itemprop="name">Erlang Thursday - ETS 数据匹配</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-20T21:45:12+08:00"
+              content="2016-09-20" >
+          09-20
+        </time>
+      </div>
+
+    </header>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-introduction-part-5-keypos-compressed-read-conncurrency-and-write-concurrency/" itemprop="url">
+              
+                <span itemprop="name">Erlang Thursday - ETS介绍第五篇：keypos，compressed，read_conncurrency 和 write_concurren</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-20T21:37:31+08:00"
+              content="2016-09-20" >
+          09-20
+        </time>
+      </div>
+
+    </header>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-introduction-part-4-ets-access-protections/" itemprop="url">
+              
+                <span itemprop="name">Erlang Thursday - ETS介绍第四篇：ETS的访问保护</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-20T21:20:20+08:00"
+              content="2016-09-20" >
+          09-20
+        </time>
+      </div>
+
+    </header>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-introduction-part-3-ets-table-types/" itemprop="url">
+              
+                <span itemprop="name">Erlang Thursday - ETS介绍第三篇：ETS表类型</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-20T21:14:05+08:00"
+              content="2016-09-20" >
+          09-20
+        </time>
+      </div>
+
+    </header>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-introduction-part-2/" itemprop="url">
+              
+                <span itemprop="name">Erlang Thursday - ETS介绍第二篇</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-20T21:07:34+08:00"
+              content="2016-09-20" >
+          09-20
+        </time>
+      </div>
+
+    </header>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-introduction-part-1/" itemprop="url">
+              
+                <span itemprop="name">Erlang Thursday - ETS介绍第一篇</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2016-09-20T20:59:53+08:00"
+              content="2016-09-20" >
+          09-20
+        </time>
+      </div>
+
+    </header>
+  </article>
+
+
+    
   </div>
+
+  
 
 
           </div>
@@ -432,14 +558,6 @@
 
 
           
-  <div class="comments" id="comments">
-    
-      <div class="ds-thread" data-thread-key="2016/09/17/eli5-atoms/"
-           data-title="原子之浅显易懂" data-url="http://szpzs.github.io/2016/09/17/eli5-atoms/">
-      </div>
-    
-  </div>
-
 
         </div>
         
@@ -459,17 +577,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview sidebar-panel ">
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.jpg"
@@ -480,7 +589,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">51</span>
+              <span class="site-state-item-count">71</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -488,7 +597,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -497,7 +606,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-count">83</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -584,17 +693,6 @@
 
       </section>
 
-      
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-            
-              
-            
-            
-              <p class="post-toc-empty">此文章未包含目录</p>
-            
-          </div>
-        </section>
       
 
     </div>
@@ -698,10 +796,6 @@
 
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
-
-
 
   
 

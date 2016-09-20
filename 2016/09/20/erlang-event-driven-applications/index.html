@@ -1,0 +1,1006 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,event-driven,application," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="介绍事件 是你个人工具箱里最好的工具之一。甚至在OTP设计原则有专门一章是关于事件的，还有一种 事件驱动架构 可以让你的代码和架构更牛X：
+
+它更易于将你的代码真正地解耦。
+它打开了一扇门，通往令人感兴趣的新的架构模式，比如 CQRS（命令查询职责分离模式），event sourcing（事件源模式），和event collaboration（事件合作模式）。
+应用程序可以被扩展，扩展的方式是通过">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Erlang的事件驱动应用">
+<meta property="og:url" content="http://szpzs.github.io/2016/09/20/erlang-event-driven-applications/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="介绍事件 是你个人工具箱里最好的工具之一。甚至在OTP设计原则有专门一章是关于事件的，还有一种 事件驱动架构 可以让你的代码和架构更牛X：
+
+它更易于将你的代码真正地解耦。
+它打开了一扇门，通往令人感兴趣的新的架构模式，比如 CQRS（命令查询职责分离模式），event sourcing（事件源模式），和event collaboration（事件合作模式）。
+应用程序可以被扩展，扩展的方式是通过">
+<meta property="og:updated_time" content="2016-09-20T15:16:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Erlang的事件驱动应用">
+<meta name="twitter:description" content="介绍事件 是你个人工具箱里最好的工具之一。甚至在OTP设计原则有专门一章是关于事件的，还有一种 事件驱动架构 可以让你的代码和架构更牛X：
+
+它更易于将你的代码真正地解耦。
+它打开了一扇门，通往令人感兴趣的新的架构模式，比如 CQRS（命令查询职责分离模式），event sourcing（事件源模式），和event collaboration（事件合作模式）。
+应用程序可以被扩展，扩展的方式是通过">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.github.io/2016/09/20/erlang-event-driven-applications/"/>
+
+  <title> Erlang的事件驱动应用 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Erlang的事件驱动应用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-20T22:42:13+08:00" content="2016-09-20">
+              2016-09-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/event-driven/" itemprop="url" rel="index">
+                    <span itemprop="name">event-driven</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/20/erlang-event-driven-applications/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-event-driven-applications/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p><a href="http://en.wikipedia.org/wiki/Event_%28computing%29" target="_blank" rel="external">事件</a> 是你个人工具箱里最好的工具之一。甚至在OTP设计原则有专门<a href="http://www.erlang.org/doc/design_principles/events.html" target="_blank" rel="external">一章</a>是关于事件的，还有一种 <a href="http://en.wikipedia.org/wiki/Event-driven_architecture" target="_blank" rel="external">事件驱动架构</a> 可以让你的代码和架构更牛X：</p>
+<ul>
+<li>它更易于将你的代码真正地解耦。</li>
+<li>它打开了一扇门，通往令人感兴趣的新的架构模式，比如 <a href="http://martinfowler.com/bliki/CQRS.html" target="_blank" rel="external">CQRS</a>（命令查询职责分离模式），<a href="http://martinfowler.com/eaaDev/EventSourcing.html" target="_blank" rel="external">event sourcing</a>（事件源模式），和<br><a href="http://martinfowler.com/eaaDev/EventCollaboration.html" target="_blank" rel="external">event collaboration</a>（事件合作模式）。</li>
+<li>应用程序可以被扩展，扩展的方式是通过创建“自治的组件”来“插入”系统，而这些组件通过触发命令或者事件来做它们自己的事情。比如一些事件如下：user_logged_in，user_created，user_voted，incoming_tweet，user_tweeted，等等。</li>
+<li>事件和命令能够被非常小的事件处理器来处理。</li>
+<li>如果你真的要用事件来开发系统，那么就可能像<a href="http://www.rabbitmq.com/" target="_blank" rel="external">rabbitmq</a>，<a href="http://www.zeromq.org/" target="_blank" rel="external">0mq</a>一样通过一个队列来派发事件和命令。这也将引入几个有趣的知识点：</li>
+<li>系统可以用任何你喜欢的语言（Erlang，Scala，Python，Ruby，js-node，等等）来构造。</li>
+<li>为了可扩展性，只要插入所需的足够多的同类型或不同类型的命令处理器或事件处理器。</li>
+<li>一些“疯狂特性”的实现和原型是非常有可能的而且可以很快地完成！它们将可能用非erlang语言实现（如果用队列的话）。</li>
+</ul>
+<a id="more"></a>
+<p>Erlang已经提供了一种方式来实现事件驱动架构：gen_event 行为。<a href="http://www.erlang.org/doc/man/gen_event.html" target="_blank" rel="external">gen_event</a> 是 Erlang/OTP 自带的<a href="http://www.erlang.org/doc/design_principles/des_princ.html#id59741" target="_blank" rel="external">默认行为</a>之一。对我来说，它也是Erlang/OTP最酷的特性之一，因为你在许多语言或环境里都无法得到这样开箱即用（并且免费）的特性，因此这真的是非常棒。</p>
+<h1 id="它是如何运作的"><a href="#它是如何运作的" class="headerlink" title="它是如何运作的"></a>它是如何运作的</h1><p>Gen_event 有一个或多个事件管理器、事件处理器，来派发和处理事件：</p>
+<p><strong>事件管理器</strong>：一个事件管理器是一个 gen_event 进程。<br><strong>事件处理器</strong>：事件处理器是正真处理事件的回调模块，并且被注册到一个或多个事件管理器。<br><strong>事件</strong>：一个事件是任何erlang term，比如一个元组，一个原子，一个列表，等等。</p>
+<p>在某些方面，gen_event 用起来像<a href="http://nodejs.org/" target="_blank" rel="external">nodejs</a>里的<a href="http://nodejs.org/api/events.html#events_class_events_eventemitter" target="_blank" rel="external">EventEmitter</a>类，在概念上说也像<a href="http://en.wikipedia.org/wiki/Observer_pattern" target="_blank" rel="external">观察者模式</a>。这个概念是有某种事件总线（事件管理器）负责接收来自系统的事件并且将它们路由到相应的监听者。其基本的工作流如下：</p>
+<ul>
+<li>创建一个或者多个实现 <a href="http://www.erlang.org/doc/man/gen_event.html" target="_blank" rel="external">gen_event<br>行为</a><br>的回调模块。在本文末尾的<strong>附录B</strong>里有完整的例子。</li>
+<li>启动一个事件管理器进程。</li>
+<li>注册一个或者多个事件处理器到事件管理器上。</li>
+<li>通过事件管理器派发事件。</li>
+<li>在你的事件处理器里异步（同步）处理派发过来的事件。</li>
+</ul>
+<p>现在让我们按顺序研究上述每一步。</p>
+<h1 id="启动一个事件管理器"><a href="#启动一个事件管理器" class="headerlink" title="启动一个事件管理器"></a>启动一个事件管理器</h1><p>这就是调用如下函数一样简单：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;ok, Pid&#125; = gen_event:start().</div></pre></td></tr></table></figure>
+<p>或者你计划把你的事件管理器包含在一个<a href="http://www.erlang.org/doc/design_principles/sup_princ.html" target="_blank" rel="external">监督树</a>里：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;ok, Pid&#125; = gen_event:start_link().</div></pre></td></tr></table></figure>
+<h2 id="用一个给定的名字注册一个事件管理器"><a href="#用一个给定的名字注册一个事件管理器" class="headerlink" title="用一个给定的名字注册一个事件管理器"></a>用一个给定的名字注册一个事件管理器</h2><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;ok, Pid&#125; = gen_event:start(my_event_bus).</div></pre></td></tr></table></figure>
+<p>或者也可以：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;ok, Pid&#125; = gen_event:start_link(my_event_bus).</div></pre></td></tr></table></figure>
+<p>这些函数与start/0以及start_link/0的目的一样，只是它们允许你用一个指定的名字注册一个新的事件管理器。引述<a href="http://www.erlang.org/doc/man/gen_event.html#start_link-1" target="_blank" rel="external">官方文档</a>如下：</p>
+<p>如果 EventMgrName={local, Name}，这个事件管理器被以Name为名字用 register/2 本地注册。</p>
+<p>如果 EventMgrName={global, GlobalName}，这个事件管理器被以GlobalName为名字用 global:register_name/2 全局注册。</p>
+<p>如果没有名字提供，则这个事件管理器不能被注册。</p>
+<p>如果 EventManager={via, Module, ViaName}，这个事件管理器将被Module注册到系统。这个回调模块Module应该导出如下函数 register_name/2 ，unregister_name/1 ，whereis_name/1 and send/2，这些函数和global模块里的相应函数的行为一样。因此，{via, global, GlobalName} 是一个有效的引用。</p>
+<h1 id="注册事件处理器"><a href="#注册事件处理器" class="headerlink" title="注册事件处理器"></a>注册事件处理器</h1><p>一旦你已经有了你的事件管理器并且把它运行起来了，就该通过用 <a href="http://www.erlang.org/doc/man/gen_event.html#add_sup_handler-3" target="_blank" rel="external">add_handler/3</a> 来添加一些事件处理器了。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">add_handler</span><span class="params">(my_event_bus, my_event_handler, [arg1, arg2])</span>.</span></div></pre></td></tr></table></figure>
+<p>上述函数将添加一个新的事件处理器到指定的事件管理器（你传入的第一个入参所指的）。事件管理器可以用如下几种方式指定：</p>
+<ul>
+<li>进程PID。</li>
+<li>Name，如果事件管理器是本地注册的。</li>
+<li>{Name, Node}，如果事件管理器是在另一个节点本地注册的，或者 {global,<br>GlobalName}，如果事件管理器是全局注册的。</li>
+<li>{via, Module, ViaName}，如果事件管理器的注册是通过一个替代进程注册的。</li>
+</ul>
+<p>第二个入参指定事件处理器的模块名，不过它也可以是{Module, Id}，Module是回调模块的名字，而当有多个事件处理器用同一个回调模块的时候，Id则用于识别指定的事件处理器。</p>
+<p>紧接着my_event_handler里的回调函数 <a href="http://www.erlang.org/doc/man/gen_event.html#Module:init-1" target="_blank" rel="external">init/1</a> 被调用，传给 add_handler/3 的第三个入参将原封不动地传给 init/1 做入参。init/1 可能返回：</p>
+<p>如果成功，函数将返回{ok, State} 或 {ok, State, hibernate}，State是事件处理器内部初始状态。</p>
+<p>如果返回{ok, State, hibernate}，事件管理器将通过调用 proc_lib:hibernate/3 进入冬眠状态，一直等到下一个事件发生。</p>
+<h2 id="被监督的事件处理器"><a href="#被监督的事件处理器" class="headerlink" title="被监督的事件处理器"></a>被监督的事件处理器</h2><p>你可以用 <a href="http://www.erlang.org/doc/man/gen_event.html#add_sup_handler-3" target="_blank" rel="external">add_sup_handler/3</a> 在调用进程（也就是注册新事件处理器的进程）和事件处理器自己之间建立某种形式的监测（或监督）：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">add_sup_handler</span><span class="params">(my_event_bus, my_event_handler, [arg1, arg2])</span>.</span></div></pre></td></tr></table></figure>
+<p>正如官方文档描述：</p>
+<p>如果调用进程后续因为原因Reason而终止，事件管理器将通过用 {stop, Reason} 作为入参调用 Module:terminate/2 来删除事件处理器。</p>
+<p>如果事件处理器后来被删除，事件管理器给调用进程发送一个消息 {gen_event_EXIT, Handler, Reason}。Reaseon是下列之一：</p>
+<pre><code>normal，如果事件处理器因为 delete_handler/3 的调用而被删除，或者被一个回调函数（见下面段落）返回 remove_handler 。
+
+shutdown，如果事件处理器因为事件管理器结束而被删除。
+
+{swapped, NewHandler, Pid}，如果进程Pid已经调用 swap_handler/3 或 swap_sup_handler/3 来用另一个事件处理器 NewHandler 替换了当前事件处理器。一个term，如果事件处理器因为一个错误而被删除。term的值是依据错误而来的。
+</code></pre><h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><p>事件处理器是按顺序执行的，所以要尽量保持它的代码短小。如果你需要有上千个事件处理器，那么实现某种<a href="https://gist.github.com/1230182" target="_blank" rel="external">转发器</a>是更好的选择。转发器的思路是有好几个子gen_event订阅一个主gen_event。这样将负载分发给所有感兴趣的监听者。</p>
+<p>另一方面，如果你必需要在一个事件处理器里做费时的操作，你应该尝试用一个 <a href="https://gist.github.com/4474770" target="_blank" rel="external">gen_event caster</a>，他将监听事件并派发独特的（普通的）erlang消息。</p>
+<p>我们也要注意，当一个被监督的事件处理器退出的时候，gen_event讲给所有的事件处理器<a href="https://github.com/erlang/otp/blob/maint/lib/stdlib/src/gen_event.erl#L319" target="_blank" rel="external">发送消息</a>，因此要准备好如何处理这些消息。</p>
+<h1 id="派发事件"><a href="#派发事件" class="headerlink" title="派发事件"></a>派发事件</h1><p>通过事件管理器派发一个事件实际上是相当简单的，仅仅需要调用 <a href="http://www.erlang.org/doc/man/gen_event.html#notify-2" target="_blank" rel="external">gen_event:notify/2</a> 。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gen_event:notify(my_event_handler, &#123;new_user_created, User&#125;).</div></pre></td></tr></table></figure>
+<p>你可以在本文的<strong>附录A</strong>里看到gen_event如何派发一个事件的具体细节。</p>
+<p>这个函数将异步地派发这个事件。这意味着这个函数调用将不会阻塞而是立即返回。也有同步派发事件的方式，就是使用函数 <a href="http://www.erlang.org/doc/man/gen_event.html#sync_notify-2" target="_blank" rel="external">gen_event:sync_notify/2</a>：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gen_event:sync_notify(my_event_handler, &#123;new_user_created, User&#125;).</div></pre></td></tr></table></figure>
+<p>同步在这里的意思是这个函数的调用将阻塞并仅在所有事件处理器已经被调用并且处理了这个事件后才返回。</p>
+<h2 id="用消息替代-Notify-2"><a href="#用消息替代-Notify-2" class="headerlink" title="用消息替代 Notify/2"></a>用消息替代 Notify/2</h2><p>另一种方式来调用事件处理器是通过派发普通消息给事件管理器。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Pid ! &#123;new_user_created&#125;</div></pre></td></tr></table></figure>
+<p>这将调用<strong>所有</strong>注册的事件处理器的 <a href="http://www.erlang.org/doc/man/gen_event.html#Module:handle_info-2" target="_blank" rel="external">handle_info/2</a> 函数，gen_event官方文档说明如下：</p>
+<p>当一个事件管理器接收到不是事件或者一个同步请求（或者一个系统消息）的任何其他消息时，每一个已经安装在这个事件管理器上的事件处理器的这个函数被调用。</p>
+<h1 id="处理事件"><a href="#处理事件" class="headerlink" title="处理事件"></a>处理事件</h1><p>为了处理由notify/2派发的事件，你的回调模块需要实现 <a href="http://www.erlang.org/doc/man/gen_event.html#Module:handle_event-2" target="_blank" rel="external">handle_event/2</a> 函数，例子如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">handle_event</span><span class="params">(bad_smell, State)</span> -&gt;</span></div><div class="line">  io:format(<span class="string">"That's an aweful smell..  go clean your kitty's litter~n~n"</span>),</div><div class="line">  &#123;ok, State&#125;;</div></pre></td></tr></table></figure>
+<p>另外，为了处理消息，要实现 <a href="http://www.erlang.org/doc/man/gen_event.html#Module:handle_info-2" target="_blank" rel="external">handle_info/2</a> 函数：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">handle_info</span><span class="params">(Info, State)</span> -&gt;</span></div><div class="line">  io:format(<span class="string">"Got message: ~p"</span>, [Info]),</div><div class="line">  &#123;ok, State&#125;.</div></pre></td></tr></table></figure>
+<p>上面两个例子里的State是由 init/1 返回的数据。</p>
+<p>上述两个函数返回值如下所述（当然我们还是引用官方文档）：</p>
+<p>如果这个函数返回 {ok, NewState} 或者 {ok, NewState, hibernate} ，这个事件处理器将留在事件管理器里并且带着可能被修改过的内部状态NewState。</p>
+<p>如果{ok, NewState, hibernate} 返回，事件管理器也将进入冬眠状态（通过调用 proc_lib:hibernate/3），并等待下一个事件的发生。只要一个事件处理器返回{ok, NewState, hibernate} 则整个事件管理器进程进入冬眠状态。</p>
+<p>如果函数返回 {swap_handler, Args1, NewState, Handler2, Args2}，这个事件处理器将被 Handler2 替代，替换过程首先是调用 Module:terminate(Args1, NewState)，然后再调用 Module2:init({Args2, Term}) ，这里的Term是 Module:terminate/2 的返回值。更多信息可以查看 gen_event:swap_handler/3 。</p>
+<p>如果函数返回 remove_handler ，这个事件处理器将通过调用 Module:terminate(remove_handler, State)来被删除。</p>
+<h1 id="额外事项"><a href="#额外事项" class="headerlink" title="额外事项"></a>额外事项</h1><h2 id="停止事件管理器"><a href="#停止事件管理器" class="headerlink" title="停止事件管理器"></a>停止事件管理器</h2><p>停止事件管理器有时候是必须的并且通过调用 <a href="http://www.erlang.org/doc/man/gen_event.html#stop-1" target="_blank" rel="external">stop/1</a> 很容易就做到：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gen_event:stop(my_event_bus).</div></pre></td></tr></table></figure>
+<p>这也会引起在所有已经注册的事件处理器上调用 <a href="http://www.erlang.org/doc/man/gen_event.html#Module:terminate-2" target="_blank" rel="external">terminate/2</a> 。</p>
+<h2 id="在一个事件处理器上调用函数"><a href="#在一个事件处理器上调用函数" class="headerlink" title="在一个事件处理器上调用函数"></a>在一个事件处理器上调用函数</h2><p>你可以通过调用 <a href="http://www.erlang.org/doc/man/gen_event.html#call-3" target="_blank" rel="external">call/3</a> 来确切地调用一个事件处理器上指定的函数，就像你在 gen_server上做的一样：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ok = gen_event:call(my_event_bus, my_event_handler, &#123;do_something&#125;).</div></pre></td></tr></table></figure>
+<p>和gen_server一样，你可以在调用 <a href="http://www.erlang.org/doc/man/gen_event.html#call-4" target="_blank" rel="external">call/4</a> 到时候指定一个超时时间：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ok = gen_event:call(my_event_bus, my_event_handler, &#123;do_something&#125;, <span class="number">5000</span>).</div></pre></td></tr></table></figure>
+<p>gen_event将调用事件处理器模块的 handle_call/2 回调函数。例子如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">handle_call</span><span class="params">(_Request, State)</span> -&gt;</span></div><div class="line">  &#123;ok, this_is_my_reply, State&#125;.</div></pre></td></tr></table></figure>
+<h2 id="删除事件处理器"><a href="#删除事件处理器" class="headerlink" title="删除事件处理器"></a>删除事件处理器</h2><p>你可以通过调用 <a href="http://www.erlang.org/doc/man/gen_event.html#delete_handler-3" target="_blank" rel="external">delete_handler/3</a> 来删除你的事件处理器：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gen_event:delete_handler(my_event_bus, my_event_handler, [arg1, arg2]).</div></pre></td></tr></table></figure>
+<p>这个函数将从事件管理器删除这个事件处理器，而且也会将第三个参数传给 <a href="http://www.erlang.org/doc/man/gen_event.html#Module:terminate-2" target="_blank" rel="external">terminate/2</a> 并调用它并将将调用结果返回。</p>
+<p>列出所有已经注册的事件处理器</p>
+<p>为了列出一个事件管理器当前注册的所有事件处理器，可以调用 <a href="http://www.erlang.org/doc/man/gen_event.html#which_handlers-1" target="_blank" rel="external">which_handlers/1</a> ：</p>
+<p>gen_event:which_handlers(my_event_bus).</p>
+<h2 id="替换-交换-事件处理器"><a href="#替换-交换-事件处理器" class="headerlink" title="替换 (交换) 事件处理器"></a>替换 (交换) 事件处理器</h2><p>通过调用 <a href="http://www.erlang.org/doc/man/gen_event.html#swap_handler-3" target="_blank" rel="external">swap_handler/3</a> 也可以在运行时更换事件处理器：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gen_event:swap_handler(my_event_bus, &#123;my_event_handler, [arg1]&#125;, &#123;my_new_event_handler, [arg2]&#125;).</div></pre></td></tr></table></figure>
+<p>整个过程是：首先调用 my_event_handler:terminate([arg1], State) 然后调用 my_new_event_handler:init([arg2])，用一个新的事件处理器替换一个久的事件处理器。</p>
+<p>如果老的事件处理器是被监督的，则新的事件处理器也被监督。你当然可以直接用同样的参数调用 <a href="http://www.erlang.org/doc/man/gen_event.html#swap_sup_handler-3" target="_blank" rel="external">swap_sup_handler/3</a> 来做到。</p>
+<h1 id="感谢"><a href="#感谢" class="headerlink" title="感谢"></a>感谢</h1><p>再一次我要感谢 <a href="https://github.com/elbrujohalcon" target="_blank" rel="external">Fernando “El Brujo” Benavides</a> 对本文的总体思考，关于gen_event缺陷的评论，以及他分享的gen_event转发器和caster。</p>
+<h1 id="作者"><a href="#作者" class="headerlink" title="作者"></a>作者</h1><p>Marcelo Gornstein <a href="marcelo@inakanetworks.com">marcelo@inakanetworks.com</a></p>
+<p>Github: <a href="https://github.com/marcelog" target="_blank" rel="external">marcelog</a></p>
+<p>Homepage: <a href="http://marcelog.github.com/" target="_blank" rel="external">http://marcelog.github.com</a></p>
+<h1 id="附录-A-gen-event实际上是如何派发一个事件的"><a href="#附录-A-gen-event实际上是如何派发一个事件的" class="headerlink" title="附录 A: gen_event实际上是如何派发一个事件的"></a>附录 A: gen_event实际上是如何派发一个事件的</h1><p>函数 notify/2 的实际调用最终在你的erlang/otp源码的 <a href="https://github.com/erlang/otp/blob/maint/lib/stdlib/src/gen_event.erl" target="_blank" rel="external">lib/stdlib/src/gen_event.erl</a> 文件的504行：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">case</span> <span class="keyword">catch</span> Mod1:Func(Event, State) <span class="keyword">of</span></div></pre></td></tr></table></figure>
+<p>Func是原子 handle_event 或 handle_info。所以如果你的事件处理器崩溃或不知何故失败了，事件管理器是不会崩溃的。</p>
+<p>如果运行一个被监督的事件处理器（用add_sup_handler/3启动的），在同一个文件的<a href="https://github.com/erlang/otp/blob/maint/lib/stdlib/src/gen_event.erl#L635" target="_blank" rel="external">635行</a>的 terminate/2 函数被调用。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Res = (<span class="keyword">catch</span> Mod:terminate(Args, State)),</div></pre></td></tr></table></figure>
+<p>另外，被监督的事件处理器，在<a href="https://github.com/erlang/otp/blob/maint/lib/stdlib/src/gen_event.erl#L648" target="_blank" rel="external">648行</a>一个消息被发送给这个事件处理器注册到的进程</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">case</span> Handler#handler.supervised <span class="keyword">of</span></div><div class="line">  <span class="literal">false</span> -&gt;</div><div class="line">      ok;</div><div class="line">  Pid -&gt;</div><div class="line">      Pid ! &#123;gen_event_EXIT,handler(Handler),Reason&#125;,</div><div class="line">      ok</div><div class="line">  <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<h1 id="附录-B-回调模块样例"><a href="#附录-B-回调模块样例" class="headerlink" title="附录 B: 回调模块样例"></a>附录 B: 回调模块样例</h1><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(my_event_handler)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-behaviour</span><span class="params">(gen_event)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([</span></div><div class="line">  init/<span class="number">1</span>, terminate/<span class="number">2</span>, handle_info/<span class="number">2</span>,</div><div class="line">  handle_call/<span class="number">2</span>, code_change/<span class="number">3</span>, handle_event/<span class="number">2</span></div><div class="line">]).</div><div class="line"></div><div class="line"><span class="function"><span class="title">init</span><span class="params">([])</span> -&gt;</span></div><div class="line">  &#123;ok, []&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">handle_info</span><span class="params">(_Info, State)</span> -&gt;</span></div><div class="line">  &#123;ok, State&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">handle_call</span><span class="params">(_Request, State)</span> -&gt;</span></div><div class="line">  &#123;ok, not_implemented, State&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">handle_event</span><span class="params">(bad_smell, State)</span> -&gt;</span></div><div class="line">  io:format(<span class="string">"That's an aweful smell..  go clean your kitty's litter~n~n"</span>),</div><div class="line">  &#123;ok, State&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="title">handle_event</span><span class="params">(_Event, State)</span> -&gt;</span></div><div class="line">  &#123;ok, State&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">code_change</span><span class="params">(_OldVsn, State, _Extra)</span> -&gt;</span></div><div class="line">  &#123;ok, State&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">terminate</span><span class="params">(_Arg, _State)</span> -&gt;</span></div><div class="line">  ok.</div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://inaka.net/blog/2013/01/21/erlang-event-driven/" target="_blank" rel="external">http://inaka.net/blog/2013/01/21/erlang-event-driven/</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/event-driven/" rel="tag">#event-driven</a>
+          
+            <a href="/tags/application/" rel="tag">#application</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/20/erlang-thursday-ets-selects-continuations-and-concurrent-inserts/" rel="next" title="Erlang Thursday - ETS的查询、分页和并发的数据插入">
+                <i class="fa fa-chevron-left"></i> Erlang Thursday - ETS的查询、分页和并发的数据插入
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/20/erlang-and-other-things/" rel="prev" title="我最喜欢的erlang程序">
+                我最喜欢的erlang程序 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/20/erlang-event-driven-applications/"
+           data-title="Erlang的事件驱动应用" data-url="http://szpzs.github.io/2016/09/20/erlang-event-driven-applications/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">71</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">83</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#它是如何运作的"><span class="nav-number">2.</span> <span class="nav-text">它是如何运作的</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#启动一个事件管理器"><span class="nav-number">3.</span> <span class="nav-text">启动一个事件管理器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#用一个给定的名字注册一个事件管理器"><span class="nav-number">3.1.</span> <span class="nav-text">用一个给定的名字注册一个事件管理器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注册事件处理器"><span class="nav-number">4.</span> <span class="nav-text">注册事件处理器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#被监督的事件处理器"><span class="nav-number">4.1.</span> <span class="nav-text">被监督的事件处理器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺点"><span class="nav-number">4.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#派发事件"><span class="nav-number">5.</span> <span class="nav-text">派发事件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#用消息替代-Notify-2"><span class="nav-number">5.1.</span> <span class="nav-text">用消息替代 Notify/2</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#处理事件"><span class="nav-number">6.</span> <span class="nav-text">处理事件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#额外事项"><span class="nav-number">7.</span> <span class="nav-text">额外事项</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#停止事件管理器"><span class="nav-number">7.1.</span> <span class="nav-text">停止事件管理器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在一个事件处理器上调用函数"><span class="nav-number">7.2.</span> <span class="nav-text">在一个事件处理器上调用函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#删除事件处理器"><span class="nav-number">7.3.</span> <span class="nav-text">删除事件处理器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#替换-交换-事件处理器"><span class="nav-number">7.4.</span> <span class="nav-text">替换 (交换) 事件处理器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#感谢"><span class="nav-number">8.</span> <span class="nav-text">感谢</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#作者"><span class="nav-number">9.</span> <span class="nav-text">作者</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#附录-A-gen-event实际上是如何派发一个事件的"><span class="nav-number">10.</span> <span class="nav-text">附录 A: gen_event实际上是如何派发一个事件的</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#附录-B-回调模块样例"><span class="nav-number">11.</span> <span class="nav-text">附录 B: 回调模块样例</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
