@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.github.io/"/>
-  <updated>2016-09-21T00:38:20.000Z</updated>
+  <updated>2016-09-27T11:25:55.000Z</updated>
   <id>http://szpzs.github.io/</id>
   
   <author>
@@ -14,6 +14,51 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>往Elixir里的Map塞东西</title>
+    <link href="http://szpzs.github.io/2016/09/27/putting-things-into-maps-in-elixir/"/>
+    <id>http://szpzs.github.io/2016/09/27/putting-things-into-maps-in-elixir/</id>
+    <published>2016-09-27T10:57:03.000Z</published>
+    <updated>2016-09-27T11:25:55.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Elixir的<a href="http://elixir-lang.org/docs/stable/elixir/Map.html" target="_blank" rel="external">Map</a>模块提供了一些不同的函数来操作map数据结构。其中一个函数就是<a href="http://elixir-lang.org/docs/stable/elixir/Map.html#put/3" target="_blank" rel="external">Map.put/3</a> 。这个函数允许你将一个健值对放入一个map中。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&gt; pokemon = %&#123;<span class="symbol">charmander:</span> <span class="number">22</span>&#125;</div><div class="line">%&#123;<span class="symbol">charmander:</span> <span class="number">22</span>&#125;</div><div class="line">&gt; pokemon = Map.put(pokemon, <span class="symbol">:squirtle</span>, <span class="number">9</span>)</div><div class="line">%&#123;<span class="symbol">charmander:</span> <span class="number">22</span>, <span class="symbol">squirtle:</span> <span class="number">9</span>&#125;</div><div class="line">&gt; pokemon = Map.put(pokemon, <span class="symbol">:squirtle</span>, <span class="number">10</span>)</div><div class="line">%&#123;<span class="symbol">charmander:</span> <span class="number">22</span>, <span class="symbol">squirtle:</span> <span class="number">10</span>&#125;</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>如果这个键对于此map来说是新的话，这个键值对就简单地加入map。如果这个键对于此map来说是已存在的，那么对应的老的值则被新的值替换。</p>
+<p>同样的效果可以用Map.merge/2来实现。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&gt; pokemon = %&#123;<span class="symbol">charmander:</span> <span class="number">22</span>&#125;</div><div class="line">%&#123;<span class="symbol">charmander:</span> <span class="number">22</span>&#125;</div><div class="line">&gt; Map.merge(pokemon, %&#123;<span class="symbol">squirtle:</span> <span class="number">9</span>&#125;)</div><div class="line">%&#123;<span class="symbol">charmander:</span> <span class="number">22</span>, <span class="symbol">squirtle:</span> <span class="number">9</span>&#125;</div><div class="line">&gt; pokemon = Map.merge(pokemon, %&#123;<span class="symbol">squirtle:</span> <span class="number">9</span>&#125;)</div><div class="line">%&#123;<span class="symbol">charmander:</span> <span class="number">22</span>, <span class="symbol">squirtle:</span> <span class="number">9</span>&#125;</div><div class="line">&gt; pokemon = Map.merge(pokemon, %&#123;<span class="symbol">squirtle:</span> <span class="number">10</span>&#125;)</div><div class="line">%&#123;<span class="symbol">charmander:</span> <span class="number">22</span>, <span class="symbol">squirtle:</span> <span class="number">10</span>&#125;</div><div class="line">&gt; pokemon = Map.merge(pokemon, %&#123;<span class="symbol">squirtle:</span> <span class="number">11</span>, <span class="symbol">bulbasaur:</span> <span class="number">14</span>&#125;)</div><div class="line">%&#123;<span class="symbol">bulbasaur:</span> <span class="number">14</span>, <span class="symbol">charmander:</span> <span class="number">22</span>, <span class="symbol">squirtle:</span> <span class="number">11</span>&#125;</div></pre></td></tr></table></figure>
+<p>Map.merge/2的优势是它的灵活性。它能够更容易地在不同情况下使用。它甚至允许一次增加并且替换多个健值对。因为两个入参都是map，它让我们感觉到更容易阅读。</p>
+<p>也有一个语法糖的方法，就是用map字面符号和一个管道来替换已经存在的键值对。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&gt; pokemon = %&#123;<span class="symbol">charmander:</span> <span class="number">22</span>, <span class="symbol">squirtle:</span> <span class="number">9</span>&#125;</div><div class="line">%&#123;<span class="symbol">charmander:</span> <span class="number">22</span>, <span class="symbol">squirtle:</span> <span class="number">9</span>&#125;</div><div class="line">&gt; pokemon = %&#123;pokemon | <span class="symbol">squirtle:</span> <span class="number">10</span>&#125;</div><div class="line">%&#123;<span class="symbol">charmander:</span> <span class="number">22</span>, <span class="symbol">squirtle:</span> <span class="number">10</span>&#125;</div></pre></td></tr></table></figure>
+<p>这个是最简洁的方法，但是，它仅仅是用来替换一个健值对。如果这个键不存在map中，则一个错误将发生。</p>
+<p>除此之外当然还有其他函数来设置值到map中，包括 <a href="http://elixir-lang.org/docs/stable/elixir/Kernel.html#put_in/3" target="_blank" rel="external">Kernel.put_in/3</a> 和 <a href="http://elixir-lang.org/docs/stable/elixir/Map.html#get_and_update/3" target="_blank" rel="external">Map.get_and_update/3</a> 。然而上述几个方法是我自己最经常接触到的。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://joshbranchaud.com/2016/09/25/putting-things-into-maps-in-elixir/" target="_blank" rel="external">http://joshbranchaud.com/2016/09/25/putting-things-into-maps-in-elixir/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Elixir的&lt;a href=&quot;http://elixir-lang.org/docs/stable/elixir/Map.html&quot;&gt;Map&lt;/a&gt;模块提供了一些不同的函数来操作map数据结构。其中一个函数就是&lt;a href=&quot;http://elixir-lang.org/docs/stable/elixir/Map.html#put/3&quot;&gt;Map.put/3&lt;/a&gt; 。这个函数允许你将一个健值对放入一个map中。&lt;/p&gt;
+&lt;figure class=&quot;highlight elixir&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&amp;gt; pokemon = %&amp;#123;&lt;span class=&quot;symbol&quot;&gt;charmander:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;22&lt;/span&gt;&amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;%&amp;#123;&lt;span class=&quot;symbol&quot;&gt;charmander:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;22&lt;/span&gt;&amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;gt; pokemon = Map.put(pokemon, &lt;span class=&quot;symbol&quot;&gt;:squirtle&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;9&lt;/span&gt;)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;%&amp;#123;&lt;span class=&quot;symbol&quot;&gt;charmander:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;22&lt;/span&gt;, &lt;span class=&quot;symbol&quot;&gt;squirtle:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;9&lt;/span&gt;&amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;gt; pokemon = Map.put(pokemon, &lt;span class=&quot;symbol&quot;&gt;:squirtle&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt;)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;%&amp;#123;&lt;span class=&quot;symbol&quot;&gt;charmander:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;22&lt;/span&gt;, &lt;span class=&quot;symbol&quot;&gt;squirtle:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;10&lt;/span&gt;&amp;#125;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.github.io/categories/Elixir/"/>
+    
+      <category term="Map" scheme="http://szpzs.github.io/categories/Elixir/Map/"/>
+    
+    
+      <category term="merge" scheme="http://szpzs.github.io/tags/merge/"/>
+    
+      <category term="Elixir" scheme="http://szpzs.github.io/tags/Elixir/"/>
+    
+      <category term="Map" scheme="http://szpzs.github.io/tags/Map/"/>
+    
+      <category term="put" scheme="http://szpzs.github.io/tags/put/"/>
+    
+  </entry>
   
   <entry>
     <title>原子之浅显易懂</title>
@@ -1260,52 +1305,6 @@ shutdown，如果事件处理器因为事件管理器结束而被删除。
       <category term="digraph" scheme="http://szpzs.github.io/tags/digraph/"/>
     
       <category term="add_edge" scheme="http://szpzs.github.io/tags/add-edge/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – digraph:add_vertex/1</title>
-    <link href="http://szpzs.github.io/2016/09/20/erlang-thursday-digraph-add-vertex-1/"/>
-    <id>http://szpzs.github.io/2016/09/20/erlang-thursday-digraph-add-vertex-1/</id>
-    <published>2016-09-20T12:07:20.000Z</published>
-    <updated>2016-09-20T12:11:05.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday如上星期保证的开始深入digraph模块，今天讲的是 <a href="http://www.erlang.org/doc/man/digraph.html#add_vertex-1" target="_blank" rel="external">digraph:add_vertex/1</a>.</p>
-<p>首先我们创建一个新的有向图以便我们可以往里加节点。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Graph = digraph:new().</div><div class="line"><span class="comment">% &#123;digraph,20498,24595,28692,true&#125;</span></div></pre></td></tr></table></figure>
-<p>我们用 digraph:add_vertex/1 往此有向图里加入一些节点。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">digraph:add_vertex(Graph).</div><div class="line"><span class="comment">% ['$v'|0]</span></div><div class="line">digraph:add_vertex(Graph).</div><div class="line"><span class="comment">% ['$v'|1]</span></div><div class="line">digraph:add_vertex(Graph).</div><div class="line"><span class="comment">% ['$v'|2]</span></div></pre></td></tr></table></figure>
-<p>因为我们没有指定我们想要加入的节点的任何信息，Erlang将为我们创建一个 [‘$v’ | I]格式的节点，它有一个空列表做为标签，I是一个非负整数。</p>
-<p>如果我们希望提供节点标识符，我们也可以用 digraph:add_vertex/2 来添加一个节点，或者用 digraph:add_vertext/3 来提供节点标识符和标签。正如 digraph:add_vertex/1 ，digraph:add_vertex/2 也用空列表来做为标签。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">digraph:add_vertex(Graph, vertex1).</div><div class="line"><span class="comment">% vertex1</span></div><div class="line">digraph:add_vertex(Graph, vertex2, <span class="string">"Vertex 2"</span>).</div><div class="line"><span class="comment">% vertex2</span></div></pre></td></tr></table></figure>
-<p>我们现在添加了5个节点，可以用 <a href="http://www.erlang.org/doc/man/digraph.html#vertices-1" target="_blank" rel="external">digraph:vertices/1</a> 来检查在这个有向图里有哪些节点。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">digraph:vertices(Graph).</div><div class="line"><span class="comment">% [['$v'|2],['$v'|1],['$v'|0],vertex2,vertex1]</span></div></pre></td></tr></table></figure>
-<p>如果我们决定以 [‘$v’ | I]格式自己尝试添加一个节点，然后接着调用 digraph:add_vertex/1 ，那么我们可能会有麻烦。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">digraph:add_vertex(Graph, ['$v' | <span class="number">3</span>]).</div><div class="line"><span class="comment">% ['$v'|3]</span></div><div class="line">digraph:add_vertex(Graph).</div><div class="line"><span class="comment">% ['$v'|3]</span></div><div class="line">digraph:vertices(Graph).</div><div class="line"><span class="comment">% [['$v'|2],['$v'|1],['$v'|0],['$v'|3],vertex2,vertex1]</span></div><div class="line">digraph:add_vertex(Graph, ['$v' | <span class="number">4</span>]).</div><div class="line"><span class="comment">% ['$v'|4]</span></div><div class="line">digraph:vertices(Graph).</div><div class="line"><span class="comment">% [['$v'|4],</span></div><div class="line"><span class="comment">%  ['$v'|2],</span></div><div class="line"><span class="comment">%  ['$v'|1],</span></div><div class="line"><span class="comment">%  ['$v'|0],</span></div><div class="line"><span class="comment">%  ['$v'|3],</span></div><div class="line"><span class="comment">%  vertex2,vertex1]</span></div></pre></td></tr></table></figure>
-<p>我们自己通过制定格式来添加一个节点，然后又让Erlang帮我们添加一个新的节点，那么最终的结果就是“丢失”一个节点，因为当我们看这个有向图的状态的时候可以看到原来是发生了覆盖的情况。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-digraph-add_vertex-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-digraph-add_vertex-1/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday如上星期保证的开始深入digraph模块，今天讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/digraph.html#add_vertex-1&quot;&gt;digraph:add_vertex/1&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;首先我们创建一个新的有向图以便我们可以往里加节点。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="digraph" scheme="http://szpzs.github.io/categories/Erlang/digraph/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="digraph" scheme="http://szpzs.github.io/tags/digraph/"/>
-    
-      <category term="add_vertex" scheme="http://szpzs.github.io/tags/add-vertex/"/>
     
   </entry>
   
