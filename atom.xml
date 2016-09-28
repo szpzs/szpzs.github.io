@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.github.io/"/>
-  <updated>2016-09-27T11:25:55.000Z</updated>
+  <updated>2016-09-28T12:51:05.000Z</updated>
   <id>http://szpzs.github.io/</id>
   
   <author>
@@ -14,6 +14,82 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Erlang快速安装</title>
+    <link href="http://szpzs.github.io/2016/09/28/erlang-quick-install/"/>
+    <id>http://szpzs.github.io/2016/09/28/erlang-quick-install/</id>
+    <published>2016-09-28T14:01:48.000Z</published>
+    <updated>2016-09-28T12:51:05.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="/images/erlang-logo.png" style="border:0;"><br>在你开始玩Erlang之前，你应该要将它安装好。这里有覆盖所有相关配置的<a href="http://www.erlang.org/doc/installation_guide/INSTALL.html" target="_blank" rel="external">完全安装指引</a>。本文将给你一个简单的最小安装指引，让你立即让你的第一个Erlang shell跑起来。</p>
+<ul>
+<li>在Mac OS X上安装Erlang</li>
+<li>在Linux上安装Erlang</li>
+<li>在Windows上安装Erlang</li>
+<li>用最新版本预编译包安装Erlang</li>
+<li>从源码编译安装Erlang</li>
+</ul>
+<a id="more"></a>
+<h2 id="在Mac-OS-X上安装Erlang"><a href="#在Mac-OS-X上安装Erlang" class="headerlink" title="在Mac OS X上安装Erlang"></a>在Mac OS X上安装Erlang</h2><p><strong>使用HomeBrew来安装Erlang：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install erlang</div></pre></td></tr></table></figure>
+<p><strong>用MacPorts来安装Erlang：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo port install erlang</div></pre></td></tr></table></figure>
+<h2 id="在Linux上安装Erlang"><a href="#在Linux上安装Erlang" class="headerlink" title="在Linux上安装Erlang"></a>在Linux上安装Erlang</h2><p>大多数操作系统在它们的包管理系统里有预构建的Erlang发行版本。</p>
+<p><strong>在Ubuntu和Debian下，安装指令：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install erlang</div></pre></td></tr></table></figure>
+<p><strong>在Fedora下，安装指令：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install erlang</div></pre></td></tr></table></figure>
+<p><strong>在FreeBSD下，安装指令：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo pkg update</div><div class="line">sudo pkg install erlang</div></pre></td></tr></table></figure>
+<h2 id="在Windows上安装Erlang"><a href="#在Windows上安装Erlang" class="headerlink" title="在Windows上安装Erlang"></a>在Windows上安装Erlang</h2><p><a href="http://www.erlang.org/download.html" target="_blank" rel="external">直接下载安装程序来安装</a></p>
+<h2 id="用最新版本预编译包安装Erlang"><a href="#用最新版本预编译包安装Erlang" class="headerlink" title="用最新版本预编译包安装Erlang"></a>用最新版本预编译包安装Erlang</h2><p>你在寻找最新的稳定Erlang版本或者前一个Erlang版本吗？<a href="https://www.erlang-solutions.com/" target="_blank" rel="external">Erlang Solutions</a> 给OS X，Windows，Ubuntu，Debian，Fedora，CentOS，Raspbian 以及其他平台都提供了一个<a href="https://www.erlang-solutions.com/downloads/download-erlang-otp" target="_blank" rel="external">预编译安装包</a>。它们也提供了一个企业级Erlang发行版。</p>
+<p><a href="https://www.erlang-solutions.com/resources/download.html" target="_blank" rel="external">从Erlang Solutions下载</a></p>
+<h2 id="从源码编译安装Erlang"><a href="#从源码编译安装Erlang" class="headerlink" title="从源码编译安装Erlang"></a>从源码编译安装Erlang</h2><p>你可以用Kerl脚本在你自己的机器上从源码来构建Erlang。Kerl是一个脚本，它使得你用几个命令就轻松地构建不同版本的Erlang。</p>
+<p><strong>下载Kerl指令如下：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">curl -O https://raw.githubusercontent.com/spawngrid/kerl/master/kerl</div><div class="line">chmod +x kerl</div></pre></td></tr></table></figure>
+<p>选择一个可用的Erlang源码发行版本并且像如下指令一样来构建它（在这个例子里，我们选择18.0版本并且命名它为mybuild-18.0）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">./kerl list releases</div><div class="line">./kerl build 18.0 mybuild-18.0</div></pre></td></tr></table></figure>
+<p>选择一个目录来安装，例如 ~/erlang-r16b03</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">./kerl list builds</div><div class="line">./kerl install mybuild-18.0 ~/erlang-18.0</div></pre></td></tr></table></figure>
+<p>最后，把目录 ~/erlang-18.0/bin 加到你的环境变量 $PATH 里。</p>
+<p><strong>搞定！</strong></p>
+<p>在你的终端运行erl来启动一个Erlang shell：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ erl</div><div class="line">Erlang/OTP 18 [erts-7.0] [<span class="built_in">source</span>] [64-bit] [smp:8:8] [async-threads:10] [hipe] [kernel-poll:<span class="literal">false</span>]</div><div class="line"></div><div class="line">Eshell V7.0  (abort with ^G)</div><div class="line">1&gt;</div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/erlang-central/erlang-quick-install-9c5dcaa5b634" target="_blank" rel="external">https://medium.com/erlang-central/erlang-quick-install-9c5dcaa5b634</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;/images/erlang-logo.png&quot; style=&quot;border:0;&quot;/&gt;&lt;br&gt;在你开始玩Erlang之前，你应该要将它安装好。这里有覆盖所有相关配置的&lt;a href=&quot;http://www.erlang.org/doc/installation_guide/INSTALL.html&quot;&gt;完全安装指引&lt;/a&gt;。本文将给你一个简单的最小安装指引，让你立即让你的第一个Erlang shell跑起来。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在Mac OS X上安装Erlang&lt;/li&gt;
+&lt;li&gt;在Linux上安装Erlang&lt;/li&gt;
+&lt;li&gt;在Windows上安装Erlang&lt;/li&gt;
+&lt;li&gt;用最新版本预编译包安装Erlang&lt;/li&gt;
+&lt;li&gt;从源码编译安装Erlang&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
+    
+      <category term="install" scheme="http://szpzs.github.io/categories/Erlang/install/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
+    
+      <category term="install" scheme="http://szpzs.github.io/tags/install/"/>
+    
+      <category term="HomeBrew" scheme="http://szpzs.github.io/tags/HomeBrew/"/>
+    
+      <category term="MacPorts" scheme="http://szpzs.github.io/tags/MacPorts/"/>
+    
+      <category term="Kerl" scheme="http://szpzs.github.io/tags/Kerl/"/>
+    
+  </entry>
   
   <entry>
     <title>往Elixir里的Map塞东西</title>
@@ -1261,50 +1337,6 @@ shutdown，如果事件处理器因为事件管理器结束而被删除。
       <category term="digraph" scheme="http://szpzs.github.io/tags/digraph/"/>
     
       <category term="get_path" scheme="http://szpzs.github.io/tags/get-path/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday – digraph:add_edge/4</title>
-    <link href="http://szpzs.github.io/2016/09/20/erlang-thursday-digraph-add-edge-4/"/>
-    <id>http://szpzs.github.io/2016/09/20/erlang-thursday-digraph-add-edge-4/</id>
-    <published>2016-09-20T12:11:34.000Z</published>
-    <updated>2016-09-20T12:15:08.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/digraph.html#add_edge-4" target="_blank" rel="external">digraph:add_edge/4</a>.</p>
-<p>digraph:add_edge/4 第一个入参是一个有向图，第二个入参是原节点（<a href="http://www.erlang.org/doc/man/digraph.html#emanate" target="_blank" rel="external">发出节点</a>），第三个入参是目标节点（<a href="http://www.erlang.org/doc/man/digraph.html#incident" target="_blank" rel="external">接收节点</a>），最后一个入参是一个标签。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">Graph = digraph:new().</div><div class="line"><span class="comment">% &#123;digraph,20498,24595,28692,true&#125;</span></div><div class="line">Vertex1 = digraph:add_vertex(Graph, foo).</div><div class="line"><span class="comment">% foo</span></div><div class="line">Vertex2 = digraph:add_vertex(Graph, bar).</div><div class="line"><span class="comment">% bar</span></div><div class="line">Edge1 = digraph:add_edge(Graph, Vertex1, Vertex2, &#123;foo, bar&#125;).</div><div class="line"><span class="comment">% ['$e'|0]</span></div><div class="line">digraph:edges(Graph).</div><div class="line"><span class="comment">% [['$e'|0]]</span></div><div class="line">Edge2 = digraph:add_edge(Graph, Vertex2, Vertex1, &#123;bar, foo&#125;).</div><div class="line"><span class="comment">% ['$e'|1]</span></div><div class="line">digraph:edges(Graph).</div><div class="line"><span class="comment">% [['$e'|1],['$e'|0]]</span></div></pre></td></tr></table></figure>
-<p>digraph模块也有 digraph:add_edge/5 函数，它允许你指定边的标识符，下面的例子我给一条边的标识符是 myEdge 。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">digraph:add_edge(Graph, myEdge, Vertex2, Vertex1, myLabel).</div><div class="line"><span class="comment">% myEdge</span></div><div class="line">digraph:edges(Graph).</div><div class="line"><span class="comment">% [['$e'|1],['$e'|2],['$e'|3],myEdge,['$e'|0]]</span></div></pre></td></tr></table></figure>
-<p>另外 digraph:add_edge/3 函数则允许你不指定边或者标签。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">digraph:add_edge(Graph, Vertex2, Vertex1).</div><div class="line"><span class="comment">% ['$e'|2]</span></div><div class="line">digraph:add_edge(Graph, Vertex2, Vertex1).</div><div class="line"><span class="comment">% ['$e'|3]</span></div><div class="line">digraph:edges(Graph).</div><div class="line"><span class="comment">% [['$e'|1],['$e'|2],['$e'|3],['$e'|0]]</span></div></pre></td></tr></table></figure>
-<p>如果你注意到上述的 digraph:add_edge/3 和 digraph:add_edge/5 函数的例子中，我们给同样的发出节点和接收节点增加几个边，函数都很乐意地为我们创建这些边。</p>
-<p>我们也可以通过指定 acyclic 参数给 digraph:new/1 来创建一个无循环有向图。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">Graph2 = digraph:new([acyclic]).</div><div class="line"><span class="comment">% &#123;digraph,20498,24595,28692,false&#125;</span></div><div class="line">VertexA = digraph:add_vertex(Graph2, foo).</div><div class="line"><span class="comment">% foo</span></div><div class="line">VertexB = digraph:add_vertex(Graph2, bar).</div><div class="line"><span class="comment">% bar</span></div><div class="line">EdgeAB = digraph:add_edge(Graph2, VertexA, VertexB, &#123;foo, bar&#125;).</div><div class="line"><span class="comment">% ['$e'|0]</span></div><div class="line">EdgeBA = digraph:add_edge(Graph2, VertexB, VertexA, &#123;bar, foo&#125;).</div><div class="line"><span class="comment">% &#123;error,&#123;bad_edge,[foo,bar]&#125;&#125;</span></div></pre></td></tr></table></figure>
-<p>当我们想创建一条边从而在一个无循环有向图里创建一个环的时候，我们将得到一个带有指定边的 bad_edge 错误。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-digraph-add_edge-4/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-digraph-add_edge-4/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday讲的是 &lt;a href=&quot;http://www.erlang.org/doc/man/digraph.html#add_edge-4&quot;&gt;digraph:add_edge/4&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;digraph:add_edge/4 第一个入参是一个有向图，第二个入参是原节点（&lt;a href=&quot;http://www.erlang.org/doc/man/digraph.html#emanate&quot;&gt;发出节点&lt;/a&gt;），第三个入参是目标节点（&lt;a href=&quot;http://www.erlang.org/doc/man/digraph.html#incident&quot;&gt;接收节点&lt;/a&gt;），最后一个入参是一个标签。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/categories/Erlang/"/>
-    
-      <category term="digraph" scheme="http://szpzs.github.io/categories/Erlang/digraph/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.github.io/tags/Erlang/"/>
-    
-      <category term="digraph" scheme="http://szpzs.github.io/tags/digraph/"/>
-    
-      <category term="add_edge" scheme="http://szpzs.github.io/tags/add-edge/"/>
     
   </entry>
   
