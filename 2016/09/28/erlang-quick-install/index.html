@@ -95,7 +95,7 @@
 从源码编译安装Erlang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang快速安装">
-<meta property="og:url" content="http://szpzs.github.io/2016/09/28/erlang-quick-install/index.html">
+<meta property="og:url" content="http://szpzs.oschina.io/2016/09/28/erlang-quick-install/index.html">
 <meta property="og:site_name" content="Time is all">
 <meta property="og:description" content="在你开始玩Erlang之前，你应该要将它安装好。这里有覆盖所有相关配置的完全安装指引。本文将给你一个简单的最小安装指引，立即让你的第一个Erlang shell跑起来。
 
@@ -104,8 +104,8 @@
 在Windows上安装Erlang
 用最新版本预编译包安装Erlang
 从源码编译安装Erlang">
-<meta property="og:image" content="http://szpzs.github.io/images/erlang-logo.png">
-<meta property="og:updated_time" content="2016-09-30T14:02:28.000Z">
+<meta property="og:image" content="http://szpzs.oschina.io/images/erlang-logo.png">
+<meta property="og:updated_time" content="2016-10-13T12:19:15.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang快速安装">
 <meta name="twitter:description" content="在你开始玩Erlang之前，你应该要将它安装好。这里有覆盖所有相关配置的完全安装指引。本文将给你一个简单的最小安装指引，立即让你的第一个Erlang shell跑起来。
@@ -115,7 +115,7 @@
 在Windows上安装Erlang
 用最新版本预编译包安装Erlang
 从源码编译安装Erlang">
-<meta name="twitter:image" content="http://szpzs.github.io/images/erlang-logo.png">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/erlang-logo.png">
 
 
 
@@ -136,7 +136,7 @@
 
 
 
-  <link rel="canonical" href="http://szpzs.github.io/2016/09/28/erlang-quick-install/"/>
+  <link rel="canonical" href="http://szpzs.oschina.io/2016/09/28/erlang-quick-install/"/>
 
   <title> Erlang快速安装 | Time is all </title>
 </head>
@@ -381,28 +381,28 @@
       
         <p><img src="/images/erlang-logo.png" style="border:0;"><br>在你开始玩Erlang之前，你应该要将它安装好。这里有覆盖所有相关配置的<a href="http://www.erlang.org/doc/installation_guide/INSTALL.html" target="_blank" rel="external">完全安装指引</a>。本文将给你一个简单的最小安装指引，立即让你的第一个Erlang shell跑起来。</p>
 <ul>
-<li>在Mac OS X上安装Erlang</li>
-<li>在Linux上安装Erlang</li>
-<li>在Windows上安装Erlang</li>
-<li>用最新版本预编译包安装Erlang</li>
-<li>从源码编译安装Erlang</li>
+<li><a href="#part1">在Mac OS X上安装Erlang</a></li>
+<li><a href="#part2">在Linux上安装Erlang</a></li>
+<li><a href="#part3">在Windows上安装Erlang</a></li>
+<li><a href="#part4">用最新版本预编译包安装Erlang</a></li>
+<li><a href="#part5">从源码编译安装Erlang</a></li>
 </ul>
 <a id="more"></a>
-<h2 id="在Mac-OS-X上安装Erlang"><a href="#在Mac-OS-X上安装Erlang" class="headerlink" title="在Mac OS X上安装Erlang"></a>在Mac OS X上安装Erlang</h2><p><strong>使用HomeBrew来安装Erlang：</strong></p>
+<h2 id="在Mac-OS-X上安装Erlang"><a href="#在Mac-OS-X上安装Erlang" class="headerlink" title="在Mac OS X上安装Erlang"></a><span id="part1">在Mac OS X上安装Erlang</span></h2><p><strong>使用HomeBrew来安装Erlang：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">brew install erlang</div></pre></td></tr></table></figure>
 <p><strong>用MacPorts来安装Erlang：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo port install erlang</div></pre></td></tr></table></figure>
-<h2 id="在Linux上安装Erlang"><a href="#在Linux上安装Erlang" class="headerlink" title="在Linux上安装Erlang"></a>在Linux上安装Erlang</h2><p>大多数操作系统在它们的包管理系统里有预构建的Erlang发行版本。</p>
+<h2 id="在Linux上安装Erlang"><a href="#在Linux上安装Erlang" class="headerlink" title="在Linux上安装Erlang"></a><span id="part2">在Linux上安装Erlang</span></h2><p>大多数操作系统在它们的包管理系统里有预构建的Erlang发行版本。</p>
 <p><strong>在Ubuntu和Debian下，安装指令：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo apt-get update</div><div class="line">sudo apt-get install erlang</div></pre></td></tr></table></figure>
 <p><strong>在Fedora下，安装指令：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install erlang</div></pre></td></tr></table></figure>
 <p><strong>在FreeBSD下，安装指令：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo pkg update</div><div class="line">sudo pkg install erlang</div></pre></td></tr></table></figure>
-<h2 id="在Windows上安装Erlang"><a href="#在Windows上安装Erlang" class="headerlink" title="在Windows上安装Erlang"></a>在Windows上安装Erlang</h2><p><a href="http://www.erlang.org/download.html" target="_blank" rel="external">直接下载安装程序来安装</a></p>
-<h2 id="用最新版本预编译包安装Erlang"><a href="#用最新版本预编译包安装Erlang" class="headerlink" title="用最新版本预编译包安装Erlang"></a>用最新版本预编译包安装Erlang</h2><p>你在寻找最新的稳定Erlang版本或者前一个Erlang版本吗？<a href="https://www.erlang-solutions.com/" target="_blank" rel="external">Erlang Solutions</a> 给OS X，Windows，Ubuntu，Debian，Fedora，CentOS，Raspbian 以及其他平台都提供了一个<a href="https://www.erlang-solutions.com/downloads/download-erlang-otp" target="_blank" rel="external">预编译安装包</a>。它们也提供了一个企业级Erlang发行版。</p>
+<h2 id="在Windows上安装Erlang"><a href="#在Windows上安装Erlang" class="headerlink" title="在Windows上安装Erlang"></a><span id="part3">在Windows上安装Erlang</span></h2><p><a href="http://www.erlang.org/download.html" target="_blank" rel="external">直接下载安装程序来安装</a></p>
+<h2 id="用最新版本预编译包安装Erlang"><a href="#用最新版本预编译包安装Erlang" class="headerlink" title="用最新版本预编译包安装Erlang"></a><span id="part4">用最新版本预编译包安装Erlang</span></h2><p>你在寻找最新的稳定Erlang版本或者前一个Erlang版本吗？<a href="https://www.erlang-solutions.com/" target="_blank" rel="external">Erlang Solutions</a> 给OS X，Windows，Ubuntu，Debian，Fedora，CentOS，Raspbian 以及其他平台都提供了一个<a href="https://www.erlang-solutions.com/downloads/download-erlang-otp" target="_blank" rel="external">预编译安装包</a>。它们也提供了一个企业级Erlang发行版。</p>
 <p><a href="https://www.erlang-solutions.com/resources/download.html" target="_blank" rel="external">从Erlang Solutions下载</a></p>
-<h2 id="从源码编译安装Erlang"><a href="#从源码编译安装Erlang" class="headerlink" title="从源码编译安装Erlang"></a>从源码编译安装Erlang</h2><p>你可以用Kerl脚本在你自己的机器上从源码来构建Erlang。Kerl是一个脚本，它使得你用几个命令就轻松地构建不同版本的Erlang。</p>
+<h2 id="从源码编译安装Erlang"><a href="#从源码编译安装Erlang" class="headerlink" title="从源码编译安装Erlang"></a><span id="part5">从源码编译安装Erlang</span></h2><p>你可以用Kerl脚本在你自己的机器上从源码来构建Erlang。Kerl是一个脚本，它使得你用几个命令就轻松地构建不同版本的Erlang。</p>
 <p><strong>下载Kerl指令如下：</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">curl -O https://raw.githubusercontent.com/spawngrid/kerl/master/kerl</div><div class="line">chmod +x kerl</div></pre></td></tr></table></figure>
 <p>选择一个可用的Erlang源码发行版本并且像如下指令一样来构建它（在这个例子里，我们选择18.0版本并且命名它为mybuild-18.0）：</p>
@@ -488,7 +488,7 @@
   <div class="comments" id="comments">
     
       <div class="ds-thread" data-thread-key="2016/09/28/erlang-quick-install/"
-           data-title="Erlang快速安装" data-url="http://szpzs.github.io/2016/09/28/erlang-quick-install/">
+           data-title="Erlang快速安装" data-url="http://szpzs.oschina.io/2016/09/28/erlang-quick-install/">
       </div>
     
   </div>
