@@ -1,0 +1,925 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,callback," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="有两种回调，我把他们分别叫做“红回调”和“绿回调”。红回调令人讨厌而且它打断你程序的控制流程。绿回调令人愉悦而且它不会打断你程序的控制流程。Javascript的回调是红回调而Erlang的回调是绿回调。
+为了解释这个问题，我必须先回过头来讲讲I/O。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="红回调和绿回调">
+<meta property="og:url" content="http://szpzs.oschina.io/2016/12/01/Red-and-Green-Callbacks/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="有两种回调，我把他们分别叫做“红回调”和“绿回调”。红回调令人讨厌而且它打断你程序的控制流程。绿回调令人愉悦而且它不会打断你程序的控制流程。Javascript的回调是红回调而Erlang的回调是绿回调。
+为了解释这个问题，我必须先回过头来讲讲I/O。">
+<meta property="og:updated_time" content="2016-12-01T07:57:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="红回调和绿回调">
+<meta name="twitter:description" content="有两种回调，我把他们分别叫做“红回调”和“绿回调”。红回调令人讨厌而且它打断你程序的控制流程。绿回调令人愉悦而且它不会打断你程序的控制流程。Javascript的回调是红回调而Erlang的回调是绿回调。
+为了解释这个问题，我必须先回过头来讲讲I/O。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2016/12/01/Red-and-Green-Callbacks/"/>
+
+  <title> 红回调和绿回调 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                红回调和绿回调
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-12-01T15:11:46+08:00" content="2016-12-01">
+              2016-12-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/callback/" itemprop="url" rel="index">
+                    <span itemprop="name">callback</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/01/Red-and-Green-Callbacks/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/01/Red-and-Green-Callbacks/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>有两种回调，我把他们分别叫做“红回调”和“绿回调”。红回调令人讨厌而且它打断你程序的控制流程。绿回调令人愉悦而且它不会打断你程序的控制流程。Javascript的回调是红回调而Erlang的回调是绿回调。</p>
+<p>为了解释这个问题，我必须先回过头来讲讲I/O。</p>
+<a id="more"></a>
+<h1 id="Erlang的并发I-O"><a href="#Erlang的并发I-O" class="headerlink" title="Erlang的并发I/O"></a>Erlang的并发I/O</h1><p>Erlang是如何处理并发I/O的？相当简单！假设我们有三个进程A、B和C，它们在并行执行。我用如下的方式描述这个场景：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">A || B || C</div></pre></td></tr></table></figure>
+<p>上述描述假设三个进程A、B、C正在进行I/O操作。</p>
+<p>进程A如下所描述做一些事情：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">A: --- <span class="built_in">read</span> --- <span class="built_in">read</span> --- write --- <span class="built_in">read</span> --- write ---</div></pre></td></tr></table></figure>
+<p>进程B则如下描述：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">B: ---- write --- write --- <span class="built_in">read</span> --- <span class="built_in">read</span> --- write ---</div></pre></td></tr></table></figure>
+<p>C进程也大致如此。虚线表示一些顺序的计算。进程A的Erlang代码框架如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">a</span><span class="params">()</span> -&gt;</span></div><div class="line">    ...</div><div class="line">    X = read(),</div><div class="line">    ...</div><div class="line">    Y = read(),</div><div class="line">    ...</div><div class="line">    write(...),</div><div class="line">    ...</div></pre></td></tr></table></figure>
+<p>进程B和进程C的代码也和这个差不多。</p>
+<p>Erlang里实际上是没有read()这个函数的。Erlang有  <a href="http://www.erlang.org/course/concurrent_programming.html#select" target="_blank" rel="external">select receive</a>  模式来处理消息，所以我们实际上定义的read()函数像如下所示：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">read</span><span class="params">()</span> -&gt;</span></div><div class="line">    <span class="keyword">receive</span></div><div class="line">        Pattern1 -&gt;</div><div class="line">           ...</div><div class="line">        Pattern2 -&gt;</div><div class="line">           ...</div><div class="line">    <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>select receive 模式如何工作的细节不是本次讨论的重点，因此本文我将忽略这些细节。</p>
+<p>重点是我在进程A的代码里如下所写：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">X = read()</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>那么，我们的进程将在read函数处被挂起（或者叫做阻塞）直到read函数执行完毕。因此我们的代码“看起来像”是正在做一个同步阻塞的读动作。</p>
+<p>看起来像是用双引号括起来的，因为它不是一个真正的阻塞读，而是一个真正的异步读，这个读操作不阻塞其他任何Erlang进程。</p>
+<p>这真是棒极了，因为从一开始，程序就等待读请求完成，然后获得读取到的数据，程序继续运行。</p>
+<h1 id="理解并发"><a href="#理解并发" class="headerlink" title="理解并发"></a>理解并发</h1><p>Erlang的I/O非常特别。当我们有两个并行的进程A和B，A进程里的一个读请求将明显地阻塞A进程，但是不会对其他任何并行的进程（这里指B）有影响。</p>
+<p>所以A和B可以都同时执行写入操作就好像它们是连续的进程。</p>
+<p>现在假设我们没有一个合适的基础并发模型。假设所有我们要做的事情都放入一个单独线程来执行。假设我们做一个读操作（它是阻塞的）而其他事情都在等待。啊！亲！我们的编程模型是更加清晰简单了，但是我们却浪费了CPU的宝贵资源。</p>
+<p>现在在一些语言（正是我在研究的Javascript）没有多进程和多线程。不确切地说，它有一个线程，所有的事情都揉进这个线程里。在Javascript里要写与读相关操作的代码，你不得不用红回调，并且发明你自己的并发概念。</p>
+<h1 id="红回调"><a href="#红回调" class="headerlink" title="红回调"></a>红回调</h1><p>在Javascript里你肯定不想在主线程里做一个阻塞同步读操作（记住它只有一个线程），那么你必需设置一个回调，当读操作完成的时候触发这个回调。我叫这样的回调为红回调。你写的代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> done = <span class="function"><span class="keyword">function</span>(<span class="params">x</span>)</span>&#123; ... do something <span class="keyword">with</span> x ..&#125;;</div><div class="line"><span class="keyword">var</span> error = <span class="function"><span class="keyword">function</span>(<span class="params">x</span>)</span>&#123; .... x …&#125;</div><div class="line">read(Something, &#123;onSuccess:done, onError:error&#125;);</div><div class="line">... ... more code ...</div></pre></td></tr></table></figure>
+<p>这样的代码搞得我脑袋一团浆糊。</p>
+<p>当程序正在上述代码 more code 的某个地方执行的时候，读操作完成了，则必需立即回到done这个函数来执行，然后再回到前面 more code 中断的地方。我发现这个方式非常难以理解。</p>
+<p>这的确很糟糕，每一个要解决并发问题的Javascript程序员必需要发明他自己的并发模型。问题就在于他们不知道他们正在做的是什么。每次一个Javascript程序员写下一行代码，说是“此处就该这么做”的时候，他实际上是在发明一个新的并发模型，并且在这些代码执行的时候他是没有任何线索知道这些代码是怎样交织在一起的。</p>
+<p>（其实我对Javascript又爱又恨，它的大部分我都喜欢，但是就是恨它的并发模型。不过好笑的是，Javascript是没有并发模型的，所以对它也无从可恨了。:-）</p>
+<p>更加难以理解的是错误。在共享内存的多线程回调代码里的错误更加是令我极度头痛！</p>
+<h1 id="绿回调"><a href="#绿回调" class="headerlink" title="绿回调"></a>绿回调</h1><p>只是为了使得生活更加困惑，在Erlang里我们大量使用了回调。我把这些回调称为“绿回调”。因此回调并不一定是不好的。在Erlang里，我们可以在一个进程的上下文里更清晰地看到回调的执行，所以我们没有如何查看回调执行过程的问题。</p>
+<p>如下是Erlang里一个绿回调的例子：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">loop</span><span class="params">(F)</span> -&gt;</span></div><div class="line">    <span class="keyword">receive</span></div><div class="line">        &#123;new_callback, F1&#125; -&gt;</div><div class="line">            loop(F1);</div><div class="line">        Msg -&gt;</div><div class="line">            F(Msg),</div><div class="line">            loop(F)</div><div class="line">    <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>当一个进程运行这段代码的时候收到一个消息Msg，它就执行函数F(Msg)。这里没有任何不确定的，当回调被触发的时候我们确切地知道。在收到消息Msg后，这个回调被立即触发。</p>
+<p>这一小段代码却非常漂亮。如果你给进程发送一个消息{new_callbak, F1}，那么它将改变它的行为，在下一次调用的时候，它将执行新的回调。</p>
+<p>我不知道你在Javascript里如何写出这样的代码。我写过大量的JQurey代码并且明白如何设置和删除回调。但是在删除一个事件处理并新增一个事件处理这期间里，这个事件被触发了，这会发生什么？我不知道。生命如此短暂如何花的起那么多时间来找这个答案。</p>
+<h1 id="Erlang的I-O是如何工作的"><a href="#Erlang的I-O是如何工作的" class="headerlink" title="Erlang的I/O是如何工作的"></a>Erlang的I/O是如何工作的</h1><p>我们实际上并没有给进程发送消息。我们给进程的邮箱发送消息。每一个进程有一个邮箱，当我们给一个进程发送消息，这个消息被放入这个进程的邮箱（如果快递小子能找到这个进程的话）。</p>
+<p>想像一下，Erlang的进程是有邮箱的房子。发送消息就好比你把你的消息给快递小子。快递小子的工作就是做两件事：把邮件放入目的邮箱并敲门说：“有新信到了”。</p>
+<p>进程可能在忙着也可能在睡觉，就如一个房东一个样，他可能在干这活或者在睡觉。如果他在睡觉，那么当邮递员来了并敲响了房门，房东就会走到邮箱那里检查是否有令人感兴趣的邮件。</p>
+<p>如果房东此时把手头的活干完后，正在做其他事情的时候，房东可能会走到邮箱那里检查是否有新的邮件到了，</p>
+<p>这就是Erlang的消息工作机制。每一个房子（进程）有它自己的生命周期。邮递员投递邮件，房东根据自己的意愿决定什么时候去检查邮箱。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://joearms.github.io/2013/04/02/Red-and-Green-Callbacks.html" target="_blank" rel="external">http://joearms.github.io/2013/04/02/Red-and-Green-Callbacks.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/callback/" rel="tag">#callback</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/22/erlang-and-elixir-distribution-without-epmd/" rel="next" title="Erlang(和Elixir)无epmd之分布式">
+                <i class="fa fa-chevron-left"></i> Erlang(和Elixir)无epmd之分布式
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/12/01/Red-and-Green-Callbacks/"
+           data-title="红回调和绿回调" data-url="http://szpzs.oschina.io/2016/12/01/Red-and-Green-Callbacks/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">75</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">92</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Erlang的并发I-O"><span class="nav-number">1.</span> <span class="nav-text">Erlang的并发I/O</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#理解并发"><span class="nav-number">2.</span> <span class="nav-text">理解并发</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#红回调"><span class="nav-number">3.</span> <span class="nav-text">红回调</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#绿回调"><span class="nav-number">4.</span> <span class="nav-text">绿回调</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Erlang的I-O是如何工作的"><span class="nav-number">5.</span> <span class="nav-text">Erlang的I/O是如何工作的</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
