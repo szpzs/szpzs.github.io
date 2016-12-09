@@ -283,6 +283,150 @@
             
               
                 
+                <a class="post-title-link" href="/2016/09/20/erlang-event-driven-applications/" itemprop="url">
+                  Erlang的事件驱动应用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-20T22:42:13+08:00" content="2016-09-20">
+              2016-09-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/event-driven/" itemprop="url" rel="index">
+                    <span itemprop="name">event-driven</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/20/erlang-event-driven-applications/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-event-driven-applications/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p><a href="http://en.wikipedia.org/wiki/Event_%28computing%29">事件</a> 是你个人工具箱里最好的工具之一。甚至在OTP设计原则有专门<a href="http://www.erlang.org/doc/design_principles/events.html">一章</a>是关于事件的，还有一种 <a href="http://en.wikipedia.org/wiki/Event-driven_architecture">事件驱动架构</a> 可以让你的代码和架构更牛X：</p>
+<ul>
+<li>它更易于将你的代码真正地解耦。</li>
+<li>它打开了一扇门，通往令人感兴趣的新的架构模式，比如 <a href="http://martinfowler.com/bliki/CQRS.html">CQRS</a>（命令查询职责分离模式），<a href="http://martinfowler.com/eaaDev/EventSourcing.html">event sourcing</a>（事件源模式），和<br><a href="http://martinfowler.com/eaaDev/EventCollaboration.html">event collaboration</a>（事件合作模式）。</li>
+<li>应用程序可以被扩展，扩展的方式是通过创建“自治的组件”来“插入”系统，而这些组件通过触发命令或者事件来做它们自己的事情。比如一些事件如下：user_logged_in，user_created，user_voted，incoming_tweet，user_tweeted，等等。</li>
+<li>事件和命令能够被非常小的事件处理器来处理。</li>
+<li>如果你真的要用事件来开发系统，那么就可能像<a href="http://www.rabbitmq.com/">rabbitmq</a>，<a href="http://www.zeromq.org/">0mq</a>一样通过一个队列来派发事件和命令。这也将引入几个有趣的知识点：</li>
+<li>系统可以用任何你喜欢的语言（Erlang，Scala，Python，Ruby，js-node，等等）来构造。</li>
+<li>为了可扩展性，只要插入所需的足够多的同类型或不同类型的命令处理器或事件处理器。</li>
+<li>一些“疯狂特性”的实现和原型是非常有可能的而且可以很快地完成！它们将可能用非erlang语言实现（如果用队列的话）。</li>
+</ul>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/09/20/erlang-event-driven-applications/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-selects-continuations-and-concurrent-inserts/" itemprop="url">
                   Erlang Thursday - ETS的查询、分页和并发的数据插入
                 </a>
@@ -1537,141 +1681,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/20/erlang-thursday-ets-introduction-part-1/" itemprop="url">
-                  Erlang Thursday - ETS介绍第一篇
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-20T20:59:53+08:00" content="2016-09-20">
-              2016-09-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/ETS/" itemprop="url" rel="index">
-                    <span itemprop="name">ETS</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/09/20/erlang-thursday-ets-introduction-part-1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/20/erlang-thursday-ets-introduction-part-1/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>今天的Erlang Thursday开始介绍 <a href="http://www.erlang.org/doc/man/ets.html">ets</a> 模块以及ETS的概况。</p>
-<p>ETS是 Erlang Term Storage的缩写，是Erlang term（各种Erlang数据类型）的内存存储，它提供对存储的数据恒定的访问时间。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/20/erlang-thursday-ets-introduction-part-1/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1717,7 +1726,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">77</span>
+              <span class="site-state-item-count">78</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1734,7 +1743,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">94</span>
+                <span class="site-state-item-count">95</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
