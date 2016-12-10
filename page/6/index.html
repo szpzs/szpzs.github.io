@@ -283,6 +283,147 @@
             
               
                 
+                <a class="post-title-link" href="/2016/09/17/erlang-thursday-queue-cons-2/" itemprop="url">
+                  Erlang Thursday – queue:cons/2
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-17T16:39:51+08:00" content="2016-09-17">
+              2016-09-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/queue/" itemprop="url" rel="index">
+                    <span itemprop="name">queue</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/17/erlang-thursday-queue-cons-2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/17/erlang-thursday-queue-cons-2/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>今天的Erlang Thursday我们稍微深入一下queue模块，我们讲讲来自Okazaki的API：<a href="http://www.erlang.org/doc/man/queue.html#cons-2" target="_blank" rel="external">queue:cons/2</a> 。</p>
+<p>queue:cons/2 有两个入参，一个是元素，一个是队列，它执行后返回一个元素加在队列头部形成的新队列。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">queue:cons(<span class="number">7</span>, queue:new()).</div><div class="line"><span class="comment">% &#123;[],[7]&#125;</span></div><div class="line">queue:cons(<span class="number">3</span>, queue:cons(<span class="number">7</span>, queue:new())).</div><div class="line"><span class="comment">% &#123;[7],[3]&#125;</span></div><div class="line">queue:cons(nil, queue:new()).</div><div class="line"><span class="comment">% &#123;[],[nil]&#125;</span></div><div class="line">queue:cons(<span class="number">5</span>, queue:from_list([<span class="number">7</span>, <span class="number">9</span>, <span class="number">13</span>, <span class="number">21</span>])).</div><div class="line"><span class="comment">% &#123;[21],[5,7,9,13]&#125;</span></div></pre></td></tr></table></figure>
+<p>如果我们传入一个列表给 queue:cons/2 ，我们看到它出错，表明它想要一个队列，而不会隐式地将一个列表转成一个队列。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">queue:cons(<span class="number">5</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]).</div><div class="line"><span class="comment">% ** exception error: bad argument</span></div><div class="line"><span class="comment">%      in function  queue:in_r/2</span></div><div class="line"><span class="comment">%         called as queue:in_r(5,[1,2,3,4])</span></div></pre></td></tr></table></figure>
+<p>因为队列被设置成一个双端队列，Okasaki API 也提供了一个对应的函数 <a href="http://www.erlang.org/doc/man/queue.html#snoc-2" target="_blank" rel="external">queque:snoc/2</a> ，它将元素加在传入的队列的尾部。注意，queue:snoc/2 和 queue:cons/2 两个函数的两个入参的顺序也是相反的；queue:snoc/2 的第一个入参上一个队列，而要加在它尾部的元素做为第二个入参。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">queue:snoc(queue:new(), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5],[]&#125;</span></div><div class="line">queue:snoc(queue:from_list([<span class="number">7</span>]), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5],[7]&#125;</span></div><div class="line">queue:snoc(queue:snoc(queue:new(), <span class="number">7</span>), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5],[7]&#125;</span></div><div class="line">queue:snoc(queue:from_list([<span class="number">7</span>, <span class="number">9</span>, <span class="number">13</span>, <span class="number">21</span>]), <span class="number">5</span>).</div><div class="line"><span class="comment">% &#123;[5,21],[7,9,13]&#125;</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-queue-cons-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-queue-cons-2/</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/09/17/erlang-thursday-filelib-is-file-1/" itemprop="url">
                   Erlang Thursday – filelib:is_file/1
                 </a>
@@ -1493,141 +1634,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/17/erlang-thursday-lists-flatmap-2/" itemprop="url">
-                  Erlang Thursday – lists:flatmap/2
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-17T14:56:00+08:00" content="2016-09-17">
-              2016-09-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/lists/" itemprop="url" rel="index">
-                    <span itemprop="name">lists</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/09/17/erlang-thursday-lists-flatmap-2/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/17/erlang-thursday-lists-flatmap-2/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#flatmap-2">lists:flatmap/2</a>.</p>
-<p>选择这个函数来讲是因为这个星期早些时候我做的一些 <a href="http://elixir-lang.org/">Elixir</a> 练习，在这些练习中我使用 Enum.flat_map/2 函数而它却不是像我期待的那样起作用，这个情况让我很困惑。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/17/erlang-thursday-lists-flatmap-2/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1673,7 +1679,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">78</span>
+              <span class="site-state-item-count">79</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1681,7 +1687,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-count">31</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1690,7 +1696,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">95</span>
+                <span class="site-state-item-count">96</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

@@ -1,0 +1,940 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,Scheduler," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《Erlang垃圾回收细节以及它为何重要》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Erlang调度器的细节以及它为何重要">
+<meta property="og:url" content="http://szpzs.oschina.io/2016/12/11/erlang-scheduler-details/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《Erlang垃圾回收细节以及它为何重要》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。">
+<meta property="og:image" content="http://szpzs.oschina.io/images/scheduling-before-r11b.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/scheduling-in-r11b-and-r12b.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/scheduling-after-r13b.png">
+<meta property="og:updated_time" content="2016-12-10T16:53:48.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Erlang调度器的细节以及它为何重要">
+<meta name="twitter:description" content="有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《Erlang垃圾回收细节以及它为何重要》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/scheduling-before-r11b.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2016/12/11/erlang-scheduler-details/"/>
+
+  <title> Erlang调度器的细节以及它为何重要 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Erlang调度器的细节以及它为何重要
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-12-11T00:50:08+08:00" content="2016-12-11">
+              2016-12-11
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/Scheduler/" itemprop="url" rel="index">
+                    <span itemprop="name">Scheduler</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/11/erlang-scheduler-details/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/11/erlang-scheduler-details/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《<a href="https://hamidreza-s.github.io/erlang%20garbage%20collection%20memory%20layout%20soft%20realtime/2015/08/24/erlang-garbage-collection-details-and-why-it-matters.html" target="_blank" rel="external">Erlang垃圾回收细节以及它为何重要</a>》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。</p>
+<a id="more"></a>
+<h1 id="什么是调度"><a href="#什么是调度" class="headerlink" title="什么是调度"></a>什么是调度</h1><p>通常来说，调度就是一种分派工作给工作者的机制。所谓的工作可能是一个算数运算、字符串处理或者数据抽取，而工作者是一些资源，比如像<a href="https://en.wikipedia.org/wiki/Green_threads" target="_blank" rel="external">Green Thread</a>这样虚拟的资源或者像<a href="https://en.wikipedia.org/wiki/Thread_%28computing%29" target="_blank" rel="external">Native Thread</a>这样的物理资源。调度器以一种方式执行调度活度，最大限度地提高吞吐量和公平性，最大限度地降低响应时间和延时。调度是像操作系统和虚拟机这样的多任务系统的重要组成部分，它被分为两种类型：</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Preemption_%28computing%29" target="_blank" rel="external">抢占式</a>：一个抢占式调度器在执行的任务间进行上下文切换，它有权力抢占（中断）任务并且在不需要被抢占任务的配合下的稍后恢复执行它们。实现这样的功能是基于如下几个因素，比如：任务的优先级，时间切片或者规约数。</li>
+<li><a href="https://en.wikipedia.org/wiki/Cooperative_multitasking" target="_blank" rel="external">协作式</a>：一个协作式调度器需要任务协作来进行上下文切换。在这种方式下，调度器简单地让任务周期性地或者空闲地时候自愿地释放控制权，然后启动一个新的任务并且再一次等待它自愿地归还控制权。</li>
+</ul>
+<p>现在的问题是，哪一种调度机制适合软实时系统，也就是这个系统必须在指定的时间内响应。协作式调度系统不能满足软实时系统的要求，因为其运行的任务可能永远也不会返还控制权或者在规定时限后返还控制权。所以软实时系统通常采用抢占式调度。</p>
+<h1 id="Erlang的调度"><a href="#Erlang的调度" class="headerlink" title="Erlang的调度"></a>Erlang的调度</h1><p>Erlang作为一个多任务软实时平台采用的就是抢占式调度。Erlang调度器的职责就是选择一个进程并执行它的代码。它也处理垃圾回收和内存管理。如何选择一个进程来执行是基于每个进程可配置的优先级，并且同一优先级的进程是轮询地被调度的。另外，执行中的进程被抢占的因素是基于自上次该进程被选中执行后一定数量的<strong>规约数</strong>而不管它的优先级如何。规约数是每个进程的一个计数器，一般每调用一次函数，它就加一。当一个进程的计数器达到最大规约数时，就会抢占进程和进行上下文切换。例如，在Erlang/OTP R12B 计数器的最大值是2000规约数。</p>
+<p>Erlang的任务调度有很长的发展历史。它随着时间而改变。这些改变受Erlang的SMP（对称多处理器）特性的改变而被影响。</p>
+<h2 id="R11B之前的调度"><a href="#R11B之前的调度" class="headerlink" title="R11B之前的调度"></a>R11B之前的调度</h2><p>在R11B之前，Eralng还不支持SMP，因此它只有一个调度器运行在操作系统主进程的线程里，并且相应的只有一个<strong>运行队列</strong>。调度器从运行队列选择可运行的Erlang进程和IO任务来执行。</p>
+<p><img src="/images/scheduling-before-r11b.png" style="border:0;"></p>
+<p>这种方式不需要锁数据结构，但是这么写的应用无法利用并行的好处。</p>
+<h2 id="R11B和R12B的调度"><a href="#R11B和R12B的调度" class="headerlink" title="R11B和R12B的调度"></a>R11B和R12B的调度</h2><p>SMP支持被加入Erlang虚拟机里，所以它可以有1到1024个运行在操作系统进程的线程里的调度器。然而，这个版本的调度器只能从一个共用运行队列里选取可执行任务。</p>
+<p><img src="/images/scheduling-in-r11b-and-r12b.png" style="border:0;"></p>
+<p>由于这种方式造成并行，使得所有共享数据结构都要用锁保护起来。例如运行队列本身就是一个必须被保护起来的共享数据结构。虽热锁会造成一些性能损失，但是新的调度器在多核处理器上带来的性能提升还是很可观的。</p>
+<p>在这个版本里的一些瓶颈如下：</p>
+<ul>
+<li>当调度器增加后，共用运行队列成为瓶颈。</li>
+<li>增加ETS表相关的锁，同时也影响到Mnesia。</li>
+<li>当许多进程同时给一个进程发送消息的时候增加锁的冲突。</li>
+<li>一个进程等待获取一个锁的时候会阻塞它的调度器。</li>
+</ul>
+<p>然而，每一个调度器分配一个运行队列的方案在下一个版本被选择来解决这些瓶颈。</p>
+<h2 id="R13B后的调度"><a href="#R13B后的调度" class="headerlink" title="R13B后的调度"></a>R13B后的调度</h2><p>在这个版本，每个调度器有它自己的运行队列。在多核多调度器的系统里，这将减少锁冲突数量并且提升系统整体性能。</p>
+<p><img src="/images/scheduling-after-r13b.png" style="border:0;"></p>
+<p>这种方式在访问运行队列时锁冲突解决了，不过却引入了一些新问题：</p>
+<ul>
+<li>如何在运行队列中分配任务做到公平？</li>
+<li>如果一个调度器被分配了过多的任务而另外的调度器却很清闲，这个问题如何解决？</li>
+<li>基于什么样的命令一个调度器可以从一个过载的调度器偷任务？</li>
+<li>要是我们启动了很多调度器，但是却很少任务，如何处理？</li>
+</ul>
+<p>这些问题使得Erlang开发团队引入一个概念使得调度公平和高效，这个概念就是<strong>迁移逻辑</strong>。它尝试在基于从系统收集来的统计数据上控制和平衡运行队列。</p>
+<p>然而我们不应该让我们的调度一直维持现状，因为它很可能在将来的版本变得更好。</p>
+<h1 id="控制和监督API"><a href="#控制和监督API" class="headerlink" title="控制和监督API"></a>控制和监督API</h1><p>有一些Erlang模拟器启动标志和一些内部控制和监督函数与调度器行为有关。</p>
+<h2 id="调度线程"><a href="#调度线程" class="headerlink" title="调度线程"></a>调度线程</h2><p>当用erl启动脚本启动Erlang模拟器的时候，可以通过给+S标志传递两个用冒号分割的数字来指定最大可用调度线程数和在线调度线程数。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ erl +S MaxAvailableSchedulers:OnlineSchedulers</div></pre></td></tr></table></figure>
+<p>最大可用调度线程数只能在启动的时候指定而且在运行时是固定不变的，但是在线调度线程数可以在启动和运行时被指定和修改。例如我们可以在启动一个模拟器的时候指定16个最大调度线程和8个在线调度线程。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ erl +S 16:8</div></pre></td></tr></table></figure>
+<p>然后在shell里在线调度线程可以被修改，如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&gt; erlang:system_info(schedulers). <span class="comment">%% =&gt; returns 16</span></div><div class="line">&gt; erlang:system_info(schedulers_online). <span class="comment">%% =&gt; returns 8</span></div><div class="line">&gt; erlang:system_flag(schedulers_online, <span class="number">16</span>). <span class="comment">%% =&gt; returns 8</span></div><div class="line">&gt; erlang:system_info(schedulers_online). <span class="comment">%% =&gt; returns 16</span></div></pre></td></tr></table></figure>
+<p>另外，使用+SP标志可以用百分比的方式设置这两个值。</p>
+<h2 id="进程优先级"><a href="#进程优先级" class="headerlink" title="进程优先级"></a>进程优先级</h2><p>如前所述调度器基于进程的优先级来选择它们来执行。优先级可以在进程内通过调用erlang:process_flag/2函数来设置。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">PID = spawn(<span class="keyword">fun</span>() -&gt;</div><div class="line">   <span class="comment">%% ...</span></div><div class="line">   <span class="keyword">end</span>).</div></pre></td></tr></table></figure>
+<p>优先级可以是 low、normal、high、max 这些原子中的任何一个。默认优先级是normal，max优先级是保留给Erlang运行时内部使用不应被一般进程使用。</p>
+<h2 id="运行队列统计"><a href="#运行队列统计" class="headerlink" title="运行队列统计"></a>运行队列统计</h2><p>如前所述运行队列持有准备好执行但未被调度器选中执行的进程。可以通过调用erlang:statistics(run_queue)获取在所有可用运行队列已经准备好可运行的进程数。作为一个真实例子，让我启动Erlang模拟器，给它4个在线调度器，并且给它们10个非常消耗CPU的并发进程。这些进程<a href="https://gist.github.com/hamidreza-s/9e3ed289f65759048875" target="_blank" rel="external">计算一个很大数字的素数</a>。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% 就绪</span></div><div class="line">&gt; erlang:statistics(online_schedulers). <span class="comment">%% =&gt; 4</span></div><div class="line">&gt; erlang:statistics(run_queue). <span class="comment">%% =&gt; 0</span></div><div class="line"></div><div class="line"><span class="comment">%% 并发创建10个重型进程</span></div><div class="line">&gt; [spawn(<span class="keyword">fun</span>() -&gt; calc:prime_numbers(<span class="number">10000000</span>) <span class="keyword">end</span>) || _ &lt;- lists:seq(<span class="number">1</span>, <span class="number">10</span>)].</div><div class="line"></div><div class="line"><span class="comment">%% 运行队列中还有任务要做</span></div><div class="line">&gt; erlang:statistics(run_queue). <span class="comment">%% =&gt; 8</span></div><div class="line"></div><div class="line"><span class="comment">%% Erlang shell依然可以响应，非常棒！</span></div><div class="line">&gt; calc:prime_numbers(<span class="number">10</span>). <span class="comment">%% =&gt; [2, 3, 5, 7]</span></div><div class="line"></div><div class="line"><span class="comment">%% 等一会儿</span></div><div class="line">&gt; erlang:statistics(run_queue). <span class="comment">%% =&gt; 4</span></div><div class="line"></div><div class="line"><span class="comment">%% 等一会儿</span></div><div class="line">&gt; erlang:statistics(run_queue). <span class="comment">%% =&gt; 0</span></div></pre></td></tr></table></figure>
+<p>因为并发进程数大于在线调度器，这将花些时间让调度器执行运行队列里的进程并最终清空运行队列。有趣的是，创建了这些重型进程后，Erlang模拟器任然因为它的抢占式调度可以响应其他请求。Erlang的抢占式调度不会让这些重型进程消耗掉所有运行时，其他轻量并且重要的进程也可以被执行，这个特性在实现一个软实时系统的时候是非常棒的。</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>虽然实现一个抢占式调度系统可能很复杂，但是在Erlang里这些不是开发者的责任，因为抢占式调度特性已经在Erlang虚拟机里。另一方面，当在一个软实时系统里系统以高水平的公平性和即时的响应需要扩展到所有处理资源的时候，跟踪、平衡、执行、迁移和抢占进程这些额外的处理成本是完全可负担的。顺便值得一提的是，完全抢占式调度是几乎所有操作系统都支持的特性，但在高层次的平台，语言或库里，Erlang虚拟机几乎是唯一完全抢占式调度的，因为JVM依赖于操作系统的调度器，CAF这个C++ actor库用协作式调度，Go也不是完全抢占式调度，还有诸如Python的Twisted，Ruby的Event Machine和Nodejs也不是完全抢占式调度的。这并不意味着对于所有的挑战这都是最好的选择，而是说我们如果要实现一个低延时的软实时系统，Erlang是一个好的选择。</p>
+<h1 id="资源"><a href="#资源" class="headerlink" title="资源"></a>资源</h1><ul>
+<li><a href="http://www.erlang.org/doc/man/erl.html" target="_blank" rel="external">erl脚本官方文档</a></li>
+<li><a href="http://erlang.org/doc/man/erlang.html" target="_blank" rel="external">erlang模块官方文档</a></li>
+<li><a href="http://jlouisramblings.blogspot.co.uk/2013/01/how-erlang-does-scheduling.html" target="_blank" rel="external">Erlang如何调度</a></li>
+<li><a href="http://www.erlang.org/euc/08/euc_smp.pdf" target="_blank" rel="external">深入Erlang虚拟机</a></li>
+<li><a href="http://erlang.org/pipermail/erlang-questions/2001-April/003132.html" target="_blank" rel="external">Erlang调度器：它是如何工作的</a></li>
+</ul>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://hamidreza-s.github.io/erlang/scheduling/real-time/preemptive/migration/2016/02/09/erlang-scheduler-details.html" target="_blank" rel="external">https://hamidreza-s.github.io/erlang/scheduling/real-time/preemptive/migration/2016/02/09/erlang-scheduler-details.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/Scheduler/" rel="tag">#Scheduler</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/09/hot-code-loading-with-erlang-and-rebar3/" rel="next" title="用Rebar3热更新Erlang代码">
+                <i class="fa fa-chevron-left"></i> 用Rebar3热更新Erlang代码
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/12/11/erlang-scheduler-details/"
+           data-title="Erlang调度器的细节以及它为何重要" data-url="http://szpzs.oschina.io/2016/12/11/erlang-scheduler-details/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">79</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">96</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是调度"><span class="nav-number">1.</span> <span class="nav-text">什么是调度</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Erlang的调度"><span class="nav-number">2.</span> <span class="nav-text">Erlang的调度</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#R11B之前的调度"><span class="nav-number">2.1.</span> <span class="nav-text">R11B之前的调度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#R11B和R12B的调度"><span class="nav-number">2.2.</span> <span class="nav-text">R11B和R12B的调度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#R13B后的调度"><span class="nav-number">2.3.</span> <span class="nav-text">R13B后的调度</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#控制和监督API"><span class="nav-number">3.</span> <span class="nav-text">控制和监督API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#调度线程"><span class="nav-number">3.1.</span> <span class="nav-text">调度线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进程优先级"><span class="nav-number">3.2.</span> <span class="nav-text">进程优先级</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行队列统计"><span class="nav-number">3.3.</span> <span class="nav-text">运行队列统计</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">4.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#资源"><span class="nav-number">5.</span> <span class="nav-text">资源</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
