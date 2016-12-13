@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2016-12-10T16:53:48.000Z</updated>
+  <updated>2016-12-13T13:42:05.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,72 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Erlang垃圾回收细节以及为何它很重要</title>
+    <link href="http://szpzs.oschina.io/2016/12/13/erlang-garbage-collection-details-and-why-it-matters/"/>
+    <id>http://szpzs.oschina.io/2016/12/13/erlang-garbage-collection-details-and-why-it-matters/</id>
+    <published>2016-12-13T13:27:00.000Z</published>
+    <updated>2016-12-13T13:42:05.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Erlang尝试解决的一个主要问题就是为实现高水平响应的<a href="https://en.wikipedia.org/wiki/Real-time_computing" target="_blank" rel="external">软实时系统</a>创建一个平台。这样的系统需要快速的<a href="https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29" target="_blank" rel="external">垃圾回</a>收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的<a href="https://en.wikipedia.org/wiki/Immutable_object" target="_blank" rel="external">不可改变</a>语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。</p>
+<a id="more"></a>
+<h1 id="内存布局"><a href="#内存布局" class="headerlink" title="内存布局"></a>内存布局</h1><p>在我们深入垃圾回收之前，了解Erlang进程的内存布局是很有必要的。Erlang进程的内存布局可以分为三个主要部分：进程控制块，栈和堆。这和Unix的进程布局非常像。</p>
+<p><img src="/images/erlang-memory-layout.png" style="border:0;"></p>
+<ul>
+<li><strong>进程控制块</strong>：进程控制块持有进程的一些信息，诸如：它在进程表里的标识符（PID），当前状态（运行、等待），它的注册名字，初始化调用和当前调用；另外进程控制块还持有指向到达消息的指针，这些消息是<em>链接列表</em>的成员，它们存储在进程私有堆里。</li>
+<li><strong>栈</strong>：它是一个向下增长的内存区域，它持有函数的进出参数，返回地址，本地变量以及计算表达式的临时空间。</li>
+<li><strong>堆</strong>：它是一个向上增长的内存区域，它持有进程邮箱的实际消息，像<a href="http://www.erlang.org/doc/man/lists.html" target="_blank" rel="external">列表</a>和<a href="http://www.erlang.org/documentation/doc-5.8/doc/reference_manual/data_types.html" target="_blank" rel="external">元组</a>这样的复合数据，<a href="http://www.erlang.org/doc/man/binary.html" target="_blank" rel="external">二进制数据</a>，大于一个机器字的诸如浮点数对象。大于64字节的二进制数据不保存在进程私有堆里，这样的二进制数据叫做<em>Refc Binary</em>（引用计数二进制），它们存储在一个大<em>共享堆</em>，被那些有指向引用计数二进制数据指针的进程访问。那些指针叫做<em>ProcBin</em>并且存储在进程的私有堆里。</li>
+</ul>
+<h1 id="垃圾回收细节"><a href="#垃圾回收细节" class="headerlink" title="垃圾回收细节"></a>垃圾回收细节</h1><p>为了解释当前默认的Erlang垃圾回收机制，我们可以简单地说，一种是独立运行在每个Erlang进程私有堆内的分代复制垃圾回收，另一种是发生在全局共享堆的引用计数垃圾回收。</p>
+<h2 id="私有堆垃圾回收"><a href="#私有堆垃圾回收" class="headerlink" title="私有堆垃圾回收"></a>私有堆垃圾回收</h2><p>私有堆的垃圾回收是分代的。分代垃圾回收将堆分成两个段：年轻代和老生代。分代的原理是：如果一个对象在一个垃圾回收周期存活下来，那么它短时间成为垃圾的机会就降低了。所以年轻代给新分配的数据使用，老生代给那些已经执行了指定次数的垃圾回收后还依然幸存下来的数据使用。这种分割为两个段的方式有助于垃圾回收减少在还没有变成垃圾的数据上进行不必要的垃圾回收过程。Erlang的垃圾回有两种策略：<em>分代的</em>（轻量级的）和<em>全扫描</em>（重量级的）。分代的垃圾回收只是回收年轻代堆，而全扫描垃圾回收则回收年轻代和老生的堆。现在让我们仔细看看一个新启动的Erlang进程在私有堆里的垃圾回收步骤：</p>
+<p><strong>场景1:</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Spawn &gt; No GC &gt; Terminate</div></pre></td></tr></table></figure>
+<p>一个短时存活的进程没有垃圾回收发生，它用的堆没有超过<em>min_heap_size</em>设置的值然后就终止了。在这个场景下，被进程使用的所有内存都被回收。</p>
+<p><strong>场景2:</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Spawn &gt; Fullsweep &gt; Generational &gt; Terminate</div></pre></td></tr></table></figure>
+<p>一个新创建的进程，它的数据增长超过<em>min_heap_size</em>设置的值，所以发生了一次全扫描垃圾回收，很明显因为在此之前从来没有发生过垃圾回收，所以就不存在年轻代和老生代两个段。在第一次全扫描垃圾回收后，堆被分割成年轻代和老生代，并且此后垃圾回收策略切换到分代的垃圾回收并且一直维持这种策略直到进程终止。</p>
+<p><strong>场景3:</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Spawn &gt; Fullsweep &gt; Generational &gt; Fullsweep &gt; Generational &gt; ... &gt; Terminate</div></pre></td></tr></table></figure>
+<p>在进程的生命周期里当垃圾回收策略从分代的垃圾回收再次切换到全扫描的垃圾回收的时候，这会有几种不同的情况。第一种情况是在一定数量的分代的垃圾回收发生后。这个一定的数量可以全局设置或者每个进程用<em>fullsweep_after</em>标志设置。每个进程的分代的垃圾回收次数统计和它切换到全扫描到垃圾回收前的分代的垃圾回收次数上限分别是进程的<em>minor_gcs</em>和<em>fullsweep_after</em>属性，同时这两个值可用<em>process_info(PID, garbage_collection)</em>的返回值来获得。第二种情况是分代的垃圾回收不能回收足够的内存的时候。最后一种情况是当<em>garbage_collection(PID)</em>函数被手工调用的时候。在这几种情况后，垃圾回收策略再次从全扫描的垃圾回收切换回分代的垃圾回收并且保持直到上述的情况发生。</p>
+<p><strong>场景4:</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Spawn &gt; Fullsweep &gt; Generational &gt; Fullsweep &gt; Increase Heap &gt; Fullsweep &gt; ... &gt; Terminate</div></pre></td></tr></table></figure>
+<p>在场景3里，如果第二次全扫描垃圾回收不能回收足够的内存，那么堆被增大，而垃圾回收策略再切换回全扫描垃圾回收，像一个新创建的进程一样。所有这四种场景可以反复发生。</p>
+<p>那么现在的问题是，像Erlang这样的自动垃圾回收语言，上述这些知识为什么重要？首先这些知识能帮助你通过调优全局的或某个进程的垃圾回收的发生和策略来使得你的系统更快。其次从它的垃圾回收角度来开，我们可以理解使得Erlang成为一个软实时平台的主要原因之一。这是因为每一个进程都有它自己的私有堆和它自己的垃圾回收，因此每次在一个进程里垃圾回收发生只是让这个正在进行垃圾回收的进程停顿而不会停顿其他任何进程，这是一个软实时系统所需要的。</p>
+<h2 id="共享堆垃圾回收"><a href="#共享堆垃圾回收" class="headerlink" title="共享堆垃圾回收"></a>共享堆垃圾回收</h2><p>共享堆垃圾回收是引用计数垃圾回收。每一个共享堆里的对象（Refc）都有一个引用它的计数器，这个计数器被其他对象（ProcBin）持有，而这个ProcBin对象存储在Erlang进程的私有堆里。如果一个对象的引用计数器的值变为0，这个对象变成不可访问，并且将被销毁。引用计数器方式的垃圾回收是如此的廉价而且帮助系统避免出现意外的长时间暂停同时促进了系统的响应。但是由于在设计你的参与者模式系统时不太熟悉的一些知名反模式可能会造成内存泄漏的麻烦。</p>
+<ul>
+<li>首先是当一个引用计数二进制数据被分割为子二进制数据。为了节省资源，子二进制数据并不是原二进制数据分割部分的新拷贝，而只是对这个分割部分的引用。然而除了原始二进制数据，这个子二进制数据的引用计数是一个新的引用，正如你能理解的，这将导致一个问题，原始二进制数据必须等它的子二进制数据被回收后才能回收。</li>
+<li>另一个众所周知的问题是当有一类长期生存的中间件进程，它作为一个请求控制器或消息路由器来控制和传输大的引用计数二进制消息。因为这个进程和所有这些引用计数二进制数据关联，所以它们的计数器值就增加了。所以回收这些引用计数二进制数据依赖于回收所有的ProcBin对象，甚至包括这个中间件进程里的ProcBin对象。非常不幸的是，因为ProcBin只是一个指针，它非常廉价，以至于在这个中间件进程里要花很长时间才能遇到一次回收这个ProcBin对象。造成的结果就是，即使除了中间件进程外其他所有进程里的ProcBin对象都被回收了，引用计数二进制数据还是继续留存在共享堆里。</li>
+</ul>
+<p>共享堆很重要，因为它减少了进程间传递大二进制消息的IO开销。另外子二进制数据只是某个二进制数据的指针，所以它的创建是如此快速。但是按一般规律来说，为了更快而使用快捷方式是有代价的，代价就是要以某种方式好好设计你的系统不至于让你陷入到麻烦当中。另外针对引用计数二进制数据泄漏问题有一些著名的架构模式，这些在<a href="http://ferd.ca/" target="_blank" rel="external">Fred Hebert</a>的免费电子书 <a href="http://www.erlang-in-anger.com/" target="_blank" rel="external">Erlang in Anger</a> 里有详细的解释，我想我是没办法解释的比他更好。所以我强烈建议你读一下这本书。</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>即使我们现在正在使用的语言，它像Erlang这样自己管理内存，但是也不能阻止我们去理解它是如何分配和回收内存的。不像<a href="https://golang.org/ref/mem" target="_blank" rel="external">Go语言内存模型文档</a>所建议的：“如果你必须读本文档剩下部分来理解你自己程序的行为，你就是太聪明了。不过别自作聪明。”，我相信我们必须足够聪明才能够使我们的系统更快更安全，有时候它不会发生除非我们更深地钻研挖进去理解它的本质。</p>
+<h1 id="资源"><a href="#资源" class="headerlink" title="资源"></a>资源</h1><ul>
+<li><a href="http://www.erlang.org/faq/academic.html" target="_blank" rel="external">Erlang的学时和历史疑问</a></li>
+<li><a href="http://lampwww.epfl.ch/resources/lamp/teaching/advancedCompiler/2004/slides/ImplementationOfConcurrency_slides.pdf" target="_blank" rel="external">FPL和并发执行</a></li>
+<li><a href="http://user.it.uu.se/~jesperw/publications/Wilhelmsson_lic.pdf" target="_blank" rel="external">消息传递并发的有效内存管理</a></li>
+<li><a href="http://labouseur.com/courses/erlang/programming-parallel-with-erlang.pdf" target="_blank" rel="external">用Erlang编程并行世界</a></li>
+</ul>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://hamidreza-s.github.io/erlang%20garbage%20collection%20memory%20layout%20soft%20realtime/2015/08/24/erlang-garbage-collection-details-and-why-it-matters.html" target="_blank" rel="external">https://hamidreza-s.github.io/erlang%20garbage%20collection%20memory%20layout%20soft%20realtime/2015/08/24/erlang-garbage-collection-details-and-why-it-matters.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Erlang尝试解决的一个主要问题就是为实现高水平响应的&lt;a href=&quot;https://en.wikipedia.org/wiki/Real-time_computing&quot;&gt;软实时系统&lt;/a&gt;创建一个平台。这样的系统需要快速的&lt;a href=&quot;https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29&quot;&gt;垃圾回&lt;/a&gt;收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的&lt;a href=&quot;https://en.wikipedia.org/wiki/Immutable_object&quot;&gt;不可改变&lt;/a&gt;语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
+    
+      <category term="GC" scheme="http://szpzs.oschina.io/categories/Erlang/GC/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
+    
+      <category term="GC" scheme="http://szpzs.oschina.io/tags/GC/"/>
+    
+  </entry>
   
   <entry>
     <title>Erlang调度器的细节以及它为何重要</title>
@@ -1380,88 +1446,6 @@ shutdown，如果事件处理器因为事件管理器结束而被删除。
     
       &lt;p&gt;今天的Erlang Thursday继续介绍ETS并研究ETS支持的不同访问级别。&lt;/p&gt;
 &lt;p&gt;ETS支持的不同访问级别：public，protected和private。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="ETS" scheme="http://szpzs.oschina.io/categories/Erlang/ETS/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="ETS" scheme="http://szpzs.oschina.io/tags/ETS/"/>
-    
-      <category term="ets" scheme="http://szpzs.oschina.io/tags/ets/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday - ETS介绍第三篇：ETS表类型</title>
-    <link href="http://szpzs.oschina.io/2016/09/20/erlang-thursday-ets-introduction-part-3-ets-table-types/"/>
-    <id>http://szpzs.oschina.io/2016/09/20/erlang-thursday-ets-introduction-part-3-ets-table-types/</id>
-    <published>2016-09-20T13:14:05.000Z</published>
-    <updated>2016-09-20T13:19:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday继续介绍ETS并且研究一下ETS支持的不同存储策略类型。</p>
-<p>ETS支持的不同存储类型是：set，ordered_set，bag，和duplicate bag。</p>
-<a id="more"></a>
-<p>每种类型都可以在创建一个新ETS表的时候传给创建函数，不过我们来看看创建ETS表的时候不指定任何类型的话ETS表是什么类型。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">ETS_Empty = ets:new(ets_empty, []).</div><div class="line"><span class="comment">% 36886</span></div><div class="line">ets:info(ETS_Empty).</div><div class="line"><span class="comment">% [&#123;read_concurrency,false&#125;,</span></div><div class="line"><span class="comment">%  &#123;write_concurrency,false&#125;,</span></div><div class="line"><span class="comment">%  &#123;compressed,false&#125;,</span></div><div class="line"><span class="comment">%  &#123;memory,305&#125;,</span></div><div class="line"><span class="comment">%  &#123;owner,&lt;0.50.0&gt;&#125;,</span></div><div class="line"><span class="comment">%  &#123;heir,none&#125;,</span></div><div class="line"><span class="comment">%  &#123;name,ets_empty&#125;,</span></div><div class="line"><span class="comment">%  &#123;size,0&#125;,</span></div><div class="line"><span class="comment">%  &#123;node,nonode@nohost&#125;,</span></div><div class="line"><span class="comment">%  &#123;named_table,false&#125;,</span></div><div class="line"><span class="comment">%  &#123;type,set&#125;,</span></div><div class="line"><span class="comment">%  &#123;keypos,1&#125;,</span></div><div class="line"><span class="comment">%  &#123;protection,protected&#125;]</span></div></pre></td></tr></table></figure>
-<p>上面的输出中，type 标签元组显示类型是 set。</p>
-<p>为了研究不同类型的ETS表如何工作的，我们将创建三个元组加入不同ETS表里来看看它们是如何存储的。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Item1 = &#123;<span class="number">1</span>, a&#125;.</div><div class="line"><span class="comment">% &#123;1,a&#125;</span></div><div class="line">Item2 = &#123;<span class="number">1.0</span>, <span class="string">"a"</span>&#125;.</div><div class="line"><span class="comment">% &#123;1.0,"a"&#125;</span></div><div class="line">Item3 = &#123;<span class="number">1</span>, <span class="string">"one"</span>&#125;.</div><div class="line"><span class="comment">% &#123;1,"one"&#125;</span></div></pre></td></tr></table></figure>
-<p>我们有两个第一元素都是1的元组，还有一个第一元素是1.0的元组，这是为了看看在相同的键情况下不同类型ETS表如何处理。</p>
-<p>为什么有1和1.0两个键？因为根据使用的比较操作符的不同，它们可以被看作相同的也可以被看作不相同的，所以把它们当作一种相同键的情况。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span> == <span class="number">1.0</span>.</div><div class="line"><span class="comment">% true</span></div><div class="line"><span class="number">1</span> =:= <span class="number">1.0</span>.</div><div class="line"><span class="comment">% false</span></div></pre></td></tr></table></figure>
-<p>首先我们看看一个set类型的ETS表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ETS_Set = ets:new(ets_set, [set]).</div><div class="line"><span class="number">40978</span></div></pre></td></tr></table></figure>
-<p>我们插入Item1再插入Item2，然后用 ets:tab2list/1 来输出这个ETS表里存储了什么。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">ets:insert(ETS_Set, Item1).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:insert(ETS_Set, Item2).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:tab2list(ETS_Set).</div><div class="line"><span class="comment">% [&#123;1,a&#125;,&#123;1.0,"a"&#125;]</span></div></pre></td></tr></table></figure>
-<p>set类型的ETS表把1和1.0当作不同的键。那么我们插入Item3也就是插入一个已经存在的键会发生什么。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(ETS_Set, Item3).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:tab2list(ETS_Set).</div><div class="line"><span class="comment">% [&#123;1,"one"&#125;,&#123;1.0,"a"&#125;]</span></div></pre></td></tr></table></figure>
-<p>原先1为键的元组已经被我们刚刚插入的Item3元组替换了。</p>
-<p>我们再来看看ordered_set类型的ETS表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ETS_OrdSet = ets:new(ets_ordset, [ordered_set]).</div><div class="line"><span class="comment">% 45075</span></div></pre></td></tr></table></figure>
-<p>我们还是插入Item1再插入Item2，然后用 ets:tab2list/1 来输出这个ETS表里存储了什么。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">ets:insert(ETS_OrdSet, Item1).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:insert(ETS_OrdSet, Item2).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:tab2list(ETS_OrdSet).</div><div class="line"><span class="comment">% [&#123;1.0,"a"&#125;]</span></div></pre></td></tr></table></figure>
-<p>这个例子里，1.0被认为和先插入的1是相等的，所以它覆盖了第一个插入的元素。</p>
-<p>我们再插入Iterm3，结果是它也覆盖了1.0那个元素。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(ETS_OrdSet, Item3).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:tab2list(ETS_OrdSet).</div><div class="line"><span class="comment">% [&#123;1,"one"&#125;]</span></div></pre></td></tr></table></figure>
-<p>现在我们来看看bag类型的ETS表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ETS_Bag = ets:new(ets_bag, [bag]).</div><div class="line"><span class="comment">% 49172</span></div></pre></td></tr></table></figure>
-<p>我们还是给表里加入Item1和Item2。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">ets:insert(ETS_Bag, Item1).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:insert(ETS_Bag, Item2).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:tab2list(ETS_Bag).</div><div class="line"><span class="comment">% [&#123;1,a&#125;,&#123;1.0,"a"&#125;]</span></div></pre></td></tr></table></figure>
-<p>从 ets:tab2list/1 的输出我们看到bag类型的ETS表把Item1和Item2当作两个不同的元素。</p>
-<p>再将Item3加入表里看看会有什么结果。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(ETS_Bag, Item3).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:tab2list(ETS_Bag).</div><div class="line"><span class="comment">% [&#123;1,a&#125;,&#123;1,"one"&#125;,&#123;1.0,"a"&#125;]</span></div></pre></td></tr></table></figure>
-<p>在这个bag类型的ETS表中，我们有了Item2以及Item1和Item3三个元素，甚至Item1和Item3有相同当键。</p>
-<p>最后我们来看看duplicate_bag类型的ETS表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ETS_DupBag = ets:new(ets_dupbag, [duplicate_bag]).</div><div class="line"><span class="comment">% 53269</span></div></pre></td></tr></table></figure>
-<p>像前面几种类型的ETS表一样，我们插入Item1再插入Item2。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">ets:insert(ETS_DupBag, Item1).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:insert(ETS_DupBag, Item2).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:tab2list(ETS_DupBag).</div><div class="line"><span class="comment">% [&#123;1,a&#125;,&#123;1.0,"a"&#125;]</span></div></pre></td></tr></table></figure>
-<p>也和前面的例子一样，我们接着插入Item3。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(ETS_DupBag, Item3).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:tab2list(ETS_DupBag).</div><div class="line"><span class="comment">% [&#123;1,a&#125;,&#123;1,"one"&#125;,&#123;1.0,"a"&#125;]</span></div></pre></td></tr></table></figure>
-<p>结果是我们在这个duplicate_bag表中有所有三个元素。</p>
-<p>如果我们比较bag和duplicate_bag两种表，我们发现它们似乎有一样的行为。</p>
-<p>那么它们两者之间有什么不同呢？</p>
-<p>如果你深入挖掘官方文档，仔细阅读 ets:new/2 函数中关于表类型的描述，它说明一个bag表允许有重复键，但是只不允许两个一样的一个元素存在，而duplicate_bag允许相同元素存在即时它们的键值都相同。</p>
-<p>为验证这个结论，我们往bag表和duplicate_bag表都加入Item1，看看结果是什么。</p>
-<p>首先是bag表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(ETS_Bag, Item1).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:tab2list(ETS_Bag).</div><div class="line"><span class="comment">% [&#123;1,a&#125;,&#123;1,"one"&#125;,&#123;1.0,"a"&#125;]</span></div></pre></td></tr></table></figure>
-<p>结果和原来没有不同，所以往bag里添加已经存在的元素不会改变表的内容。</p>
-<p>那么duplicate_bag表呢？</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(ETS_DupBag, Item1).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:tab2list(ETS_DupBag).</div><div class="line"><span class="comment">% [&#123;1,a&#125;,&#123;1,"one"&#125;,&#123;1,a&#125;,&#123;1.0,"a"&#125;]</span></div></pre></td></tr></table></figure>
-<p>结果是元组{1, a}有两份，因为我们调用 ets:insert/2 将这个元素插入了两次。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-ets-introduction-part-3-ets-table-types/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-ets-introduction-part-3-ets-table-types/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday继续介绍ETS并且研究一下ETS支持的不同存储策略类型。&lt;/p&gt;
-&lt;p&gt;ETS支持的不同存储类型是：set，ordered_set，bag，和duplicate bag。&lt;/p&gt;
     
     </summary>
     
