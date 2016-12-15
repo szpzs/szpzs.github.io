@@ -475,7 +475,8 @@
 <h2 id="指令"><a href="#指令" class="headerlink" title="指令"></a>指令</h2><p>BEAM指令集包含大约158个基本指令，它们中的大部分可以通过调用 erlc -S yourfile.erl 生成汇编文件来查看到。每一个指令有零或多个参数。不同的技巧用来在便携方式和紧凑方式编码参数。例如，代码中的位置定位（也叫做标签）是用它们的索引来编码的，并且代码装载器后续会把它们翻译成内存地址。</p>
 <p>在BEAM代码装载过程中，一些混合的操作码被更快的操作码替换。这个优化的技巧叫做超级指令。对于每一个操作码，在beam_emu.c文件中都有一个C标签对应的一段代码。一个C标签组成的数组存储在同一个虚拟机循环例程的尾部并且被当作查询表来使用。</p>
 <p>请参见：<br>详细解释：<a href="http://beam-wisdoms.clau.se/en/latest/indepth-beam-file.html" target="_blank" rel="external">BEAM文件格式</a>。<br>详细解释：<a href="http://beam-wisdoms.clau.se/en/latest/indepth-beam-instructions.html" target="_blank" rel="external">BEAM指令代码</a>。</p>
-<h2 id="线程虚拟机循环"><a href="#线程虚拟机循环" class="headerlink" title="线程虚拟机循环"></a>线程虚拟机循环</h2><p>装载操作码被标签地址替换后，紧跟着它们的是参数。例如，操作码 ＃1，一个来自标签数组第一索引元素被置于在代码内存。</p>
+<h2 id="线程虚拟机循环"><a href="#线程虚拟机循环" class="headerlink" title="线程虚拟机循环"></a>线程虚拟机循环</h2><p>虚拟机模拟器循环在 emulator/beam/beam_emu.s 里包含许多代码小片段，每一个代码小片段有一个标签和处理一个BEAM指令。它们都属于一个非常长的函数。一个标签表存储在此相同函数里，它被用来作为查询表。</p>
+<p>装载操作码被标签地址替换后，紧跟着它们的是参数。例如，操作码 ＃1，一个来自标签数组第一索引元素被置于在代码内存。</p>
 <p>这种方式很容易跳转到处理下一个操作码的 C 代码中的某个位置。只需要读一个 void* 指针并执行一个goto *p 的动作。此功能是C和C++编译器的一个扩展。这种类型的虚拟机循环称为直接线程调度虚拟机循环。</p>
 <p>其他虚拟机循环的类型有：</p>
 <ul>
