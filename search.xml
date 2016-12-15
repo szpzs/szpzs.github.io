@@ -4,6 +4,44 @@
   
     
     <entry>
+      <title><![CDATA[进程之浅显易懂]]></title>
+      <url>http://szpzs.oschina.io/2016/12/15/eli5-processes/</url>
+      <content type="html"><![CDATA[<p>本文是进程如何组成的以及如何工作的高层次概述。</p>
+<a id="more"></a>
+<h1 id="总体概述"><a href="#总体概述" class="headerlink" title="总体概述"></a>总体概述</h1><p>一个进程就是一个简单的C语言结构，这个结构包含了一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-heap" target="_blank" rel="external">堆</a>，一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-stack" target="_blank" rel="external">栈</a>，一些<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-registers" target="_blank" rel="external">寄存器</a>，还有一个指令指针。也有一些异常处理、跟踪等额外字段。一个新的进程是以这个C语言结构创建的，创建的时候有一个最小尺寸的堆。</p>
+<h1 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h1><p><img src="/images/eli5-process-stack.png" style="border:0;"></p>
+<p><a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-stack" target="_blank" rel="external">栈</a>是在新生代堆上一个内存数组，它被用来当作返回栈和变量的临时存储。栈从堆的尾部开始，向堆的首部增长。栈上的数据按<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-stack-frame" target="_blank" rel="external">栈帧</a>来组织。</p>
+<p>当一个函数需要一些临时的内存，它在栈上分配几个字的空间，并在第0个字上设置一个特定的<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-cp" target="_blank" rel="external">CP</a>值。后续这个内存地址可以被当作返回地址，并且从这个内存内找到下一个栈帧从哪里开始。这个临时内存也可以被用来在递归调用的时候保存寄存器（这样会造成栈的增长）。</p>
+<p>尾递归避免保存这些临时数据或者在递归前释放这些临时数据。它用更聪明的办法传递参数，这样就不需要在栈上保存参数从而不会使得栈增长。</p>
+<h1 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h1><p>每一个新进程都被赋予一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-scheduler" target="_blank" rel="external">调度器</a>。调度器从队列里取出一个进程并拿到该进程的指令指针。然后调度器执行一个指令接着进入重复执行指令的循环。在完成一定数量的工作（<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-reduction" target="_blank" rel="external">规约数</a>）后，调度器将把当前的进程放回队列然后从队列里选择另一个进程。这种机制使得一些类型的公平调度成为可能：每一个进程都可以得到CPU时间而不管队列中其他进程如何繁忙。</p>
+<h1 id="杀死和退出"><a href="#杀死和退出" class="headerlink" title="杀死和退出"></a>杀死和退出</h1><p>杀死一个进程就像给它发送一个退出异常。进程从睡眠中醒来，获得CPU时间，然后发现一个异常。那么它将终止自己或者捕获这个异常并且像一个正常的消息一样进行处理。无条件杀死信号和异常很像，这是Erlang代码无法捕获它。</p>
+<h1 id="调度和负载均衡"><a href="#调度和负载均衡" class="headerlink" title="调度和负载均衡"></a>调度和负载均衡</h1><p><img src="/images/eli5-process-sched.png" style="border:0;"></p>
+<p>默认情况下BEAM虚拟机每个CPU核启动一个调度器。进程以某种方式（简单来说你可以认为是随机地）赋给调度器。你可以用标志 +S 和 +SP 来配置调度器。调度器可以用不同的方式（+sbt 标志）被绑定到CPU核。</p>
+<p>有3种进程优先级：low、normal、high和max。处在max优先级的进程总是首先运行而其他进程一直等待。high优先级进程比normal优先级进程大约多8倍时间运行（这个倍数依赖于实现）。当没有其他工作可做的时候low优先级进程才运行。</p>
+<p>在运行时，调度器和其他调度器（即在调度器数组中比它前一位的调度器）比较它们之间的进程队列。如果其他调度器的队列比它的长，调度器将从其他调度器的队列里偷一个或多个进程给自己的队列。这种默认行为是可以被改变的。负载均衡策略可以用虚拟机标志 +S 和 +scl 来配置。你可能想使用尽可能少的CPU核来让其他CPU核睡眠和节能。或者你更喜欢将进程平摊给各个CPU核从而减少时延。</p>
+<p>偷进程就如将指针从一个数组移到另一个数组一样容易。当一个活动进程在CPU核间跳动的话，可能影响<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-cache-locality" target="_blank" rel="external">缓存区</a>。</p>
+<h1 id="进程注册"><a href="#进程注册" class="headerlink" title="进程注册"></a>进程注册</h1><p>一个全局进程表映射进程标识符（pid）到进程结构。要了解一个进程的pid，可以参阅它的Process.common.id字段。进程通过它本地的pid唯一标识。远程pid包含更多信息：一个节点名和内部节点id。远程pid必须在拥有它的节点上解析。</p>
+<p>另一个全局表（进程注册）映射名字到pid。你可以用erlang:register、erlang:unregister和erlang:whereis 这些BIF来使用它。</p>
+<h1 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h1><p><img src="/images/eli5-process-mqueue.png" style="border:0;"></p>
+<p>消息被存储在堆上或者在堆段里，并且被用单链表串起来。消息队列是一个属于进程结构的C结构并且它包含了发给进程的<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">数据项</a>。对于更大的或嵌套的数据则使用<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-box" target="_blank" rel="external">Boxed data</a>，它被分配在堆上。存在一个队列位置的指针，它是先进的BEAM操作码，它用来扫描邮箱。当扫描指针到达邮箱的底部，进程将被置为接收消息状态。仅当一个消息被匹配了，指针才被复位到队列的首部。这就是为什么在一个大的邮箱队列中进行选择接收是缓慢的。</p>
+<h1 id="发送一个消息"><a href="#发送一个消息" class="headerlink" title="发送一个消息"></a>发送一个消息</h1><p>发送一个消息给一个进程很简单。下面就是虚拟机的做法：</p>
+<ol>
+<li>锁上一个进程邮箱（如果运行在一个单核上就不需要）。</li>
+<li>拷贝消息到目的进程的堆。</li>
+<li>添加结果数据到进程邮箱。</li>
+<li>解锁进程邮箱。</li>
+<li>如果进程处在接收消息状态，它将回到调度队列并随时醒来处理消息。</li>
+</ol>
+<p>一个进程等待一个消息（用接收操作），直到消息到达它都不会被放入调度器运行队列等待执行。这就是为什么百万个空闲进程可以毫不费劲地同时存在于一个单机上。</p>
+<h1 id="Traps"><a href="#Traps" class="headerlink" title="Traps"></a>Traps</h1><p>Traps是虚拟机循环的一个特性，它允许临时暂停长时间运行的BIF。状态被保存在临时内存区并且控制权回到调度器。进程设置它的指令指针到特定的trap指令并且BIF返回。</p>
+<p>在trap期间，当前进程被放回进程队列，这就允许其他进程运行。当时机到来，虚拟机循环遇到trap指令，并且跳回到长时间运行BIF。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-processes.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-processes.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Erlang垃圾回收细节以及它为何重要]]></title>
       <url>http://szpzs.oschina.io/2016/12/13/erlang-garbage-collection-details-and-why-it-matters/</url>
       <content type="html"><![CDATA[<p>Erlang尝试解决的一个主要问题就是为实现高水平响应的<a href="https://en.wikipedia.org/wiki/Real-time_computing" target="_blank" rel="external">软实时系统</a>创建一个平台。这样的系统需要快速的<a href="https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29" target="_blank" rel="external">垃圾回</a>收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的<a href="https://en.wikipedia.org/wiki/Immutable_object" target="_blank" rel="external">不可改变</a>语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。</p>

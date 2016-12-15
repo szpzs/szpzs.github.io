@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2016-12-13T13:53:14.000Z</updated>
+  <updated>2016-12-15T15:26:05.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,64 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>进程之浅显易懂</title>
+    <link href="http://szpzs.oschina.io/2016/12/15/eli5-processes/"/>
+    <id>http://szpzs.oschina.io/2016/12/15/eli5-processes/</id>
+    <published>2016-12-15T15:07:17.000Z</published>
+    <updated>2016-12-15T15:26:05.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文是进程如何组成的以及如何工作的高层次概述。</p>
+<a id="more"></a>
+<h1 id="总体概述"><a href="#总体概述" class="headerlink" title="总体概述"></a>总体概述</h1><p>一个进程就是一个简单的C语言结构，这个结构包含了一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-heap" target="_blank" rel="external">堆</a>，一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-stack" target="_blank" rel="external">栈</a>，一些<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-registers" target="_blank" rel="external">寄存器</a>，还有一个指令指针。也有一些异常处理、跟踪等额外字段。一个新的进程是以这个C语言结构创建的，创建的时候有一个最小尺寸的堆。</p>
+<h1 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h1><p><img src="/images/eli5-process-stack.png" style="border:0;"></p>
+<p><a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-stack" target="_blank" rel="external">栈</a>是在新生代堆上一个内存数组，它被用来当作返回栈和变量的临时存储。栈从堆的尾部开始，向堆的首部增长。栈上的数据按<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-stack-frame" target="_blank" rel="external">栈帧</a>来组织。</p>
+<p>当一个函数需要一些临时的内存，它在栈上分配几个字的空间，并在第0个字上设置一个特定的<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-cp" target="_blank" rel="external">CP</a>值。后续这个内存地址可以被当作返回地址，并且从这个内存内找到下一个栈帧从哪里开始。这个临时内存也可以被用来在递归调用的时候保存寄存器（这样会造成栈的增长）。</p>
+<p>尾递归避免保存这些临时数据或者在递归前释放这些临时数据。它用更聪明的办法传递参数，这样就不需要在栈上保存参数从而不会使得栈增长。</p>
+<h1 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h1><p>每一个新进程都被赋予一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-scheduler" target="_blank" rel="external">调度器</a>。调度器从队列里取出一个进程并拿到该进程的指令指针。然后调度器执行一个指令接着进入重复执行指令的循环。在完成一定数量的工作（<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-reduction" target="_blank" rel="external">规约数</a>）后，调度器将把当前的进程放回队列然后从队列里选择另一个进程。这种机制使得一些类型的公平调度成为可能：每一个进程都可以得到CPU时间而不管队列中其他进程如何繁忙。</p>
+<h1 id="杀死和退出"><a href="#杀死和退出" class="headerlink" title="杀死和退出"></a>杀死和退出</h1><p>杀死一个进程就像给它发送一个退出异常。进程从睡眠中醒来，获得CPU时间，然后发现一个异常。那么它将终止自己或者捕获这个异常并且像一个正常的消息一样进行处理。无条件杀死信号和异常很像，这是Erlang代码无法捕获它。</p>
+<h1 id="调度和负载均衡"><a href="#调度和负载均衡" class="headerlink" title="调度和负载均衡"></a>调度和负载均衡</h1><p><img src="/images/eli5-process-sched.png" style="border:0;"></p>
+<p>默认情况下BEAM虚拟机每个CPU核启动一个调度器。进程以某种方式（简单来说你可以认为是随机地）赋给调度器。你可以用标志 +S 和 +SP 来配置调度器。调度器可以用不同的方式（+sbt 标志）被绑定到CPU核。</p>
+<p>有3种进程优先级：low、normal、high和max。处在max优先级的进程总是首先运行而其他进程一直等待。high优先级进程比normal优先级进程大约多8倍时间运行（这个倍数依赖于实现）。当没有其他工作可做的时候low优先级进程才运行。</p>
+<p>在运行时，调度器和其他调度器（即在调度器数组中比它前一位的调度器）比较它们之间的进程队列。如果其他调度器的队列比它的长，调度器将从其他调度器的队列里偷一个或多个进程给自己的队列。这种默认行为是可以被改变的。负载均衡策略可以用虚拟机标志 +S 和 +scl 来配置。你可能想使用尽可能少的CPU核来让其他CPU核睡眠和节能。或者你更喜欢将进程平摊给各个CPU核从而减少时延。</p>
+<p>偷进程就如将指针从一个数组移到另一个数组一样容易。当一个活动进程在CPU核间跳动的话，可能影响<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-cache-locality" target="_blank" rel="external">缓存区</a>。</p>
+<h1 id="进程注册"><a href="#进程注册" class="headerlink" title="进程注册"></a>进程注册</h1><p>一个全局进程表映射进程标识符（pid）到进程结构。要了解一个进程的pid，可以参阅它的Process.common.id字段。进程通过它本地的pid唯一标识。远程pid包含更多信息：一个节点名和内部节点id。远程pid必须在拥有它的节点上解析。</p>
+<p>另一个全局表（进程注册）映射名字到pid。你可以用erlang:register、erlang:unregister和erlang:whereis 这些BIF来使用它。</p>
+<h1 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h1><p><img src="/images/eli5-process-mqueue.png" style="border:0;"></p>
+<p>消息被存储在堆上或者在堆段里，并且被用单链表串起来。消息队列是一个属于进程结构的C结构并且它包含了发给进程的<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">数据项</a>。对于更大的或嵌套的数据则使用<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-box" target="_blank" rel="external">Boxed data</a>，它被分配在堆上。存在一个队列位置的指针，它是先进的BEAM操作码，它用来扫描邮箱。当扫描指针到达邮箱的底部，进程将被置为接收消息状态。仅当一个消息被匹配了，指针才被复位到队列的首部。这就是为什么在一个大的邮箱队列中进行选择接收是缓慢的。</p>
+<h1 id="发送一个消息"><a href="#发送一个消息" class="headerlink" title="发送一个消息"></a>发送一个消息</h1><p>发送一个消息给一个进程很简单。下面就是虚拟机的做法：</p>
+<ol>
+<li>锁上一个进程邮箱（如果运行在一个单核上就不需要）。</li>
+<li>拷贝消息到目的进程的堆。</li>
+<li>添加结果数据到进程邮箱。</li>
+<li>解锁进程邮箱。</li>
+<li>如果进程处在接收消息状态，它将回到调度队列并随时醒来处理消息。</li>
+</ol>
+<p>一个进程等待一个消息（用接收操作），直到消息到达它都不会被放入调度器运行队列等待执行。这就是为什么百万个空闲进程可以毫不费劲地同时存在于一个单机上。</p>
+<h1 id="Traps"><a href="#Traps" class="headerlink" title="Traps"></a>Traps</h1><p>Traps是虚拟机循环的一个特性，它允许临时暂停长时间运行的BIF。状态被保存在临时内存区并且控制权回到调度器。进程设置它的指令指针到特定的trap指令并且BIF返回。</p>
+<p>在trap期间，当前进程被放回进程队列，这就允许其他进程运行。当时机到来，虚拟机循环遇到trap指令，并且跳回到长时间运行BIF。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-processes.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-processes.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文是进程如何组成的以及如何工作的高层次概述。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
+    
+      <category term="process" scheme="http://szpzs.oschina.io/categories/Erlang/process/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
+    
+      <category term="process" scheme="http://szpzs.oschina.io/tags/process/"/>
+    
+  </entry>
   
   <entry>
     <title>Erlang垃圾回收细节以及它为何重要</title>
@@ -1363,90 +1421,6 @@ shutdown，如果事件处理器因为事件管理器结束而被删除。
     
       &lt;p&gt;今天的Erlang Thursday继续介绍ETS并且就&lt;a href=&quot;https://www.proctor-it.com/erlang-thursday-ets-introduction-part-4-ets-access-protections/&quot;&gt;上星期我所预告的&lt;/a&gt;，要研究ETS表的 keypos 设置以及其他一下设置。&lt;/p&gt;
 &lt;p&gt;首先我们来看看 keypos 设置。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="ETS" scheme="http://szpzs.oschina.io/categories/Erlang/ETS/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="ETS" scheme="http://szpzs.oschina.io/tags/ETS/"/>
-    
-      <category term="ets" scheme="http://szpzs.oschina.io/tags/ets/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday - ETS介绍第四篇：ETS的访问保护</title>
-    <link href="http://szpzs.oschina.io/2016/09/20/erlang-thursday-ets-introduction-part-4-ets-access-protections/"/>
-    <id>http://szpzs.oschina.io/2016/09/20/erlang-thursday-ets-introduction-part-4-ets-access-protections/</id>
-    <published>2016-09-20T13:20:20.000Z</published>
-    <updated>2016-09-20T13:36:32.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday继续介绍ETS并研究ETS支持的不同访问级别。</p>
-<p>ETS支持的不同访问级别：public，protected和private。</p>
-<a id="more"></a>
-<p>在创建一个新ETS表的时候可以传入不同访问类型的任意一个，不过我们先看看当我们不指定访问级别的时候ETS表的访问级别是哪一个？</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">Table = ets:new(some_name, []).</div><div class="line"><span class="comment">% 20501</span></div><div class="line">ets:info(Table).</div><div class="line"><span class="comment">% [&#123;read_concurrency,false&#125;,</span></div><div class="line"><span class="comment">%  &#123;write_concurrency,false&#125;,</span></div><div class="line"><span class="comment">%  &#123;compressed,false&#125;,</span></div><div class="line"><span class="comment">%  &#123;memory,305&#125;,</span></div><div class="line"><span class="comment">%  &#123;owner,&lt;0.81.0&gt;&#125;,</span></div><div class="line"><span class="comment">%  &#123;heir,none&#125;,</span></div><div class="line"><span class="comment">%  &#123;name,some_name&#125;,</span></div><div class="line"><span class="comment">%  &#123;size,0&#125;,</span></div><div class="line"><span class="comment">%  &#123;node,nonode@nohost&#125;,</span></div><div class="line"><span class="comment">%  &#123;named_table,false&#125;,</span></div><div class="line"><span class="comment">%  &#123;type,set&#125;,</span></div><div class="line"><span class="comment">%  &#123;keypos,1&#125;,</span></div><div class="line"><span class="comment">%  &#123;protection,protected&#125;]</span></div></pre></td></tr></table></figure>
-<p>从上面的输出可以看到不指定访问级别的话默认就是protected。</p>
-<p>那么一个ETS表是被保护的意味着什么呢？官方文档说明被保护的表只可以被所有者进程写入，但是其他进程可以读取。</p>
-<p>现在让我们一起看看它是如何工作的。</p>
-<p>首先我们创建一个进程以便我们可以把ETS表转移给它。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Fun = <span class="keyword">fun</span>() -&gt; <span class="keyword">receive</span> <span class="keyword">after</span> infinity -&gt; ok <span class="keyword">end</span> <span class="keyword">end</span>.</div><div class="line"><span class="comment">% #Fun&lt;erl_eval.20.54118792&gt;</span></div><div class="line">SomeProcess = spawn(Fun).</div><div class="line"><span class="comment">% &lt;0.58.0&gt;</span></div></pre></td></tr></table></figure>
-<p>我们创建一个新的ETS表并指定它是被保护的，同时也指定它是有名字的以方便后续操作。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ProtectedNamedETS = ets:new(protected_named_ets, [protected, named_table]).</div><div class="line"><span class="comment">% protected_named_ets</span></div></pre></td></tr></table></figure>
-<p>函数的输出是 protected_name_ets 而不是像前面调用 ets:new/2 那样输出的是数字，这样一来我们能够用表的名字替代表标识码访问这个表。</p>
-<p>我们将插入一条数据到这个ETS表里，并且我们将用这个ETS表的名字作为它的引用因为我们创建表的时候指定了 named_table 选项。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ets:insert(protected_named_ets, &#123;foobar, baz&#125;).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>ets:insert/2 返回true，那么现在我们应该有一些数据在表里。让我们用ets:match/2把数据取出来，而且通过用一个$1的模式匹配出所有数据。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ets:match(protected_named_ets, '$<span class="number">1</span>').</div><div class="line"><span class="comment">% [[&#123;foobar,baz&#125;]]</span></div></pre></td></tr></table></figure>
-<p>那么作为这个ETS表的所有者进程，因为这个表是由这个进程创建的，所有我们能读写这个表。</p>
-<p>现在我们把这个表转移给另外的进程。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ets:give_away(protected_named_ets, SomeProcess, []).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>既然官方文档说表是可读的，我们在刚刚转移所有权后做同样的match操作。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ets:match(protected_named_ets, '$<span class="number">1</span>').</div><div class="line"><span class="comment">% [[&#123;foobar,baz&#125;]]</span></div></pre></td></tr></table></figure>
-<p>我们读取到我们的数据。<br>那么尝试写会发生什么？因为官方文档说只有所有者进程才能有写的权限，并且在调用 ets:insert/2 的时候总是返回true。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(protected_named_ets, &#123;barbaz, foo&#125;).</div><div class="line"><span class="comment">% ** exception error: bad argument</span></div><div class="line"><span class="comment">%      in function  ets:insert/2</span></div><div class="line"><span class="comment">%         called as ets:insert(protected_named_ets,&#123;barbaz,foo&#125;)</span></div></pre></td></tr></table></figure>
-<p>上面的例子返回了一个异常，异常的类型是 bag argument，也就是说它不允许非所有者进程写数据入表，但是这个异常没有确切地说明到底发生了什么。</p>
-<p>如果我们尝试调用 ets:insert/2 往不存在的表插入数据将会发生什么？</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(no_such_table, &#123;foo, bar&#125;).</div><div class="line"><span class="comment">% ** exception error: bad argument</span></div><div class="line"><span class="comment">%      in function  ets:insert/2</span></div><div class="line"><span class="comment">%         called as ets:insert(no_such_table,&#123;foo,bar&#125;)</span></div></pre></td></tr></table></figure>
-<p>一样的异常和一样的错误提示格式，仅仅是表名和元组不同。</p>
-<p>仔细想想这些现象，这两种不同的情况有一样的错误是有意义的。当一个进程尝试去做一个插入而如果没有表存在或者如果表被设置为 protected，则就是要让正在调用插入动作的这个进程知道这样的表不存在。总之，就是调用者将一个错的ETS表的引用传给ets:insert/2 。</p>
-<p>所以我们现在已经知道 protected 的行为，它是默认的访问级别，那么下面让我们看看 public 。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">PublicNamedETS = ets:new(public_named_ets, [public, named_table]).</div><div class="line"><span class="comment">% public_named_ets</span></div></pre></td></tr></table></figure>
-<p>我们将从我们当前的进程，也就是表的所有者插入一条数据并且获取所有数据。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(public_named_ets, &#123;foo, bar&#125;).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:match(public_named_ets, '$<span class="number">1</span>').</div><div class="line"><span class="comment">% [[&#123;foo,bar&#125;]]</span></div></pre></td></tr></table></figure>
-<p>一切正常。</p>
-<p>官方文档说public的表允许任何进程读和写，所以让我们把这个public表转给进程 SomeProcess 并且尝试去读和写。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ets:give_away(public_named_ets, SomeProcess, []).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>现在我们已经将表转移出去，是时候来尝试添加一条新的数据到表里，同时来看看我们能否将写入的内容读取出来。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(public_named_ets, &#123;bar, baz&#125;).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:match(public_named_ets, '$<span class="number">1</span>').</div><div class="line"><span class="comment">% [[&#123;foo,bar&#125;],[&#123;bar,baz&#125;]]</span></div></pre></td></tr></table></figure>
-<p>完全没问题。我们已经插入新数据到那个表里，并且当我们调用 ets:match/2 获取所有数据的时候，我们看到新数据在结果集里。</p>
-<p>现在让我们创建一个 private 表。官方文档说对于 private 的ETS表，只有表的所有者才被允许读写这个ETS表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">PrivateNamedETS = ets:new(private_named_ets, [private, named_table]).</div><div class="line">private_named_ets</div></pre></td></tr></table></figure>
-<p>当进程还拥有这个表的时候，我们添加一条数据并读取出来。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(private_named_ets, &#123;fizz, buzz&#125;).</div><div class="line"><span class="comment">% true</span></div><div class="line">ets:match(private_named_ets, '$<span class="number">1</span>').</div><div class="line"><span class="comment">% [[&#123;fizz,buzz&#125;]]</span></div></pre></td></tr></table></figure>
-<p>然后我们又把表转移给进程 SomeProcess。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ets:give_away(private_named_ets, SomeProcess, []).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>现在这个ETS表属于另一个进程了，我们再来尝试读取它的数据。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:match(private_named_ets, '$<span class="number">1</span>').</div><div class="line"><span class="comment">% ** exception error: bad argument</span></div><div class="line"><span class="comment">%      in function  ets:match/2</span></div><div class="line"><span class="comment">%         called as ets:match(private_named_ets,'$1')</span></div></pre></td></tr></table></figure>
-<p>又是 bad argument 异常，就像前面例子我们尝试在一个 protected ETS表上用 ets:insert/2 函数，而当时那个表属于另外一个进程。<br>再来看看写的情况。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:insert(private_named_ets, &#123;buzz, fizz&#125;).</div><div class="line"><span class="comment">% ** exception error: bad argument</span></div><div class="line"><span class="comment">%      in function  ets:insert/2</span></div><div class="line"><span class="comment">%         called as ets:insert(private_named_ets,&#123;buzz,fizz&#125;)</span></div></pre></td></tr></table></figure>
-<p>也是 bad argument 异常，现在这样的情况不会让人奇怪了，因为 protected 表的写以及这个 private 表的读都造成一样的异常。</p>
-<p>总之，在所有到目前为止的ETS的介绍文章里，我们已经见过了ETS表的类型、访问级别、表命名、继承人和所有者这些属性的设置以及它们之间的关系。</p>
-<p>下星期，我们将通过介绍ETS表的键位置的设置和其他一些设置来结束ETS介绍系列文章。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-ets-introduction-part-4-ets-access-protections/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-ets-introduction-part-4-ets-access-protections/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday继续介绍ETS并研究ETS支持的不同访问级别。&lt;/p&gt;
-&lt;p&gt;ETS支持的不同访问级别：public，protected和private。&lt;/p&gt;
     
     </summary>
     

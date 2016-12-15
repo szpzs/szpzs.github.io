@@ -1,0 +1,912 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,process," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="本文是进程如何组成的以及如何工作的高层次概述。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程之浅显易懂">
+<meta property="og:url" content="http://szpzs.oschina.io/2016/12/15/eli5-processes/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="本文是进程如何组成的以及如何工作的高层次概述。">
+<meta property="og:image" content="http://szpzs.oschina.io/images/eli5-process-stack.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/eli5-process-sched.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/eli5-process-mqueue.png">
+<meta property="og:updated_time" content="2016-12-15T15:26:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="进程之浅显易懂">
+<meta name="twitter:description" content="本文是进程如何组成的以及如何工作的高层次概述。">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/eli5-process-stack.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2016/12/15/eli5-processes/"/>
+
+  <title> 进程之浅显易懂 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                进程之浅显易懂
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-12-15T23:07:17+08:00" content="2016-12-15">
+              2016-12-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/process/" itemprop="url" rel="index">
+                    <span itemprop="name">process</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/15/eli5-processes/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/15/eli5-processes/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文是进程如何组成的以及如何工作的高层次概述。</p>
+<a id="more"></a>
+<h1 id="总体概述"><a href="#总体概述" class="headerlink" title="总体概述"></a>总体概述</h1><p>一个进程就是一个简单的C语言结构，这个结构包含了一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-heap" target="_blank" rel="external">堆</a>，一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-stack" target="_blank" rel="external">栈</a>，一些<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-registers" target="_blank" rel="external">寄存器</a>，还有一个指令指针。也有一些异常处理、跟踪等额外字段。一个新的进程是以这个C语言结构创建的，创建的时候有一个最小尺寸的堆。</p>
+<h1 id="栈"><a href="#栈" class="headerlink" title="栈"></a>栈</h1><p><img src="/images/eli5-process-stack.png" style="border:0;"></p>
+<p><a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-stack" target="_blank" rel="external">栈</a>是在新生代堆上一个内存数组，它被用来当作返回栈和变量的临时存储。栈从堆的尾部开始，向堆的首部增长。栈上的数据按<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-stack-frame" target="_blank" rel="external">栈帧</a>来组织。</p>
+<p>当一个函数需要一些临时的内存，它在栈上分配几个字的空间，并在第0个字上设置一个特定的<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-cp" target="_blank" rel="external">CP</a>值。后续这个内存地址可以被当作返回地址，并且从这个内存内找到下一个栈帧从哪里开始。这个临时内存也可以被用来在递归调用的时候保存寄存器（这样会造成栈的增长）。</p>
+<p>尾递归避免保存这些临时数据或者在递归前释放这些临时数据。它用更聪明的办法传递参数，这样就不需要在栈上保存参数从而不会使得栈增长。</p>
+<h1 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h1><p>每一个新进程都被赋予一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-scheduler" target="_blank" rel="external">调度器</a>。调度器从队列里取出一个进程并拿到该进程的指令指针。然后调度器执行一个指令接着进入重复执行指令的循环。在完成一定数量的工作（<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-reduction" target="_blank" rel="external">规约数</a>）后，调度器将把当前的进程放回队列然后从队列里选择另一个进程。这种机制使得一些类型的公平调度成为可能：每一个进程都可以得到CPU时间而不管队列中其他进程如何繁忙。</p>
+<h1 id="杀死和退出"><a href="#杀死和退出" class="headerlink" title="杀死和退出"></a>杀死和退出</h1><p>杀死一个进程就像给它发送一个退出异常。进程从睡眠中醒来，获得CPU时间，然后发现一个异常。那么它将终止自己或者捕获这个异常并且像一个正常的消息一样进行处理。无条件杀死信号和异常很像，这是Erlang代码无法捕获它。</p>
+<h1 id="调度和负载均衡"><a href="#调度和负载均衡" class="headerlink" title="调度和负载均衡"></a>调度和负载均衡</h1><p><img src="/images/eli5-process-sched.png" style="border:0;"></p>
+<p>默认情况下BEAM虚拟机每个CPU核启动一个调度器。进程以某种方式（简单来说你可以认为是随机地）赋给调度器。你可以用标志 +S 和 +SP 来配置调度器。调度器可以用不同的方式（+sbt 标志）被绑定到CPU核。</p>
+<p>有3种进程优先级：low、normal、high和max。处在max优先级的进程总是首先运行而其他进程一直等待。high优先级进程比normal优先级进程大约多8倍时间运行（这个倍数依赖于实现）。当没有其他工作可做的时候low优先级进程才运行。</p>
+<p>在运行时，调度器和其他调度器（即在调度器数组中比它前一位的调度器）比较它们之间的进程队列。如果其他调度器的队列比它的长，调度器将从其他调度器的队列里偷一个或多个进程给自己的队列。这种默认行为是可以被改变的。负载均衡策略可以用虚拟机标志 +S 和 +scl 来配置。你可能想使用尽可能少的CPU核来让其他CPU核睡眠和节能。或者你更喜欢将进程平摊给各个CPU核从而减少时延。</p>
+<p>偷进程就如将指针从一个数组移到另一个数组一样容易。当一个活动进程在CPU核间跳动的话，可能影响<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-cache-locality" target="_blank" rel="external">缓存区</a>。</p>
+<h1 id="进程注册"><a href="#进程注册" class="headerlink" title="进程注册"></a>进程注册</h1><p>一个全局进程表映射进程标识符（pid）到进程结构。要了解一个进程的pid，可以参阅它的Process.common.id字段。进程通过它本地的pid唯一标识。远程pid包含更多信息：一个节点名和内部节点id。远程pid必须在拥有它的节点上解析。</p>
+<p>另一个全局表（进程注册）映射名字到pid。你可以用erlang:register、erlang:unregister和erlang:whereis 这些BIF来使用它。</p>
+<h1 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h1><p><img src="/images/eli5-process-mqueue.png" style="border:0;"></p>
+<p>消息被存储在堆上或者在堆段里，并且被用单链表串起来。消息队列是一个属于进程结构的C结构并且它包含了发给进程的<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">数据项</a>。对于更大的或嵌套的数据则使用<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-box" target="_blank" rel="external">Boxed data</a>，它被分配在堆上。存在一个队列位置的指针，它是先进的BEAM操作码，它用来扫描邮箱。当扫描指针到达邮箱的底部，进程将被置为接收消息状态。仅当一个消息被匹配了，指针才被复位到队列的首部。这就是为什么在一个大的邮箱队列中进行选择接收是缓慢的。</p>
+<h1 id="发送一个消息"><a href="#发送一个消息" class="headerlink" title="发送一个消息"></a>发送一个消息</h1><p>发送一个消息给一个进程很简单。下面就是虚拟机的做法：</p>
+<ol>
+<li>锁上一个进程邮箱（如果运行在一个单核上就不需要）。</li>
+<li>拷贝消息到目的进程的堆。</li>
+<li>添加结果数据到进程邮箱。</li>
+<li>解锁进程邮箱。</li>
+<li>如果进程处在接收消息状态，它将回到调度队列并随时醒来处理消息。</li>
+</ol>
+<p>一个进程等待一个消息（用接收操作），直到消息到达它都不会被放入调度器运行队列等待执行。这就是为什么百万个空闲进程可以毫不费劲地同时存在于一个单机上。</p>
+<h1 id="Traps"><a href="#Traps" class="headerlink" title="Traps"></a>Traps</h1><p>Traps是虚拟机循环的一个特性，它允许临时暂停长时间运行的BIF。状态被保存在临时内存区并且控制权回到调度器。进程设置它的指令指针到特定的trap指令并且BIF返回。</p>
+<p>在trap期间，当前进程被放回进程队列，这就允许其他进程运行。当时机到来，虚拟机循环遇到trap指令，并且跳回到长时间运行BIF。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-processes.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-processes.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/process/" rel="tag">#process</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/13/erlang-garbage-collection-details-and-why-it-matters/" rel="next" title="Erlang垃圾回收细节以及它为何重要">
+                <i class="fa fa-chevron-left"></i> Erlang垃圾回收细节以及它为何重要
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/12/15/eli5-processes/"
+           data-title="进程之浅显易懂" data-url="http://szpzs.oschina.io/2016/12/15/eli5-processes/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">81</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">98</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#总体概述"><span class="nav-number">1.</span> <span class="nav-text">总体概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#栈"><span class="nav-number">2.</span> <span class="nav-text">栈</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#执行"><span class="nav-number">3.</span> <span class="nav-text">执行</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#杀死和退出"><span class="nav-number">4.</span> <span class="nav-text">杀死和退出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#调度和负载均衡"><span class="nav-number">5.</span> <span class="nav-text">调度和负载均衡</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进程注册"><span class="nav-number">6.</span> <span class="nav-text">进程注册</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息队列"><span class="nav-number">7.</span> <span class="nav-text">消息队列</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#发送一个消息"><span class="nav-number">8.</span> <span class="nav-text">发送一个消息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Traps"><span class="nav-number">9.</span> <span class="nav-text">Traps</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
