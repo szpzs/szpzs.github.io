@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Erlang,calendar," />
+  <meta name="keywords" content="Erlang,process," />
 
 
 
@@ -86,19 +86,16 @@
 
 
 
-<meta name="description" content="（译者注：本文里的例子结果在中国时区是不同的）
-为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.">
+<meta name="description" content="Erlang里的每一个事物都是一个term。一个term是Erlang里的任何值。在Erlang内部，一个term是一个保留一些最少有效位（根据值的不同有效位从2到6不等）的字，这些有效位定义了它的类型。剩下的位包含它自己的值（比如立即数的值）或包含一个指向堆上数据（box 值）的指针。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Erlang Thursday – calendar:local_time_to_universal_time_dst/1">
-<meta property="og:url" content="http://szpzs.oschina.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/index.html">
+<meta property="og:title" content="进程堆之浅显易懂">
+<meta property="og:url" content="http://szpzs.oschina.io/2016/12/16/eli5-process-heap/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="（译者注：本文里的例子结果在中国时区是不同的）
-为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.">
-<meta property="og:updated_time" content="2016-09-17T07:08:11.000Z">
+<meta property="og:description" content="Erlang里的每一个事物都是一个term。一个term是Erlang里的任何值。在Erlang内部，一个term是一个保留一些最少有效位（根据值的不同有效位从2到6不等）的字，这些有效位定义了它的类型。剩下的位包含它自己的值（比如立即数的值）或包含一个指向堆上数据（box 值）的指针。">
+<meta property="og:updated_time" content="2016-12-16T09:06:05.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Erlang Thursday – calendar:local_time_to_universal_time_dst/1">
-<meta name="twitter:description" content="（译者注：本文里的例子结果在中国时区是不同的）
-为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  calendar:local_time_to_universal_time_dst/1.">
+<meta name="twitter:title" content="进程堆之浅显易懂">
+<meta name="twitter:description" content="Erlang里的每一个事物都是一个term。一个term是Erlang里的任何值。在Erlang内部，一个term是一个保留一些最少有效位（根据值的不同有效位从2到6不等）的字，这些有效位定义了它的类型。剩下的位包含它自己的值（比如立即数的值）或包含一个指向堆上数据（box 值）的指针。">
 
 
 
@@ -119,9 +116,9 @@
 
 
 
-  <link rel="canonical" href="http://szpzs.oschina.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/"/>
+  <link rel="canonical" href="http://szpzs.oschina.io/2016/12/16/eli5-process-heap/"/>
 
-  <title> Erlang Thursday – calendar:local_time_to_universal_time_dst/1 | Time is all </title>
+  <title> 进程堆之浅显易懂 | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -284,7 +281,7 @@
             
             
               
-                Erlang Thursday – calendar:local_time_to_universal_time_dst/1
+                进程堆之浅显易懂
               
             
           </h1>
@@ -296,8 +293,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-17T14:38:49+08:00" content="2016-09-17">
-              2016-09-17
+            <time itemprop="dateCreated" datetime="2016-12-16T17:02:13+08:00" content="2016-12-16">
+              2016-12-16
             </time>
           </span>
 
@@ -322,8 +319,8 @@
 
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/calendar/" itemprop="url" rel="index">
-                    <span itemprop="name">calendar</span>
+                  <a href="/categories/Erlang/process/" itemprop="url" rel="index">
+                    <span itemprop="name">process</span>
                   </a>
                 </span>
 
@@ -338,8 +335,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/" itemprop="commentsCount"></span>
+                <a href="/2016/12/16/eli5-process-heap/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/16/eli5-process-heap/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -362,38 +359,20 @@
       
 
       
-        <p>（译者注：本文里的例子结果在中国时区是不同的）</p>
-<p>为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time_dst-1" target="_blank" rel="external">calendar:local_time_to_universal_time_dst/1</a>.</p>
+        <p>Erlang里的每一个事物都是一个term。一个term是Erlang里的任何值。在Erlang内部，一个term是一个保留一些最少有效位（根据值的不同有效位从2到6不等）的<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-word" target="_blank" rel="external">字</a>，这些有效位定义了它的类型。剩下的位包含它自己的值（比如<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-immed" target="_blank" rel="external">立即数</a>的值）或包含一个指向堆上数据（<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-box" target="_blank" rel="external">box</a> 值）的指针。</p>
 <a id="more"></a>
-<p>为了更好地理解 calendar:local_time_to_universal_time_dst/1 是做什么的，我们将用它和 <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time-1" target="_blank" rel="external">calendar:local_time_to_universal_time/1</a> 进行比较。</p>
-<p>即将到来的星期日我们将在临晨两点把时钟拨快一个小时，那么让我们来看看在临晨一点五十九分的时候UTC时间是多少？</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">1</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,3,8&#125;,&#123;7,59,59&#125;&#125;</span></div></pre></td></tr></table></figure>
-<p>现在让我们看看当日临晨两点的时候 calendar:local_time_to_universal_time/1 返回的UTC时间是多少，实际上当日临晨两点我们根本没有到达过，因为我们直接将时间向前拨快了到临晨三点。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">2</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,3,8&#125;,&#123;8,0,0&#125;&#125;</span></div></pre></td></tr></table></figure>
-<p>但是当我们深入函数库里，我们看到也有另外一个函数 calendar:local_time_to_universal_time_dst/1. calendar:local_time_to_universal_time_dst/1 返回值是一个由时间元组组成的列表，让我们开始看看为什么这很重要。</p>
-<p>此时，让我调用 calendar:local_time_to_universal_time_dst/1 并传入当日临晨两点作为参数，然后我们看到的结果是什么呢。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">2</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% []</span></div></pre></td></tr></table></figure>
-<p>一个空列表！</p>
-<p>如果你花一点时间来想一想，这是有道理的，因为临晨两点根本就没发生过，所以就没有UTC时间和它对应上。</p>
-<p>那么当我们跳到临晨三点我们看到什么呢？我们将得到早上八点UTC时间，这仅仅是在临晨一点五十九分五十九秒的一秒之后的UTC时间。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">3</span>,<span class="number">8</span>&#125;,&#123;<span class="number">3</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,3,8&#125;,&#123;8,0,0&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
-<p>为了涵盖本周末的情况，让我们来看看在今年晚些时候也就是11月1日将时钟拨慢一小时会发生什么。</p>
-<p>从一个基准时间开始，让我们看看零点五十九分五十九秒（译者注：原文是12:59:59AM，应该是作者手误）是多少UTC时间，我们知道这个时间我们将仅遇到一次。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">0</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,11,1&#125;,&#123;5,59,59&#125;&#125;</span></div><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">0</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;5,59,59&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
-<p>而且即使时间的变化发生在临晨两点，我们仍然只是遇到一次，因为我们第一次直接移动到临晨一点。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">2</span>,<span class="number">0</span>,<span class="number">0</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;8,0,0&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
-<p>所以零点五十九分五十九秒，我们得到UTC时间五点五十九分五十九秒，而两点，我们得到UTC时间是八点。现在到了棘手的部分，凌晨一点。</p>
-<p>临晨一点是一个奇怪的场景，当日晚上我们将度过两个临晨一点。那么让我们看看Erlang在这种情况下做了什么。</p>
-<p>首先，我们看看在临晨一点的时候我们调用 calendar:local_time_to_universal_time 得到的UTC时间是多少。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">00</span>,<span class="number">00</span>&#125;&#125;).</div><div class="line"><span class="comment">% &#123;&#123;2015,11,1&#125;,&#123;6,0,0&#125;&#125;</span></div></pre></td></tr></table></figure>
-<p>我们得到UTC时间是六点。我们从UTC时间五点五十九分五十九秒移动到UTC时间六点；这是合理的，直到我们开始怀疑我们第二次遇到临晨一点。</p>
-<p>现在，让我们看看在临晨一点的时候我们调用 calendar:local_time_to_universal_time_dst/1 会得到什么UTC时间。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;6,0,0&#125;&#125;,&#123;&#123;2015,11,1&#125;,&#123;7,0,0&#125;&#125;]</span></div><div class="line">`</div></pre></td></tr></table></figure>
-<p>我们得到由两个UTC时间组成的列表，一个是我们第一次遇到临晨一点时的UTC时间六点，另一个是我们第二次遇到临晨一点的UTC时间七点。这个返回两个UTC时间的情况也在临晨一点内的每秒钟出现。（译者注：原文是every time，译者认为应该是every second）</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calendar:local_time_to_universal_time_dst(&#123;&#123;<span class="number">2015</span>,<span class="number">11</span>,<span class="number">1</span>&#125;,&#123;<span class="number">1</span>,<span class="number">59</span>,<span class="number">59</span>&#125;&#125;).</div><div class="line"><span class="comment">% [&#123;&#123;2015,11,1&#125;,&#123;6,59,59&#125;&#125;,&#123;&#123;2015,11,1&#125;,&#123;7,59,59&#125;&#125;]</span></div></pre></td></tr></table></figure>
-<p>通过返回没有元素、一个元素或者两个元素的列表，Erlang提供给你最精确的信息为你所用，同时让你做出希望如何处理时间的明智的决定，而不是为你做出一些决定即使它们不符合你的系统需要。</p>
+<p>一个进程的堆是一个由<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">term</a>组成的数组。而进程的栈则是另一个由<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">term</a>组成的数组。栈被分配在堆的里面。<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-registers" target="_blank" rel="external">寄存器</a>也是一个由<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">term</a>组成的数组。堆上的数据大多数都是由<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">term</a>组成的数组，除了用<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-header" target="_blank" rel="external">头部标签</a>（详情参阅 <a href="http://beam-wisdoms.clau.se/en/latest/indepth-memory-layout.html" target="_blank" rel="external">数据类型内存布局</a>）标记的数据。</p>
+<h1 id="堆载体"><a href="#堆载体" class="headerlink" title="堆载体"></a>堆载体</h1><p>Erlang内的内存分配发生在所谓的“载体”内。它们看起来像游戏里使用的“区域内存”–事先分配的一大块系统堆。在载体内部，真正的内存分配在这里发生。至于它们是如何运作的，为简单起见你可以想象成简单的malloc/realloc。</p>
+<p>克服内存碎片的复杂事情都被封装好了，并且不是我们要理解的重点。你可以看源码 erts/emulator/beam/erl_*alloc.c （有许多文件，每一个分配策略一个文件）。模拟器有命令行标志来控制分配策略（参阅 <a href="http://erlang.org/doc/man/erts_alloc.html" target="_blank" rel="external">http://erlang.org/doc/man/erts_alloc.html</a> 标志部分）。</p>
+<h1 id="堆内的内存分配"><a href="#堆内的内存分配" class="headerlink" title="堆内的内存分配"></a>堆内的内存分配</h1><p>当一个进程需要一些内存，它的 heap_top 增大，堆顶下面的内存就准备好被使用。一些活动想在其他进程的堆上分配内存，例如发送一个消息将把一个消息的拷贝给接收进程。</p>
+<p>在进程堆内部是没有记账本的。就是没有跟踪那一个字属于哪里，但是我们可能通过查看标签位是可以知道每一个内存单元存储了什么。</p>
+<h1 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h1><p>垃圾回收跟踪从寄存器和栈知道的活数据并保存它们，然后将其他的数据都卸掉。</p>
+<p>当一个堆达到它的容量阀值（比如75%），进程就触发垃圾回收。一个新的更大的堆可能被分配出来。扫描分代的垃圾回收算法运行在堆上。这个算法获取“<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-roots" target="_blank" rel="external">roots</a>”（垃圾回收期间，根是所有已知的活数据）并把它们移到新堆。然后扫描源堆的剩余部分，提取更多的值，由根引用。扫描后，源堆只剩下死数据接着算法把它们卸掉。</p>
+<p>“扫描”的意思是，垃圾回收器将数据从头到尾过一遍，分析所有它遇到的数据。“分代的”的意思是，算法将数据分为新生代和老生代，并假设新数据经常是死掉的，老数据是不太可能被释放的。另外算法记住老的位置（成熟的），也就是上一次扫描结束的地方。这个位置下面的任何数据被保证自上次扫描以来有没有更新。这一招会减少扫描的量，并加速算法。</p>
+<p>在现实中比较复杂一点。可能有一个或两个堆有不同的逻辑应用于它们。每一个进程都有自己的垃圾回收器这样就使得Erlang的垃圾回收延时低。另外它不会暂停或影响其他调度器上的其他进程。这不是一个简单的话题，不过原理都在这：<a href="http://gchandbook.org/" target="_blank" rel="external">http://gchandbook.org/</a></p>
 <blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-local_time_to_universal_time_dst-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-local_time_to_universal_time_dst-1/</a></p>
+<p>另外请参阅<br>BEAM 智慧: 深层次知识: <a href="http://beam-wisdoms.clau.se/en/latest/indepth-heap-layout.html" target="_blank" rel="external">进程堆布局</a>。<br>BEAM Wisdoms: 深层次知识: <a href="http://beam-wisdoms.clau.se/en/latest/indepth-memory-layout.html" target="_blank" rel="external">数据类型内存布局</a>。<br><a href="https://www.erlang-solutions.com/blog/erlang-19-0-garbage-collector.html" target="_blank" rel="external">Erlang里的垃圾回收器</a></p>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-process-heap.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-process-heap.html</a></p>
 </blockquote>
 
       
@@ -419,7 +398,7 @@
           
             <a href="/tags/Erlang/" rel="tag">#Erlang</a>
           
-            <a href="/tags/calendar/" rel="tag">#calendar</a>
+            <a href="/tags/process/" rel="tag">#process</a>
           
         </div>
       
@@ -428,17 +407,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/09/16/erlang-thursday-dict-merge-3/" rel="next" title="Erlang Thursday – dict:merge/3">
-                <i class="fa fa-chevron-left"></i> Erlang Thursday – dict:merge/3
+              <a href="/2016/12/15/eli5-processes/" rel="next" title="进程之浅显易懂">
+                <i class="fa fa-chevron-left"></i> 进程之浅显易懂
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/09/17/erlang-thursday-lists-flatmap-2/" rel="prev" title="Erlang Thursday – lists:flatmap/2">
-                Erlang Thursday – lists:flatmap/2 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -464,8 +439,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/"
-           data-title="Erlang Thursday – calendar:local_time_to_universal_time_dst/1" data-url="http://szpzs.oschina.io/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/">
+      <div class="ds-thread" data-thread-key="2016/12/16/eli5-process-heap/"
+           data-title="进程堆之浅显易懂" data-url="http://szpzs.oschina.io/2016/12/16/eli5-process-heap/">
       </div>
     
   </div>
@@ -625,7 +600,7 @@
               
             
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#堆载体"><span class="nav-number">1.</span> <span class="nav-text">堆载体</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#堆内的内存分配"><span class="nav-number">2.</span> <span class="nav-text">堆内的内存分配</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#垃圾回收"><span class="nav-number">3.</span> <span class="nav-text">垃圾回收</span></a></li></ol></div>
             
           </div>
         </section>
