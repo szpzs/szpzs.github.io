@@ -4,6 +4,24 @@
   
     
     <entry>
+      <title><![CDATA[输入/输出和端口之浅显易懂]]></title>
+      <url>http://szpzs.oschina.io/2016/12/17/eli5-io/</url>
+      <content type="html"><![CDATA[<p>人们运行电脑程序的主要原因是因为有副作用。一个没有副作用的纯粹程序将消耗电力，温暖你的房间，除此之外别无他用。为了将程序连接到外部世界，每一种语言都有输入和输出的功能。例如：读写文件、访问硬件端口、或者与操作系统驱动器交互、在屏幕上描绘等等。</p>
+<a id="more"></a>
+<p>Erlang用端口来做到上述事情，端口是被叫做端口驱动器的小的C语言模块驱动。一些驱动是Erlang自带的，另一些则需要你自己创建或者请别人帮你创建。许多端口问题在GitHub上都有了解决方案（比如Unix管道）。</p>
+<p>当你连接到一个资源开始使用它的时候，你收到的值是一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-port" target="_blank" rel="external">端口</a>。它的行为和进程相似：它消耗CPU时间来处理你的数据，你可以发消息给它，它也可以发消息给你。你可以连接或者监测一个端口（监测功能是从Erlang/OTP 19开始增加的）。</p>
+<h1 id="端口任务"><a href="#端口任务" class="headerlink" title="端口任务"></a>端口任务</h1><p>每个端口和进程一样都是赋给一个调度器。每个CPU核上的调度器将会定期地检查赋予它的端口并且执行轮询和维护（这叫做运行端口任务）。这样就给端口驱动器分配CPU时间来执行实际的IO并且传递结果给正在等待的进程。</p>
+<p>为了提高这个过程的效率并且为了从调度器分离出来端口任务，以便使得它们不影响主程序，异步线程被发明出来。虚拟机创建额外的线程，它们只有一个主要目标，就是服务IO任务。</p>
+<p>异步线程的个数可以通过命令行标志 +A 正整数 来控制。默认是10个异步线程。</p>
+<h1 id="端口驱动器"><a href="#端口驱动器" class="headerlink" title="端口驱动器"></a>端口驱动器</h1><p>一个C模块可以用名字的方式被注册成一个端口驱动器。你可以指定，当打开一个端口的时候，哪一个驱动器被调用。端口驱动器执行几个基本命令来打开端口、关闭端口、发送数据给端口或者从端口读取数据。例如，套接字接口、操作系统进程的创建，它们都是作为端口驱动器来实现的。</p>
+<blockquote>
+<p>参见：<br>技术细节：<a href="http://beam-wisdoms.clau.se/en/latest/indepth-io.html" target="_blank" rel="external">Erlang的IO</a></p>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-io.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-io.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[进程堆之浅显易懂]]></title>
       <url>http://szpzs.oschina.io/2016/12/16/eli5-process-heap/</url>
       <content type="html"><![CDATA[<p>Erlang里的每一个事物都是一个term。一个term是Erlang里的任何值。在Erlang内部，一个term是一个保留一些最少有效位（根据值的不同有效位从2到6不等）的<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-word" target="_blank" rel="external">字</a>，这些有效位定义了它的类型。剩下的位包含它自己的值（比如<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-immed" target="_blank" rel="external">立即数</a>的值）或包含一个指向堆上数据（<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-box" target="_blank" rel="external">box</a> 值）的指针。</p>

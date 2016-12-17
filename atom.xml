@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2016-12-16T13:13:38.000Z</updated>
+  <updated>2016-12-17T14:50:33.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,48 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>输入/输出和端口之浅显易懂</title>
+    <link href="http://szpzs.oschina.io/2016/12/17/eli5-io/"/>
+    <id>http://szpzs.oschina.io/2016/12/17/eli5-io/</id>
+    <published>2016-12-17T14:38:54.000Z</published>
+    <updated>2016-12-17T14:50:33.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>人们运行电脑程序的主要原因是因为有副作用。一个没有副作用的纯粹程序将消耗电力，温暖你的房间，除此之外别无他用。为了将程序连接到外部世界，每一种语言都有输入和输出的功能。例如：读写文件、访问硬件端口、或者与操作系统驱动器交互、在屏幕上描绘等等。</p>
+<a id="more"></a>
+<p>Erlang用端口来做到上述事情，端口是被叫做端口驱动器的小的C语言模块驱动。一些驱动是Erlang自带的，另一些则需要你自己创建或者请别人帮你创建。许多端口问题在GitHub上都有了解决方案（比如Unix管道）。</p>
+<p>当你连接到一个资源开始使用它的时候，你收到的值是一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-port" target="_blank" rel="external">端口</a>。它的行为和进程相似：它消耗CPU时间来处理你的数据，你可以发消息给它，它也可以发消息给你。你可以连接或者监测一个端口（监测功能是从Erlang/OTP 19开始增加的）。</p>
+<h1 id="端口任务"><a href="#端口任务" class="headerlink" title="端口任务"></a>端口任务</h1><p>每个端口和进程一样都是赋给一个调度器。每个CPU核上的调度器将会定期地检查赋予它的端口并且执行轮询和维护（这叫做运行端口任务）。这样就给端口驱动器分配CPU时间来执行实际的IO并且传递结果给正在等待的进程。</p>
+<p>为了提高这个过程的效率并且为了从调度器分离出来端口任务，以便使得它们不影响主程序，异步线程被发明出来。虚拟机创建额外的线程，它们只有一个主要目标，就是服务IO任务。</p>
+<p>异步线程的个数可以通过命令行标志 +A 正整数 来控制。默认是10个异步线程。</p>
+<h1 id="端口驱动器"><a href="#端口驱动器" class="headerlink" title="端口驱动器"></a>端口驱动器</h1><p>一个C模块可以用名字的方式被注册成一个端口驱动器。你可以指定，当打开一个端口的时候，哪一个驱动器被调用。端口驱动器执行几个基本命令来打开端口、关闭端口、发送数据给端口或者从端口读取数据。例如，套接字接口、操作系统进程的创建，它们都是作为端口驱动器来实现的。</p>
+<blockquote>
+<p>参见：<br>技术细节：<a href="http://beam-wisdoms.clau.se/en/latest/indepth-io.html" target="_blank" rel="external">Erlang的IO</a></p>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-io.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-io.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;人们运行电脑程序的主要原因是因为有副作用。一个没有副作用的纯粹程序将消耗电力，温暖你的房间，除此之外别无他用。为了将程序连接到外部世界，每一种语言都有输入和输出的功能。例如：读写文件、访问硬件端口、或者与操作系统驱动器交互、在屏幕上描绘等等。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
+    
+      <category term="port" scheme="http://szpzs.oschina.io/categories/Erlang/port/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
+    
+      <category term="input" scheme="http://szpzs.oschina.io/tags/input/"/>
+    
+      <category term="output" scheme="http://szpzs.oschina.io/tags/output/"/>
+    
+      <category term="port" scheme="http://szpzs.oschina.io/tags/port/"/>
+    
+  </entry>
   
   <entry>
     <title>进程堆之浅显易懂</title>
@@ -1329,87 +1371,6 @@ shutdown，如果事件处理器因为事件管理器结束而被删除。
       <category term="lookup" scheme="http://szpzs.oschina.io/tags/lookup/"/>
     
       <category term="match_object" scheme="http://szpzs.oschina.io/tags/match-object/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday - ETS 数据匹配</title>
-    <link href="http://szpzs.oschina.io/2016/09/20/erlang-thursday-ets-data-matching/"/>
-    <id>http://szpzs.oschina.io/2016/09/20/erlang-thursday-ets-data-matching/</id>
-    <published>2016-09-20T13:45:12.000Z</published>
-    <updated>2016-09-20T13:52:50.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天的Erlang Thursday开始从介绍系列文章改为专门讲ETS，开始用ETS存储一些数据然后在ETS里做一些数据的检索。</p>
-<p>首先我们需要在ETS有一些数据，所以我们回到马尔科夫链这个问题上。</p>
-<a id="more"></a>
-<p>马尔科夫链是一个状态机，它是基于概率而不是特定的输入来转换状态的。它的一个普通的例子就是人们熟悉的智能手机里的“日常使用”的预测输入功能，也就是下一个词或字母会被预测并提供给使用者，而被选择的预测单词是遵循预测它跟随当前单词的历史有关的可能性。</p>
-<p>首先我们将创建一个模块，该模块有一个函数将接收一个文本字符串，它返回的是一个元组列表，而这个元组的元素是由一个词和该词的后续词组成。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(markov_words)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([create_word_pairs/<span class="number">1</span>])</span>.</div><div class="line"></div><div class="line"><span class="keyword">-spec</span> create_word_pairs<span class="params">(string())</span> -&gt; list<span class="params">(&#123;string(), string()&#125;)</span>.</div><div class="line"><span class="function"><span class="title">create_word_pairs</span><span class="params">(Text)</span> -&gt;</span></div><div class="line">  Words = string:tokens(Text, <span class="string">" \t\n"</span>),</div><div class="line">  create_word_pairs([], Words).</div><div class="line"></div><div class="line"><span class="function"><span class="title">create_word_pairs</span><span class="params">(WordPairs, [_Word|[]])</span> -&gt;</span></div><div class="line">    WordPairs;</div><div class="line"><span class="function"><span class="title">create_word_pairs</span><span class="params">(WordPairs, [Word|Words])</span> -&gt;</span></div><div class="line">    [Following|_] = Words,</div><div class="line">    UpdatedWordPairs = [&#123;Word, Following&#125; | WordPairs],</div><div class="line">    create_word_pairs(UpdatedWordPairs, Words).</div></pre></td></tr></table></figure>
-<p>上述代码输入的是一个文本字符串，然后基于空格、tab和新行字符作为词的边界将文本分割成词列表。基于这个词列表，我们创建一个列表，该列表元素是由词和词的后续词组成的元组，而这些元组将被我们插入我们的ETS表中。</p>
-<p>是时候打开Erlang shell开始我们的试验了。</p>
-<p>首先我们需要编译我们的模块，然后我们将创建一个变量来持有我们的文本，这个文本是为我们的马尔科夫链准备的。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">c(markov_words).</div><div class="line">% &#123;ok,markov_words&#125;</div><div class="line">ToTC = "It was the best of times, it was the worst of times,</div><div class="line">it was the age of wisdom, it was the age of foolishness,</div><div class="line">it was the epoch of belief, it was the epoch of incredulity,</div><div class="line">it was the season of Light, it was the season of Darkness,</div><div class="line">it was the spring of hope, it was the winter of despair,</div><div class="line">we had everything before us, we had nothing before us,</div><div class="line">we were all going direct to Heaven,</div><div class="line">we were all going direct the other way--in short,</div><div class="line">the period was so far like the present period,</div><div class="line">that some of its noisiest authorities insisted on its</div><div class="line">being received, for good or for evil, in the superlative</div><div class="line">degree of comparison only.</div><div class="line"></div><div class="line">There were a king with a large jaw and a queen with a</div><div class="line">plain face, on the throne of England; there were a king</div><div class="line">with a large jaw and a queen with a fair face,</div><div class="line">on the throne of France. In both countries it was</div><div class="line">clearer than crystal to the lords of the State preserves</div><div class="line">of loaves and fishes, that things in general were</div><div class="line">settled for ever.".</div></pre></td></tr></table></figure>
-<p>我们将创建一个新进程并把我们的ETS表转移给它，以防万一我们的Erlang shell崩溃。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Fun = <span class="keyword">fun</span>() -&gt; <span class="keyword">receive</span> <span class="keyword">after</span> infinity -&gt; ok <span class="keyword">end</span> <span class="keyword">end</span>.</div><div class="line"><span class="comment">% #Fun&lt;erl_eval.20.54118792&gt;</span></div><div class="line">SomeProcess = spawn(Fun).</div><div class="line"><span class="comment">% &lt;0.60.0&gt;</span></div></pre></td></tr></table></figure>
-<p>然后我们创建一个ETS表，它将用来存储数据，这些数据为我们用来作为我们的马尔科夫链生成器的一部分。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">WordPairs = ets:new(word_pairs, [public, duplicate_bag]).</div><div class="line"><span class="comment">% 20498</span></div><div class="line">ets:give_away(WordPairs, SomeProcess, []).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>我们设置表为 public，因为我们想让不再是表的所有者的shell进程可以添加数据到表里，同时我们设置表的类型为 duplicate bag。</p>
-<p>设为 duplicate_bag 是为了演示的原因。我们希望能有相同键的多个数据，因为我们很可能会看到任何词多次，而且有些词对的词的集合很常见，所以我们希望能捕获（以及保留）那些重复的词。</p>
-<p>为了方便从shell里生成数据，我们将用列表解析把我们从文本创建的每一个词对元组通过调用 ets:insert/2 函数来插入到我们的ETS表。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[[ ets:insert(WordPairs, WordPair) || WordPair &lt;- markov_words:create_word_pairs(ToTC)]].</div><div class="line"><span class="comment">% [[true,true,true,true,true,true,true,true,true,true,true,</span></div><div class="line"><span class="comment">%   true,true,true,true,true,true,true,true,true,true,true,true,</span></div><div class="line"><span class="comment">%   true,true,true,true,true|...]]</span></div></pre></td></tr></table></figure>
-<p>现在我们已经有了一些数据在我们的ETS表里，是时候看看我们怎样才能访问我们的数据。为访问数据，我们开始介绍函数 ets:match/2 ，它的入参是一个要查询的表以及一个模式。</p>
-<p>模式是由一个Erlang term组成用来匹配：_ ，匹配任意数据而且不做绑定；或者模式变量，它的格式是$N，N是任意正整数。ets:match/2 的返回结果是一个列表，这个是由模式变量的值组成的，它们按照模式变量名的序列排序。</p>
-<p>所以有了这些知识，我们可以尝试查询这些词对来找到所有跟在 of 后的词。如果我们写一个模式匹配，它可能看起来像 {“of”, Following}，但是使用ETS，我们需要用一个模式变量按规范来写成：{“of”, ‘$1’}.</p>
-<p>让我们在shell里运行。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">ets:match(WordPairs, &#123;<span class="string">"of"</span>, '$<span class="number">1</span>'&#125;).</div><div class="line"><span class="comment">% [["loaves"],</span></div><div class="line"><span class="comment">%  ["the"],</span></div><div class="line"><span class="comment">%  ["France."],</span></div><div class="line"><span class="comment">%  ["England;"],</span></div><div class="line"><span class="comment">%  ["comparison"],</span></div><div class="line"><span class="comment">%  ["its"],</span></div><div class="line"><span class="comment">%  ["despair,"],</span></div><div class="line"><span class="comment">%  ["hope,"],</span></div><div class="line"><span class="comment">%  ["Darkness,"],</span></div><div class="line"><span class="comment">%  ["Light,"],</span></div><div class="line"><span class="comment">%  ["incredulity,"],</span></div><div class="line"><span class="comment">%  ["belief,"],</span></div><div class="line"><span class="comment">%  ["foolishness,"],</span></div><div class="line"><span class="comment">%  ["wisdom,"],</span></div><div class="line"><span class="comment">%  ["times,"],</span></div><div class="line"><span class="comment">%  ["times,"]]</span></div></pre></td></tr></table></figure>
-<p>我们看到结果是一个由变量匹配数据的列表组成的列表，在本例子中，就是 ‘$1’ 匹配的。</p>
-<p>为了好玩和探索，让我们确认一下在我们的双城记介绍文本里跟在 it 后面的词都有什么。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">ets:match(WordPairs, &#123;<span class="string">"it"</span>, '$<span class="number">1</span>'&#125;).</div><div class="line"><span class="comment">% [["was"],</span></div><div class="line"><span class="comment">%  ["was"],</span></div><div class="line"><span class="comment">%  ["was"],</span></div><div class="line"><span class="comment">%  ["was"],</span></div><div class="line"><span class="comment">%  ["was"],</span></div><div class="line"><span class="comment">%  ["was"],</span></div><div class="line"><span class="comment">%  ["was"],</span></div><div class="line"><span class="comment">%  ["was"],</span></div><div class="line"><span class="comment">%  ["was"],</span></div><div class="line"><span class="comment">%  ["was"]]</span></div></pre></td></tr></table></figure>
-<p>就是一堆 was ，这刚好是这本书的头两段里的情况。</p>
-<p>然后我们仔细检查看看跟在 Scrooge 后的词是什么。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ets:match(WordPairs, &#123;<span class="string">"Scrooge"</span>, '$<span class="number">1</span>'&#125;).</div><div class="line"><span class="comment">% []</span></div></pre></td></tr></table></figure>
-<p>如果我们想得到整个元组，我们应该用 ets:match_object/2 ，它将返回满足匹配的整个对象。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">ets:match_object(WordPairs, &#123;<span class="string">"of"</span>, '$<span class="number">1</span>'&#125;).</div><div class="line"><span class="comment">% [&#123;"of","loaves"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","the"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","France."&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","England;"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","comparison"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","its"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","despair,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","hope,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Darkness,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Light,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","incredulity,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","belief,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","foolishness,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","wisdom,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","times,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","times,"&#125;]</span></div></pre></td></tr></table></figure>
-<p>或者，在这个例子里，我们可以用 ets:lookup/2 ，它将返回所有键匹配的元素。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">ets:lookup(WordPairs, <span class="string">"of"</span>).</div><div class="line"><span class="comment">% [&#123;"of","loaves"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","the"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","France."&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","England;"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","comparison"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","its"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","despair,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","hope,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Darkness,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","Light,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","incredulity,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","belief,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","foolishness,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","wisdom,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","times,"&#125;,</span></div><div class="line"><span class="comment">%  &#123;"of","times,"&#125;]</span></div></pre></td></tr></table></figure>
-<p>所以为了采取一个从马尔科夫链简短绕道的例子，为什么我们想要使用 ets:lookup/2 或 ets:match_object/2 而不是其它函数？为了回答这个问题我们用一个例子，让我们添加另一种数据到我们的马尔科夫链表里，它是一个三元素元组。</p>
-<p>To start with, we will insert 100_000 items into our ETS tables and see what the resulting memory size becomes. We will insert a new tuple of {X, X}, for all numbers from 1 to 100_000.（译者注：这一段应该是作者手误，从另外一篇文章错误地拷贝粘贴过来的，这一段和本文无关。）</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ets:insert(WordPairs, &#123;<span class="string">"of"</span>, <span class="string">"times,"</span>, <span class="string">"it"</span>&#125;).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>如果我们调用 ets:lookup/2 ，我们将得到指定键的所有数据。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">ets:lookup(WordPairs, <span class="string">"of"</span>).</div><div class="line">[&#123;<span class="string">"of"</span>,<span class="string">"loaves"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"the"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"France."</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"England;"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"comparison"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"its"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"despair,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"hope,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"Darkness,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"Light,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"incredulity,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"belief,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"foolishness,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"wisdom,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"times,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"times,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"times,"</span>,<span class="string">"it"</span>&#125;]</div></pre></td></tr></table></figure>
-<p>但是如果我们用 ets:match_object/2 ，并且用了一个两元组，因为我们只是想得到词对，我们在结果里将不会得到那个三元组。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">ets:match_object(WordPairs, &#123;<span class="string">"of"</span>, '_'&#125;).</div><div class="line">[&#123;<span class="string">"of"</span>,<span class="string">"loaves"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"the"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"France."</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"England;"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"comparison"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"its"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"despair,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"hope,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"Darkness,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"Light,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"incredulity,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"belief,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"foolishness,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"wisdom,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"times,"</span>&#125;,</div><div class="line"> &#123;<span class="string">"of"</span>,<span class="string">"times,"</span>&#125;]</div></pre></td></tr></table></figure>
-<p>回到马尔科夫链的场景，我们可以开始看看我们是怎样遵循马尔科夫链规则能够获得一些文本。</p>
-<p>我们从一个给定的词得到匹配的潜在的词，并且我们从后续词列表里均匀随机抓取一个结果。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">PotentialChoices = ets:match(WordPairs, &#123;<span class="string">"of"</span>, '$<span class="number">1</span>'&#125;).</div><div class="line">[NextWord] = lists:nth(random:uniform(length(PotentialChoices)), PotentialChoices).</div></pre></td></tr></table></figure>
-<p>我们可以写一个函数，让它重复上面的这些步骤，直到终结为止。一些终结状态的例子应该是一个词而且没有后续词；我们得到一定数量的词来拼装我们的文本；或者我们得到一定的总长度，使得它符合社交网络和Tweet的要求。</p>
-<p>本文里，我们已经开始将一些“真实”的数据加入ETS里，并且为一些给定的模式来匹配数据。下个星期我们将继续看看在这个例子里用其它方式从我们ETS表取出数据放到一些地方，在那里这些数据可能被更好的消费。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-ets-data-matching/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-ets-data-matching/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天的Erlang Thursday开始从介绍系列文章改为专门讲ETS，开始用ETS存储一些数据然后在ETS里做一些数据的检索。&lt;/p&gt;
-&lt;p&gt;首先我们需要在ETS有一些数据，所以我们回到马尔科夫链这个问题上。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="ETS" scheme="http://szpzs.oschina.io/categories/Erlang/ETS/"/>
-    
-      <category term="match" scheme="http://szpzs.oschina.io/categories/Erlang/ETS/match/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="ETS" scheme="http://szpzs.oschina.io/tags/ETS/"/>
-    
-      <category term="ets" scheme="http://szpzs.oschina.io/tags/ets/"/>
-    
-      <category term="match" scheme="http://szpzs.oschina.io/tags/match/"/>
     
   </entry>
   
