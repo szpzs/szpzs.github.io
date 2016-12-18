@@ -4,6 +4,24 @@
   
     
     <entry>
+      <title><![CDATA[BIF和NIF函数之浅显易懂]]></title>
+      <url>http://szpzs.oschina.io/2016/12/18/eli5-bif-nif/</url>
+      <content type="html"><![CDATA[<h1 id="BIF函数"><a href="#BIF函数" class="headerlink" title="BIF函数"></a>BIF函数</h1><p>除非你在Erlang/OTP的C源码上工作，你永远不需要创建自己的BIF函数。如果你想为你的项目实现自己的原生函数，请看下一节关于NIF的内容。</p>
+<a id="more"></a>
+<p>在Erlang的标准库里大多数的函数是用Erlang实现的。不过许多虚拟机的特性以及内部函数是不可能用纯Erlang语言来做到的。所以它们被用C语言来写并被导出为BIF，即内部构建函数。BIF被用作标准Erlang库，并且在编译的时候被静态地构建进Erlang虚拟机模拟器。</p>
+<p>当阅读Erlang标准库的时候，你经常会看到一些函数会有一个调用是：erlang:nif_error(…)。这些是BIF的桩。BEAM装载器找到原生库并且使用对C语言的原生实现的引用来替换这些桩。你也可以用其他语言比如C++或Rust来创建BIF或NIF函数。你也可以在一个叫做bif.tab的特殊文件里注册一个新的BIF，当你构建Erlang虚拟机的模拟器的时候，这个文件串联起module:function名字和BIF的对应关系。</p>
+<p>如果你好奇，你可以在Erlang/OTP的C源码中搜索一些函数，比如：erl_bif_lists.c里的lists_reverse_2。一个BIF函数接受进程指针和一个指向寄存器的指针，它可以访问它所需的许多<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">Term</a>（Eterm C 类型）寄存器。一个BIF必须返回一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">Term</a>值或者一个THE_NON_VALUE来针对特殊的执行控制功能，如trap，yield和异常。</p>
+<h1 id="NIF函数"><a href="#NIF函数" class="headerlink" title="NIF函数"></a>NIF函数</h1><p>NIF是一种制作原生函数的不同方式，它更适合于分开编译和被用户模块装载。NIF接口和类型系统也是简化的，他们抽象并隐藏了Erlang虚拟机模拟器的许多内部类型、位和字段。</p>
+<p>在官方标准文档里有很好的<a href="http://erlang.org/doc/tutorial/nif.html" target="_blank" rel="external">NIF教程</a>，并且大约有一百万个有用户写的以及在许多GitHub项目里可用的NIF函数。</p>
+<p>就算它简化了，我们还是一定要小心 ！写得很糟糕的 NIF 是能够搞垮整个虚拟机或抢占资源和减慢执行速度。</p>
+<blockquote>
+<p>参见：<br>BEAM智慧：<a href="http://beam-wisdoms.clau.se/en/latest/interfacing.html" target="_blank" rel="external">Erlang与外部世界的接口</a>，针对一些NIF、交互库以及为不同语言提供的端口驱动器。</p>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-bif-nif.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-bif-nif.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[跟踪之浅显易懂]]></title>
       <url>http://szpzs.oschina.io/2016/12/18/eli5-tracing/</url>
       <content type="html"><![CDATA[<p>Erlang VM 如何跟踪函数调用、消息传递、进程的创建和结束？</p>

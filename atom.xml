@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2016-12-18T01:22:41.000Z</updated>
+  <updated>2016-12-18T10:53:48.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,48 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>BIF和NIF函数之浅显易懂</title>
+    <link href="http://szpzs.oschina.io/2016/12/18/eli5-bif-nif/"/>
+    <id>http://szpzs.oschina.io/2016/12/18/eli5-bif-nif/</id>
+    <published>2016-12-18T10:46:43.000Z</published>
+    <updated>2016-12-18T10:53:48.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="BIF函数"><a href="#BIF函数" class="headerlink" title="BIF函数"></a>BIF函数</h1><p>除非你在Erlang/OTP的C源码上工作，你永远不需要创建自己的BIF函数。如果你想为你的项目实现自己的原生函数，请看下一节关于NIF的内容。</p>
+<a id="more"></a>
+<p>在Erlang的标准库里大多数的函数是用Erlang实现的。不过许多虚拟机的特性以及内部函数是不可能用纯Erlang语言来做到的。所以它们被用C语言来写并被导出为BIF，即内部构建函数。BIF被用作标准Erlang库，并且在编译的时候被静态地构建进Erlang虚拟机模拟器。</p>
+<p>当阅读Erlang标准库的时候，你经常会看到一些函数会有一个调用是：erlang:nif_error(…)。这些是BIF的桩。BEAM装载器找到原生库并且使用对C语言的原生实现的引用来替换这些桩。你也可以用其他语言比如C++或Rust来创建BIF或NIF函数。你也可以在一个叫做bif.tab的特殊文件里注册一个新的BIF，当你构建Erlang虚拟机的模拟器的时候，这个文件串联起module:function名字和BIF的对应关系。</p>
+<p>如果你好奇，你可以在Erlang/OTP的C源码中搜索一些函数，比如：erl_bif_lists.c里的lists_reverse_2。一个BIF函数接受进程指针和一个指向寄存器的指针，它可以访问它所需的许多<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">Term</a>（Eterm C 类型）寄存器。一个BIF必须返回一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">Term</a>值或者一个THE_NON_VALUE来针对特殊的执行控制功能，如trap，yield和异常。</p>
+<h1 id="NIF函数"><a href="#NIF函数" class="headerlink" title="NIF函数"></a>NIF函数</h1><p>NIF是一种制作原生函数的不同方式，它更适合于分开编译和被用户模块装载。NIF接口和类型系统也是简化的，他们抽象并隐藏了Erlang虚拟机模拟器的许多内部类型、位和字段。</p>
+<p>在官方标准文档里有很好的<a href="http://erlang.org/doc/tutorial/nif.html" target="_blank" rel="external">NIF教程</a>，并且大约有一百万个有用户写的以及在许多GitHub项目里可用的NIF函数。</p>
+<p>就算它简化了，我们还是一定要小心 ！写得很糟糕的 NIF 是能够搞垮整个虚拟机或抢占资源和减慢执行速度。</p>
+<blockquote>
+<p>参见：<br>BEAM智慧：<a href="http://beam-wisdoms.clau.se/en/latest/interfacing.html" target="_blank" rel="external">Erlang与外部世界的接口</a>，针对一些NIF、交互库以及为不同语言提供的端口驱动器。</p>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-bif-nif.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-bif-nif.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;BIF函数&quot;&gt;&lt;a href=&quot;#BIF函数&quot; class=&quot;headerlink&quot; title=&quot;BIF函数&quot;&gt;&lt;/a&gt;BIF函数&lt;/h1&gt;&lt;p&gt;除非你在Erlang/OTP的C源码上工作，你永远不需要创建自己的BIF函数。如果你想为你的项目实现自己的原生函数，请看下一节关于NIF的内容。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
+    
+      <category term="BIF" scheme="http://szpzs.oschina.io/categories/Erlang/BIF/"/>
+    
+      <category term="NIF" scheme="http://szpzs.oschina.io/categories/Erlang/BIF/NIF/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
+    
+      <category term="BIF" scheme="http://szpzs.oschina.io/tags/BIF/"/>
+    
+      <category term="NIF" scheme="http://szpzs.oschina.io/tags/NIF/"/>
+    
+  </entry>
   
   <entry>
     <title>跟踪之浅显易懂</title>
@@ -1260,71 +1302,6 @@ shutdown，如果事件处理器因为事件管理器结束而被删除。
       <category term="ets" scheme="http://szpzs.oschina.io/tags/ets/"/>
     
       <category term="select" scheme="http://szpzs.oschina.io/tags/select/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang Thursday - ETS，匹配规则和函数</title>
-    <link href="http://szpzs.oschina.io/2016/09/20/erlang-thursday-ets-match-specs-and-functions/"/>
-    <id>http://szpzs.oschina.io/2016/09/20/erlang-thursday-ets-match-specs-and-functions/</id>
-    <published>2016-09-20T14:03:29.000Z</published>
-    <updated>2016-09-20T14:09:44.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>在<a href="https://www.proctor-it.com/erlang-thursday-more-ets-data-matching-and-querying/" target="_blank" rel="external">上星期的Erlang Thursday</a>我展示了怎样通过使用ets:select带来的好处而且使我们的查询更丰富的优势来结束文章。</p>
-<p>首先我们将需要一个新的ETS表，那么我们以一个新的public类型的“产品”表开始，并且按我们的标准来创建一个进程然后将表的所有权转移给它。</p>
-<a id="more"></a>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Fun = <span class="keyword">fun</span>() -&gt; <span class="keyword">receive</span> <span class="keyword">after</span> infinity -&gt; ok <span class="keyword">end</span> <span class="keyword">end</span>.</div><div class="line"><span class="comment">% #Fun&lt;erl_eval.20.54118792&gt;</span></div><div class="line">SomeProcess = spawn(Fun).</div><div class="line"><span class="comment">% &lt;0.52.0&gt;</span></div><div class="line">Products = ets:new(products, [public]).</div><div class="line"><span class="comment">% 16402</span></div><div class="line">ets:give_away(Products, SomeProcess, []).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
-<p>下一步我们将装载我们的“产品”进入表里。</p>
-<p>在我们这个例子里，我们只是创建一个产品，用一个二进制数据当做产品的名字并用一个整数当做“共同世界货币里的价格”。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[[ ets:insert(Products, &#123;integer_to_binary(X), X&#125;) || X &lt;- lists:seq(<span class="number">1</span>, <span class="number">100</span>) ]].</div><div class="line"><span class="comment">% [[true,true,true,true,true,true,true,true,true,true,true,</span></div><div class="line"><span class="comment">%   true,true,true,true,true,true,true,true,true,true,true,true,</span></div><div class="line"><span class="comment">%   true,true,true,true,true|...]]</span></div></pre></td></tr></table></figure>
-<p>和我们在上星期一样，我们可以手工创建一个元组列表到匹配规则里去运行我们的查询，说是获取小于10CWC的产品。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ets:select(Products, [&#123;&#123;'$<span class="number">1</span>', '$<span class="number">2</span>'&#125;, [&#123;'&lt;', '$<span class="number">2</span>', <span class="number">10</span>&#125;], ['$<span class="number">1</span>']&#125;]).</div><div class="line"><span class="comment">% [&lt;&lt;"8"&gt;&gt;,&lt;&lt;"6"&gt;&gt;,&lt;&lt;"5"&gt;&gt;,&lt;&lt;"3"&gt;&gt;,&lt;&lt;"7"&gt;&gt;,&lt;&lt;"1"&gt;&gt;,&lt;&lt;"4"&gt;&gt;,</span></div><div class="line"><span class="comment">%  &lt;&lt;"9"&gt;&gt;,&lt;&lt;"2"&gt;&gt;]</span></div></pre></td></tr></table></figure>
-<p>我们也可以查询到那些大于10CWC并且小于25CWC的产品名称。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:select(Products, [&#123;&#123;'$<span class="number">1</span>', '$<span class="number">2</span>'&#125;, [&#123;'&gt;', '$<span class="number">2</span>', <span class="number">10</span>&#125;, &#123;'&lt;', '$<span class="number">2</span>', <span class="number">25</span>&#125;], ['$<span class="number">1</span>']&#125;]).</div><div class="line"><span class="comment">% [&lt;&lt;"11"&gt;&gt;,&lt;&lt;"15"&gt;&gt;,&lt;&lt;"23"&gt;&gt;,&lt;&lt;"20"&gt;&gt;,&lt;&lt;"21"&gt;&gt;,&lt;&lt;"14"&gt;&gt;,</span></div><div class="line"><span class="comment">%  &lt;&lt;"12"&gt;&gt;,&lt;&lt;"13"&gt;&gt;,&lt;&lt;"16"&gt;&gt;,&lt;&lt;"19"&gt;&gt;,&lt;&lt;"17"&gt;&gt;,&lt;&lt;"18"&gt;&gt;,</span></div><div class="line"><span class="comment">%  &lt;&lt;"22"&gt;&gt;,&lt;&lt;"24"&gt;&gt;]</span></div></pre></td></tr></table></figure>
-<p>但是这样并不一定清晰明了，因为我们正在使用元组里的元素的数值以及在它们里面元组列表的元组列表。</p>
-<p>这个时候 <a href="http://www.erlang.org/doc/man/ets.html#fun2ms-1" target="_blank" rel="external">ets:fun2ms/1</a> 来解救我们。</p>
-<p>ets:fun2ms/1 的入参是一个函数并且将把这个函数转换成一个匹配规则。</p>
-<p>这就允许我们写一个函数，这个函数入参是一个产品和价格组成的元组，然后它返回价格小于10的产品。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ets:fun2ms(<span class="keyword">fun</span>(&#123;Product, Cost&#125;) <span class="keyword">when</span> Cost &lt; <span class="number">10</span> -&gt; Product <span class="keyword">end</span>).</div><div class="line"><span class="comment">% [&#123;&#123;'$1','$2'&#125;,[&#123;'&lt;','$2',10&#125;],['$1']&#125;]</span></div></pre></td></tr></table></figure>
-<p>我们也能在传递给 ets:fun2ms/1 的这个函数的判断分支里用一个组合检查，相当于分支类型语句，</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Between_25_And_35_CWC = ets:fun2ms(<span class="keyword">fun</span>(&#123;Product, Cost&#125;) <span class="keyword">when</span> Cost &gt; <span class="number">25</span>, Cost &lt; <span class="number">35</span> -&gt; Product <span class="keyword">end</span>).</div><div class="line"><span class="comment">% [&#123;&#123;'$1','$2'&#125;,[&#123;'&gt;','$2',25&#125;,&#123;'&lt;','$2',35&#125;],['$1']&#125;]</span></div><div class="line">ets:select(Products, Between_25_And_35_CWC).</div><div class="line"><span class="comment">% [&lt;&lt;"30"&gt;&gt;,&lt;&lt;"33"&gt;&gt;,&lt;&lt;"32"&gt;&gt;,&lt;&lt;"29"&gt;&gt;,&lt;&lt;"28"&gt;&gt;,&lt;&lt;"26"&gt;&gt;,</span></div><div class="line"><span class="comment">%  &lt;&lt;"34"&gt;&gt;,&lt;&lt;"27"&gt;&gt;,&lt;&lt;"31"&gt;&gt;]</span></div></pre></td></tr></table></figure>
-<p>或者也可以是类型分支语句。</p>
-<p>虽然这个函数有用，但是它还是有它的限制，因为这是在函数上解析转换，所以你不能像在普通函数上一样用任何东西。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ets:fun2ms(<span class="keyword">fun</span>(&#123;Product, Cost&#125;) <span class="keyword">when</span> Cost &gt; <span class="number">90</span> -&gt; lists:reverse(binary:bin_to_list(Product)) <span class="keyword">end</span>).</div><div class="line"><span class="comment">% Error: Unknown error code &#123;122,lists,reverse&#125;</span></div><div class="line"><span class="comment">% &#123;error,transform_error&#125;</span></div></pre></td></tr></table></figure>
-<p>但是，匹配规则的结果部分也是不支持任何高级函数功能的。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ets:select(Products, [&#123;&#123;'$<span class="number">1</span>', '$<span class="number">2</span>'&#125;, [&#123;'&lt;', <span class="number">90</span>, '$<span class="number">2</span>'&#125;], [binary:bin_to_list('$<span class="number">1</span>')]&#125;]).</div><div class="line"><span class="comment">% ** exception error: bad argument</span></div><div class="line"><span class="comment">%      in function  binary:bin_to_list/1</span></div><div class="line"><span class="comment">%         called as binary:bin_to_list('$1')</span></div></pre></td></tr></table></figure>
-<p>即使有这些限制，ets:fun2ms/1 依然帮助我们做了更富表现力的ETS查询。我们不仅能用有意义的变量名替代那些 $X 变量来引用一个函数，也用判断分支语句来替代判断元组，而且我们也可以在我们的结果里用这些变量名同时做基本的格式化作为函数的一部分。</p>
-<p>请确认在下周回来，因为我们将继续研究 ets:select 的不同版本。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-ets-match_specs-and-functions/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-ets-match_specs-and-functions/</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;在&lt;a href=&quot;https://www.proctor-it.com/erlang-thursday-more-ets-data-matching-and-querying/&quot;&gt;上星期的Erlang Thursday&lt;/a&gt;我展示了怎样通过使用ets:select带来的好处而且使我们的查询更丰富的优势来结束文章。&lt;/p&gt;
-&lt;p&gt;首先我们将需要一个新的ETS表，那么我们以一个新的public类型的“产品”表开始，并且按我们的标准来创建一个进程然后将表的所有权转移给它。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="ETS" scheme="http://szpzs.oschina.io/categories/Erlang/ETS/"/>
-    
-      <category term="match" scheme="http://szpzs.oschina.io/categories/Erlang/ETS/match/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="ETS" scheme="http://szpzs.oschina.io/tags/ETS/"/>
-    
-      <category term="ets" scheme="http://szpzs.oschina.io/tags/ets/"/>
-    
-      <category term="match-specs" scheme="http://szpzs.oschina.io/tags/match-specs/"/>
-    
-      <category term="match-functions" scheme="http://szpzs.oschina.io/tags/match-functions/"/>
-    
-      <category term="fun2ms" scheme="http://szpzs.oschina.io/tags/fun2ms/"/>
     
   </entry>
   
