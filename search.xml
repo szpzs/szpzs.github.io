@@ -4,6 +4,23 @@
   
     
     <entry>
+      <title><![CDATA[跟踪之浅显易懂]]></title>
+      <url>http://szpzs.oschina.io/2016/12/18/eli5-tracing/</url>
+      <content type="html"><![CDATA[<p>Erlang VM 如何跟踪函数调用、消息传递、进程的创建和结束？</p>
+<a id="more"></a>
+<p>跟踪是一种Erlang虚拟机模式，可以被打开和关闭。打开该模式会开始产生一个事件流。调用dbg:tracer()启动一个将接收这个事件流的进程。你可以创建你自己的跟踪器，它有自己的状态，然后给它输送事件。</p>
+<p>跟踪能够产生大量不相关的数据。要限制这些不相关的数据，可以调用dbg:tp/4 （这一类函数）来产生一个跟踪过滤器。</p>
+<p>当所有事情准备好了：一个跟踪器和一个过滤器，就可以开始打开开关接收事件了。一个对dbg:p/2（这一类函数）的调用设置跟踪目标（一个进程、一个端口、创建和退出事件、所有相关事件，诸如此类）。它将开始发送所有匹配跟踪目标和你给跟踪器进程设置的过滤器的事件。</p>
+<h1 id="跟踪的内部运作"><a href="#跟踪的内部运作" class="headerlink" title="跟踪的内部运作"></a>跟踪的内部运作</h1><p>像进程生命周期事件或消息这样简单的事情在虚拟机的C代码中到处都有跟踪器检查。如果跟踪被开启，那么一条消息会发送给当前的跟踪器。</p>
+<p>对BIF函数的调用和返回进行跟踪会更复杂。因为BIF不是真正的Erlang代码，它们必须以某种方式被包裹在跟踪代码里。这是通过用BIF的入口函数地址与另一个表替换BIF表来做到的。这个新表中的每个条目是一个简单的使用函数名称和参数来对erts_bif_trace函数的调用。这个函数执行真正的调用并且发送跟踪消息。</p>
+<p>在某些时刻使用另一个技巧。在BIF结束前，特定的BEAM操作码被推送到栈上，它将发送跟踪事件。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-tracing.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-tracing.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[输入/输出和端口之浅显易懂]]></title>
       <url>http://szpzs.oschina.io/2016/12/17/eli5-io/</url>
       <content type="html"><![CDATA[<p>人们运行电脑程序的主要原因是因为有副作用。一个没有副作用的纯粹程序将消耗电力，温暖你的房间，除此之外别无他用。为了将程序连接到外部世界，每一种语言都有输入和输出的功能。例如：读写文件、访问硬件端口、或者与操作系统驱动器交互、在屏幕上描绘等等。</p>
