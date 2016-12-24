@@ -4,6 +4,73 @@
   
     
     <entry>
+      <title><![CDATA[我们没有走过的路]]></title>
+      <url>http://szpzs.oschina.io/2016/12/24/road-we-didnt-go-down/</url>
+      <content type="html"><![CDATA[<p>我一直在关注Erlang邮件列表里的一个有趣的讨论，在这个讨论里，Steve Vinoski和朋友们告诉我们RPC的问题是什么。</p>
+<p>讨论开始在5月22日，共同话题是facebook宣布已部署了一个用Erlang写的聊天服务器。</p>
+<p>在其中的一个帖子里Steve写道：</p>
+<a id="more"></a>
+<blockquote>
+<p>“所有那些年的 CORBA 经验教给我的，也就是那个RPC，因为一些原因，总的来说它是一个<strong>真正的坏主意</strong>。它是一个来之不易的教训。Erlang 的 RPC 是很棒的，因为整个 Erlang 系统从根本上设计并将其内置到语言中，但对于普通的语言，RPC 带来的问题比它解决的问题多。”<br><a href="http://www.erlang.org/pipermail/erlang-questions/2008-May/035191.html" target="_blank" rel="external">更多…</a><br>– Steve Vinoski</p>
+</blockquote>
+<p>后续的帖子要求Steve详细阐述这点。</p>
+<p>Steve在Erlang邮件列表里发了一篇很长并且精彩的关于RPC问题总结的帖子：</p>
+<blockquote>
+<p>“但是如果你没有时间或精力，最根本的问题是，RPC试图使得一个分布式调用看起来像一个本地调用。这是行不通的，因为在分布式系统中的错误模式完全不同于本地系统中的错误模式，……”<br><a href="http://www.erlang.org/pipermail/erlang-questions/2008-May/035207.html" target="_blank" rel="external">更多…</a><br>– Steve Vinoski</p>
+</blockquote>
+<p>精辟！是的，是的，是的。当我读到这个，我的大脑大叫：是的，是的，是的 - 谢谢你，史提夫。史提夫在《<a href="http://steve.vinoski.net/pdf/IEEE-RPC_Under_Fire.pdf" target="_blank" rel="external">RPC Under Fire</a>》里关于这点写了更多。</p>
+<h1 id="这是一条我们没走过的路"><a href="#这是一条我们没走过的路" class="headerlink" title="这是一条我们没走过的路"></a>这是一条我们没走过的路</h1><p>Steve沿着这条路走，看见一些事情，也看到它非常糟糕的地方，但他活着回来，可以告诉我们他所看见的事情。</p>
+<p>调用一个远程操作并且包装它看起来像一个本地操作的根本问题是本地的错误模式和远程操作的错误模式是完全不同的。</p>
+<p>如果这还不够糟糕，性能方面也完全不同。本地的操作需要几微秒，当通过一个RPC执行的时候，可能忽然就花掉几毫秒。</p>
+<p>如果程序员不能判断本地和远程调用之间的不同，那么要写出高效的代码基本不可能。随意放置RPC在一些乱七八糟的软件中可以（必定）破坏性能。</p>
+<blockquote>
+<p>我亲眼见证了几个大型项目的失败，正是因为本地和远程过程调用之间的区别还不清楚。</p>
+</blockquote>
+<p>注意：这个因素在有几十个程序员参与的大项目里变得更糟糕。如果是一个小团队，则还有机会挽救，这需要参与者清楚哪些是本地调用，哪些是是远程调用。</p>
+<h1 id="在Erlang的世界我们是如何做的？"><a href="#在Erlang的世界我们是如何做的？" class="headerlink" title="在Erlang的世界我们是如何做的？"></a>在Erlang的世界我们是如何做的？</h1><p>所有Erlang程序是由并行进程集合组成的，这些进程可以创建其他进程并且发送和接收消息。这么做非常简单而且是一个轻量操作。</p>
+<p>为了错误处理的目的，进程可以彼此链接在一起。如果A链接到B并且A崩溃了，那么B会被发送一个错误信号，反之亦然。链接机制与消息发送/接收机制完全正交。</p>
+<p>当我们编写分布式系统，各种形式的RPC通常是非常有用的编程抽象，但RPC的确切形式因问题不同而不同，也因系统架构不同而不同。</p>
+<p>RPC的确切形式凝固成一个刚性框架，不顾错误场景是场灾难。</p>
+<p>用发送、 接收和链接，Erlang 程序员可以很容易把自定义错误处理“揉进他们自己的RPC”。</p>
+<p>在Erlang里没有“标准PRC存根生成器”，Erlang也没有聪明到有一个如此的生成器。</p>
+<p>在很多应用里，RPC尽可能最简单的形式就够了，我们可以定义它如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request)</span> -&gt;</span></div><div class="line"> Pid ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">     &#123;Pid, Response&#125; -&gt;</div><div class="line">        Response</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>这一点都不复杂。这段代码只是发送一条消息然后等待回复。</p>
+<p>在这个主题上有很多的变化。最简单的RPC将永远等待下去，所以如果回复一直不来的话，客户端就会挂起。我们可以用增加超时来修复这个问题：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request, Time)</span> -&gt;</span></div><div class="line"> Pid ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">    &#123;Pid, Response&#125; -&gt;</div><div class="line">        &#123;ok, Response&#125;</div><div class="line">    <span class="keyword">after</span> Time -&gt;</div><div class="line">        &#123;error, timeout&#125;</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>假设我们希望在一个PRC调用中远程机器死掉的时候一个异常在客户端被抛出，那么我们可以写如下代码：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request)</span> -&gt;</span></div><div class="line"> link(Pid),</div><div class="line"> Pid ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">    Response -&gt;</div><div class="line">        Response</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>如果在RPC里有任何差错的话，附加的链接将确保客户端终止。</p>
+<p>假设我们想要“并行化两个RPC”，则代码如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid1, Pid2, Request)</span> -&gt;</span></div><div class="line"> Pid1 ! Pid2 ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">    &#123;Pid1, Response1&#125; -&gt;</div><div class="line">        <span class="keyword">receive</span></div><div class="line">            &#123;Pid2, Response2&#125; -&gt;</div><div class="line">                &#123;Response1, Response2&#125;</div><div class="line">        <span class="keyword">end</span></div><div class="line">     <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>（不用担心这段代码的执行，消息的回复顺序是无关紧要的。）</p>
+<p>我想通过一些小例子来说明的观点是，RPC的粒度级别和错误特性是在编程人员的精确控制下的。</p>
+<p>如果事实证明这些RPC的抽象不是我们真正想要的，然后我们可以很容易地用原始的进程和消息方式来写我们的解决方案。</p>
+<p>所以，例如，从一个消息序列图得到Erlang代码是一个简单的编程工作。</p>
+<p>“标准”的RPC也做以下的疯狂的假设”，回复应该一定返回到客户”。</p>
+<p>互相合作的形式，比如告诉X做Y然后发送结果到Z，这种形式是不可能用一个标准的 RPC 框架（如 SOAP)来表达的，但在Erlang中表达却很简单︰</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(tell,X,toDo,Y,replyTo,Z)</span> -&gt;</span></div><div class="line"> X ! &#123;Z, Y&#125;.</div></pre></td></tr></table></figure>
+<p>（这里假设约定我前面一直用发送两个元素的元组当作消息，其中有进程的Id，它被期待当作回复消息的元组的第一元素（在前面的例子例我们用self()，这样就强制要求回复消息返回给原请求者））</p>
+<p>假设我们要加版本信息到我们的协议，这也很容易做到：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request, Vsn)</span> -&gt;</span></div><div class="line"> Pid ! &#123;self(), vsn, Vsn, Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">     ...</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>关键点是，这里展示的事情，比如像版本信息、错误处理平行化等等都是容易添加的，只要我们暴露消息和函数调用之间的接口并允许用户定制构建他们自己和远程代码的交互形式。</p>
+<p>当然，组件间交互的一定通用模式将浮现，它们被加入OTP库。</p>
+<h1 id="什么是OTP？"><a href="#什么是OTP？" class="headerlink" title="什么是OTP？"></a>什么是OTP？</h1><p>OTP是在相当常见的场景下像RPC一样做事的一套久经测试验证的方法。OTP方法没有覆盖所有错误场景，不过它们覆盖了通常的场景。我们经常需要跨出OTP框架外设计我们自己特定的错误和恢复策略，不过做这些都很简单，因为OTP它自己是一个消息驱动的框架，所有我们必须要做的是去掉那些存根函数，用我们自己定制的函数来替换它们来发送和接收消息。</p>
+<p>OTP应该重新命名为“OTP on rails”，它真的只是一个构建容错系统的框架。</p>
+<p>这种没有过度依赖一个特别的RPC方式来构建软件的方法可行吗？</p>
+<p>我的回答是可行的，而且肯定可行。</p>
+<p>我们用这种方式构建实时服务器软件在爱立信已经有几十年了。我们已经用PLEX, EriPascal, Erlang 和 C++ with Rose-RT好多年了。所有这些的共同点就是不依赖RPC。我们指定协议，然后我们用一些不同的技术实现它们。</p>
+<p>这些协议比指定使用的RPC是更复杂的方式，但是通过暴露协议和错误模式，我们可以使得系统高可用。</p>
+<p>我一直认为如果我们用RPC来做事情，我们会遇到麻烦。</p>
+<p>Steve这么做过也遇到了这些问题，而我们走的是不同的路。</p>
+<p>真正有趣的是，史提夫的世界和我们的世界开始碰撞-我们有很多东西要互相学习。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://armstrongonsoftware.blogspot.com.ar/2008/05/road-we-didnt-go-down.html" target="_blank" rel="external">http://armstrongonsoftware.blogspot.com.ar/2008/05/road-we-didnt-go-down.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[在Erlang里用进程保存状态]]></title>
       <url>http://szpzs.oschina.io/2016/12/19/storing-state-in-erlang-with-processes/</url>
       <content type="html"><![CDATA[<p>状态是我们如何使程序做不平凡的事情。如果我们正在写一个电子游戏，它的一个状态可能是一个被打败的坏人的数字。在大多数编程语言中，我们将通过将计数分配给变量，然后在每次新的坏人被击败时更新这个值来实现这一点。然而，一旦变量已经被赋值（单次赋值），Erlang不允许我们修改这个变量的值。那么如果我们不能够改变一个变量的值，我们如何在Erlang里跟踪状态？答案是：用进程。</p>

@@ -1,0 +1,943 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,RPC," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="我一直在关注Erlang邮件列表里的一个有趣的讨论，在这个讨论里，Steve Vinoski和朋友们告诉我们RPC的问题是什么。
+讨论开始在5月22日，共同话题是facebook宣布已部署了一个用Erlang写的聊天服务器。
+在其中的一个帖子里Steve写道：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我们没有走过的路">
+<meta property="og:url" content="http://szpzs.oschina.io/2016/12/24/road-we-didnt-go-down/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="我一直在关注Erlang邮件列表里的一个有趣的讨论，在这个讨论里，Steve Vinoski和朋友们告诉我们RPC的问题是什么。
+讨论开始在5月22日，共同话题是facebook宣布已部署了一个用Erlang写的聊天服务器。
+在其中的一个帖子里Steve写道：">
+<meta property="og:updated_time" content="2016-12-24T05:14:24.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="我们没有走过的路">
+<meta name="twitter:description" content="我一直在关注Erlang邮件列表里的一个有趣的讨论，在这个讨论里，Steve Vinoski和朋友们告诉我们RPC的问题是什么。
+讨论开始在5月22日，共同话题是facebook宣布已部署了一个用Erlang写的聊天服务器。
+在其中的一个帖子里Steve写道：">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2016/12/24/road-we-didnt-go-down/"/>
+
+  <title> 我们没有走过的路 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                我们没有走过的路
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-12-24T12:58:03+08:00" content="2016-12-24">
+              2016-12-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/RPC/" itemprop="url" rel="index">
+                    <span itemprop="name">RPC</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/24/road-we-didnt-go-down/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/24/road-we-didnt-go-down/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我一直在关注Erlang邮件列表里的一个有趣的讨论，在这个讨论里，Steve Vinoski和朋友们告诉我们RPC的问题是什么。</p>
+<p>讨论开始在5月22日，共同话题是facebook宣布已部署了一个用Erlang写的聊天服务器。</p>
+<p>在其中的一个帖子里Steve写道：</p>
+<a id="more"></a>
+<blockquote>
+<p>“所有那些年的 CORBA 经验教给我的，也就是那个RPC，因为一些原因，总的来说它是一个<strong>真正的坏主意</strong>。它是一个来之不易的教训。Erlang 的 RPC 是很棒的，因为整个 Erlang 系统从根本上设计并将其内置到语言中，但对于普通的语言，RPC 带来的问题比它解决的问题多。”<br><a href="http://www.erlang.org/pipermail/erlang-questions/2008-May/035191.html" target="_blank" rel="external">更多…</a><br>– Steve Vinoski</p>
+</blockquote>
+<p>后续的帖子要求Steve详细阐述这点。</p>
+<p>Steve在Erlang邮件列表里发了一篇很长并且精彩的关于RPC问题总结的帖子：</p>
+<blockquote>
+<p>“但是如果你没有时间或精力，最根本的问题是，RPC试图使得一个分布式调用看起来像一个本地调用。这是行不通的，因为在分布式系统中的错误模式完全不同于本地系统中的错误模式，……”<br><a href="http://www.erlang.org/pipermail/erlang-questions/2008-May/035207.html" target="_blank" rel="external">更多…</a><br>– Steve Vinoski</p>
+</blockquote>
+<p>精辟！是的，是的，是的。当我读到这个，我的大脑大叫：是的，是的，是的 - 谢谢你，史提夫。史提夫在《<a href="http://steve.vinoski.net/pdf/IEEE-RPC_Under_Fire.pdf" target="_blank" rel="external">RPC Under Fire</a>》里关于这点写了更多。</p>
+<h1 id="这是一条我们没走过的路"><a href="#这是一条我们没走过的路" class="headerlink" title="这是一条我们没走过的路"></a>这是一条我们没走过的路</h1><p>Steve沿着这条路走，看见一些事情，也看到它非常糟糕的地方，但他活着回来，可以告诉我们他所看见的事情。</p>
+<p>调用一个远程操作并且包装它看起来像一个本地操作的根本问题是本地的错误模式和远程操作的错误模式是完全不同的。</p>
+<p>如果这还不够糟糕，性能方面也完全不同。本地的操作需要几微秒，当通过一个RPC执行的时候，可能忽然就花掉几毫秒。</p>
+<p>如果程序员不能判断本地和远程调用之间的不同，那么要写出高效的代码基本不可能。随意放置RPC在一些乱七八糟的软件中可以（必定）破坏性能。</p>
+<blockquote>
+<p>我亲眼见证了几个大型项目的失败，正是因为本地和远程过程调用之间的区别还不清楚。</p>
+</blockquote>
+<p>注意：这个因素在有几十个程序员参与的大项目里变得更糟糕。如果是一个小团队，则还有机会挽救，这需要参与者清楚哪些是本地调用，哪些是是远程调用。</p>
+<h1 id="在Erlang的世界我们是如何做的？"><a href="#在Erlang的世界我们是如何做的？" class="headerlink" title="在Erlang的世界我们是如何做的？"></a>在Erlang的世界我们是如何做的？</h1><p>所有Erlang程序是由并行进程集合组成的，这些进程可以创建其他进程并且发送和接收消息。这么做非常简单而且是一个轻量操作。</p>
+<p>为了错误处理的目的，进程可以彼此链接在一起。如果A链接到B并且A崩溃了，那么B会被发送一个错误信号，反之亦然。链接机制与消息发送/接收机制完全正交。</p>
+<p>当我们编写分布式系统，各种形式的RPC通常是非常有用的编程抽象，但RPC的确切形式因问题不同而不同，也因系统架构不同而不同。</p>
+<p>RPC的确切形式凝固成一个刚性框架，不顾错误场景是场灾难。</p>
+<p>用发送、 接收和链接，Erlang 程序员可以很容易把自定义错误处理“揉进他们自己的RPC”。</p>
+<p>在Erlang里没有“标准PRC存根生成器”，Erlang也没有聪明到有一个如此的生成器。</p>
+<p>在很多应用里，RPC尽可能最简单的形式就够了，我们可以定义它如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request)</span> -&gt;</span></div><div class="line"> Pid ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">     &#123;Pid, Response&#125; -&gt;</div><div class="line">        Response</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>这一点都不复杂。这段代码只是发送一条消息然后等待回复。</p>
+<p>在这个主题上有很多的变化。最简单的RPC将永远等待下去，所以如果回复一直不来的话，客户端就会挂起。我们可以用增加超时来修复这个问题：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request, Time)</span> -&gt;</span></div><div class="line"> Pid ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">    &#123;Pid, Response&#125; -&gt;</div><div class="line">        &#123;ok, Response&#125;</div><div class="line">    <span class="keyword">after</span> Time -&gt;</div><div class="line">        &#123;error, timeout&#125;</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>假设我们希望在一个PRC调用中远程机器死掉的时候一个异常在客户端被抛出，那么我们可以写如下代码：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request)</span> -&gt;</span></div><div class="line"> link(Pid),</div><div class="line"> Pid ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">    Response -&gt;</div><div class="line">        Response</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>如果在RPC里有任何差错的话，附加的链接将确保客户端终止。</p>
+<p>假设我们想要“并行化两个RPC”，则代码如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid1, Pid2, Request)</span> -&gt;</span></div><div class="line"> Pid1 ! Pid2 ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">    &#123;Pid1, Response1&#125; -&gt;</div><div class="line">        <span class="keyword">receive</span></div><div class="line">            &#123;Pid2, Response2&#125; -&gt;</div><div class="line">                &#123;Response1, Response2&#125;</div><div class="line">        <span class="keyword">end</span></div><div class="line">     <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>（不用担心这段代码的执行，消息的回复顺序是无关紧要的。）</p>
+<p>我想通过一些小例子来说明的观点是，RPC的粒度级别和错误特性是在编程人员的精确控制下的。</p>
+<p>如果事实证明这些RPC的抽象不是我们真正想要的，然后我们可以很容易地用原始的进程和消息方式来写我们的解决方案。</p>
+<p>所以，例如，从一个消息序列图得到Erlang代码是一个简单的编程工作。</p>
+<p>“标准”的RPC也做以下的疯狂的假设”，回复应该一定返回到客户”。</p>
+<p>互相合作的形式，比如告诉X做Y然后发送结果到Z，这种形式是不可能用一个标准的 RPC 框架（如 SOAP)来表达的，但在Erlang中表达却很简单︰</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(tell,X,toDo,Y,replyTo,Z)</span> -&gt;</span></div><div class="line"> X ! &#123;Z, Y&#125;.</div></pre></td></tr></table></figure>
+<p>（这里假设约定我前面一直用发送两个元素的元组当作消息，其中有进程的Id，它被期待当作回复消息的元组的第一元素（在前面的例子例我们用self()，这样就强制要求回复消息返回给原请求者））</p>
+<p>假设我们要加版本信息到我们的协议，这也很容易做到：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request, Vsn)</span> -&gt;</span></div><div class="line"> Pid ! &#123;self(), vsn, Vsn, Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">     ...</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>关键点是，这里展示的事情，比如像版本信息、错误处理平行化等等都是容易添加的，只要我们暴露消息和函数调用之间的接口并允许用户定制构建他们自己和远程代码的交互形式。</p>
+<p>当然，组件间交互的一定通用模式将浮现，它们被加入OTP库。</p>
+<h1 id="什么是OTP？"><a href="#什么是OTP？" class="headerlink" title="什么是OTP？"></a>什么是OTP？</h1><p>OTP是在相当常见的场景下像RPC一样做事的一套久经测试验证的方法。OTP方法没有覆盖所有错误场景，不过它们覆盖了通常的场景。我们经常需要跨出OTP框架外设计我们自己特定的错误和恢复策略，不过做这些都很简单，因为OTP它自己是一个消息驱动的框架，所有我们必须要做的是去掉那些存根函数，用我们自己定制的函数来替换它们来发送和接收消息。</p>
+<p>OTP应该重新命名为“OTP on rails”，它真的只是一个构建容错系统的框架。</p>
+<p>这种没有过度依赖一个特别的RPC方式来构建软件的方法可行吗？</p>
+<p>我的回答是可行的，而且肯定可行。</p>
+<p>我们用这种方式构建实时服务器软件在爱立信已经有几十年了。我们已经用PLEX, EriPascal, Erlang 和 C++ with Rose-RT好多年了。所有这些的共同点就是不依赖RPC。我们指定协议，然后我们用一些不同的技术实现它们。</p>
+<p>这些协议比指定使用的RPC是更复杂的方式，但是通过暴露协议和错误模式，我们可以使得系统高可用。</p>
+<p>我一直认为如果我们用RPC来做事情，我们会遇到麻烦。</p>
+<p>Steve这么做过也遇到了这些问题，而我们走的是不同的路。</p>
+<p>真正有趣的是，史提夫的世界和我们的世界开始碰撞-我们有很多东西要互相学习。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://armstrongonsoftware.blogspot.com.ar/2008/05/road-we-didnt-go-down.html" target="_blank" rel="external">http://armstrongonsoftware.blogspot.com.ar/2008/05/road-we-didnt-go-down.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/RPC/" rel="tag">#RPC</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/19/storing-state-in-erlang-with-processes/" rel="next" title="在Erlang里用进程保存状态">
+                <i class="fa fa-chevron-left"></i> 在Erlang里用进程保存状态
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/12/24/road-we-didnt-go-down/"
+           data-title="我们没有走过的路" data-url="http://szpzs.oschina.io/2016/12/24/road-we-didnt-go-down/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">87</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">109</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#这是一条我们没走过的路"><span class="nav-number">1.</span> <span class="nav-text">这是一条我们没走过的路</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#在Erlang的世界我们是如何做的？"><span class="nav-number">2.</span> <span class="nav-text">在Erlang的世界我们是如何做的？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是OTP？"><span class="nav-number">3.</span> <span class="nav-text">什么是OTP？</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
