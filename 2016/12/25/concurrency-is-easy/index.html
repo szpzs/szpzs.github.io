@@ -1,0 +1,914 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,concurrency," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="我们了解并发。
+对并发的深入理解已经深植于我们的大脑。我们对刺激的反应非常迅速，这由大脑的被称为杏仁核的一部分负责，没有这个反应系统我们可能会死掉。有意识的想法太慢了，当“刹车”的想法形成的时候，我们已经那么做完了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并发是容易的">
+<meta property="og:url" content="http://szpzs.oschina.io/2016/12/25/concurrency-is-easy/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="我们了解并发。
+对并发的深入理解已经深植于我们的大脑。我们对刺激的反应非常迅速，这由大脑的被称为杏仁核的一部分负责，没有这个反应系统我们可能会死掉。有意识的想法太慢了，当“刹车”的想法形成的时候，我们已经那么做完了。">
+<meta property="og:image" content="http://szpzs.oschina.io/images/many_cars.0.jpg">
+<meta property="og:updated_time" content="2016-12-25T10:44:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="并发是容易的">
+<meta name="twitter:description" content="我们了解并发。
+对并发的深入理解已经深植于我们的大脑。我们对刺激的反应非常迅速，这由大脑的被称为杏仁核的一部分负责，没有这个反应系统我们可能会死掉。有意识的想法太慢了，当“刹车”的想法形成的时候，我们已经那么做完了。">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/many_cars.0.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2016/12/25/concurrency-is-easy/"/>
+
+  <title> 并发是容易的 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                并发是容易的
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-12-25T18:28:54+08:00" content="2016-12-25">
+              2016-12-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/concurrency/" itemprop="url" rel="index">
+                    <span itemprop="name">concurrency</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/12/25/concurrency-is-easy/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/25/concurrency-is-easy/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们了解并发。</p>
+<p>对并发的深入理解已经深植于我们的大脑。我们对刺激的反应非常迅速，这由大脑的被称为杏仁核的一部分负责，没有这个反应系统我们可能会死掉。有意识的想法太慢了，当“刹车”的想法形成的时候，我们已经那么做完了。</p>
+<a id="more"></a>
+<p><img src="/images/many_cars.0.jpg" style="border:0;"></p>
+<p>在高速公路，我潜意识地判断几十或数百辆汽车的位置，这样做是没有经过有意识的思考的。如果我不能这样做，我可能会死掉。</p>
+<h1 id="世界是并行的"><a href="#世界是并行的" class="headerlink" title="世界是并行的"></a>世界是并行的</h1><p>如果我们想写的程序的行为和真实世界里事物的行为一样，那么这些程序将有一个并发的结构。</p>
+<h1 id="这就是为什么我们应该用并发的编程语言编程"><a href="#这就是为什么我们应该用并发的编程语言编程" class="headerlink" title="这就是为什么我们应该用并发的编程语言编程"></a>这就是为什么我们应该用并发的编程语言编程</h1><p>然而，大多数情况下，我们用顺序的编程语言编程现实世界的应用程序。这肯定很困难。</p>
+<p>用被设计为编写并发应用程序的语言（比如<a href="http://www.erlang.org/" target="_blank" rel="external">Erlang</a>）来编程，那么并发编程会变得容易很多。</p>
+<h1 id="Erlang程序模型，我们如何思考和交互"><a href="#Erlang程序模型，我们如何思考和交互" class="headerlink" title="Erlang程序模型，我们如何思考和交互"></a>Erlang程序模型，我们如何思考和交互</h1><p>我们没有共享记忆。我有我的记忆，你有你的记忆，我们俩一共有两个大脑，彼此独立，它们不连在一起。为了要改变你的记忆，通过说话或挥动我的手臂的方式我发一个消息给你。你听到或看到，然后你的记忆改变了。但是如果我不问你或者不观察你的反应，我就不知道你是否收到了我发给你的消息。</p>
+<p>Erlang进程也是如此。Erlang进程没有共享内存。每个进程有它自己的内存。为了改变其他进程的内存，你必须发送消息给它们并希望它们收到而且理解你发的消息的意思。</p>
+<p>为了确认其他进程收到你的消息并改变了它的内存，你必须问它们（通过发送一条消息）。这正是我们人类如何彼此交互的方式。</p>
+<p>苏：“嗨，比尔，我的电话号码是45 67 89 12”。</p>
+<p>苏：“你听见了吗？”。</p>
+<p>比尔：“收到，你的电话号码是45 67 89 12”。</p>
+<p>这些互动模式对于我们来说非常熟悉，从出生开始，我们通过观察外部世界，并且通过发送信息给外部世界同时通过观察外部世界的反馈来学习与外部世界交互。</p>
+<h1 id="人们作为独立实体通过发送消息进行交互"><a href="#人们作为独立实体通过发送消息进行交互" class="headerlink" title="人们作为独立实体通过发送消息进行交互"></a>人们作为独立实体通过发送消息进行交互</h1><p>这就是Erlang进程的工作方式，也是我们的工作方式，所以我们可以非常容易理解Erlang程序。</p>
+<p>Erlang程序由许多小进程组成，这些进程之间总在喋喋不休的交流，就像我们人类。</p>
+<p>一个Erlang程序由数十，可能数千，甚至数十万小进程组成。所有这些进程独立地运行。它们彼此通过发送消息来交流。每个进程有自己的私有内存。它们的行为就像一座大房子里的人们一样彼此通过聊天来交流。</p>
+<p>这使得Erlang程序天生就容易管理和扩展。假设我们有十个人（进程），他们有太多的工作要做，我们该如何处理？答案就是让更多的人来做。我们怎么管理这些人？简单地朝他们喊指令就行（广播）。</p>
+<p>Erlang进程没有共享内存，所以当一块内存被使用的时候就没必要给它上锁。有锁就需要钥匙，只要有锁，就有可能某天会丢失钥匙。当你丢了钥匙，会怎么样？你会惊慌失措。</p>
+<p>有锁和钥匙的分布式软件系统总是出错。</p>
+<h1 id="如果有人死了，其他人会注意到"><a href="#如果有人死了，其他人会注意到" class="headerlink" title="如果有人死了，其他人会注意到"></a>如果有人死了，其他人会注意到</h1><p>我在一个房间里，突然倒下死了，别人可能会注意到，至少我希望是如此。Erlang进程和我们人是一样的，他们有时也会死。不像人们死去时那样，Erlang进程在它们最后一口气的时候会大声喊出他们到底死于什么。</p>
+<p>想象一个有很多人的房间，突然一个人倒下并死掉。就在他死亡的一刻，他说，“我死于心脏病”，或者，“我死于胃出血”。这就是Erlang进程的做法。一个进程死的时候可能会说：“我死于被要求被零除”，另一个进程死的时候可能会说：“我死于被要求查询空列表的最后一个元素是什么”。</p>
+<p>现在在我们这个很多人的房间里，我们可以想象有一些人被特别地赋予清理尸体的特殊工作。假设有两个人，简和约翰。如果简死了，约翰会处理简的后事。如果约翰死了，简会处理约翰的后事。简和约翰被一个看不见的约定联系在一起，只要他们中的一个死亡，另一个就会处理后事。</p>
+<p>这就是Erlang的错误发现机制，进程可以被链接在一起。如果其中一个进程死掉，其他进程会获得一个错误消息，这个消息告诉他们死亡进程的死亡原因。</p>
+<p>基本上就是这样的。</p>
+<p>这就是Erlang程序的工作机制。</p>
+<h1 id="到目前为止我们学到了什么"><a href="#到目前为止我们学到了什么" class="headerlink" title="到目前为止我们学到了什么"></a>到目前为止我们学到了什么</h1><p>Erlang程序由许多进程组成。这些进程彼此之间可以发送消息。这些消息可能会或可能不会被接收和理解。如果你想知道消息是否被接收和理解，你必须给进程发送一条消息并等待回复。</p>
+<p>进程可以被链接在一起。如果链接中的一个进程死掉，其他的进程会被发送一条包含这个进程为什么死掉的消息。</p>
+<p>这个简单的编程模型是被我称为面向并发编程模型的一部分。你可以在<a href="http://www.sics.se/~joe/thesis" target="_blank" rel="external">这里</a>参阅更多信息。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://armstrongonsoftware.blogspot.com.ar/2006/08/concurrency-is-easy.html" target="_blank" rel="external">http://armstrongonsoftware.blogspot.com.ar/2006/08/concurrency-is-easy.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/concurrency/" rel="tag">#concurrency</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/24/road-we-didnt-go-down/" rel="next" title="我们没有走过的路">
+                <i class="fa fa-chevron-left"></i> 我们没有走过的路
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/12/25/concurrency-is-easy/"
+           data-title="并发是容易的" data-url="http://szpzs.oschina.io/2016/12/25/concurrency-is-easy/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">88</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">41</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">110</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#世界是并行的"><span class="nav-number">1.</span> <span class="nav-text">世界是并行的</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#这就是为什么我们应该用并发的编程语言编程"><span class="nav-number">2.</span> <span class="nav-text">这就是为什么我们应该用并发的编程语言编程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Erlang程序模型，我们如何思考和交互"><span class="nav-number">3.</span> <span class="nav-text">Erlang程序模型，我们如何思考和交互</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#人们作为独立实体通过发送消息进行交互"><span class="nav-number">4.</span> <span class="nav-text">人们作为独立实体通过发送消息进行交互</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如果有人死了，其他人会注意到"><span class="nav-number">5.</span> <span class="nav-text">如果有人死了，其他人会注意到</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#到目前为止我们学到了什么"><span class="nav-number">6.</span> <span class="nav-text">到目前为止我们学到了什么</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
