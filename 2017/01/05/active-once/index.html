@@ -1,0 +1,948 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,gen_tcp,active,active-once,controlling process,control flow," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="我想理解和测试gen_tcp模块使用的active_once选项。整个过程我写了一些代码，包括三个监督者，一个gen_fsm和一个gen_server。
+这是一篇gen_tcp和active_onece选项的概念证明文章。正如我一直说的，这只是我的学习笔记并且我可能是错的。所以查阅OTP文档和其他一些不错的书籍，可以发现关于这一主题的相关内容。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gen_tcp 和 active_once">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/01/05/active-once/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="我想理解和测试gen_tcp模块使用的active_once选项。整个过程我写了一些代码，包括三个监督者，一个gen_fsm和一个gen_server。
+这是一篇gen_tcp和active_onece选项的概念证明文章。正如我一直说的，这只是我的学习笔记并且我可能是错的。所以查阅OTP文档和其他一些不错的书籍，可以发现关于这一主题的相关内容。">
+<meta property="og:image" content="http://szpzs.oschina.io/images/structure-poc.png">
+<meta property="og:updated_time" content="2017-01-05T14:40:09.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="gen_tcp 和 active_once">
+<meta name="twitter:description" content="我想理解和测试gen_tcp模块使用的active_once选项。整个过程我写了一些代码，包括三个监督者，一个gen_fsm和一个gen_server。
+这是一篇gen_tcp和active_onece选项的概念证明文章。正如我一直说的，这只是我的学习笔记并且我可能是错的。所以查阅OTP文档和其他一些不错的书籍，可以发现关于这一主题的相关内容。">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/structure-poc.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/01/05/active-once/"/>
+
+  <title> gen_tcp 和 active_once | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                gen_tcp 和 active_once
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-01-05T22:19:10+08:00" content="2017-01-05">
+              2017-01-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/gen-tcp/" itemprop="url" rel="index">
+                    <span itemprop="name">gen_tcp</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/01/05/active-once/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/05/active-once/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我想理解和测试gen_tcp模块使用的active_once选项。整个过程我写了一些代码，包括三个监督者，一个gen_fsm和一个gen_server。</p>
+<p>这是一篇gen_tcp和active_onece选项的概念证明文章。正如我一直说的，这只是我的学习笔记并且我可能是错的。所以查阅OTP文档和其他一些不错的书籍，可以发现关于这一主题的相关内容。</p>
+<a id="more"></a>
+<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>目标很简单，就是看看active_once选项如何控制数据流。也许这一次这个博客的简单概念证明的规则被打破了。本文的这个例子并不像以前那么简单，但我认为最终它是值得的。</p>
+<h1 id="主动和非主动套接字"><a href="#主动和非主动套接字" class="headerlink" title="主动和非主动套接字"></a>主动和非主动套接字</h1><p>gen_tcp模块提供两种方式来读取套接字流，主动和非主动套接字。后者是传统的方式。通过使用recv/2和recv/3函数，进程决定什么时候从输入流读取数据。这种方式下，进程负责控制输入数据流。</p>
+<p>另一方面，主动套接字允许按Erlang消息方式来接收数据。这种方式的问题是，对端进程可以无节制地发送数据来淹没我们进程的接收数据队列，因为我们的进程没有相应的流控策略。</p>
+<p>不过现在有办法解决这个问题。通过设置active_once选项为true，进程按Erlang消息方式从套接字接收一次数据。一旦消息被接收到，套接字又转换为非主动方式，如果缓冲区满了，则阻止发送进程发送数据。进程可以再设置active_once选项来从套接字接收下一个Erlang消息来重复这个过程。</p>
+<h1 id="控制进程"><a href="#控制进程" class="headerlink" title="控制进程"></a>控制进程</h1><p>控制进程就是当套接字被设置成主动或active_once的时候从套接字流接收到Erlang消息的那个进程。默认情况下，控制进程就是接收套接字的进程。</p>
+<p>正如我们将看到的，可以用controlling_process/2函数来改变谁是控制进程。</p>
+<h1 id="概念证明的结构"><a href="#概念证明的结构" class="headerlink" title="概念证明的结构"></a>概念证明的结构</h1><p>实际上，就如下图这么简单。</p>
+<p><img src="/images/structure-poc.png" style="border:0;"></p>
+<p><strong>main_sup: 主监督者。</strong></p>
+<p><strong>listener_sup: 接收链接进程的监督者。</strong></p>
+<p><strong>worker_sup: 读取工作者的监督者。</strong></p>
+<p><strong>accept_fsm: 接收链接进程。</strong></p>
+<p><strong>worker_gen: 套接字读取工作者。</strong></p>
+<hr>
+<p><strong>main_sup - 主监督者</strong></p>
+<p>它使用permanent和one_on_one 重启策略。它有两个也是监督者的子进程。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(main_sup)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-behaviour</span><span class="params">(supervisor)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([start_link/<span class="number">0</span>])</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([init/<span class="number">1</span>])</span>.</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="title">start_link</span><span class="params">()</span> -&gt;</span></div><div class="line">    supervisor:start_link(&#123;local, ?MODULE&#125;, ?MODULE, []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">init</span><span class="params">([])</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"main_sup:init...~n"</span>),</div><div class="line"></div><div class="line">    RestartStrategy = one_for_one,</div><div class="line">    MaxRestarts = <span class="number">10</span>,</div><div class="line">    MaxSecondsBetweenRestarts = <span class="number">3600</span>,</div><div class="line"></div><div class="line">    SupFlags = &#123;RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts&#125;,</div><div class="line"></div><div class="line">    Restart = permanent,</div><div class="line">    Shutdown = <span class="number">2000</span>,</div><div class="line">    Type = supervisor,</div><div class="line"></div><div class="line">    ListenerSup = &#123;'listener_sup',</div><div class="line">		   &#123;'listener_sup', start_link, []&#125;,</div><div class="line">		   Restart, Shutdown, Type, ['listener_sup']&#125;,</div><div class="line"></div><div class="line">    WorkerSup = &#123;'worker_sup',</div><div class="line">		   &#123;'worker_sup', start_link, []&#125;,</div><div class="line">		   Restart, Shutdown, Type, ['worker_sup']&#125;,</div><div class="line"></div><div class="line">    ChildList = [ListenerSup, WorkerSup],</div><div class="line"></div><div class="line">    &#123;ok, &#123;SupFlags, ChildList&#125;&#125;.</div></pre></td></tr></table></figure>
+<hr>
+<p><strong>listener_sup: 接收链接进程的监督者。</strong></p>
+<p>它使用permanent和one_on_one 重启策略。它的子进程是accept_fsm进程。三个子进程被启动起来是为了准备大量链接的冲击。监听套接字在init函数里被创建，并且它的active属性设置为false，我们想使用默认的流控方式。</p>
+<p>需要注意的是，三个子进程是用一个列表解析来创建的，在这里每一个id由build_label函数创建，结果id的格式是 accept_fsm_n，n是进程的顺序。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(listener_sup)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-behaviour</span><span class="params">(supervisor)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([start_link/<span class="number">0</span>])</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([init/<span class="number">1</span>])</span>.</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="title">start_link</span><span class="params">()</span> -&gt;</span></div><div class="line">    supervisor:start_link(&#123;local, ?MODULE&#125;, ?MODULE, []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">init</span><span class="params">([])</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"listener_sup:init...~n"</span>),</div><div class="line"></div><div class="line">    &#123;ok, LSocket&#125; = gen_tcp:listen(<span class="number">2000</span>, [&#123;active, false&#125;]),</div><div class="line"></div><div class="line">    NumberOfWorkers = <span class="number">3</span>,</div><div class="line">    RestartStrategy = one_for_one,</div><div class="line">    MaxRestarts = <span class="number">100</span>,</div><div class="line">    MaxSecondsBetweenRestarts = <span class="number">3600</span>,</div><div class="line"></div><div class="line">    SupFlags = &#123;RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts&#125;,</div><div class="line"></div><div class="line">    Restart = permanent,</div><div class="line">    Shutdown = <span class="number">2000</span>,</div><div class="line">    Type = worker,</div><div class="line"></div><div class="line">    ChildList = [&#123;build_label(<span class="string">"accept_fsm_"</span>, C),</div><div class="line">		  &#123;'accept_fsm', start_link, [LSocket]&#125;,</div><div class="line">		  Restart, Shutdown, Type, ['accept_fsm']&#125;</div><div class="line">		 || C &lt;- lists:seq(<span class="number">1</span>, NumberOfWorkers)],</div><div class="line"></div><div class="line">    &#123;ok, &#123;SupFlags, ChildList&#125;&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">build_label</span><span class="params">(Name, C)</span> -&gt;</span></div><div class="line">    io_lib:format(<span class="string">"~s~w"</span>, [Name, C]).</div></pre></td></tr></table></figure>
+<hr>
+<p><strong>worker_sup: 读取工作者的监督者。</strong></p>
+<p>它使用temporary和simple_on_on_one重启策略按需求来启动进程。它的子进程是worker_gen进程。它导出start_child/1函数，通过传递新的接收的套接字给此函数来启动一个worker_gen子进程。另外它设置新的子进程作为套接字的控制进程，这样该子进程就可以接收到Erlang消息流。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(worker_sup)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-behaviour</span><span class="params">(supervisor)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([start_link/<span class="number">0</span>, start_child/<span class="number">1</span>])</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([init/<span class="number">1</span>])</span>.</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="title">start_link</span><span class="params">()</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"listener_sup:start_link...~n"</span>),</div><div class="line">    supervisor:start_link(&#123;local, ?MODULE&#125;, ?MODULE, []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">start_child</span><span class="params">(ASocket)</span> -&gt;</span></div><div class="line">    &#123;ok, Pid&#125; = supervisor:start_child(?MODULE, [ASocket]),</div><div class="line">    gen_tcp:controlling_process(ASocket, Pid),</div><div class="line">    &#123;ok, Pid&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">init</span><span class="params">([])</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"listener_sup:init...~n"</span>),</div><div class="line"></div><div class="line">    RestartStrategy = simple_one_for_one,</div><div class="line">    MaxRestarts = <span class="number">100</span>,</div><div class="line">    MaxSecondsBetweenRestarts = <span class="number">3600</span>,</div><div class="line"></div><div class="line">    SupFlags = &#123;RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts&#125;,</div><div class="line"></div><div class="line">    Restart = temporary,</div><div class="line">    Shutdown = <span class="number">2000</span>,</div><div class="line">    Type = worker,</div><div class="line"></div><div class="line">    AChild = &#123;'worker_gen', &#123;'worker_gen', start_link, []&#125;,</div><div class="line">	      Restart, Shutdown, Type, ['worker_gen']&#125;,</div><div class="line"></div><div class="line">    &#123;ok, &#123;SupFlags, [AChild]&#125;&#125;.</div></pre></td></tr></table></figure>
+<hr>
+<p><strong>accept_fsm: 接收链接进程。</strong></p>
+<p>这个进程被实现为一个FSM（有限状态机），而且只有一个状态，即accept状态。它接收一个侦听套接字并且在其上接收链接。当一个新的链接到来，这个进程设置套接收的套接字为active_once并且传递新的接收套接字给worker_sup请求其创建一个新子进程。然后这个进程再回到accept状态。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(accept_fsm)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-behaviour</span><span class="params">(gen_fsm)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([start_link/<span class="number">1</span>])</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([init/<span class="number">1</span>, handle_event/<span class="number">3</span>,</span></div><div class="line">	 handle_sync_event/<span class="number">4</span>, handle_info/<span class="number">3</span>, terminate/<span class="number">3</span>, code_change/<span class="number">4</span>]).</div><div class="line"><span class="keyword">-export</span><span class="params">([accept/<span class="number">2</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">start_link</span><span class="params">(LSocket)</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"accept_fsm:start_link...~n"</span>),</div><div class="line">    gen_fsm:start_link(?MODULE, [LSocket], []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">init</span><span class="params">([LSocket])</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"accept_fsm:init...~n"</span>),</div><div class="line">    gen_fsm:send_event(self(), accept),</div><div class="line">    &#123;ok, accept, LSocket&#125;.</div><div class="line"></div><div class="line"><span class="comment">% Events.</span></div><div class="line"><span class="function"><span class="title">accept</span><span class="params">(accept, LSocket)</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"accept_fsm:accept...~n"</span>),</div><div class="line">    &#123;ok, ASocket&#125; = gen_tcp:accept(LSocket),</div><div class="line">    inet:setopts(ASocket, [&#123;active, once&#125;, &#123;packet, line&#125;]),</div><div class="line">    worker_sup:start_child(ASocket),</div><div class="line">    gen_fsm:send_event(self(), accept),</div><div class="line">    &#123;next_state, accept, LSocket&#125;.</div><div class="line"></div><div class="line"><span class="comment">% All events.</span></div><div class="line"><span class="function"><span class="title">handle_event</span><span class="params">(accept, _StateName, State)</span> -&gt;</span></div><div class="line">    &#123;next_state, accept, State&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">handle_sync_event</span><span class="params">(_Any, _From, _StateName, State)</span> -&gt;</span></div><div class="line">    &#123;reply, ok, accept, State&#125;.</div><div class="line"></div><div class="line"><span class="comment">% OTP messeges.</span></div><div class="line"><span class="function"><span class="title">handle_info</span><span class="params">(_Info, StateName, State)</span> -&gt;</span></div><div class="line">    &#123;next_state, StateName, State&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">terminate</span><span class="params">(_Reason, _StateName, _State)</span> -&gt;</span></div><div class="line">    ok.</div><div class="line"></div><div class="line"><span class="function"><span class="title">code_change</span><span class="params">(_OldVsn, StateName, State, _Extra)</span> -&gt;</span></div><div class="line">    &#123;ok, StateName, State&#125;.</div></pre></td></tr></table></figure>
+<hr>
+<p><strong>worker_gen: 套接字读取工作者。</strong></p>
+<p>本文的概念证明就在这个进程里。它只是打印收到的数据到标准输出上。</p>
+<p>为了观察流控的作用，在每次读取数据之间引入了一个延迟。在这种方式下，读取速度将比写的速度慢很多。当写缓冲满的时候会强制写进程停止写数据。</p>
+<p>注意：每次读取数据后如何设置active_once选项以及如何设置packet类型。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(worker_gen)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-behaviour</span><span class="params">(gen_server)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([start_link/<span class="number">1</span>])</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([init/<span class="number">1</span>, handle_call/<span class="number">3</span>, handle_cast/<span class="number">2</span>, handle_info/<span class="number">2</span>,</span></div><div class="line">	 terminate/<span class="number">2</span>, code_change/<span class="number">3</span>]).</div><div class="line"></div><div class="line"><span class="function"><span class="title">start_link</span><span class="params">(ASocket)</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"worker_gen:start_link...~n"</span>),</div><div class="line">    gen_server:start_link(?MODULE, [ASocket], []).</div><div class="line"></div><div class="line"><span class="function"><span class="title">init</span><span class="params">([ASocket])</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"worker_gen:init...~n"</span>),</div><div class="line">    &#123;ok, ASocket&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">handle_call</span><span class="params">(_Request, _From, State)</span> -&gt;</span></div><div class="line">    &#123;reply, ok, State&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">handle_cast</span><span class="params">(_Request, State)</span> -&gt;</span></div><div class="line">    &#123;noreply, State&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">handle_info</span><span class="params">(&#123;tcp, _S, Data&#125;, ASocket)</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"~p~n"</span>, [Data]),</div><div class="line">    inet:setopts(ASocket, [&#123;active, once&#125;, &#123;packet, line&#125;]),</div><div class="line">    timer:sleep(<span class="number">100</span>),</div><div class="line">    &#123;noreply, ASocket&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="title">handle_info</span><span class="params">(&#123;tcp_closed, _S&#125;, ASocket)</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"Closed...~n"</span>),</div><div class="line">    &#123;stop, normal, ASocket&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="title">handle_info</span><span class="params">(timeout, ASocket)</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"Closed...~n"</span>),</div><div class="line">    &#123;stop, normal, ASocket&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">terminate</span><span class="params">(_Reason, ASocket)</span> -&gt;</span></div><div class="line">    io:format(<span class="string">"Terminated...~n"</span>),</div><div class="line">    gen_tcp:close(ASocket),</div><div class="line">    ok.</div><div class="line"></div><div class="line"><span class="function"><span class="title">code_change</span><span class="params">(_OldVsn, State, _Extra)</span> -&gt;</span></div><div class="line">    &#123;ok, State&#125;.</div></pre></td></tr></table></figure>
+<h1 id="代码的运行"><a href="#代码的运行" class="headerlink" title="代码的运行"></a>代码的运行</h1><p>让我们看看代码如何运行。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">$ erl</div><div class="line">Erlang/OTP 17 [erts-6.1] [<span class="built_in">source</span>] [64-bit] [smp:4:4] [async-threads:10] [hipe]</div><div class="line">[kernel-poll:<span class="literal">false</span>]</div><div class="line"></div><div class="line">Eshell V6.1  (abort with ^G)</div><div class="line">1&gt; l(main_sup).</div><div class="line">&#123;module,main_sup&#125;</div><div class="line">2&gt; main_sup:start_link().</div><div class="line">main_sup:init...</div><div class="line">listener_sup:init...</div><div class="line">accept_fsm:start_link...</div><div class="line">accept_fsm:init...</div><div class="line">accept_fsm:accept...</div><div class="line">accept_fsm:start_link...</div><div class="line">accept_fsm:init...</div><div class="line">accept_fsm:accept...</div><div class="line">accept_fsm:start_link...</div><div class="line">accept_fsm:init...</div><div class="line">accept_fsm:accept...</div><div class="line">listener_sup:start_link...</div><div class="line">listener_sup:init...</div><div class="line">&#123;ok,&lt;0.35.0&gt;&#125;</div><div class="line">3&gt;</div></pre></td></tr></table></figure>
+<p>我们链接上一个客户端。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">accept_fsm:accept...</div><div class="line">listener_sup:start_link...</div><div class="line">listener_sup:init...</div><div class="line">&#123;ok,&lt;0.35.0&gt;&#125;</div><div class="line">worker_gen:start_link...</div><div class="line">worker_gen:init...</div><div class="line">accept_fsm:accept...</div><div class="line">3&gt;</div></pre></td></tr></table></figure>
+<p>然后从客户端写一些文本。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">accept_fsm:accept...</div><div class="line">listener_sup:start_link...</div><div class="line">listener_sup:init...</div><div class="line">&#123;ok,&lt;<span class="number">0.35</span>.<span class="number">0</span>&gt;&#125;</div><div class="line">worker_gen:start_link...</div><div class="line">worker_gen:init...</div><div class="line">accept_fsm:accept...</div><div class="line"><span class="string">"Hello World!!!\r\n"</span></div><div class="line"><span class="number">3</span>&gt;</div></pre></td></tr></table></figure>
+<p>我们来写一大块数据并统计它的用时。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ time man ls|nc -c localhost 2000</div><div class="line"></div><div class="line">real	0m39.517s</div><div class="line">user	0m0.083s</div><div class="line">sys	0m0.019s</div><div class="line">$</div></pre></td></tr></table></figure>
+<p>然后我们再做一次，不过这次我们去掉在每次读取数据之间的延迟。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ time man ls|nc -c localhost 2000</div><div class="line"></div><div class="line">real	0m0.100s</div><div class="line">user	0m0.085s</div><div class="line">sys	0m0.020s</div><div class="line">$</div></pre></td></tr></table></figure>
+<p>这两个测试让我们明白写进程是如何停下来等待缓冲区释放空间的。</p>
+<p>在压力测试后，我们检查到没有进程泄露。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">3&gt; supervisor:count_children(main_sup).</div><div class="line">[&#123;specs,2&#125;,&#123;active,2&#125;,&#123;supervisors,2&#125;,&#123;workers,0&#125;]</div><div class="line">4&gt; supervisor:count_children(listener_sup).</div><div class="line">[&#123;specs,3&#125;,&#123;active,3&#125;,&#123;supervisors,0&#125;,&#123;workers,3&#125;]</div><div class="line">5&gt; supervisor:count_children(worker_sup).</div><div class="line">[&#123;specs,1&#125;,&#123;active,0&#125;,&#123;supervisors,0&#125;,&#123;workers,0&#125;]</div><div class="line">6&gt;</div></pre></td></tr></table></figure>
+<p>我不太清楚这个解决方案有没有什么我不知道的问题。我尝试遵循我读过的Erlang和Elixir相关书籍中关于这个主题里学到模式。我可能有一些错误的地方，所以请阅读那些相关的书籍来获得关于这一主题的准确解释。</p>
+<p>有任何更正、评论和建议请联系我，我很乐意听到你的反馈。</p>
+<p>本文到此结束。</p>
+<p>祝大家玩得开心。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://jmilet.github.io/erlang/2015/02/15/active_once.html" target="_blank" rel="external">http://jmilet.github.io/erlang/2015/02/15/active_once.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/gen-tcp/" rel="tag">#gen_tcp</a>
+          
+            <a href="/tags/active/" rel="tag">#active</a>
+          
+            <a href="/tags/active-once/" rel="tag">#active-once</a>
+          
+            <a href="/tags/controlling-process/" rel="tag">#controlling process</a>
+          
+            <a href="/tags/control-flow/" rel="tag">#control flow</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/31/2016-Summary/" rel="next" title="总结2016，展望2017">
+                <i class="fa fa-chevron-left"></i> 总结2016，展望2017
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/01/05/active-once/"
+           data-title="gen_tcp 和 active_once" data-url="http://szpzs.oschina.io/2017/01/05/active-once/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">92</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">44</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">121</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#目标"><span class="nav-number">1.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#主动和非主动套接字"><span class="nav-number">2.</span> <span class="nav-text">主动和非主动套接字</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#控制进程"><span class="nav-number">3.</span> <span class="nav-text">控制进程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#概念证明的结构"><span class="nav-number">4.</span> <span class="nav-text">概念证明的结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码的运行"><span class="nav-number">5.</span> <span class="nav-text">代码的运行</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
