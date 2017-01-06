@@ -4,6 +4,32 @@
   
     
     <entry>
+      <title><![CDATA[类型之浅显易懂]]></title>
+      <url>http://szpzs.oschina.io/2017/01/06/eli5-types/</url>
+      <content type="html"><![CDATA[<p>Erlang是一种动态类型语言。这意味着任何变量，字段或函数参数可以包含任何允许的值。</p>
+<a id="more"></a>
+<h1 id="类型规格说明"><a href="#类型规格说明" class="headerlink" title="类型规格说明"></a>类型规格说明</h1><p>有一种类型描述语言，你可以用它来描述你认为你的函数应该有什么样的入参和返回值。这些类型规格说明是可选的，并且即使有不合适的类型存在，编译器也将好像没有任何事情发生一样运行你的程序。为了确认你的类型规格说明彼此没有冲突，我们可以使用另一个工具，它叫做Dialyzer。</p>
+<p>在Erlang源文件里，一个类型规格说明就是一条命令，它看起来如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-spec</span> func_name<span class="params">(Arg :: integer(), _, Y :: any())</span> -&gt; float<span class="params">()</span>.</div></pre></td></tr></table></figure>
+<p>类型规格说明不是代码，它既不运行也不阻止你的程序被编译。</p>
+<blockquote>
+<p>请参阅：<br>你可以在<a href="http://erlang.org/doc/reference_manual/typespec.html" target="_blank" rel="external">类型规格说明参考手册</a>和其他已有的书籍，比如：<a href="http://learnyousomeerlang.com/types-or-lack-thereof" target="_blank" rel="external">Learn You Some Erlang</a> 里读到更多关于类型规格说明的内容。</p>
+</blockquote>
+<h1 id="Dialyzer"><a href="#Dialyzer" class="headerlink" title="Dialyzer"></a>Dialyzer</h1><p>Dialyzer把编译好的BEAM文件或Erlang源文件作为输入，然后尝试猜类型（类型推导）。</p>
+<h1 id="它是如何运作的"><a href="#它是如何运作的" class="headerlink" title="它是如何运作的"></a>它是如何运作的</h1><p>假设你已经写了一个函数f，它有一个入参X并且返回一些值。Dialyzer首先做一个大致的假设，f是一个fun()，它的入参是任何值（(X :: any()）并且返回任何值（any()）。如下是Dialyzer一开始的猜测结果：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-spec</span> f<span class="params">(X :: any())</span> -&gt; any<span class="params">()</span>.</div></pre></td></tr></table></figure>
+<p>Any()是最宽泛的类型，它可能包括任何值。然后Dialyzer分析这个函数的用法和它的代码，并尝试缩小入参和返回值类型到更狭窄特定的类型集合。</p>
+<p>例如，如果Dialyzer发现仅有两个地方调用你的函数，分别传入整数入参和原子入参，那么X的类型缩小到 integer()|atom() （一个两个类型的集合）。如下就是Dialyzer可能推断出来的结果：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-spec</span> f<span class="params">(X :: integer() | atom())</span> -&gt; any<span class="params">()</span>.</div></pre></td></tr></table></figure>
+<p>如果Dialyzer发现了一个矛盾，也就是一些类型其实合并后是一个空类型（none()）或不兼容的类型被发现，Dialyzer会报告一个错误。这些错误看起来令人困惑，不过它们常常（还是一直？）指出代码中存在的问题。</p>
+<h1 id="Typer"><a href="#Typer" class="headerlink" title="Typer"></a>Typer</h1><p>Typer是另一个可选工具，在你的OTP环境里可以找到。Typer使用和Dialyzer一样的算法来推导给定模块里的各种类型并且打印它们。你可以把这些输出插入到你的程序里以备将来使用，或者为大的遗留项目做更好的文档。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-types.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-types.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[gen_tcp 和 active_once]]></title>
       <url>http://szpzs.oschina.io/2017/01/05/active-once/</url>
       <content type="html"><![CDATA[<p>我想理解和测试gen_tcp模块使用的active_once选项。整个过程我写了一些代码，包括三个监督者，一个gen_fsm和一个gen_server。</p>
