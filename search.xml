@@ -4,6 +4,39 @@
   
     
     <entry>
+      <title><![CDATA[基于属性的测试之浅显易懂]]></title>
+      <url>http://szpzs.oschina.io/2017/01/07/eli5-property-based/</url>
+      <content type="html"><![CDATA[<p>假设你知道通常的单元测试，可能你就会听说过common test。有另一种方法来检查你的系统，不同于普通的测试方法。它被称为基于属性的测试。</p>
+<p>要做测试，应该定义输入数据的类型和范围，系统将在此基础上进行测试。输入数据的定义看起来像一个具有类型和范围参数描述的元组。它们是数据，而你在测试前生成这些数据。</p>
+<a id="more"></a>
+<p>然后，测试引擎将用定义的输入数据的随机组合来调用你的代码。测试引擎尝试观察被测系统是否仍然展示所定义的属性。</p>
+<p>如果在某一时刻没有观察到所需的属性，测试将停止并且引擎将尝试缩小输入。这是试图找到仍然使得测试失败的最简单的输入数据。测试引擎将尽量减少尽可能多的参数的复杂性。</p>
+<blockquote>
+<p>请参阅：<br>提供了基于属性测试功能的库有：<a href="https://github.com/manopapad/proper" target="_blank" rel="external">PropEr</a> 和 <a href="http://www.quviq.com/products/erlang-quickcheck/" target="_blank" rel="external">Quviq QuickCheck</a> (商用的) (注意：QuickCheck 也有其他语言的版本！)</p>
+</blockquote>
+<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><p>假设你的老板要你写一个fizz_buzz函数。它的需求非常明确，fizz_buzz的入参是1到100之间的整数。另外，入参被3整除，它返回fizz，入参被5整除，它返回buzz，入参被3和5都整除，它返回fizbuzz。</p>
+<p>所以输入范围是：1到100之间的整数。</p>
+<p>而且我们想要观察的三个属性是：</p>
+<ol>
+<li>当X rem 15 =:= 0 ，我们想看到返回值是fizzbuzz。</li>
+<li>当X rem 3 =:= 0，我们想看到返回值是fizz。</li>
+<li>当X rem 5 =:= 0，我们想看到返回值是buzz。</li>
+</ol>
+<blockquote>
+<p>注意：<br>请查阅所选测试库的实际文档。库调用的语法不同。</p>
+</blockquote>
+<p>测试引擎将尝试从定义的输入范围随机组合的值。测试引擎将确保在运行过程中观察到所有3个属性。</p>
+<blockquote>
+<p>注意：<br>你可以用这种方式测试任何黑盒系统，而不需要知道它的内部情况。所测试的系统可以是C程序，甚至是真正的硬件！<br>它也可以运行并行测试（确保当并行发生时，并行系统不发生故障）和状态机测试（确保状态机在随机的输入下不会有问题）。</p>
+</blockquote>
+<p>&nbsp;</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-property-based.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-property-based.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[类型之浅显易懂]]></title>
       <url>http://szpzs.oschina.io/2017/01/06/eli5-types/</url>
       <content type="html"><![CDATA[<p>Erlang是一种动态类型语言。这意味着任何变量，字段或函数参数可以包含任何允许的值。</p>
