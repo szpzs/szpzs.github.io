@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-01-07T14:07:07.000Z</updated>
+  <updated>2017-01-08T02:41:24.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,50 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>外部数据格式之浅显易懂</title>
+    <link href="http://szpzs.oschina.io/2017/01/08/eli5-etf/"/>
+    <id>http://szpzs.oschina.io/2017/01/08/eli5-etf/</id>
+    <published>2017-01-08T02:35:34.000Z</published>
+    <updated>2017-01-08T02:41:24.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>与外部世界和其他Erlang节点进行通信，同时保存东西在磁盘上，Erlang都使用特殊编码格式 – 外部数据格式。</p>
+<a id="more"></a>
+<p>这种格式的主要要求如下：</p>
+<ul>
+<li>易于人类和机器看懂编码的数据和理解这些数据是什么。一个外部数据总是第一个字节值为131 (0x83)。</li>
+<li>压缩的数据有压缩的标志项。数据的头部第一个字节为：131 (0x83)，第二个字节为：80<br>(0x50)，第三到第六个字节为：无符号32位大端的整数表示未压缩的数据长度，这几个元素组成一个标签表示这是一个压缩数据。</li>
+<li>为了适用于跨平台，所有整数被编码为<a href="https://en.wikipedia.org/wiki/Endianness" target="_blank" rel="external">大端序</a>（从最高有效位到最低有效位字节），所有浮点数用大端的<a href="https://en.wikipedia.org/wiki/IEEE_floating_point" target="_blank" rel="external">IEEE编码</a>，所有文本用UTF-8<br>或 ISO-8859-1（ASCII超集） 来编码。</li>
+</ul>
+<p>编码一个数据用erlang:term_to_binary，相反的操作，即解码用erlang:binary_to_term。解码包含有意设定的二进制数据也使得本来不可能构建出来的数据成为可能，比如端口号，进程标识。（注：感谢少帮主的翻译）</p>
+<p>通常原子被编码为字符串。在基于网络的分布式模式下，为进一步减少协议的大小，一个分布式头部可以被添加进来。它包含了在已经编码的消息中的原子名称的表。然后在消息中的原子被替换为此表中的索引。</p>
+<p>那些从来没出现在Erlang程序中的虚拟机内部值的类型是不可能被编码的，比如THE_NON_VALUE、寄存器的引用、<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-cp" target="_blank" rel="external">CP</a>等。</p>
+<blockquote>
+<p>请参阅<br><a href="http://erlang.org/doc/apps/erts/erl_ext_dist.html" target="_blank" rel="external">外部数据格式文档</a></p>
+</blockquote>
+<p>&nbsp;</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-etf.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-etf.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;与外部世界和其他Erlang节点进行通信，同时保存东西在磁盘上，Erlang都使用特殊编码格式 – 外部数据格式。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
+    
+      <category term="External Term Format" scheme="http://szpzs.oschina.io/categories/Erlang/External-Term-Format/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
+    
+      <category term="External Term Format" scheme="http://szpzs.oschina.io/tags/External-Term-Format/"/>
+    
+  </entry>
   
   <entry>
     <title>基于属性的测试之浅显易懂</title>
@@ -1183,79 +1227,6 @@
       <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
     
       <category term="Rebar3" scheme="http://szpzs.oschina.io/tags/Rebar3/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>红回调和绿回调</title>
-    <link href="http://szpzs.oschina.io/2016/12/01/Red-and-Green-Callbacks/"/>
-    <id>http://szpzs.oschina.io/2016/12/01/Red-and-Green-Callbacks/</id>
-    <published>2016-12-01T07:11:46.000Z</published>
-    <updated>2016-12-01T07:57:38.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>有两种回调，我把他们分别叫做“红回调”和“绿回调”。红回调令人讨厌而且它打断你程序的控制流程。绿回调令人愉悦而且它不会打断你程序的控制流程。Javascript的回调是红回调而Erlang的回调是绿回调。</p>
-<p>为了解释这个问题，我必须先回过头来讲讲I/O。</p>
-<a id="more"></a>
-<h1 id="Erlang的并发I-O"><a href="#Erlang的并发I-O" class="headerlink" title="Erlang的并发I/O"></a>Erlang的并发I/O</h1><p>Erlang是如何处理并发I/O的？相当简单！假设我们有三个进程A、B和C，它们在并行执行。我用如下的方式描述这个场景：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">A || B || C</div></pre></td></tr></table></figure>
-<p>上述描述假设三个进程A、B、C正在进行I/O操作。</p>
-<p>进程A如下所描述做一些事情：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">A: --- <span class="built_in">read</span> --- <span class="built_in">read</span> --- write --- <span class="built_in">read</span> --- write ---</div></pre></td></tr></table></figure>
-<p>进程B则如下描述：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">B: ---- write --- write --- <span class="built_in">read</span> --- <span class="built_in">read</span> --- write ---</div></pre></td></tr></table></figure>
-<p>C进程也大致如此。虚线表示一些顺序的计算。进程A的Erlang代码框架如下：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">a</span><span class="params">()</span> -&gt;</span></div><div class="line">    ...</div><div class="line">    X = read(),</div><div class="line">    ...</div><div class="line">    Y = read(),</div><div class="line">    ...</div><div class="line">    write(...),</div><div class="line">    ...</div></pre></td></tr></table></figure>
-<p>进程B和进程C的代码也和这个差不多。</p>
-<p>Erlang里实际上是没有read()这个函数的。Erlang有  <a href="http://www.erlang.org/course/concurrent_programming.html#select" target="_blank" rel="external">select receive</a>  模式来处理消息，所以我们实际上定义的read()函数像如下所示：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">read</span><span class="params">()</span> -&gt;</span></div><div class="line">    <span class="keyword">receive</span></div><div class="line">        Pattern1 -&gt;</div><div class="line">           ...</div><div class="line">        Pattern2 -&gt;</div><div class="line">           ...</div><div class="line">    <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
-<p>select receive 模式如何工作的细节不是本次讨论的重点，因此本文我将忽略这些细节。</p>
-<p>重点是我在进程A的代码里如下所写：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">X = read()</div><div class="line">...</div></pre></td></tr></table></figure>
-<p>那么，我们的进程将在read函数处被挂起（或者叫做阻塞）直到read函数执行完毕。因此我们的代码“看起来像”是正在做一个同步阻塞的读动作。</p>
-<p>看起来像是用双引号括起来的，因为它不是一个真正的阻塞读，而是一个真正的异步读，这个读操作不阻塞其他任何Erlang进程。</p>
-<p>这真是棒极了，因为从一开始，程序就等待读请求完成，然后获得读取到的数据，程序继续运行。</p>
-<h1 id="理解并发"><a href="#理解并发" class="headerlink" title="理解并发"></a>理解并发</h1><p>Erlang的I/O非常特别。当我们有两个并行的进程A和B，A进程里的一个读请求将明显地阻塞A进程，但是不会对其他任何并行的进程（这里指B）有影响。</p>
-<p>所以A和B可以都同时执行写入操作就好像它们是连续的进程。</p>
-<p>现在假设我们没有一个合适的基础并发模型。假设所有我们要做的事情都放入一个单独线程来执行。假设我们做一个读操作（它是阻塞的）而其他事情都在等待。啊！亲！我们的编程模型是更加清晰简单了，但是我们却浪费了CPU的宝贵资源。</p>
-<p>现在在一些语言（正是我在研究的Javascript）没有多进程和多线程。不确切地说，它有一个线程，所有的事情都揉进这个线程里。在Javascript里要写与读相关操作的代码，你不得不用红回调，并且发明你自己的并发概念。</p>
-<h1 id="红回调"><a href="#红回调" class="headerlink" title="红回调"></a>红回调</h1><p>在Javascript里你肯定不想在主线程里做一个阻塞同步读操作（记住它只有一个线程），那么你必需设置一个回调，当读操作完成的时候触发这个回调。我叫这样的回调为红回调。你写的代码如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> done = <span class="function"><span class="keyword">function</span>(<span class="params">x</span>)</span>&#123; ... do something <span class="keyword">with</span> x ..&#125;;</div><div class="line"><span class="keyword">var</span> error = <span class="function"><span class="keyword">function</span>(<span class="params">x</span>)</span>&#123; .... x …&#125;</div><div class="line">read(Something, &#123;onSuccess:done, onError:error&#125;);</div><div class="line">... ... more code ...</div></pre></td></tr></table></figure>
-<p>这样的代码搞得我脑袋一团浆糊。</p>
-<p>当程序正在上述代码 more code 的某个地方执行的时候，读操作完成了，则必需立即回到done这个函数来执行，然后再回到前面 more code 中断的地方。我发现这个方式非常难以理解。</p>
-<p>这的确很糟糕，每一个要解决并发问题的Javascript程序员必需要发明他自己的并发模型。问题就在于他们不知道他们正在做的是什么。每次一个Javascript程序员写下一行代码，说是“此处就该这么做”的时候，他实际上是在发明一个新的并发模型，并且在这些代码执行的时候他是没有任何线索知道这些代码是怎样交织在一起的。</p>
-<p>（其实我对Javascript又爱又恨，它的大部分我都喜欢，但是就是恨它的并发模型。不过好笑的是，Javascript是没有并发模型的，所以对它也无从可恨了。:-）</p>
-<p>更加难以理解的是错误。在共享内存的多线程回调代码里的错误更加是令我极度头痛！</p>
-<h1 id="绿回调"><a href="#绿回调" class="headerlink" title="绿回调"></a>绿回调</h1><p>只是为了使得生活更加困惑，在Erlang里我们大量使用了回调。我把这些回调称为“绿回调”。因此回调并不一定是不好的。在Erlang里，我们可以在一个进程的上下文里更清晰地看到回调的执行，所以我们没有如何查看回调执行过程的问题。</p>
-<p>如下是Erlang里一个绿回调的例子：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">loop</span><span class="params">(F)</span> -&gt;</span></div><div class="line">    <span class="keyword">receive</span></div><div class="line">        &#123;new_callback, F1&#125; -&gt;</div><div class="line">            loop(F1);</div><div class="line">        Msg -&gt;</div><div class="line">            F(Msg),</div><div class="line">            loop(F)</div><div class="line">    <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
-<p>当一个进程运行这段代码的时候收到一个消息Msg，它就执行函数F(Msg)。这里没有任何不确定的，当回调被触发的时候我们确切地知道。在收到消息Msg后，这个回调被立即触发。</p>
-<p>这一小段代码却非常漂亮。如果你给进程发送一个消息{new_callbak, F1}，那么它将改变它的行为，在下一次调用的时候，它将执行新的回调。</p>
-<p>我不知道你在Javascript里如何写出这样的代码。我写过大量的JQurey代码并且明白如何设置和删除回调。但是在删除一个事件处理并新增一个事件处理这期间里，这个事件被触发了，这会发生什么？我不知道。生命如此短暂如何花的起那么多时间来找这个答案。</p>
-<h1 id="Erlang的I-O是如何工作的"><a href="#Erlang的I-O是如何工作的" class="headerlink" title="Erlang的I/O是如何工作的"></a>Erlang的I/O是如何工作的</h1><p>我们实际上并没有给进程发送消息。我们给进程的邮箱发送消息。每一个进程有一个邮箱，当我们给一个进程发送消息，这个消息被放入这个进程的邮箱（如果快递小子能找到这个进程的话）。</p>
-<p>想像一下，Erlang的进程是有邮箱的房子。发送消息就好比你把你的消息给快递小子。快递小子的工作就是做两件事：把邮件放入目的邮箱并敲门说：“有新信到了”。</p>
-<p>进程可能在忙着也可能在睡觉，就如一个房东一个样，他可能在干这活或者在睡觉。如果他在睡觉，那么当邮递员来了并敲响了房门，房东就会走到邮箱那里检查是否有令人感兴趣的邮件。</p>
-<p>如果房东此时把手头的活干完后，正在做其他事情的时候，房东可能会走到邮箱那里检查是否有新的邮件到了，</p>
-<p>这就是Erlang的消息工作机制。每一个房子（进程）有它自己的生命周期。邮递员投递邮件，房东根据自己的意愿决定什么时候去检查邮箱。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://joearms.github.io/2013/04/02/Red-and-Green-Callbacks.html" target="_blank" rel="external">http://joearms.github.io/2013/04/02/Red-and-Green-Callbacks.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;有两种回调，我把他们分别叫做“红回调”和“绿回调”。红回调令人讨厌而且它打断你程序的控制流程。绿回调令人愉悦而且它不会打断你程序的控制流程。Javascript的回调是红回调而Erlang的回调是绿回调。&lt;/p&gt;
-&lt;p&gt;为了解释这个问题，我必须先回过头来讲讲I/O。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="callback" scheme="http://szpzs.oschina.io/categories/Erlang/callback/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="callback" scheme="http://szpzs.oschina.io/tags/callback/"/>
     
   </entry>
   

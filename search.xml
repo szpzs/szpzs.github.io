@@ -4,6 +4,30 @@
   
     
     <entry>
+      <title><![CDATA[外部数据格式之浅显易懂]]></title>
+      <url>http://szpzs.oschina.io/2017/01/08/eli5-etf/</url>
+      <content type="html"><![CDATA[<p>与外部世界和其他Erlang节点进行通信，同时保存东西在磁盘上，Erlang都使用特殊编码格式 – 外部数据格式。</p>
+<a id="more"></a>
+<p>这种格式的主要要求如下：</p>
+<ul>
+<li>易于人类和机器看懂编码的数据和理解这些数据是什么。一个外部数据总是第一个字节值为131 (0x83)。</li>
+<li>压缩的数据有压缩的标志项。数据的头部第一个字节为：131 (0x83)，第二个字节为：80<br>(0x50)，第三到第六个字节为：无符号32位大端的整数表示未压缩的数据长度，这几个元素组成一个标签表示这是一个压缩数据。</li>
+<li>为了适用于跨平台，所有整数被编码为<a href="https://en.wikipedia.org/wiki/Endianness" target="_blank" rel="external">大端序</a>（从最高有效位到最低有效位字节），所有浮点数用大端的<a href="https://en.wikipedia.org/wiki/IEEE_floating_point" target="_blank" rel="external">IEEE编码</a>，所有文本用UTF-8<br>或 ISO-8859-1（ASCII超集） 来编码。</li>
+</ul>
+<p>编码一个数据用erlang:term_to_binary，相反的操作，即解码用erlang:binary_to_term。解码包含有意设定的二进制数据也使得本来不可能构建出来的数据成为可能，比如端口号，进程标识。（注：感谢少帮主的翻译）</p>
+<p>通常原子被编码为字符串。在基于网络的分布式模式下，为进一步减少协议的大小，一个分布式头部可以被添加进来。它包含了在已经编码的消息中的原子名称的表。然后在消息中的原子被替换为此表中的索引。</p>
+<p>那些从来没出现在Erlang程序中的虚拟机内部值的类型是不可能被编码的，比如THE_NON_VALUE、寄存器的引用、<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-cp" target="_blank" rel="external">CP</a>等。</p>
+<blockquote>
+<p>请参阅<br><a href="http://erlang.org/doc/apps/erts/erl_ext_dist.html" target="_blank" rel="external">外部数据格式文档</a></p>
+</blockquote>
+<p>&nbsp;</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-etf.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-etf.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[基于属性的测试之浅显易懂]]></title>
       <url>http://szpzs.oschina.io/2017/01/07/eli5-property-based/</url>
       <content type="html"><![CDATA[<p>假设你知道通常的单元测试，可能你就会听说过common test。有另一种方法来检查你的系统，不同于普通的测试方法。它被称为基于属性的测试。</p>
