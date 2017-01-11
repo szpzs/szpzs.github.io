@@ -4,6 +4,27 @@
   
     
     <entry>
+      <title><![CDATA[Erlang中的通信]]></title>
+      <url>http://szpzs.oschina.io/2017/01/11/erts-communication/</url>
+      <content type="html"><![CDATA[<p>从概念上讲在 Erlang 中的通信是使用异步信号完成的。所有不同的执行实体，比如进程和端口，通过异步信号通信。最常用的信号是消息。其他通用的信号是退出、链接、取消链接、监测和取消监测信号。</p>
+<a id="more"></a>
+<h1 id="信号的传递"><a href="#信号的传递" class="headerlink" title="信号的传递"></a>信号的传递</h1><p>在信号被发送出去和信号到达目标这之间消耗的时间是不确定的但是肯定存在的。如果接受者已经终止，信号就无法到达，不过这个情况可以触发另一个信号产生。例如，一个发给不存在进程的链接信号触发一个退出信号，这个退出信号被发送回给发送这个链接信号的实体。在分布式环境下通信的时候，如果分布式信道中断了，信号可以被丢失。</p>
+<p>只在如下的场景信号的顺序才能被保证：如果一个实体发送多个信号给同一个目标实体，这些信号的顺序是被保证。也就是说，如果A发送一个信号S1给B，然后A再发送一个信号S2给B，S1被保证不在S2之后到达。</p>
+<h1 id="同步的通信"><a href="#同步的通信" class="headerlink" title="同步的通信"></a>同步的通信</h1><p>一些通信是同步的。如果分解来看，一个同步通信操作包含两个异步信号：一个请求信号和一个应答信号。比如，第一个入参不是self()的<a href="http://erlang.org/doc/apps/erlang/process_info/2.html" target="_blank" rel="external">erlang:process_info/2</a> 函数调用就是一个同步通信。调用者发送一个请求信息的异步信号然后等待包含所请求信息的应答信号。当请求信号到达它的目标，目标进程用被请求的信息应答。</p>
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>在虚拟机里的不同异步信号的实现会随着时间而变化，但是它的行为一直遵循如上所述异步信号在实体间传递的概念。</p>
+<p>通过检阅相关实现，你可能注意到一些特定的信号给予比上述更严格的传递保证。关于实现不是用Erlang代码这样来写的知识是极其重要的，因为实现在没有提前通知下随时被修改。</p>
+<p>主要的实现修改例子如下：</p>
+<ul>
+<li>从ERTS 5.5.2开始，发给进程的退出信号是真正地异步传输。</li>
+<li>从ERTS 5.10开始，所有从进程发给端口的信号是真正地异步传输。</li>
+</ul>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://erlang.org/doc/apps/erts/communication.html" target="_blank" rel="external">http://erlang.org/doc/apps/erts/communication.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[外部数据格式之浅显易懂]]></title>
       <url>http://szpzs.oschina.io/2017/01/08/eli5-etf/</url>
       <content type="html"><![CDATA[<p>与外部世界和其他Erlang节点进行通信，同时保存东西在磁盘上，Erlang都使用特殊编码格式 – 外部数据格式。</p>
