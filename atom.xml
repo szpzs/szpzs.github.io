@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-01-11T13:10:14.000Z</updated>
+  <updated>2017-01-13T02:44:44.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,107 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>耗尽弹药时你不能爆炸！</title>
+    <link href="http://szpzs.oschina.io/2017/01/13/running-out-of-ammo/"/>
+    <id>http://szpzs.oschina.io/2017/01/13/running-out-of-ammo/</id>
+    <published>2017-01-13T02:16:13.000Z</published>
+    <updated>2017-01-13T02:44:44.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文（和<a href="https://medium.com/erlang-battleground/beyond-the-limits-of-an-ets-cdd79fa8300c#.tsfdkduyd" target="_blank" rel="external">上一篇文章</a>一样）也是受我在哥伦比亚卡利的学生的好奇心所启发。这次的问题是：什么时候并且为什么 bang（!）（即消息发送）操作符失败？</p>
+<a id="more"></a>
+<p><img src="/images/running-out-of-ammo-1.jpeg" style="border:0;"></p>
+<h1 id="有时候你有无限的子弹"><a href="#有时候你有无限的子弹" class="headerlink" title="有时候你有无限的子弹"></a>有时候你有无限的子弹</h1><p>那些天我和我的学生讨论的是Erlang的一个核心概念：消息传递。Erlang中消息传递是用发送操作符（即 ！，也叫做bang）来完成的。这次我给他们介绍bang，我用一个Pid放在它的左边。就像这样：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; Pid = self().</div><div class="line">&lt;<span class="number">0.65</span>.<span class="number">0</span>&gt;</div><div class="line"><span class="number">2</span>&gt; Pid ! &#123;a, message&#125;.</div><div class="line">&#123;a,message&#125;</div><div class="line"><span class="number">3</span>&gt;</div></pre></td></tr></table></figure>
+<p>在这种情况下（当表达式的左边是一个Pid），bang从来不失败。即使Pid表示的是一个死亡进程。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="number">3</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">4</span>&gt; erlang:is_process_alive(Pid).</div><div class="line"><span class="literal">false</span></div><div class="line"><span class="number">5</span>&gt; Pid ! &#123;another, message&#125;.</div><div class="line">&#123;another,message&#125;</div><div class="line"><span class="number">6</span>&gt;</div></pre></td></tr></table></figure>
+<h1 id="有时候你就是不能开枪"><a href="#有时候你就是不能开枪" class="headerlink" title="有时候你就是不能开枪"></a>有时候你就是不能开枪</h1><p>但是Pid并不是在bang左边唯一有效的表达式，你也可以用原子和元组放在bang的左边，例如：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="number">6</span>&gt; register(my, self()).</div><div class="line"><span class="literal">true</span></div><div class="line"><span class="number">7</span>&gt; my ! &#123;third, message&#125;.</div><div class="line">&#123;third,message&#125;</div><div class="line"><span class="number">8</span>&gt; &#123;my, node()&#125; ! &#123;fourth, message&#125;.</div><div class="line">&#123;fourth,message&#125;</div><div class="line"><span class="number">9</span>&gt; flush().</div><div class="line">Shell got &#123;third,message&#125;</div><div class="line">Shell got &#123;fourth,message&#125;</div><div class="line">ok</div><div class="line"><span class="number">10</span>&gt;</div></pre></td></tr></table></figure>
+<p>在这种情况下，如果没有进程被注册为这个名字，bang操作可能失败：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">10</span>&gt; no_proc ! &#123;fifth, message&#125;.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as no_proc ! &#123;fifth,message&#125;</div><div class="line"><span class="number">11</span>&gt;</div></pre></td></tr></table></figure>
+<h1 id="去读官方文档吧！"><a href="#去读官方文档吧！" class="headerlink" title="去读官方文档吧！"></a>去读官方文档吧！</h1><p>所有问题在<a href="http://erlang.org/doc/reference_manual/expressions.html#id80833" target="_blank" rel="external">官方文档</a>里都有清晰的说明。</p>
+<blockquote>
+<p>Expr1的计算结果必须是一个pid、一个注册的名字（原子），或者是一个格式为{Name, Node}的元组。Name是一个原子而Node是一个节点名字，也是一个原子。</p>
+<p>如果Expr1的计算结果是一个名字，但是这个名字没有注册，则一个badarg运行时错误发生。</p>
+<p>发送消息给一个pid永远都不会失败，即使这个pid指的是一个不存在的进程。</p>
+<p>也就是说，如果Expr1的计算结果是一个格式为{Name, Node}元组（或者是另外一个节点的pid），分布式消息发送也永远不会失败。</p>
+</blockquote>
+<p><img src="/images/running-out-of-ammo-2.gif" style="border:0;"></p>
+<h1 id="是的，不过…"><a href="#是的，不过…" class="headerlink" title="是的，不过…"></a>是的，不过…</h1><p>现在，我们不能只是满足了解这点知识。</p>
+<p>正如你可能猜到的，我们没有那样做。我们问自己：</p>
+<blockquote>
+<p>当没有进程用相关名字注册，而如果发送消息给这个名字时，会抛出badarg错误：<br>1、一个进程可以用一个名字注册，但它却是不存在的？换句话说：bang操作失败意味着这个进程不存在？<br>2、我如何在用<strong>bang</strong>操作前检查是否有进程用相关名字注册。</p>
+</blockquote>
+<h2 id="问题1：我能注册已经死亡的进程吗？"><a href="#问题1：我能注册已经死亡的进程吗？" class="headerlink" title="问题1：我能注册已经死亡的进程吗？"></a>问题1：我能注册已经死亡的进程吗？</h2><p>为回答问题1，我们必须先检查一些事情。一个进程可以死掉并且还能用一个名字注册吗？我们用两种方法来尝试：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; Pid = self().</div><div class="line">&lt;<span class="number">0.65</span>.<span class="number">0</span>&gt;</div><div class="line"><span class="number">2</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">3</span>&gt; register(my, Pid).</div><div class="line">** exception error: bad argument</div><div class="line">     in function  register/<span class="number">2</span></div><div class="line">        called as register(my,&lt;<span class="number">0.65</span>.<span class="number">0</span>&gt;)</div><div class="line"><span class="number">4</span>&gt;</div></pre></td></tr></table></figure>
+<p>首先我们尝试一个已经死亡的进程作为入参来调用erlang:register/2函数，结果我们失败了。然后我们尝试注册一个进程，接着杀掉它：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="number">4</span>&gt; register(my, self()).</div><div class="line"><span class="literal">true</span></div><div class="line"><span class="number">5</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">6</span>&gt; my ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as my ! message</div><div class="line"><span class="number">7</span>&gt;</div></pre></td></tr></table></figure>
+<p>还是失败了。不过这次的失败是因为进程已经死亡了还是因为发送消息的时候它没有被注册？这就带我们进入问题2…</p>
+<h2 id="问题2：我怎么能够阻止bagarg错误发生？"><a href="#问题2：我怎么能够阻止bagarg错误发生？" class="headerlink" title="问题2：我怎么能够阻止bagarg错误发生？"></a>问题2：我怎么能够阻止bagarg错误发生？</h2><p>现在，我如何可以找出实际在对某个名字使用bang操作之前是否有一个用这个名字注册的进程？</p>
+<p>快速而且非常精确的答案是：你做不到。因为Erlang的并发本质，在你检测进程是否存在的时候和你发送消息的时候这两个时间点之间，这个进程可能已经死掉了（或者一个新的进程使用了相同的名字来注册）。</p>
+<p>尽管如此，还是有一个方法来只是检查在你的节点上是否有一个用某个名字注册的进程，并找到那个进程是哪个进程来作为奖赏：<a href="http://erlang.org/doc/man/erlang.html#whereis-1" target="_blank" rel="external">whereis/1</a>。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="number">7</span>&gt; whereis(my).</div><div class="line">undefined</div><div class="line"><span class="number">8</span>&gt; register(my, self()).</div><div class="line"><span class="literal">true</span></div><div class="line"><span class="number">9</span>&gt; whereis(my).</div><div class="line">&lt;<span class="number">0.75</span>.<span class="number">0</span>&gt;</div><div class="line"><span class="number">10</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">11</span>&gt; whereis(my).</div><div class="line">undefined</div><div class="line"><span class="number">12</span>&gt;</div></pre></td></tr></table></figure>
+<p>如果whereis/1返回undefined，你就知道在你的节点里没有用那个名字注册的进程。但是，如上所述，您不应该编写像如下的代码：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">case</span> whereis(my) <span class="keyword">of</span></div><div class="line">  undefined -&gt; do_nothing;</div><div class="line">  APid -&gt; APid ! message</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>你那是正在给自己购买了去竞争条件之地的票。你所需要的就如下代码所示：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> my ! message</div><div class="line"><span class="keyword">catch</span></div><div class="line">  _:badarg -&gt; do_nothing</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p><img src="/images/running-out-of-ammo-3.gif" style="border:0;"></p>
+<h1 id="但是我们讨厌-try…catch！"><a href="#但是我们讨厌-try…catch！" class="headerlink" title="但是我们讨厌 try…catch！"></a>但是我们讨厌 try…catch！</h1><p>如果你真的不喜欢像上面那样用try…catch来处理每一个消息，这里有一个小技巧。还记得前面官方文档说过的吗？</p>
+<blockquote>
+<p>也就是说，如果Expr1的计算结果是一个格式为{Name, Node}元组（或者是另外一个节点的pid），分布式消息发送也永远不会失败。</p>
+</blockquote>
+<p>考虑到这一点，看看你能做些什么来替代上面的做法：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="number">12</span>&gt; my ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as my ! message</div><div class="line"><span class="number">13</span>&gt; &#123;my, node()&#125; ! message.</div><div class="line">message</div><div class="line"><span class="number">14</span>&gt;</div></pre></td></tr></table></figure>
+<p>使用元组语法，其中用到了你自己所在节点的名称，如果那个叫做my的进程存在的话，你就正在有效地发送消息给它；而如果这个进程不存在，则会丢弃这些消息。如果你用Pid来替换元组的话，也是这个结果。</p>
+<p><img src="/images/running-out-of-ammo-4.gif" style="border:0;"></p>
+<h1 id="附加内容"><a href="#附加内容" class="headerlink" title="附加内容"></a>附加内容</h1><p>我想用我们在卡利发现的另一个比较酷的事情来结束本文。当谈论这些事情的时候，我们并不真正地了解bang操作在Erlang虚拟机内部的运作过程，只是考虑bang操作失败的情况，我们尝试想像Erlang虚拟机内部如何运行。</p>
+<h2 id="可能的错误"><a href="#可能的错误" class="headerlink" title="可能的错误"></a>可能的错误</h2><p>首先来考虑这个问题：当bang操作失败的时候，它总是报badarg错误。当你用一个没有注册为进程名字的原子的时候，它会失败，但是你用其他东西，它也会失败。看如下例子：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; x ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as x ! message</div><div class="line"><span class="number">2</span>&gt; <span class="string">"a list"</span> ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as <span class="string">"a list"</span> ! message</div><div class="line"><span class="number">3</span>&gt;</div></pre></td></tr></table></figure>
+<p>用一点想象力，我们可能会认为，当你使用一个原子，Erlang虚拟机转换原子为Pid，然后在其上执行bang操作的原始版。如果它未能把原子转换成Pid，那么当然badarg错误就发生。换句话说，看起来Erlang VM在将下面的语句…</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; x ! message.</div></pre></td></tr></table></figure>
+<p>改为如下的语句：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; whereis(x) ! message.</div></pre></td></tr></table></figure>
+<p>那么，当whereis 返回 undefined, bang操作失败。</p>
+<h2 id="等一等"><a href="#等一等" class="headerlink" title="等一等"></a>等一等</h2><p>哦，不错。但是undefined也是一个原子啊。Erlang虚拟机为何在那里不陷入一个无限的递归循环呢？嗯，它可能有一个处理undefined的特殊分支。在这个分支里，它可以避免把undefined当做其他任何原子来处理。但是，那么，如果我注册一个进程的名字为undefined呢？</p>
+<p><img src="/images/running-out-of-ammo-5.jpeg" style="border:0;"></p>
+<p>让我们来试试，好吗？</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">3</span>&gt; register(undefined, self()).</div><div class="line">** exception error: bad argument</div><div class="line">     in function  register/<span class="number">2</span></div><div class="line">        called as register(undefined,&lt;<span class="number">0.69</span>.<span class="number">0</span>&gt;)</div><div class="line"><span class="number">4</span>&gt;</div></pre></td></tr></table></figure>
+<p>好吧，我们做不到。实际上<a href="http://erlang.org/doc/man/erlang.html#register-2" target="_blank" rel="external">官方文档</a>说的很清楚。</p>
+<blockquote>
+<p>badarg<br>如果 RegName 是原子undefined.</p>
+</blockquote>
+<p>干得不错，Erlang/OTP团队。干得不错，真的！</p>
+<p><img src="/images/running-out-of-ammo-6.gif" style="border:0;"></p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/erlang-battleground/running-out-of-ammo-769bb28baac2#.sm8fbhd9q" target="_blank" rel="external">https://medium.com/erlang-battleground/running-out-of-ammo-769bb28baac2#.sm8fbhd9q</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文（和&lt;a href=&quot;https://medium.com/erlang-battleground/beyond-the-limits-of-an-ets-cdd79fa8300c#.tsfdkduyd&quot;&gt;上一篇文章&lt;/a&gt;一样）也是受我在哥伦比亚卡利的学生的好奇心所启发。这次的问题是：什么时候并且为什么 bang（!）（即消息发送）操作符失败？&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
+    
+      <category term="bang" scheme="http://szpzs.oschina.io/categories/Erlang/bang/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
+    
+      <category term="bang" scheme="http://szpzs.oschina.io/tags/bang/"/>
+    
+      <category term="erlang:register/2" scheme="http://szpzs.oschina.io/tags/erlang-register-2/"/>
+    
+      <category term="whereis/1" scheme="http://szpzs.oschina.io/tags/whereis-1/"/>
+    
+      <category term="undefined" scheme="http://szpzs.oschina.io/tags/undefined/"/>
+    
+      <category term="try catch" scheme="http://szpzs.oschina.io/tags/try-catch/"/>
+    
+  </entry>
   
   <entry>
     <title>Erlang中的通信</title>
@@ -1156,60 +1257,6 @@
       <category term="Rebar3" scheme="http://szpzs.oschina.io/tags/Rebar3/"/>
     
       <category term="热更新" scheme="http://szpzs.oschina.io/tags/%E7%83%AD%E6%9B%B4%E6%96%B0/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Rebar3 Shell</title>
-    <link href="http://szpzs.oschina.io/2016/12/07/rebar3-shell/"/>
-    <id>http://szpzs.oschina.io/2016/12/07/rebar3-shell/</id>
-    <published>2016-12-07T13:39:29.000Z</published>
-    <updated>2016-12-23T12:15:03.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>这篇文章我花了好长时间来写。关于rebar3 shell的其中一件事就是它会怎么做你期望它处理不论大或小的项目：它装载代码路径，启动应用（如果指定的话），允许一个分布式节点运行，让你定义定制的脚本来设置它的状态，并且让你在它里面运行rebar3的任务，同时好好地更新状态使得工作正常运行。</p>
-<a id="more"></a>
-<p>它有很多好的特性，不过在我的观点来看，这些是一个Erlang shell工具最少要支持的。因此，尝试展示这些特性听起来好像是吹嘘你该做的本分事情一样；多说无益，下面就进入正题。</p>
-<p>不过，一些Erlang的东西的可用性一直很糟糕，我们（贡献者）已经在rebar3上做了很多工作来尝试解决这些糟糕的体验。我不得不说，很多社区已经有大量的非常好的工具，但是它们都是独立的，如何用好它们必须要读者自己去逐个尝试。这个时候，rebar3横空出世了。</p>
-<p>当使用rebar3 shell命令的时候首先吸引人的是，它会自动编译项目（如果项目还没有被编译）并且将编译后的项目加入你的代码搜索路径：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">rebar3 shell</div><div class="line">===&gt; Verifying dependencies...</div><div class="line">===&gt; Compiling vegur</div><div class="line">Erlang/OTP 18 [erts-7.1] [<span class="built_in">source</span>] [64-bit] [smp:8:4] [async-threads:0] [hipe] [kernel-poll:<span class="literal">false</span>]</div><div class="line"></div><div class="line">Eshell V7.1  (abort with ^G)</div><div class="line">1&gt; vegur:module_info().</div><div class="line">[&#123;module,vegur&#125;,</div><div class="line">&#123;exports,[&#123;start_http,3&#125;,</div><div class="line">&#123;start_proxy,3&#125;,</div><div class="line">...</div></pre></td></tr></table></figure>
-<p>这个功能作用于所有项目。这至少摆脱很多需要你自己手写默认设置的许多烦恼。现在这些都由rebar3 shell来做。</p>
-<p>对于一个编程语言来说，一个好的shell环境就是关于它的互动性。期望能够快速地重编译代码或者运行测试，并且重新装载代码而不需要任何中断或丢失状态。rebar3 shell有一个代理，隐藏在r3模块背后，它准备着所有需要重新编译代码或者运行任务的状态的管理。所以，例如任何存在的项目，我可以要求重新编译或者任何其他任务运行：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="number">2</span>&gt; r3:do(compile).</div><div class="line">===&gt; This feature is experimental <span class="keyword">and</span> may be modified or removed at any time.</div><div class="line">Verifying dependencies...</div><div class="line">Compiling vegur</div><div class="line">ok</div><div class="line"><span class="number">3</span>&gt; r3:do(ct).</div><div class="line">Verifying dependencies...</div><div class="line">Fetching websocket_client (&#123;git,<span class="string">"git@github.com:jeremyong/websocket_client.git"</span>,</div><div class="line">&#123;tag,<span class="string">"v0.7"</span>&#125;&#125;)</div><div class="line">Linking _build/default/lib/cowboyku to _build/test/lib/cowboyku</div><div class="line">Linking _build/default/lib/cowlib to _build/test/lib/cowlib</div><div class="line">Linking _build/default/lib/erequest_id to _build/test/lib/erequest_id</div><div class="line">...</div><div class="line">Running Common Test suites...</div><div class="line"><span class="comment">%%% vegur_bytepipe_SUITE ==&gt; pipe_proc: OK</span></div><div class="line"><span class="comment">%%% vegur_bytepipe_SUITE ==&gt; pipe_proc_callback: OK</span></div><div class="line"><span class="comment">%%% vegur_bytepipe_SUITE ==&gt; pipe_proc_timeout: OK</span></div><div class="line">...</div><div class="line">All <span class="number">140</span> tests passed.</div><div class="line">ok</div><div class="line"><span class="number">3</span>&gt; r3:do(dialyzer).</div><div class="line">Verifying dependencies...</div><div class="line">...</div><div class="line">Analyzing <span class="number">19</span> files with <span class="string">"/home/ferd/code/self/vegur/_build/default/rebar3_18.1.5_plt"</span>...</div><div class="line">ok</div></pre></td></tr></table></figure>
-<p>如上述例子等等。所有这些任务都会用你的最新版本的rebar.config文件来运行它的任务和切换路径重装载模块等等。</p>
-<p>rebar3的代理还有一个名字使得可以在外部调用它。你可以用一个名字来启动一个shell（rebar3 shell –name my_shell 或 rebar3 shell –sname my_shell）然后远程向它发送消息或者直接RPC调用当作指令。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">rebar3 shell --sname=my_shell</div><div class="line">erl -sname remote -eval <span class="string">'rpc:call(my_shell@localhost, r3, do, [ct]), halt(0).'</span> -noshell</div></pre></td></tr></table></figure>
-<p>当作人们的工具的目的应该是可以被用来从你的IDE或编辑器里增加钩子到Erlang shell里。</p>
-<p>被写出来的和rebar3代理一起工作的插件也是一种选择。例如，通过监控硬盘，<a href="https://www.rebar3.org/docs/using-available-plugins#auto-compile-and-load" target="_blank" rel="external">rebar3_atuo 能够被用来自动重新编译修改过的文件</a>，这样也省了这个的功能要和IDE或编辑器合成的需求。</p>
-<p>这提供了一个非常好的改进，例如，在运行调试周期，在测试，代码分析和交互式调试都可以在同一个环境进行。</p>
-<p>为了使得开发周期更加与你的项目成长无缝对接，rebar3 shell将在构建工具里自动侦测<a href="https://www.rebar3.org/docs/releases" target="_blank" rel="external">release配置</a>，并且以你的release遵循的的<a href="https://www.rebar3.org/docs/releases#section-application-configuration" target="_blank" rel="external">应用配置</a>【1】启动你的系统。</p>
-<p>这意味着只要你的代码库配置成装配为一个可执行版本，你可以在它里面访问shell的代码重装载特性，使用的是同样的工具，而这些工具你可能以别的方式使用。</p>
-<p>如果你不使用release呢？应用可以在你的rebar.config文件里被指定为{shell, [{apps, [myapp]}]}  或者在命令行里的参数里指定（–apps app1,app2）。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">rebar3 shell --apps vegur</div><div class="line">===&gt; Verifying dependencies...</div><div class="line">===&gt; Compiling vegur</div><div class="line">...</div><div class="line">===&gt; Booted midjan</div><div class="line">===&gt; Booted quickrand</div><div class="line">===&gt; Booted uuid</div><div class="line">===&gt; Booted erequest_id</div><div class="line">===&gt; Booted vegur</div></pre></td></tr></table></figure>
-<p>万一你的开发环境和生产环境不匹配，任意的代码可以被运行来设置shell并且通过escript来设置它。这些设置指定的动态环境变量或启动外部依赖的模拟模块是特别有用的。为了进一步解释，下面的例子将展示我们如何不让shell启动，除非所有需要设置的环境变量都设置好了：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/env escript</div><div class="line"></div><div class="line"><span class="function"><span class="title">main</span><span class="params">(_)</span> -&gt;</span></div><div class="line">	OSVars = [<span class="string">"USER"</span>, <span class="string">"PASS"</span>],</div><div class="line">	[check_is_set(Var) || Var &lt;- OSVars].</div><div class="line"></div><div class="line"><span class="function"><span class="title">check_is_set</span><span class="params">(Var)</span> -&gt;</span></div><div class="line">	<span class="keyword">case</span> os:getenv(Var) <span class="keyword">of</span></div><div class="line">		<span class="literal">false</span> -&gt;</div><div class="line">			rebar_api:error(<span class="string">"Missing var ~s"</span>, [Var]),</div><div class="line">			halt(<span class="number">1</span>);</div><div class="line">		_ -&gt;</div><div class="line">			ok</div><div class="line">	<span class="keyword">end</span>.</div></pre></td></tr></table></figure>
-<p>这个escript文件可以通过增加{shell, [{script_file, “path/to/file”}]}到你的rebar.config文件配置成总是执行，或者通过在命令行被直接调用：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">rebar3 shell --script_file <span class="built_in">test</span>/check_env.escript</div><div class="line">===&gt; Verifying dependencies...</div><div class="line">===&gt; Compiling vegur</div><div class="line">Erlang/OTP 18 [erts-7.1] [<span class="built_in">source</span>] [64-bit] [smp:8:4] [async-threads:0] [hipe] [kernel-poll:<span class="literal">false</span>]</div><div class="line"></div><div class="line">Eshell V7.1  (abort with ^G)</div><div class="line">1&gt; ===&gt; Missing var PASS</div></pre></td></tr></table></figure>
-<p>希望这些工具比那些开箱即用的更可以让Erlang开发者的生活轻松些。</p>
-<p>【1】这里有些警告：因为rebar3 shell是一个开发工具，诸如Erlang虚拟机配置的选项（例如，调度器的数量）已经在运行时里有了而且不能被修改。它不能复制所有release的配置，因此，你应该在生产环境保持使用release。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://ferd.ca/rebar3-shell.html" target="_blank" rel="external">http://ferd.ca/rebar3-shell.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;这篇文章我花了好长时间来写。关于rebar3 shell的其中一件事就是它会怎么做你期望它处理不论大或小的项目：它装载代码路径，启动应用（如果指定的话），允许一个分布式节点运行，让你定义定制的脚本来设置它的状态，并且让你在它里面运行rebar3的任务，同时好好地更新状态使得工作正常运行。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="Rebar3" scheme="http://szpzs.oschina.io/categories/Erlang/Rebar3/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="Rebar3 Shell" scheme="http://szpzs.oschina.io/tags/Rebar3-Shell/"/>
     
   </entry>
   

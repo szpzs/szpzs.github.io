@@ -1,0 +1,958 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,bang,erlang:register/2,whereis/1,undefined,try catch," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="本文（和上一篇文章一样）也是受我在哥伦比亚卡利的学生的好奇心所启发。这次的问题是：什么时候并且为什么 bang（!）（即消息发送）操作符失败？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="耗尽弹药时你不能爆炸！">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/01/13/running-out-of-ammo/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="本文（和上一篇文章一样）也是受我在哥伦比亚卡利的学生的好奇心所启发。这次的问题是：什么时候并且为什么 bang（!）（即消息发送）操作符失败？">
+<meta property="og:image" content="http://szpzs.oschina.io/images/running-out-of-ammo-1.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/running-out-of-ammo-2.gif">
+<meta property="og:image" content="http://szpzs.oschina.io/images/running-out-of-ammo-3.gif">
+<meta property="og:image" content="http://szpzs.oschina.io/images/running-out-of-ammo-4.gif">
+<meta property="og:image" content="http://szpzs.oschina.io/images/running-out-of-ammo-5.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/running-out-of-ammo-6.gif">
+<meta property="og:updated_time" content="2017-01-13T02:44:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="耗尽弹药时你不能爆炸！">
+<meta name="twitter:description" content="本文（和上一篇文章一样）也是受我在哥伦比亚卡利的学生的好奇心所启发。这次的问题是：什么时候并且为什么 bang（!）（即消息发送）操作符失败？">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/running-out-of-ammo-1.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/01/13/running-out-of-ammo/"/>
+
+  <title> 耗尽弹药时你不能爆炸！ | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                耗尽弹药时你不能爆炸！
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-01-13T10:16:13+08:00" content="2017-01-13">
+              2017-01-13
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/bang/" itemprop="url" rel="index">
+                    <span itemprop="name">bang</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/01/13/running-out-of-ammo/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/13/running-out-of-ammo/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文（和<a href="https://medium.com/erlang-battleground/beyond-the-limits-of-an-ets-cdd79fa8300c#.tsfdkduyd" target="_blank" rel="external">上一篇文章</a>一样）也是受我在哥伦比亚卡利的学生的好奇心所启发。这次的问题是：什么时候并且为什么 bang（!）（即消息发送）操作符失败？</p>
+<a id="more"></a>
+<p><img src="/images/running-out-of-ammo-1.jpeg" style="border:0;"></p>
+<h1 id="有时候你有无限的子弹"><a href="#有时候你有无限的子弹" class="headerlink" title="有时候你有无限的子弹"></a>有时候你有无限的子弹</h1><p>那些天我和我的学生讨论的是Erlang的一个核心概念：消息传递。Erlang中消息传递是用发送操作符（即 ！，也叫做bang）来完成的。这次我给他们介绍bang，我用一个Pid放在它的左边。就像这样：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; Pid = self().</div><div class="line">&lt;<span class="number">0.65</span>.<span class="number">0</span>&gt;</div><div class="line"><span class="number">2</span>&gt; Pid ! &#123;a, message&#125;.</div><div class="line">&#123;a,message&#125;</div><div class="line"><span class="number">3</span>&gt;</div></pre></td></tr></table></figure>
+<p>在这种情况下（当表达式的左边是一个Pid），bang从来不失败。即使Pid表示的是一个死亡进程。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="number">3</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">4</span>&gt; erlang:is_process_alive(Pid).</div><div class="line"><span class="literal">false</span></div><div class="line"><span class="number">5</span>&gt; Pid ! &#123;another, message&#125;.</div><div class="line">&#123;another,message&#125;</div><div class="line"><span class="number">6</span>&gt;</div></pre></td></tr></table></figure>
+<h1 id="有时候你就是不能开枪"><a href="#有时候你就是不能开枪" class="headerlink" title="有时候你就是不能开枪"></a>有时候你就是不能开枪</h1><p>但是Pid并不是在bang左边唯一有效的表达式，你也可以用原子和元组放在bang的左边，例如：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="number">6</span>&gt; register(my, self()).</div><div class="line"><span class="literal">true</span></div><div class="line"><span class="number">7</span>&gt; my ! &#123;third, message&#125;.</div><div class="line">&#123;third,message&#125;</div><div class="line"><span class="number">8</span>&gt; &#123;my, node()&#125; ! &#123;fourth, message&#125;.</div><div class="line">&#123;fourth,message&#125;</div><div class="line"><span class="number">9</span>&gt; flush().</div><div class="line">Shell got &#123;third,message&#125;</div><div class="line">Shell got &#123;fourth,message&#125;</div><div class="line">ok</div><div class="line"><span class="number">10</span>&gt;</div></pre></td></tr></table></figure>
+<p>在这种情况下，如果没有进程被注册为这个名字，bang操作可能失败：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">10</span>&gt; no_proc ! &#123;fifth, message&#125;.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as no_proc ! &#123;fifth,message&#125;</div><div class="line"><span class="number">11</span>&gt;</div></pre></td></tr></table></figure>
+<h1 id="去读官方文档吧！"><a href="#去读官方文档吧！" class="headerlink" title="去读官方文档吧！"></a>去读官方文档吧！</h1><p>所有问题在<a href="http://erlang.org/doc/reference_manual/expressions.html#id80833" target="_blank" rel="external">官方文档</a>里都有清晰的说明。</p>
+<blockquote>
+<p>Expr1的计算结果必须是一个pid、一个注册的名字（原子），或者是一个格式为{Name, Node}的元组。Name是一个原子而Node是一个节点名字，也是一个原子。</p>
+<p>如果Expr1的计算结果是一个名字，但是这个名字没有注册，则一个badarg运行时错误发生。</p>
+<p>发送消息给一个pid永远都不会失败，即使这个pid指的是一个不存在的进程。</p>
+<p>也就是说，如果Expr1的计算结果是一个格式为{Name, Node}元组（或者是另外一个节点的pid），分布式消息发送也永远不会失败。</p>
+</blockquote>
+<p><img src="/images/running-out-of-ammo-2.gif" style="border:0;"></p>
+<h1 id="是的，不过…"><a href="#是的，不过…" class="headerlink" title="是的，不过…"></a>是的，不过…</h1><p>现在，我们不能只是满足了解这点知识。</p>
+<p>正如你可能猜到的，我们没有那样做。我们问自己：</p>
+<blockquote>
+<p>当没有进程用相关名字注册，而如果发送消息给这个名字时，会抛出badarg错误：<br>1、一个进程可以用一个名字注册，但它却是不存在的？换句话说：bang操作失败意味着这个进程不存在？<br>2、我如何在用<strong>bang</strong>操作前检查是否有进程用相关名字注册。</p>
+</blockquote>
+<h2 id="问题1：我能注册已经死亡的进程吗？"><a href="#问题1：我能注册已经死亡的进程吗？" class="headerlink" title="问题1：我能注册已经死亡的进程吗？"></a>问题1：我能注册已经死亡的进程吗？</h2><p>为回答问题1，我们必须先检查一些事情。一个进程可以死掉并且还能用一个名字注册吗？我们用两种方法来尝试：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; Pid = self().</div><div class="line">&lt;<span class="number">0.65</span>.<span class="number">0</span>&gt;</div><div class="line"><span class="number">2</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">3</span>&gt; register(my, Pid).</div><div class="line">** exception error: bad argument</div><div class="line">     in function  register/<span class="number">2</span></div><div class="line">        called as register(my,&lt;<span class="number">0.65</span>.<span class="number">0</span>&gt;)</div><div class="line"><span class="number">4</span>&gt;</div></pre></td></tr></table></figure>
+<p>首先我们尝试一个已经死亡的进程作为入参来调用erlang:register/2函数，结果我们失败了。然后我们尝试注册一个进程，接着杀掉它：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="number">4</span>&gt; register(my, self()).</div><div class="line"><span class="literal">true</span></div><div class="line"><span class="number">5</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">6</span>&gt; my ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as my ! message</div><div class="line"><span class="number">7</span>&gt;</div></pre></td></tr></table></figure>
+<p>还是失败了。不过这次的失败是因为进程已经死亡了还是因为发送消息的时候它没有被注册？这就带我们进入问题2…</p>
+<h2 id="问题2：我怎么能够阻止bagarg错误发生？"><a href="#问题2：我怎么能够阻止bagarg错误发生？" class="headerlink" title="问题2：我怎么能够阻止bagarg错误发生？"></a>问题2：我怎么能够阻止bagarg错误发生？</h2><p>现在，我如何可以找出实际在对某个名字使用bang操作之前是否有一个用这个名字注册的进程？</p>
+<p>快速而且非常精确的答案是：你做不到。因为Erlang的并发本质，在你检测进程是否存在的时候和你发送消息的时候这两个时间点之间，这个进程可能已经死掉了（或者一个新的进程使用了相同的名字来注册）。</p>
+<p>尽管如此，还是有一个方法来只是检查在你的节点上是否有一个用某个名字注册的进程，并找到那个进程是哪个进程来作为奖赏：<a href="http://erlang.org/doc/man/erlang.html#whereis-1" target="_blank" rel="external">whereis/1</a>。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="number">7</span>&gt; whereis(my).</div><div class="line">undefined</div><div class="line"><span class="number">8</span>&gt; register(my, self()).</div><div class="line"><span class="literal">true</span></div><div class="line"><span class="number">9</span>&gt; whereis(my).</div><div class="line">&lt;<span class="number">0.75</span>.<span class="number">0</span>&gt;</div><div class="line"><span class="number">10</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">11</span>&gt; whereis(my).</div><div class="line">undefined</div><div class="line"><span class="number">12</span>&gt;</div></pre></td></tr></table></figure>
+<p>如果whereis/1返回undefined，你就知道在你的节点里没有用那个名字注册的进程。但是，如上所述，您不应该编写像如下的代码：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">case</span> whereis(my) <span class="keyword">of</span></div><div class="line">  undefined -&gt; do_nothing;</div><div class="line">  APid -&gt; APid ! message</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>你那是正在给自己购买了去竞争条件之地的票。你所需要的就如下代码所示：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> my ! message</div><div class="line"><span class="keyword">catch</span></div><div class="line">  _:badarg -&gt; do_nothing</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p><img src="/images/running-out-of-ammo-3.gif" style="border:0;"></p>
+<h1 id="但是我们讨厌-try…catch！"><a href="#但是我们讨厌-try…catch！" class="headerlink" title="但是我们讨厌 try…catch！"></a>但是我们讨厌 try…catch！</h1><p>如果你真的不喜欢像上面那样用try…catch来处理每一个消息，这里有一个小技巧。还记得前面官方文档说过的吗？</p>
+<blockquote>
+<p>也就是说，如果Expr1的计算结果是一个格式为{Name, Node}元组（或者是另外一个节点的pid），分布式消息发送也永远不会失败。</p>
+</blockquote>
+<p>考虑到这一点，看看你能做些什么来替代上面的做法：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="number">12</span>&gt; my ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as my ! message</div><div class="line"><span class="number">13</span>&gt; &#123;my, node()&#125; ! message.</div><div class="line">message</div><div class="line"><span class="number">14</span>&gt;</div></pre></td></tr></table></figure>
+<p>使用元组语法，其中用到了你自己所在节点的名称，如果那个叫做my的进程存在的话，你就正在有效地发送消息给它；而如果这个进程不存在，则会丢弃这些消息。如果你用Pid来替换元组的话，也是这个结果。</p>
+<p><img src="/images/running-out-of-ammo-4.gif" style="border:0;"></p>
+<h1 id="附加内容"><a href="#附加内容" class="headerlink" title="附加内容"></a>附加内容</h1><p>我想用我们在卡利发现的另一个比较酷的事情来结束本文。当谈论这些事情的时候，我们并不真正地了解bang操作在Erlang虚拟机内部的运作过程，只是考虑bang操作失败的情况，我们尝试想像Erlang虚拟机内部如何运行。</p>
+<h2 id="可能的错误"><a href="#可能的错误" class="headerlink" title="可能的错误"></a>可能的错误</h2><p>首先来考虑这个问题：当bang操作失败的时候，它总是报badarg错误。当你用一个没有注册为进程名字的原子的时候，它会失败，但是你用其他东西，它也会失败。看如下例子：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; x ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as x ! message</div><div class="line"><span class="number">2</span>&gt; <span class="string">"a list"</span> ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as <span class="string">"a list"</span> ! message</div><div class="line"><span class="number">3</span>&gt;</div></pre></td></tr></table></figure>
+<p>用一点想象力，我们可能会认为，当你使用一个原子，Erlang虚拟机转换原子为Pid，然后在其上执行bang操作的原始版。如果它未能把原子转换成Pid，那么当然badarg错误就发生。换句话说，看起来Erlang VM在将下面的语句…</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; x ! message.</div></pre></td></tr></table></figure>
+<p>改为如下的语句：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; whereis(x) ! message.</div></pre></td></tr></table></figure>
+<p>那么，当whereis 返回 undefined, bang操作失败。</p>
+<h2 id="等一等"><a href="#等一等" class="headerlink" title="等一等"></a>等一等</h2><p>哦，不错。但是undefined也是一个原子啊。Erlang虚拟机为何在那里不陷入一个无限的递归循环呢？嗯，它可能有一个处理undefined的特殊分支。在这个分支里，它可以避免把undefined当做其他任何原子来处理。但是，那么，如果我注册一个进程的名字为undefined呢？</p>
+<p><img src="/images/running-out-of-ammo-5.jpeg" style="border:0;"></p>
+<p>让我们来试试，好吗？</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">3</span>&gt; register(undefined, self()).</div><div class="line">** exception error: bad argument</div><div class="line">     in function  register/<span class="number">2</span></div><div class="line">        called as register(undefined,&lt;<span class="number">0.69</span>.<span class="number">0</span>&gt;)</div><div class="line"><span class="number">4</span>&gt;</div></pre></td></tr></table></figure>
+<p>好吧，我们做不到。实际上<a href="http://erlang.org/doc/man/erlang.html#register-2" target="_blank" rel="external">官方文档</a>说的很清楚。</p>
+<blockquote>
+<p>badarg<br>如果 RegName 是原子undefined.</p>
+</blockquote>
+<p>干得不错，Erlang/OTP团队。干得不错，真的！</p>
+<p><img src="/images/running-out-of-ammo-6.gif" style="border:0;"></p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/erlang-battleground/running-out-of-ammo-769bb28baac2#.sm8fbhd9q" target="_blank" rel="external">https://medium.com/erlang-battleground/running-out-of-ammo-769bb28baac2#.sm8fbhd9q</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/bang/" rel="tag">#bang</a>
+          
+            <a href="/tags/erlang-register-2/" rel="tag">#erlang:register/2</a>
+          
+            <a href="/tags/whereis-1/" rel="tag">#whereis/1</a>
+          
+            <a href="/tags/undefined/" rel="tag">#undefined</a>
+          
+            <a href="/tags/try-catch/" rel="tag">#try catch</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/11/erts-communication/" rel="next" title="Erlang中的通信">
+                <i class="fa fa-chevron-left"></i> Erlang中的通信
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/01/13/running-out-of-ammo/"
+           data-title="耗尽弹药时你不能爆炸！" data-url="http://szpzs.oschina.io/2017/01/13/running-out-of-ammo/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">97</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">49</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">136</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#有时候你有无限的子弹"><span class="nav-number">1.</span> <span class="nav-text">有时候你有无限的子弹</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#有时候你就是不能开枪"><span class="nav-number">2.</span> <span class="nav-text">有时候你就是不能开枪</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#去读官方文档吧！"><span class="nav-number">3.</span> <span class="nav-text">去读官方文档吧！</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#是的，不过…"><span class="nav-number">4.</span> <span class="nav-text">是的，不过…</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题1：我能注册已经死亡的进程吗？"><span class="nav-number">4.1.</span> <span class="nav-text">问题1：我能注册已经死亡的进程吗？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题2：我怎么能够阻止bagarg错误发生？"><span class="nav-number">4.2.</span> <span class="nav-text">问题2：我怎么能够阻止bagarg错误发生？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#但是我们讨厌-try…catch！"><span class="nav-number">5.</span> <span class="nav-text">但是我们讨厌 try…catch！</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#附加内容"><span class="nav-number">6.</span> <span class="nav-text">附加内容</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#可能的错误"><span class="nav-number">6.1.</span> <span class="nav-text">可能的错误</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#等一等"><span class="nav-number">6.2.</span> <span class="nav-text">等一等</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
