@@ -4,6 +4,59 @@
   
     
     <entry>
+      <title><![CDATA[用Erlang进行分布式计算 -- 第二篇]]></title>
+      <url>http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-2/</url>
+      <content type="html"><![CDATA[<p>在前一篇文章里，我们已经看到如何连接一个远程节点并且运行Erlang里内建的模块。本文我们将学习如何可以运行我们自己的模块来做一些任务。例如我们将从远程节点获取分配给它们网络接口的ip地址。</p>
+<a id="more"></a>
+<p>我们的模块看起来像如下所示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">% 文件名应该是 ourmodule.erl</div><div class="line">-module(ourmodule).</div><div class="line">-export([ getip/0 ]).</div><div class="line">getip()-&gt;</div><div class="line">    % 这是用于Mac终端的</div><div class="line">    % B = os:cmd('ifconfig $2 | grep \"inet \" | awk -F\' \' \'&#123;print    $2&#125;\' | awk \'&#123;print $1&#125;\''),</div><div class="line">    % 这是用于Linux终端的</div><div class="line">    B = os:cmd('ifconfig $2 | grep \"inet \" | awk -F\' \' \'&#123;print $2&#125;\' | awk \'&#123;print $1&#125;\' | awk -F \':\' \'&#123;print $2&#125;\''),</div><div class="line">    io:format("node: ~s ~n ~s ", [node(), B]),</div><div class="line">    ok.</div></pre></td></tr></table></figure>
+<p>保存这份代码为<strong>ourmodule.erl</strong>。</p>
+<p>现在让我们来编译我们的模块。首先我们必须去到我们模块存放的目录。然后打开Erlang shell并且编译它：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">c(ourmodule). %%% 输出是: &#123;ok,ourmodule&#125;</div></pre></td></tr></table></figure>
+<p>编译后，我们在同一个目录里将有一个 <strong>ourmodule.beam</strong> 文件，它是这个模块的erlang可执行文件。然后我们必须拷贝这个 <strong>ourmodule.beam</strong> 文件到远程节点。现在从相同的目录（远程节点上该文件存放的目录）让我们打开一个Erlang shell：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -name cloud@remote-host -setcookie <span class="string">"12345"</span></div></pre></td></tr></table></figure>
+<p>做完这些。这些就是我们在远程节点需要做的所有工作。</p>
+<p>现在从你的主（也就是本地）节点执行如下命令：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">rpc:call('cloud@remote-host', ourmodule, getip, []).</div><div class="line"><span class="comment">% 输出是 : 将有节点名和一些ip地址的列表</span></div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% node: cloud@remote-host</span></div><div class="line"><span class="comment">% 127.0.0.1</span></div><div class="line"><span class="comment">% 192.168.1.45</span></div><div class="line"><span class="comment">% ok.</span></div></pre></td></tr></table></figure>
+<p>这是一个简单例子，就是我们如何可以在分布式Erlang环境里运行我们自己的模块。我们可以通过增加更多函数来做其他任务，或者我们可以只是为我们的目的写新的模块，然后我们可以分布可执行文件到不同的节点并远程执行它们。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/@smirazzakee/distributed-computing-using-erlang-2-c57f3242a2e0#.acwcop39g" target="_blank" rel="external">https://medium.com/@smirazzakee/distributed-computing-using-erlang-2-c57f3242a2e0#.acwcop39g</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[用Erlang进行分布式计算 -- 第一篇]]></title>
+      <url>http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-1/</url>
+      <content type="html"><![CDATA[<p>本文我们将看看Erlang里的分布式系统是如何运作的。</p>
+<p>Erlang是一种函数式语言，其最被大家所熟知的是分布式和并发计算。</p>
+<a id="more"></a>
+<p>一般Erlang程序运行在节点上（<strong>节点名默认是nonode@nohost</strong>）。</p>
+<p>在一个分布式系统里，节点间彼此交互。本文我们将用两个节点：<strong>sakib@localhost</strong> 和 <strong>cloud@remote-host</strong> 。</p>
+<p>节点<strong>sakib@localhost</strong>运行在我本地系统，节点<strong>cloud@remote-host</strong>运行在远程服务器上。<strong>remote-host</strong>是我的远程服务器的主机名。</p>
+<p>连接到远程节点，节点名的后缀（节点名@符号后的部分）和主机名相同是很重要。</p>
+<p>现在如下所示打开本地系统的Erlang的shell：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -name sakib@localhost -setcookie <span class="string">"12345"</span></div></pre></td></tr></table></figure>
+<p>并且如下所示打开远程服务器的Erlang的shell：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -name cloud@remote-host -setcookie <span class="string">"12345"</span></div></pre></td></tr></table></figure>
+<p>两个节点的cookie必须一样，或者稍后你可以设置节点的cookie。如果远程节点的cookie没有设置，那么本地节点的cookie将被用来连接远程节点。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">% 给指定的节点设置cookie</span></div><div class="line">erlang:set_cookie('cloud@remote-host', '<span class="number">12345</span>').</div><div class="line"><span class="comment">% 第一个参数是节点名，第二参数是cookie</span></div><div class="line"><span class="comment">% 连接远程节点</span></div><div class="line">net_kernel:connect_node('cloud@remote-host').</div></pre></td></tr></table></figure>
+<p>如果响应是true，则连接建立；如果响应是false，则连接失败。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">% 列出已经连接的节点列表</div><div class="line">nodes().</div><div class="line">% 输出是 : ['cloud@remote-host']</div><div class="line">% 因为我们现在仅仅连接了一个远程节点</div></pre></td></tr></table></figure>
+<p>现在我们可以用<strong>RPC</strong>来运行远程节点的模块。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rpc:call('cloud@remote-host', os, cmd, [whoami]).</div></pre></td></tr></table></figure>
+<p>rpc:call()函数有4个入参。</p>
+<p>第一个是节点名，第二个是模块名，第三个是函数名，第四个是函数的入参。</p>
+<p>上述例子是我们运行<strong>os</strong>模块里的<strong>cmd()</strong>函数，入参是<strong>whoami</strong>。它将返回远程系统的当前用户名。<strong>os</strong>是Erlang的内建模块。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">% 使用multicall函数 (跨所有连接的节点执行rpc调用)</span></div><div class="line">rpc:multicall(nodes(), os, cmd, [whoami]).</div><div class="line"><span class="comment">% 与远程节点断开连接</span></div><div class="line">erlang:disconnect_node('cloud@remote-host').</div></pre></td></tr></table></figure>
+<p>用同样的方式我们可以将不同的任务分布到不同的节点来处理，然后在主节点上获取结果。这就是在Erlang里一个分布式系统的运作方式。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/@sakibsami/distributed-computing-using-erlang-1-cdd051a77c85#.maaswacq4" target="_blank" rel="external">https://medium.com/@sakibsami/distributed-computing-using-erlang-1-cdd051a77c85#.maaswacq4</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[耗尽弹药时你不能爆炸！]]></title>
       <url>http://szpzs.oschina.io/2017/01/13/running-out-of-ammo/</url>
       <content type="html"><![CDATA[<p>本文（和<a href="https://medium.com/erlang-battleground/beyond-the-limits-of-an-ets-cdd79fa8300c#.tsfdkduyd" target="_blank" rel="external">上一篇文章</a>一样）也是受我在哥伦比亚卡利的学生的好奇心所启发。这次的问题是：什么时候并且为什么 bang（!）（即消息发送）操作符失败？</p>

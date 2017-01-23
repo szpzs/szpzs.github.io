@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-01-13T02:44:44.000Z</updated>
+  <updated>2017-01-23T06:09:28.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,100 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>用Erlang进行分布式计算 -- 第二篇</title>
+    <link href="http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-2/"/>
+    <id>http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-2/</id>
+    <published>2017-01-23T06:01:59.000Z</published>
+    <updated>2017-01-23T06:09:28.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>在前一篇文章里，我们已经看到如何连接一个远程节点并且运行Erlang里内建的模块。本文我们将学习如何可以运行我们自己的模块来做一些任务。例如我们将从远程节点获取分配给它们网络接口的ip地址。</p>
+<a id="more"></a>
+<p>我们的模块看起来像如下所示：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">% 文件名应该是 ourmodule.erl</div><div class="line">-module(ourmodule).</div><div class="line">-export([ getip/0 ]).</div><div class="line">getip()-&gt;</div><div class="line">    % 这是用于Mac终端的</div><div class="line">    % B = os:cmd('ifconfig $2 | grep \"inet \" | awk -F\' \' \'&#123;print    $2&#125;\' | awk \'&#123;print $1&#125;\''),</div><div class="line">    % 这是用于Linux终端的</div><div class="line">    B = os:cmd('ifconfig $2 | grep \"inet \" | awk -F\' \' \'&#123;print $2&#125;\' | awk \'&#123;print $1&#125;\' | awk -F \':\' \'&#123;print $2&#125;\''),</div><div class="line">    io:format("node: ~s ~n ~s ", [node(), B]),</div><div class="line">    ok.</div></pre></td></tr></table></figure>
+<p>保存这份代码为<strong>ourmodule.erl</strong>。</p>
+<p>现在让我们来编译我们的模块。首先我们必须去到我们模块存放的目录。然后打开Erlang shell并且编译它：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">c(ourmodule). %%% 输出是: &#123;ok,ourmodule&#125;</div></pre></td></tr></table></figure>
+<p>编译后，我们在同一个目录里将有一个 <strong>ourmodule.beam</strong> 文件，它是这个模块的erlang可执行文件。然后我们必须拷贝这个 <strong>ourmodule.beam</strong> 文件到远程节点。现在从相同的目录（远程节点上该文件存放的目录）让我们打开一个Erlang shell：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -name cloud@remote-host -setcookie <span class="string">"12345"</span></div></pre></td></tr></table></figure>
+<p>做完这些。这些就是我们在远程节点需要做的所有工作。</p>
+<p>现在从你的主（也就是本地）节点执行如下命令：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">rpc:call('cloud@remote-host', ourmodule, getip, []).</div><div class="line"><span class="comment">% 输出是 : 将有节点名和一些ip地址的列表</span></div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% node: cloud@remote-host</span></div><div class="line"><span class="comment">% 127.0.0.1</span></div><div class="line"><span class="comment">% 192.168.1.45</span></div><div class="line"><span class="comment">% ok.</span></div></pre></td></tr></table></figure>
+<p>这是一个简单例子，就是我们如何可以在分布式Erlang环境里运行我们自己的模块。我们可以通过增加更多函数来做其他任务，或者我们可以只是为我们的目的写新的模块，然后我们可以分布可执行文件到不同的节点并远程执行它们。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/@smirazzakee/distributed-computing-using-erlang-2-c57f3242a2e0#.acwcop39g" target="_blank" rel="external">https://medium.com/@smirazzakee/distributed-computing-using-erlang-2-c57f3242a2e0#.acwcop39g</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在前一篇文章里，我们已经看到如何连接一个远程节点并且运行Erlang里内建的模块。本文我们将学习如何可以运行我们自己的模块来做一些任务。例如我们将从远程节点获取分配给它们网络接口的ip地址。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
+    
+      <category term="Distributed Systems" scheme="http://szpzs.oschina.io/categories/Erlang/Distributed-Systems/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
+    
+      <category term="Distributed Systems" scheme="http://szpzs.oschina.io/tags/Distributed-Systems/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>用Erlang进行分布式计算 -- 第一篇</title>
+    <link href="http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-1/"/>
+    <id>http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-1/</id>
+    <published>2017-01-23T05:30:17.000Z</published>
+    <updated>2017-01-23T05:45:12.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文我们将看看Erlang里的分布式系统是如何运作的。</p>
+<p>Erlang是一种函数式语言，其最被大家所熟知的是分布式和并发计算。</p>
+<a id="more"></a>
+<p>一般Erlang程序运行在节点上（<strong>节点名默认是nonode@nohost</strong>）。</p>
+<p>在一个分布式系统里，节点间彼此交互。本文我们将用两个节点：<strong>sakib@localhost</strong> 和 <strong>cloud@remote-host</strong> 。</p>
+<p>节点<strong>sakib@localhost</strong>运行在我本地系统，节点<strong>cloud@remote-host</strong>运行在远程服务器上。<strong>remote-host</strong>是我的远程服务器的主机名。</p>
+<p>连接到远程节点，节点名的后缀（节点名@符号后的部分）和主机名相同是很重要。</p>
+<p>现在如下所示打开本地系统的Erlang的shell：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -name sakib@localhost -setcookie <span class="string">"12345"</span></div></pre></td></tr></table></figure>
+<p>并且如下所示打开远程服务器的Erlang的shell：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -name cloud@remote-host -setcookie <span class="string">"12345"</span></div></pre></td></tr></table></figure>
+<p>两个节点的cookie必须一样，或者稍后你可以设置节点的cookie。如果远程节点的cookie没有设置，那么本地节点的cookie将被用来连接远程节点。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">% 给指定的节点设置cookie</span></div><div class="line">erlang:set_cookie('cloud@remote-host', '<span class="number">12345</span>').</div><div class="line"><span class="comment">% 第一个参数是节点名，第二参数是cookie</span></div><div class="line"><span class="comment">% 连接远程节点</span></div><div class="line">net_kernel:connect_node('cloud@remote-host').</div></pre></td></tr></table></figure>
+<p>如果响应是true，则连接建立；如果响应是false，则连接失败。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">% 列出已经连接的节点列表</div><div class="line">nodes().</div><div class="line">% 输出是 : ['cloud@remote-host']</div><div class="line">% 因为我们现在仅仅连接了一个远程节点</div></pre></td></tr></table></figure>
+<p>现在我们可以用<strong>RPC</strong>来运行远程节点的模块。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rpc:call('cloud@remote-host', os, cmd, [whoami]).</div></pre></td></tr></table></figure>
+<p>rpc:call()函数有4个入参。</p>
+<p>第一个是节点名，第二个是模块名，第三个是函数名，第四个是函数的入参。</p>
+<p>上述例子是我们运行<strong>os</strong>模块里的<strong>cmd()</strong>函数，入参是<strong>whoami</strong>。它将返回远程系统的当前用户名。<strong>os</strong>是Erlang的内建模块。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">% 使用multicall函数 (跨所有连接的节点执行rpc调用)</span></div><div class="line">rpc:multicall(nodes(), os, cmd, [whoami]).</div><div class="line"><span class="comment">% 与远程节点断开连接</span></div><div class="line">erlang:disconnect_node('cloud@remote-host').</div></pre></td></tr></table></figure>
+<p>用同样的方式我们可以将不同的任务分布到不同的节点来处理，然后在主节点上获取结果。这就是在Erlang里一个分布式系统的运作方式。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/@sakibsami/distributed-computing-using-erlang-1-cdd051a77c85#.maaswacq4" target="_blank" rel="external">https://medium.com/@sakibsami/distributed-computing-using-erlang-1-cdd051a77c85#.maaswacq4</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文我们将看看Erlang里的分布式系统是如何运作的。&lt;/p&gt;
+&lt;p&gt;Erlang是一种函数式语言，其最被大家所熟知的是分布式和并发计算。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
+    
+      <category term="Distributed Systems" scheme="http://szpzs.oschina.io/categories/Erlang/Distributed-Systems/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
+    
+      <category term="Distributed Systems" scheme="http://szpzs.oschina.io/tags/Distributed-Systems/"/>
+    
+  </entry>
   
   <entry>
     <title>耗尽弹药时你不能爆炸！</title>
@@ -1074,189 +1168,6 @@
       <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
     
       <category term="GC" scheme="http://szpzs.oschina.io/tags/GC/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang调度器的细节以及它为何重要</title>
-    <link href="http://szpzs.oschina.io/2016/12/11/erlang-scheduler-details/"/>
-    <id>http://szpzs.oschina.io/2016/12/11/erlang-scheduler-details/</id>
-    <published>2016-12-10T16:50:08.000Z</published>
-    <updated>2016-12-10T16:53:48.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《<a href="https://hamidreza-s.github.io/erlang%20garbage%20collection%20memory%20layout%20soft%20realtime/2015/08/24/erlang-garbage-collection-details-and-why-it-matters.html" target="_blank" rel="external">Erlang垃圾回收细节以及它为何重要</a>》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。</p>
-<a id="more"></a>
-<h1 id="什么是调度"><a href="#什么是调度" class="headerlink" title="什么是调度"></a>什么是调度</h1><p>通常来说，调度就是一种分派工作给工作者的机制。所谓的工作可能是一个算数运算、字符串处理或者数据抽取，而工作者是一些资源，比如像<a href="https://en.wikipedia.org/wiki/Green_threads" target="_blank" rel="external">Green Thread</a>这样虚拟的资源或者像<a href="https://en.wikipedia.org/wiki/Thread_%28computing%29" target="_blank" rel="external">Native Thread</a>这样的物理资源。调度器以一种方式执行调度活度，最大限度地提高吞吐量和公平性，最大限度地降低响应时间和延时。调度是像操作系统和虚拟机这样的多任务系统的重要组成部分，它被分为两种类型：</p>
-<ul>
-<li><a href="https://en.wikipedia.org/wiki/Preemption_%28computing%29" target="_blank" rel="external">抢占式</a>：一个抢占式调度器在执行的任务间进行上下文切换，它有权力抢占（中断）任务并且在不需要被抢占任务的配合下的稍后恢复执行它们。实现这样的功能是基于如下几个因素，比如：任务的优先级，时间切片或者规约数。</li>
-<li><a href="https://en.wikipedia.org/wiki/Cooperative_multitasking" target="_blank" rel="external">协作式</a>：一个协作式调度器需要任务协作来进行上下文切换。在这种方式下，调度器简单地让任务周期性地或者空闲地时候自愿地释放控制权，然后启动一个新的任务并且再一次等待它自愿地归还控制权。</li>
-</ul>
-<p>现在的问题是，哪一种调度机制适合软实时系统，也就是这个系统必须在指定的时间内响应。协作式调度系统不能满足软实时系统的要求，因为其运行的任务可能永远也不会返还控制权或者在规定时限后返还控制权。所以软实时系统通常采用抢占式调度。</p>
-<h1 id="Erlang的调度"><a href="#Erlang的调度" class="headerlink" title="Erlang的调度"></a>Erlang的调度</h1><p>Erlang作为一个多任务软实时平台采用的就是抢占式调度。Erlang调度器的职责就是选择一个进程并执行它的代码。它也处理垃圾回收和内存管理。如何选择一个进程来执行是基于每个进程可配置的优先级，并且同一优先级的进程是轮询地被调度的。另外，执行中的进程被抢占的因素是基于自上次该进程被选中执行后一定数量的<strong>规约数</strong>而不管它的优先级如何。规约数是每个进程的一个计数器，一般每调用一次函数，它就加一。当一个进程的计数器达到最大规约数时，就会抢占进程和进行上下文切换。例如，在Erlang/OTP R12B 计数器的最大值是2000规约数。</p>
-<p>Erlang的任务调度有很长的发展历史。它随着时间而改变。这些改变受Erlang的SMP（对称多处理器）特性的改变而被影响。</p>
-<h2 id="R11B之前的调度"><a href="#R11B之前的调度" class="headerlink" title="R11B之前的调度"></a>R11B之前的调度</h2><p>在R11B之前，Eralng还不支持SMP，因此它只有一个调度器运行在操作系统主进程的线程里，并且相应的只有一个<strong>运行队列</strong>。调度器从运行队列选择可运行的Erlang进程和IO任务来执行。</p>
-<p><img src="/images/scheduling-before-r11b.png" style="border:0;"></p>
-<p>这种方式不需要锁数据结构，但是这么写的应用无法利用并行的好处。</p>
-<h2 id="R11B和R12B的调度"><a href="#R11B和R12B的调度" class="headerlink" title="R11B和R12B的调度"></a>R11B和R12B的调度</h2><p>SMP支持被加入Erlang虚拟机里，所以它可以有1到1024个运行在操作系统进程的线程里的调度器。然而，这个版本的调度器只能从一个共用运行队列里选取可执行任务。</p>
-<p><img src="/images/scheduling-in-r11b-and-r12b.png" style="border:0;"></p>
-<p>由于这种方式造成并行，使得所有共享数据结构都要用锁保护起来。例如运行队列本身就是一个必须被保护起来的共享数据结构。虽热锁会造成一些性能损失，但是新的调度器在多核处理器上带来的性能提升还是很可观的。</p>
-<p>在这个版本里的一些瓶颈如下：</p>
-<ul>
-<li>当调度器增加后，共用运行队列成为瓶颈。</li>
-<li>增加ETS表相关的锁，同时也影响到Mnesia。</li>
-<li>当许多进程同时给一个进程发送消息的时候增加锁的冲突。</li>
-<li>一个进程等待获取一个锁的时候会阻塞它的调度器。</li>
-</ul>
-<p>然而，每一个调度器分配一个运行队列的方案在下一个版本被选择来解决这些瓶颈。</p>
-<h2 id="R13B后的调度"><a href="#R13B后的调度" class="headerlink" title="R13B后的调度"></a>R13B后的调度</h2><p>在这个版本，每个调度器有它自己的运行队列。在多核多调度器的系统里，这将减少锁冲突数量并且提升系统整体性能。</p>
-<p><img src="/images/scheduling-after-r13b.png" style="border:0;"></p>
-<p>这种方式在访问运行队列时锁冲突解决了，不过却引入了一些新问题：</p>
-<ul>
-<li>如何在运行队列中分配任务做到公平？</li>
-<li>如果一个调度器被分配了过多的任务而另外的调度器却很清闲，这个问题如何解决？</li>
-<li>基于什么样的命令一个调度器可以从一个过载的调度器偷任务？</li>
-<li>要是我们启动了很多调度器，但是却很少任务，如何处理？</li>
-</ul>
-<p>这些问题使得Erlang开发团队引入一个概念使得调度公平和高效，这个概念就是<strong>迁移逻辑</strong>。它尝试在基于从系统收集来的统计数据上控制和平衡运行队列。</p>
-<p>然而我们不应该让我们的调度一直维持现状，因为它很可能在将来的版本变得更好。</p>
-<h1 id="控制和监督API"><a href="#控制和监督API" class="headerlink" title="控制和监督API"></a>控制和监督API</h1><p>有一些Erlang模拟器启动标志和一些内部控制和监督函数与调度器行为有关。</p>
-<h2 id="调度线程"><a href="#调度线程" class="headerlink" title="调度线程"></a>调度线程</h2><p>当用erl启动脚本启动Erlang模拟器的时候，可以通过给+S标志传递两个用冒号分割的数字来指定最大可用调度线程数和在线调度线程数。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ erl +S MaxAvailableSchedulers:OnlineSchedulers</div></pre></td></tr></table></figure>
-<p>最大可用调度线程数只能在启动的时候指定而且在运行时是固定不变的，但是在线调度线程数可以在启动和运行时被指定和修改。例如我们可以在启动一个模拟器的时候指定16个最大调度线程和8个在线调度线程。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ erl +S 16:8</div></pre></td></tr></table></figure>
-<p>然后在shell里在线调度线程可以被修改，如下：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&gt; erlang:system_info(schedulers). <span class="comment">%% =&gt; returns 16</span></div><div class="line">&gt; erlang:system_info(schedulers_online). <span class="comment">%% =&gt; returns 8</span></div><div class="line">&gt; erlang:system_flag(schedulers_online, <span class="number">16</span>). <span class="comment">%% =&gt; returns 8</span></div><div class="line">&gt; erlang:system_info(schedulers_online). <span class="comment">%% =&gt; returns 16</span></div></pre></td></tr></table></figure>
-<p>另外，使用+SP标志可以用百分比的方式设置这两个值。</p>
-<h2 id="进程优先级"><a href="#进程优先级" class="headerlink" title="进程优先级"></a>进程优先级</h2><p>如前所述调度器基于进程的优先级来选择它们来执行。优先级可以在进程内通过调用erlang:process_flag/2函数来设置。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">PID = spawn(<span class="keyword">fun</span>() -&gt;</div><div class="line">   <span class="comment">%% ...</span></div><div class="line">   <span class="keyword">end</span>).</div></pre></td></tr></table></figure>
-<p>优先级可以是 low、normal、high、max 这些原子中的任何一个。默认优先级是normal，max优先级是保留给Erlang运行时内部使用不应被一般进程使用。</p>
-<h2 id="运行队列统计"><a href="#运行队列统计" class="headerlink" title="运行队列统计"></a>运行队列统计</h2><p>如前所述运行队列持有准备好执行但未被调度器选中执行的进程。可以通过调用erlang:statistics(run_queue)获取在所有可用运行队列已经准备好可运行的进程数。作为一个真实例子，让我启动Erlang模拟器，给它4个在线调度器，并且给它们10个非常消耗CPU的并发进程。这些进程<a href="https://gist.github.com/hamidreza-s/9e3ed289f65759048875" target="_blank" rel="external">计算一个很大数字的素数</a>。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment">%% 就绪</span></div><div class="line">&gt; erlang:statistics(online_schedulers). <span class="comment">%% =&gt; 4</span></div><div class="line">&gt; erlang:statistics(run_queue). <span class="comment">%% =&gt; 0</span></div><div class="line"></div><div class="line"><span class="comment">%% 并发创建10个重型进程</span></div><div class="line">&gt; [spawn(<span class="keyword">fun</span>() -&gt; calc:prime_numbers(<span class="number">10000000</span>) <span class="keyword">end</span>) || _ &lt;- lists:seq(<span class="number">1</span>, <span class="number">10</span>)].</div><div class="line"></div><div class="line"><span class="comment">%% 运行队列中还有任务要做</span></div><div class="line">&gt; erlang:statistics(run_queue). <span class="comment">%% =&gt; 8</span></div><div class="line"></div><div class="line"><span class="comment">%% Erlang shell依然可以响应，非常棒！</span></div><div class="line">&gt; calc:prime_numbers(<span class="number">10</span>). <span class="comment">%% =&gt; [2, 3, 5, 7]</span></div><div class="line"></div><div class="line"><span class="comment">%% 等一会儿</span></div><div class="line">&gt; erlang:statistics(run_queue). <span class="comment">%% =&gt; 4</span></div><div class="line"></div><div class="line"><span class="comment">%% 等一会儿</span></div><div class="line">&gt; erlang:statistics(run_queue). <span class="comment">%% =&gt; 0</span></div></pre></td></tr></table></figure>
-<p>因为并发进程数大于在线调度器，这将花些时间让调度器执行运行队列里的进程并最终清空运行队列。有趣的是，创建了这些重型进程后，Erlang模拟器任然因为它的抢占式调度可以响应其他请求。Erlang的抢占式调度不会让这些重型进程消耗掉所有运行时，其他轻量并且重要的进程也可以被执行，这个特性在实现一个软实时系统的时候是非常棒的。</p>
-<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>虽然实现一个抢占式调度系统可能很复杂，但是在Erlang里这些不是开发者的责任，因为抢占式调度特性已经在Erlang虚拟机里。另一方面，当在一个软实时系统里系统以高水平的公平性和即时的响应需要扩展到所有处理资源的时候，跟踪、平衡、执行、迁移和抢占进程这些额外的处理成本是完全可负担的。顺便值得一提的是，完全抢占式调度是几乎所有操作系统都支持的特性，但在高层次的平台，语言或库里，Erlang虚拟机几乎是唯一完全抢占式调度的，因为JVM依赖于操作系统的调度器，CAF这个C++ actor库用协作式调度，Go也不是完全抢占式调度，还有诸如Python的Twisted，Ruby的Event Machine和Nodejs也不是完全抢占式调度的。这并不意味着对于所有的挑战这都是最好的选择，而是说我们如果要实现一个低延时的软实时系统，Erlang是一个好的选择。</p>
-<h1 id="资源"><a href="#资源" class="headerlink" title="资源"></a>资源</h1><ul>
-<li><a href="http://www.erlang.org/doc/man/erl.html" target="_blank" rel="external">erl脚本官方文档</a></li>
-<li><a href="http://erlang.org/doc/man/erlang.html" target="_blank" rel="external">erlang模块官方文档</a></li>
-<li><a href="http://jlouisramblings.blogspot.co.uk/2013/01/how-erlang-does-scheduling.html" target="_blank" rel="external">Erlang如何调度</a></li>
-<li><a href="http://www.erlang.org/euc/08/euc_smp.pdf" target="_blank" rel="external">深入Erlang虚拟机</a></li>
-<li><a href="http://erlang.org/pipermail/erlang-questions/2001-April/003132.html" target="_blank" rel="external">Erlang调度器：它是如何工作的</a></li>
-</ul>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://hamidreza-s.github.io/erlang/scheduling/real-time/preemptive/migration/2016/02/09/erlang-scheduler-details.html" target="_blank" rel="external">https://hamidreza-s.github.io/erlang/scheduling/real-time/preemptive/migration/2016/02/09/erlang-scheduler-details.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《&lt;a href=&quot;https://hamidreza-s.github.io/erlang%20garbage%20collection%20memory%20layout%20soft%20realtime/2015/08/24/erlang-garbage-collection-details-and-why-it-matters.html&quot;&gt;Erlang垃圾回收细节以及它为何重要&lt;/a&gt;》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="Scheduler" scheme="http://szpzs.oschina.io/categories/Erlang/Scheduler/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="Scheduler" scheme="http://szpzs.oschina.io/tags/Scheduler/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>用Rebar3热更新Erlang代码</title>
-    <link href="http://szpzs.oschina.io/2016/12/09/hot-code-loading-with-erlang-and-rebar3/"/>
-    <id>http://szpzs.oschina.io/2016/12/09/hot-code-loading-with-erlang-and-rebar3/</id>
-    <published>2016-12-09T13:16:16.000Z</published>
-    <updated>2016-12-09T13:43:31.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>在本文中我将探讨为了在生产环境里获得高可用性的关键特性：代码热更新。下面是我给不熟悉代码热更新的同学关于这个概念的正式定义：</p>
-<blockquote>
-<p>代码热更新就是一门给正在飞奔的汽车换引擎的艺术。</p>
-</blockquote>
-<p>简而言之，它的目的就是不停止服务的情况下用新的代码替换正在运行的代码。现在我们明白了代码热更新是什么了，那么让我们尝试着看看在Erlang里如何做到代码热更新。</p>
-<a id="more"></a>
-<p>我们将创建一个样例项目，然后学习如何来做代码热更新。这个项目的代码我已经放在<a href="https://github.com/kansi/nine9s/tree/0.1.0" target="_blank" rel="external">这里</a>。让我们用rebar3来创建一个模版项目。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ rebar3 new release nine9s</div></pre></td></tr></table></figure>
-<p>现在我们在我们的<a href="https://github.com/kansi/nine9s/blob/0.1.0/rebar.config" target="_blank" rel="external">rebar.config</a>文件里增加cowboy和lager为依赖。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123;deps, [</div><div class="line">	&#123;lager, &#123;git, <span class="string">"git://github.com/basho/lager.git"</span>, &#123;tag, <span class="string">"2.1.1"</span>&#125;&#125;&#125;,</div><div class="line">	&#123;cowboy, &#123;git, <span class="string">"https://github.com/ninenines/cowboy.git"</span>, &#123;tag, <span class="string">"2.0.0-pre.1"</span>&#125;&#125;&#125;</div><div class="line">]&#125;.</div></pre></td></tr></table></figure>
-<p>为了更加真实的体验，请按如下修改我们的<a href="https://github.com/kansi/nine9s/blob/0.1.0/rebar.config#L14-L15" target="_blank" rel="external">rebar.config</a>。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&#123;relx, [</div><div class="line">		&#123;release, &#123;'nine9s', <span class="string">"0.1.0"</span>&#125;, ['nine9s', sasl]&#125;,</div><div class="line">		&#123;sys_config, <span class="string">"./config/sys.config"</span>&#125;,</div><div class="line">		&#123;vm_args, <span class="string">"./config/vm.args"</span>&#125;,</div><div class="line">		&#123;dev_mode, false&#125;,</div><div class="line">		&#123;include_erts, true&#125;,</div><div class="line">		&#123;extended_start_script, true&#125;</div><div class="line">	]</div><div class="line">&#125;.</div></pre></td></tr></table></figure>
-<p>你可能想知道这个“nine9s”应用将会做些什么？我的想法是先让这个应用做成一个hello world的web服务，然后再热更新它的代码。修改你的nine9s_app.erl文件以便让start/2看起来像下面一样：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">start</span><span class="params">(_StartType, _StartArgs)</span> -&gt;</span></div><div class="line"> Dispatch = cowboy_router:compile(</div><div class="line">                                  [&#123;‘_’, [</div><div class="line">                                          &#123;“/”, default_handler, []&#125;</div><div class="line">                                         ]&#125;</div><div class="line">                                  ]),</div><div class="line"> &#123;ok, _&#125; = cowboy:start_http(http, <span class="number">10</span>, [&#123;port, <span class="number">9090</span>&#125;],</div><div class="line"> [&#123;env, [&#123;dispatch, Dispatch&#125;]&#125;]),</div><div class="line"> ‘nine9s_sup’:start_link().</div></pre></td></tr></table></figure>
-<p>现在我们创建一个模块，它叫做default_handler.erl。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">-module(default_handler).</div><div class="line">-export([init/2]).</div><div class="line">init(Req, Opts) -&gt;</div><div class="line">    Req2 = cowboy_req:reply(200, [ &#123;&lt;&lt;”content-type"&gt;&gt;,</div><div class="line">                                    &lt;&lt;”text/plain”&gt;&gt;&#125; ],</div><div class="line">                            &lt;&lt;”Hello world!”&gt;&gt;, Req),</div><div class="line">    &#123;ok, Req2, Opts&#125;.</div></pre></td></tr></table></figure>
-<p>接下来，我们编译并运行这个应用。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ rebar3 compile &amp;&amp; rebar3 release</div><div class="line">$ _build/default/rel/nine9s/bin/nine9s-0.1.0 console</div></pre></td></tr></table></figure>
-<p>现在你已经运行了你的应用，你可以浏览<a href="http://localhost:9090" target="_blank" rel="external">http://localhost:9090</a>来验证一下。请保持这个应用一直运行，因为我们将创建这个应用的一个新版本并且尝试在线进行代码热更新。</p>
-<p>上述代码在<a href="https://github.com/kansi/nine9s/tree/master" target="_blank" rel="external">项目</a>的<a href="https://github.com/kansi/nine9s/tree/0.1.0" target="_blank" rel="external">0.1.0分支</a>里。</p>
-<p>我们开始添加一些新的特性到我们的项目里，这样将形成我们项目的0.2.0版本，然后我们将尝试在运行着的0.1.0版本上在线进行代码热更新。版本0.2.0的代码在<a href="https://github.com/kansi/nine9s/tree/master" target="_blank" rel="external">项目</a>的<a href="https://github.com/kansi/nine9s/tree/0.2.0" target="_blank" rel="external">0.2.0分支</a>。</p>
-<p>我们想统计我们的default_handler已经响应的请求数。这个很好解决，我们创建一个模块<a href="https://github.com/kansi/nine9s/blob/0.2.0/apps/nine9s/src/state_handler.erl" target="_blank" rel="external">state_handler.erl</a>，它是一个gen_server，它将存储default_handler.erl被调用的次数。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(state_handler)</span>.</div><div class="line"><span class="keyword">-behaviour</span><span class="params">(gen_server)</span>.</div><div class="line"><span class="comment">%% API functions</span></div><div class="line"><span class="keyword">-export</span><span class="params">([hello_world/<span class="number">0</span>,</span></div><div class="line">         get_hello_world_count/<span class="number">0</span>,</div><div class="line">         start_link/<span class="number">0</span>]).</div><div class="line"><span class="comment">%% gen_server callbacks</span></div><div class="line"><span class="keyword">-export</span><span class="params">([init/<span class="number">1</span>,</span></div><div class="line">         handle_call/<span class="number">3</span>,</div><div class="line">         handle_cast/<span class="number">2</span>,</div><div class="line">         handle_info/<span class="number">2</span>,</div><div class="line">         terminate/<span class="number">2</span>,</div><div class="line">         code_change/<span class="number">3</span>]).</div><div class="line"><span class="keyword">-record</span><span class="params">(state, &#123;count = <span class="number">0</span>&#125;)</span>.</div><div class="line"><span class="comment">%%%==========================================================</span></div><div class="line"><span class="comment">%%% API functions</span></div><div class="line"><span class="comment">%%%==========================================================</span></div><div class="line"><span class="function"><span class="title">hello_world</span><span class="params">()</span> -&gt;</span></div><div class="line">    gen_server:cast(?MODULE, hello_world).</div><div class="line"><span class="function"><span class="title">get_hello_world_count</span><span class="params">()</span> -&gt;</span></div><div class="line">    gen_server:call(?MODULE, hello_world_count).</div><div class="line"><span class="function"><span class="title">start_link</span><span class="params">()</span> -&gt;</span></div><div class="line">    gen_server:start_link(&#123;local, ?MODULE&#125;, ?MODULE, [], []).</div><div class="line"><span class="comment">%%%===========================================================</span></div><div class="line"><span class="comment">%%% callback functions</span></div><div class="line"><span class="comment">%%%===========================================================</span></div><div class="line"><span class="function"><span class="title">init</span><span class="params">([])</span> -&gt;</span></div><div class="line">    &#123;ok, #state&#123;&#125;&#125;.</div><div class="line"><span class="function"><span class="title">handle_call</span><span class="params">(hello_world_count, _From, State)</span> -&gt;</span></div><div class="line">    &#123;reply, State#state.count, State&#125;;</div><div class="line"><span class="function"><span class="title">handle_call</span><span class="params">(_Request, _From, State)</span> -&gt;</span></div><div class="line">    Reply = ok,</div><div class="line">    &#123;reply, Reply, State&#125;.</div><div class="line"><span class="function"><span class="title">handle_cast</span><span class="params">(hello_world, State)</span> -&gt;</span></div><div class="line">    Count = State#state.count,</div><div class="line">    &#123;noreply, State#state&#123;count = Count + <span class="number">1</span>&#125;&#125;;</div><div class="line"><span class="function"><span class="title">handle_cast</span><span class="params">(_Msg, State)</span> -&gt;</span></div><div class="line">    &#123;noreply, State&#125;.</div><div class="line"><span class="function"><span class="title">handle_info</span><span class="params">(_Info, State)</span> -&gt;</span></div><div class="line">    &#123;noreply, State&#125;.</div><div class="line"><span class="function"><span class="title">terminate</span><span class="params">(_Reason, _State)</span> -&gt;</span></div><div class="line">    ok.</div><div class="line"><span class="function"><span class="title">code_change</span><span class="params">(_OldVsn, State, _Extra)</span> -&gt;</span></div><div class="line">    &#123;ok, State&#125;.</div></pre></td></tr></table></figure>
-<p>我们修改我们的<a href="https://github.com/kansi/nine9s/blob/0.2.0/apps/nine9s/src/default_handler.erl" target="_blank" rel="external">default_handler.erl</a>，以便每次它接收到请求的时候就通知state_handler。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(default_handler)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([init/<span class="number">2</span>])</span>.</div><div class="line"><span class="function"><span class="title">init</span><span class="params">(Req, Opts)</span> -&gt;</span></div><div class="line">    state_handler:hello_world(),</div><div class="line">    Req2 = cowboy_req:reply(<span class="number">200</span>, [ &#123;&lt;&lt;”content-type”&gt;&gt;,</div><div class="line">                                 &lt;&lt;”text/plain”&gt;&gt;&#125; ],</div><div class="line">                         &lt;&lt;”Hello world <span class="number">2</span> !”&gt;&gt;, Req),</div><div class="line">    &#123;ok, Req2, Opts&#125;.</div></pre></td></tr></table></figure>
-<p>我们的state_handler将是<a href="https://github.com/kansi/nine9s/blob/0.2.0/apps/nine9s/src/nine9s_sup.erl" target="_blank" rel="external">nine9s_sup</a>监督者下的一个工作进程。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(‘nine9s_sup’)</span>.</div><div class="line"><span class="keyword">-behaviour</span><span class="params">(supervisor)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([start_link/<span class="number">0</span>])</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([init/<span class="number">1</span>])</span>.</div><div class="line"><span class="keyword">-define</span><span class="params">(SERVER, ?MODULE)</span>.</div><div class="line"><span class="keyword">-define</span><span class="params">(CHILD(Id, Mod, Args, Restart, Type)</span>, &#123;Id, &#123;Mod, start_link, Args&#125;, Restart, 60000, Type, [Mod]&#125;).</div><div class="line"><span class="function"><span class="title">start_link</span><span class="params">()</span> -&gt;</span></div><div class="line">    supervisor:start_link(&#123;local, ?SERVER&#125;, ?MODULE, []).</div><div class="line"><span class="function"><span class="title">init</span><span class="params">([])</span> -&gt;</span></div><div class="line">    State_Handler = ?CHILD(state_handler, state_handler, [], transient, worker),</div><div class="line">    &#123;ok, &#123; &#123;one_for_all, <span class="number">0</span>, <span class="number">1</span>&#125;, [State_Handler]&#125; &#125;.</div></pre></td></tr></table></figure>
-<p>既然我们已经记录了default_handler的访问次数，我们就想有一个cowboy的路由来给出当前的访问次数，所以我们修改<a href="https://github.com/kansi/nine9s/blob/0.2.0/apps/nine9s/src/nine9s_app.erl" target="_blank" rel="external">nine9s_sup.erl</a>。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(‘nine9s_app’)</span>.</div><div class="line"><span class="keyword">-behaviour</span><span class="params">(application)</span>.</div><div class="line"><span class="comment">%% Application callbacks</span></div><div class="line"><span class="keyword">-export</span><span class="params">([start/<span class="number">2</span></span></div><div class="line">         ,stop/<span class="number">1</span>]).</div><div class="line"><span class="keyword">-export</span><span class="params">([set_routes_new/<span class="number">0</span></span></div><div class="line">        ,set_routes_old/<span class="number">0</span> ]).</div><div class="line"><span class="function"><span class="title">start</span><span class="params">(_StartType, _StartArgs)</span> -&gt;</span></div><div class="line">    Dispatch = cowboy_router:compile([&#123;‘_’, get_new_routes()&#125;]),</div><div class="line">    &#123;ok, _&#125; = cowboy:start_http(http, <span class="number">10</span>, [&#123;port, <span class="number">9090</span>&#125;],</div><div class="line">    [&#123;env, [&#123;dispatch, Dispatch&#125;]&#125;]),</div><div class="line">    ‘nine9s_sup’:start_link().</div><div class="line"><span class="function"><span class="title">stop</span><span class="params">(_State)</span> -&gt;</span> ok.</div><div class="line"><span class="function"><span class="title">get_new_routes</span><span class="params">()</span> -&gt;</span></div><div class="line">    [&#123;“/count”, count_handler, []&#125;] ++ get_old_routes().</div><div class="line"><span class="function"><span class="title">get_old_routes</span><span class="params">()</span> -&gt;</span></div><div class="line">    [&#123;“/”, default_handler, []&#125;].</div><div class="line"><span class="function"><span class="title">set_routes_new</span><span class="params">()</span> -&gt;</span></div><div class="line">    CompileRoutes = cowboy_router:compile([&#123;‘_’, get_new_routes() &#125;]),</div><div class="line">    cowboy:set_env(http, dispatch, CompileRoutes).</div><div class="line"><span class="function"><span class="title">set_routes_old</span><span class="params">()</span> -&gt;</span></div><div class="line">    CompileRoutes = cowboy_router:compile([&#123;‘_’, get_old_routes() &#125;]),</div><div class="line">    cowboy:set_env(http, dispatch, CompileRoutes).</div></pre></td></tr></table></figure>
-<p>请注意，我们把路由分成两部分，一部分是版本0.1.0里就有的，也就是老路由，还有一部分就是新路由。函数set_routes_new/0和set_routes_old/0我们将在后面解释。</p>
-<p>下述代码是count_handler模块，就是处理路由 “/count”的模块。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(count_handler)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([init/<span class="number">2</span>])</span>.</div><div class="line"><span class="function"><span class="title">init</span><span class="params">(Req, Opts)</span> -&gt;</span></div><div class="line">    Count = state_handler:get_hello_world_count(),</div><div class="line">    BCount = integer_to_binary(Count),</div><div class="line">    Req2 = cowboy_req:reply(<span class="number">200</span>, [ &#123;&lt;&lt;”content-type”&gt;&gt;,</div><div class="line">                                 &lt;&lt;”text/plain”&gt;&gt;&#125; ],</div><div class="line">                         BCount, Req),</div><div class="line">    &#123;ok, Req2, Opts&#125;.</div></pre></td></tr></table></figure>
-<p>最后，我们将修改在<a href="https://github.com/kansi/nine9s/blob/0.2.0/apps/nine9s/src/nine9s.app.src#L3" target="_blank" rel="external">nine9s.app.src</a>和<a href="https://github.com/kansi/nine9s/blob/0.2.0/rebar.config#L7" target="_blank" rel="external">rebar.config</a>里的版本数字。版本0.2.0的特性就完成了。现在我们将尝试将正在运行的0.1.0版本升级到版本0.2.0。</p>
-<p>为了升级到新的版本，我们需要创建一个appup文件，也就是nine9s.app.src文件，它描述了如何从版本0.1.0升级到0.2.0。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="string">"vsn in app.src"</span>,</div><div class="line">    [ &#123;<span class="string">"upgrade from vsn"</span>, Instructions1&#125;],</div><div class="line">    [ &#123;<span class="string">"downgrade to vsn"</span>, Instructions2&#125;]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>appup文件是一个三元素组成的元组文件。第一个元素是和.app.src文件里一样的版本号（也就是当前版本）。第二个元素是一个元组列表，它的第一个元素是将要被升级的版本号，它的第二个元素是一些指令组成的列表，这些指令指示该如何从这个版本升级到新的版本。第三个元素也是一个元组列表，它的第一个元素是将要降级到的版本号，它的第二个元素是也是一些指令组成的列表，这些指令指示该如何降级到这个版本。</p>
-<p>下面是应用nine9s的appup文件内容：<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">&#123;“<span class="number">0.2</span>.<span class="number">0</span>”,</div><div class="line">  [&#123;“<span class="number">0.1</span>.<span class="number">0</span>”, [</div><div class="line">              &#123;add_module, state_handler&#125;</div><div class="line">             ,&#123;update, nine9s_sup, supervisor&#125;</div><div class="line">             ,&#123;apply, &#123;supervisor, restart_child, [nine9s_sup, state_handler]&#125;&#125;</div><div class="line">             ,&#123;load_module, default_handler&#125;</div><div class="line">             ,&#123;add_module, count_handler&#125;</div><div class="line">             ,&#123;load_module, nine9s_app&#125;</div><div class="line">             ,&#123;apply, &#123;nine9s_app, set_routes_new, [] &#125;&#125; ] &#125;],</div><div class="line"></div><div class="line">  [&#123;“<span class="number">0.1</span>.<span class="number">0</span>”, [</div><div class="line">              &#123;load_module, default_handler&#125;</div><div class="line">             ,&#123;apply, &#123;supervisor, terminate_child, [nine9s_sup, state_handler]&#125;&#125;</div><div class="line">             ,&#123;apply, &#123;supervisor, delete_child, [nine9s_sup, state_handler]&#125;&#125;</div><div class="line">             ,&#123;update, nine9s_sup, supervisor&#125;</div><div class="line">             ,&#123;delete_module, state_handler&#125;</div><div class="line">             ,&#123;apply, &#123;nine9s_app, set_routes_old, [] &#125;&#125;</div><div class="line">             ,&#123;delete_module, count_handler&#125;</div><div class="line">             ,&#123;load_module, nine9s_app&#125;</div><div class="line">             ]</div><div class="line">&#125;]&#125;.</div></pre></td></tr></table></figure></p>
-<p>现在我们先来解释一下升级指令。注意：这些指令是按它们在文件中的先后顺序来执行的。</p>
-<ul>
-<li>{add_module, state_handler} : 指示增加state_handler模块到运行环境里。</li>
-<li>{update, nine9s, supervisor} : 这条指令将修改监督者的内部状态，也就是改变重启策略和最大重启频率，同时也改变子进程规格说明。最终将增加state_handler这个模块到监督者的子进程规格说明里。</li>
-<li>{apply, {supervisor, restart_child, [nine9s, state_handler]}} : “apply”指令接收{M,F,A}做为参数，然后执行 M:F(A1, … An)。所以我们实际上是执行supervisor:restart_child(nine9s, state_handler)，这将在nine9s_sup监督者下启动state_handler做为工作进程。请注意：上述三条指令的顺序。首先我们增加state_handler模块，然后改变监督者的状态，最后创建state_handler进程。</li>
-<li>{load_module, default_handler} : 这条指令将重新装载default_handler模块，替换它的老版本代码。</li>
-<li>{add_module, count_handler} : 增加count_handler模块。</li>
-<li>{load_module, nine9s_app} : 我们重新装载nine9s_app，从而我们新增加的函数被装载进虚拟机。</li>
-<li>{apply, {nine9s_app, set_routes_new, [ ] }} ] } ] : 既然我们装载了新的函数，我就执行 nine9s_app:set_routes_new() 增加新的路由到我们的服务器。</li>
-</ul>
-<p>接下来的元素是如何降级的指令，它的工作模式和前一个元素相似，但是是用老模块替换新模块。</p>
-<ul>
-<li>{load_module, default_handler} : 这个指令将装载老的default_handler模块。</li>
-<li>{apply, {supervisor, terminate_child, [nine9s_sup, state_handler]}} : 终止state_handler进程。</li>
-<li>{apply, {supervisor, delete_child, [nine9s_sup, state_handler]}} : 从nine9s_sup里删除state_handler这个子进程规格。</li>
-<li>{update, nine9s_sup, supervisor} : 修改监督者nine9s_sup的内部状态。</li>
-<li>{delete_module, state_handler} : 删除state_handler模块。</li>
-<li>{apply, {nine9s_app, set_routes_old, [ ] }} : 设置路由为老版本路由。</li>
-<li>{delete_module, count_handler} : 删除count_handler模块。</li>
-<li>{load_module, nine9s_app} : 装载老的nine9s_app模块。</li>
-</ul>
-<p>既然我们的appup文件准备好了，我们就开始升级到最新的版本。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 首先我们拷贝appup文件到lib目录下nine9s/ebin下</span></div><div class="line">$ cp apps/nine9s/src/nine9s.appup.src _build/default/lib/nine9s/ebin/nine9s.appup</div><div class="line"><span class="comment"># 接着我们编译和发布应用</span></div><div class="line">$ rebar3 compile</div><div class="line">$ rebar3 release</div><div class="line"><span class="comment"># 生成relup到前一个版本</span></div><div class="line">$ rebar3 relup -n nine9s -v <span class="string">"0.2.0"</span> -u <span class="string">"0.1.0"</span></div><div class="line"><span class="comment"># 生成新版本的tar文件</span></div><div class="line">$ rebar3 tar -n nine9s -v <span class="string">"0.2.0"</span></div><div class="line">$ mv _build/default/rel/nine9s/nine9s-0.2.0.tar.gz _build/default/rel/nine9s/releases/0.2.0/nine9s.tar.gz</div><div class="line"><span class="comment"># 升级到新的版本</span></div><div class="line">$ _build/default/rel/nine9s/bin/nine9s-0.1.0 upgrade <span class="string">"0.2.0"</span></div></pre></td></tr></table></figure>
-<p>搞定！如果所有执行都成功，那么我们就升级到0.2.0版本了。你可以浏览 <a href="http://localhost:9090和http://localhost:9090/count来验证一下。" target="_blank" rel="external">http://localhost:9090和http://localhost:9090/count来验证一下。</a></p>
-<p>项目有两个分支<a href="https://github.com/kansi/nine9s/tree/0.1.0" target="_blank" rel="external">0.1.0</a>和<a href="https://github.com/kansi/nine9s/tree/0.2.0" target="_blank" rel="external">0.2.0</a>。你可以先编译和运行分支0.1.0，然后切换到0.2.0分支，使用python脚本<a href="https://github.com/kansi/nine9s/blob/0.2.0/upgrade.py" target="_blank" rel="external">upgrade.py</a>来升级到0.2.0版本。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://medium.com/@kansi/hot-code-loading-with-erlang-and-rebar3-8252af16605b#.zu5b3bzk4" target="_blank" rel="external">https://medium.com/@kansi/hot-code-loading-with-erlang-and-rebar3-8252af16605b#.zu5b3bzk4</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;在本文中我将探讨为了在生产环境里获得高可用性的关键特性：代码热更新。下面是我给不熟悉代码热更新的同学关于这个概念的正式定义：&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;代码热更新就是一门给正在飞奔的汽车换引擎的艺术。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;简而言之，它的目的就是不停止服务的情况下用新的代码替换正在运行的代码。现在我们明白了代码热更新是什么了，那么让我们尝试着看看在Erlang里如何做到代码热更新。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="Rebar3" scheme="http://szpzs.oschina.io/categories/Erlang/Rebar3/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="Rebar3" scheme="http://szpzs.oschina.io/tags/Rebar3/"/>
-    
-      <category term="热更新" scheme="http://szpzs.oschina.io/tags/%E7%83%AD%E6%9B%B4%E6%96%B0/"/>
     
   </entry>
   
