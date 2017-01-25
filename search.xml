@@ -4,6 +4,49 @@
   
     
     <entry>
+      <title><![CDATA[监控Erlang的原子]]></title>
+      <url>http://szpzs.oschina.io/2017/01/25/about-erlang-atoms/</url>
+      <content type="html"><![CDATA[<p>如果你是Erlang用户，你很可能知道<a href="http://learnyousomeerlang.com/starting-out-for-real" target="_blank" rel="external">原子是什么</a>。你也有很高的机会知道在Erlang里关于原子的<a href="http://erlang.org/doc/efficiency_guide/commoncaveats.html#id61937" target="_blank" rel="external">警告</a>：</p>
+<blockquote>
+<p>原子是不进行垃圾回收的。一旦原子被创建，它就不会被删除。如果原子的数量达到限制值（默认是1,048,576），模拟器就会终止。</p>
+</blockquote>
+<a id="more"></a>
+<p>原子的文本存储在原子表里（每个元素对应唯一一个原子），而且这些数据是不会被垃圾回收的。这个原子表的条目数对应一个可配置的限制值。达到这个限制值（比如动态地不停地生成原子）可以造成Erlang虚拟机崩溃。</p>
+<p>原子很棒，但是一定要小心使用它们。动态创建原子（比如通过list_to_atom/1函数）必须要不惜代价避免。毕竟，这是list_to_existing_atom/1函数为什么存在的理由。如果你想知道什么时候应该使用原子，什么时候使用其他东西，你可能喜欢<a href="http://erlang.org/pipermail/erlang-questions/2015-October/086366.html" target="_blank" rel="external">Erlang问题邮件列表里的这个贴子</a>，其中包括Richard A. O’Keefe 和 Joe Armstrong 的回答。既然太多原子可以引起我们的系统非正常崩溃，<strong>那么在运行的生产系统中关注原子表的条目的数量是非常重要的</strong>。但是我们该如何做呢？</p>
+<p>在当前的OTP版本（在我写本文的时候是19.2），只有关于原子表使用内存的信息能通过erlang:memory/1函数来获取给予用户。实际上有两个相似的参数可以使用。我们先看第一个：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; erlang:memory(atom).</div><div class="line"><span class="number">202481</span></div></pre></td></tr></table></figure>
+<p>这个函数返回原子表自己使用的内存加上那个时点预留给原子字符串的内存。预留给原子字符串的内存以块形式增长。返回值是以字节为单元来表示。</p>
+<p>让我们看第二个：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="number">2</span>&gt; erlang:memory(atom_used).</div><div class="line"><span class="number">187410</span></div></pre></td></tr></table></figure>
+<p>这个函数返回原子表自己使用的内存加上原子字符串空间实际使用的内存。它的返回值也是以字节为单元来表示。谢谢<a href="https://github.com/mikpe" target="_blank" rel="external">Mikael</a>为我确认这个两个函数的不同之处。</p>
+<p>但是，我们如何利用这一信息呢？了解原子表分配内存是一回事，但<strong>我们真的很想知道有多少原子在我们的生产系统中</strong>，而且我们是否接近臭名昭著的1百万原子表条目数限制。在经过查阅官方文档之后，我确信这些信息不会暴露给用户。在这一点上，我的同事<a href="https://github.com/dszoboszlay" target="_blank" rel="external">Daniel</a>建议，可以将这个信息从erlang:system_info/1函数的二进制输出提取出来：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="number">3</span>&gt; erlang:system_info(info).</div><div class="line">&lt;&lt;<span class="string">"=memory\ntotal: 13227160\nprocesses: 4383720\nprocesses_used: 4383496\nsystem: 8843440\natom: 202481\natom_used: 187410\nbi"</span>...&gt;&gt;</div></pre></td></tr></table></figure>
+<p>上述输出被Erlang shell截断了，因此让我们用更加好看的格式打印它的输出（如下的输出示例被截断了）。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="number">4</span>&gt; io:put_chars(erlang:system_info(info)).</div><div class="line">=memory</div><div class="line">total: <span class="number">13287200</span></div><div class="line">processes: <span class="number">4394640</span></div><div class="line">processes_used: <span class="number">4394416</span></div><div class="line">system: <span class="number">8892560</span></div><div class="line">[...]</div><div class="line">=index_table:atom_tab</div><div class="line">size: <span class="number">8192</span></div><div class="line">limit: <span class="number">1048576</span></div><div class="line">entries: <span class="number">7227</span></div><div class="line">=hash_table:module_code</div><div class="line">[...]</div></pre></td></tr></table></figure>
+<p>的确，我们需要的信息就这里面。让我们实现一个简单的助手模块来提取它。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(atom_table)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([count/<span class="number">0</span>])</span>.</div><div class="line"><span class="function"><span class="title">count</span><span class="params">()</span> -&gt;</span></div><div class="line">  Info = erlang:system_info(info),</div><div class="line">  Chunks = binary:split(Info, &lt;&lt;<span class="string">"="</span>&gt;&gt;, [global]),</div><div class="line">  [TabInfo] = [X || &lt;&lt;<span class="string">"index_table:atom_tab"</span>, X/binary&gt;&gt; &lt;- Chunks],</div><div class="line">  Lines = binary:split(TabInfo, &lt;&lt;<span class="string">"\n"</span>&gt;&gt;, [global]),</div><div class="line">  Chunks2 = [binary:split(L, &lt;&lt;<span class="string">": "</span>&gt;&gt;) || L &lt;- Lines, L =/= &lt;&lt;&gt;&gt;],</div><div class="line">  binary_to_integer(proplists:get_value(&lt;&lt;<span class="string">"entries"</span>&gt;&gt;, Chunks2)).</div></pre></td></tr></table></figure>
+<p>接着我们看看我们的助手的作用：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; atom_table:count().</div><div class="line"><span class="number">7085</span></div></pre></td></tr></table></figure>
+<p>不是最好的API，但至少我们得到了我们需要的信息。幸运的是，<a href="https://github.com/mikpe" target="_blank" rel="external">Mikael</a>向OTP团队提交了一个<a href="https://github.com/erlang/otp/pull/1286" target="_blank" rel="external">Pull Request</a>，其中包括一个新的API以更好的方式找回我们的小宝贝信息。这个Pull Request最近已经被接受，这就意味着从OTP 20开始，我们将能够用下面的API来获取关于原子使用的数量的信息：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erlang:system_info(atom_count).</div></pre></td></tr></table></figure>
+<p>好极了，不是吗？</p>
+<p>现在，我们有我们所需要的指标，我们可以设置一个周期性的工作，将我们的生产系统中的原子数发送到我们最喜欢的监控系统，并且如果一个预定义的阈值被超过则引起一个报警。我会用很低的阈值（即小于50%），因为即使在一个巨大的Erlang系统是不大可能看到几十万个原子的，而且达到那么高的数字可能就暴露一些原子动态生成的问题。如果真是这样的情况，我们需要尽快报警。</p>
+<p>现在让我们创建一个新的原子，然后再用我们的助手一次：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">2</span>&gt; roberto.</div><div class="line">roberto</div><div class="line"><span class="number">3</span>&gt; atom_table:count().</div><div class="line"><span class="number">7134</span></div></pre></td></tr></table></figure>
+<p>等一等！我们只是创建了一个原子。为什么原子数量从7085跳到7134了？</p>
+<p>在运行中的Erlang系统里，原子随时都会被创建。例如，可能一个进程在没有见过的模块中对一个函数执行完全限定的函数调用。这将导致模块加载到系统中，并且一堆原子被添加到原子表。毕竟，模块名是原子，函数名等等也是原子。</p>
+<p>现在让我们假设我们的系统原子泄露。我们怎样才能知道哪些原子在产生？有几个方法从一个运行的Erlang系统中获取原子列表，不过我最喜欢的方法是<a href="http://stackoverflow.com/questions/13480462/erlang-can-i-get-a-list-of-all-currently-registered-atoms" target="_blank" rel="external">legoscia在StackOverflow给出的</a>。这个方法真的很邪乎，它使用了外部数据格式的非官方公布特性。</p>
+<p><img src="/images/about-erlang-atoms-1.jpeg" style="border:0;"></p>
+<p>比如我们可以利用从Stack Overflow获取的代码读取系统中原子的列表，稍等一会儿，然后再次运行它，看两次结果的差异。我们甚至不需要在生产中运行这样的代码，因为本地工作站或测试系统足以发现意外产生这些原子的背后的根本原因。</p>
+<p>如果我们发现原子是动态生成的，我们可能想确保它不再发生。在这种情况下，我推荐使用像 Erlang 风格的审阅工具：<a href="https://github.com/inaka/elvis" target="_blank" rel="external">Elvis</a>，我的同事<a href="https://github.com/jfacorro" target="_blank" rel="external">Juan</a>是它的主要贡献者。。</p>
+<p>那么你有什么问题吗？有没有其他的你跟踪的Erlang指标（或者你想跟踪）很难获取或另有隐情？请在评论中让我们知道。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/@robertoaloi/about-erlang-atoms-a24603a4a6e8#.cm9ha79v7" target="_blank" rel="external">https://medium.com/@robertoaloi/about-erlang-atoms-a24603a4a6e8#.cm9ha79v7</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[用Erlang进行分布式计算 -- 第二篇]]></title>
       <url>http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-2/</url>
       <content type="html"><![CDATA[<p>在前一篇文章里，我们已经看到如何连接一个远程节点并且运行Erlang里内建的模块。本文我们将学习如何可以运行我们自己的模块来做一些任务。例如我们将从远程节点获取分配给它们网络接口的ip地址。</p>
