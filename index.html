@@ -364,49 +364,13 @@
 
       
         
-          
-            <p>欢迎你的到来！</p>
+          <p>欢迎你的到来！</p>
 <p>本教程我们将教你Elixir的基础，语言的语法，如何定义模块，如何处理常见的数据结构和更多的特点。本章将聚焦在确保Elixir已经安装并且你能够成功地运行Elixir的交互Shell，即IEx。</p>
-<p>我们的必要条件是：</p>
-<ul>
-<li>Elixir － 版本至少是1.4.0</li>
-<li>Erlang － 版本至少是18.0</li>
-</ul>
-<p>让我们开始吧！</p>
-<blockquote>
-<p>如果你在本教程或本网站上发现任何错误，<a href="https://github.com/elixir-lang/elixir-lang.github.com" target="_blank" rel="external">请报告这个bug或者发一个pull requst到我们的问题跟踪里</a>。</p>
-</blockquote>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>如果你还没有安装好Elixir，请到我们的<a href="http://elixir-lang.org/install.html" target="_blank" rel="external">安装指南</a>页面。一旦你安装好Elixir，你就能够运行  elixir –version 来得到当前Elixir的版本。</p>
-<h1 id="交互模式"><a href="#交互模式" class="headerlink" title="交互模式"></a>交互模式</h1><p>当你安装Elixir，你将有三个新的可执行文件：iex，elixir和elixirc。如果你是从源码编译Elixir或者使用预先打包好的版本，你可以在bin目录里找到这三个可执行文件。</p>
-<p>现在，让我们运行iex（如果你在Windows下则运行iex.bat），它代表交互式Elixir。在交互模式，我们能够输入任何Elixir表达式并且得到它的结果。让我们用一些基本表达式来热身。</p>
-<p>运行iex并输入如下的表达式：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Interactive Elixir - press Ctrl+C to exit (type h() ENTER <span class="keyword">for</span> help)</div><div class="line">iex&gt; <span class="number">40</span> + <span class="number">2</span></div><div class="line"><span class="number">42</span></div><div class="line">iex&gt; <span class="string">"hello"</span> &lt;&gt; <span class="string">" world"</span></div><div class="line"><span class="string">"hello world"</span></div></pre></td></tr></table></figure>
-<p>看来我们准备好了！我们从下下一章开始将在接下来的章节里大量使用交互shell来进一步熟悉这门语言的构造和基本类型。</p>
-<blockquote>
-<p>注意：如果你使用的是Windows，你也可以尝试 iex.bat - -werl 根据你正在用的控制台来提供更好的体验。</p>
-</blockquote>
-<h1 id="运行脚本"><a href="#运行脚本" class="headerlink" title="运行脚本"></a>运行脚本</h1><p>初步熟悉这门语言后，你可能想尝试写简单的程序，这个任务可以通过把下述Elixir代码放到一个文件里来完成：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">IO.puts “Hello world from Elixir<span class="string">"</span></div></pre></td></tr></table></figure>
-<p>保存文件为simple.exs并且用elixir执行它：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">elixir simple.exs</div><div class="line">Hello world from Elixir</div></pre></td></tr></table></figure>
-<p>后续我们将学习如何编译Elixir代码（<a href="http://elixir-lang.org/getting-started/modules.html" target="_blank" rel="external">在第八章</a>）并且如何使用Mix构建工具（在<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix&amp;OTP guide</a>）。现在，让我们进入到<a href="http://elixir-lang.org/getting-started/basic-types.html" target="_blank" rel="external">第二章</a>。</p>
-<h1 id="如何问问题"><a href="#如何问问题" class="headerlink" title="如何问问题"></a>如何问问题</h1><p>在本教程的学习过程中，有一些疑问是很常见的，毕竟，这是学习过程的一部分！有很多地方你可以请教他们来更多地了解Elixir：</p>
-<ul>
-<li><a href="irc://irc.freenode.net/elixir-lang" target="_blank" rel="external">#elixir-lang on freenode IRC</a></li>
-<li><a href="https://elixir-slackin.herokuapp.com/" target="_blank" rel="external">Elixir on Slack</a></li>
-<li><a href="http://elixirforum.com/" target="_blank" rel="external">Elixir Forum</a></li>
-<li><a href="https://stackoverflow.com/questions/tagged/elixir" target="_blank" rel="external">elixir tag on StackOverflow</a></li>
-</ul>
-<p>当问问题的时候，记住两个技巧：</p>
-<ul>
-<li>不是问“在Elixir里如何去做X”，而是问“在Elixir里怎样去解决Y”。换句话说，不要问如何实现一个特定的解决方案，而是描述手头上的问题。描述一个问题的时候给予更多的上下文信息以及更少的对一个正确答案的偏见。</li>
-<li>如果事情并不如预想的那样，请在你的报告里尽可能多地提供相关信息，比如：你的Elixir版本，代码片段和错误信息以及错误堆栈。使用像Gist这样的网站发布这些信息。</li>
-</ul>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/introduction.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/introduction.html</a></p>
-</blockquote>
-
-          
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/01/27/elixir-getting-started-introduction/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
