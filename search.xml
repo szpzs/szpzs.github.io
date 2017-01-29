@@ -4,6 +4,44 @@
   
     
     <entry>
+      <title><![CDATA[Elixir入门教程－基本运算符]]></title>
+      <url>http://szpzs.oschina.io/2017/01/29/elixir-getting-started-basic-operators/</url>
+      <content type="html"><![CDATA[<p>在<a href="http://elixir-lang.org/getting-started/basic-types.html" target="_blank" rel="external">前面的章节</a>，我们看到Elixir提供了 +，-，*，/ 4个算术运算符，另外还有整数的除法和取余的两个函数 div/2 和 rem/2 。</p>
+<a id="more"></a>
+<p>Elixir也提供了 ++ 和 - - 来操作列表：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>] ++ [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line">iex&gt; [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>] -- [<span class="number">2</span>]</div><div class="line">[<span class="number">1</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
+<p>用 &lt;&gt; 把两个字符串串联起来：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="string">"foo"</span> &lt;&gt; <span class="string">"bar"</span></div><div class="line"><span class="string">"foobar"</span></div></pre></td></tr></table></figure>
+<p>Elixir也提供三个布尔运算符：or，and 和 not 。这些运算符严格要求布尔类型数据（true或false）作为它的第一个参数。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="literal">true</span> <span class="keyword">and</span> <span class="literal">true</span></div><div class="line"><span class="literal">true</span></div><div class="line">iex&gt; <span class="literal">false</span> or is_atom(:example)</div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
+<p>如果参数不是布尔型数据则会引起异常：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span> <span class="keyword">and</span> <span class="literal">true</span></div><div class="line">** (ArgumentError) argument error: <span class="number">1</span></div></pre></td></tr></table></figure>
+<p>or和and都是短路运算符。如果左边不足以决定结果则它们才会执行右边的表达式：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="literal">false</span> <span class="keyword">and</span> raise(<span class="string">"This error will never be raised"</span>)</div><div class="line"><span class="literal">false</span></div><div class="line">iex&gt; <span class="literal">true</span> or raise(<span class="string">"This error will never be raised"</span>)</div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：如果你是Erlang开发者，Elixir的 and 和 or 的确和Erlang里的 andalso 和 orelse 运算符相互映射影射。</p>
+</blockquote>
+<p>除了这几个布尔运算符，Elixir还提供可以接收任何类型参数的 || ，&amp;&amp; 和 ！。对于这几个运算符，除了 false 和 nil 其他所有值都被认为是true。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"># or</div><div class="line">iex&gt; <span class="number">1</span> || <span class="literal">true</span></div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; <span class="literal">false</span> || <span class="number">11</span></div><div class="line"><span class="number">11</span></div><div class="line"></div><div class="line"># <span class="keyword">and</span></div><div class="line">iex&gt; nil &amp;&amp; <span class="number">13</span></div><div class="line">nil</div><div class="line">iex&gt; <span class="literal">true</span> &amp;&amp; <span class="number">17</span></div><div class="line"><span class="number">17</span></div><div class="line"></div><div class="line"># !</div><div class="line">iex&gt; !<span class="literal">true</span></div><div class="line"><span class="literal">false</span></div><div class="line">iex&gt; !<span class="number">1</span></div><div class="line"><span class="literal">false</span></div><div class="line">iex&gt; !nil</div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
+<p>根据经验，当你想要布尔值的时候就用and，or 和 not。如果有任何参数是非布尔值，则用&amp;&amp;，|| 和 ！。</p>
+<p>Elixir也提供 ==，!=，===，!==，&lt;=，&gt;=，&lt; 和 &gt; 作为比较运算符。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span> == <span class="number">1</span></div><div class="line"><span class="literal">true</span></div><div class="line">iex&gt; <span class="number">1</span> != <span class="number">2</span></div><div class="line"><span class="literal">true</span></div><div class="line">iex&gt; <span class="number">1</span> &lt; <span class="number">2</span></div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
+<p>== 和 === 不同之处在于，后者在比较整数和浮点数的时候更严格。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span> == <span class="number">1.0</span></div><div class="line"><span class="literal">true</span></div><div class="line">iex&gt; <span class="number">1</span> === <span class="number">1.0</span></div><div class="line"><span class="literal">false</span></div></pre></td></tr></table></figure>
+<p>在Elixir里，我们可以比较两个不同的数据类型：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span> &lt; :atom</div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
+<p>我们可以比较不同数据类型的原因是出于实用主义的考虑。排序算法不需要担心不同数据类型之间的排序问题。全部的排序顺序定义如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">number &lt; atom &lt; reference &lt; function &lt; port &lt; pid &lt; tuple &lt; map &lt; list &lt; bitstring</div></pre></td></tr></table></figure>
+<p>你完全不需要记住这个顺序，只需要知道有这个顺序存在就足够了。</p>
+<p>有关运算符（和排序）的参考信息，请查阅 <a href="http://elixir-lang.org/docs/master/elixir/operators.html" target="_blank" rel="external">运算符手册页面</a> 。</p>
+<p>在下一章，我们将讨论一些基础函数，数据类型转换以及一些控制流。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/basic-operators.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/basic-operators.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Elixir入门教程－基本类型]]></title>
       <url>http://szpzs.oschina.io/2017/01/28/elixir-getting-started-basic-types/</url>
       <content type="html"><![CDATA[<ol>
