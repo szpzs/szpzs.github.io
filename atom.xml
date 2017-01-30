@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-01-29T12:22:57.000Z</updated>
+  <updated>2017-01-30T11:56:11.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,87 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elixir入门教程－模式匹配</title>
+    <link href="http://szpzs.oschina.io/2017/01/30/elixir-getting-started-pattern-matching/"/>
+    <id>http://szpzs.oschina.io/2017/01/30/elixir-getting-started-pattern-matching/</id>
+    <published>2017-01-30T11:31:59.000Z</published>
+    <updated>2017-01-30T11:56:11.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">匹配运算符</a></li>
+<li><a href="#part-two">模式匹配</a></li>
+<li><a href="#part-three">pin运算符</a></li>
+</ol>
+<p>在本章，我们将展示给大家 = 运算符在Elixir里如何实际上是一个匹配运算符的以及如何用它来模式匹配数据结构里的数据。最后，我们将学习pin运算符 ^，它被用来访问变量之前被绑定的值。</p>
+<a id="more"></a>
+<h1 id="匹配运算符"><a href="#匹配运算符" class="headerlink" title="匹配运算符"></a><span id="part-one">匹配运算符</span></h1><p>我们已经用过几次 = 运算符在Elixir里给变量赋值：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; x = <span class="number">1</span></div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; x</div><div class="line"><span class="number">1</span></div></pre></td></tr></table></figure>
+<p>在Elixir里，= 运算符实际上被称为<em>匹配运算符</em>。让我们来看看究竟：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span> = x</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; <span class="number">2</span> = x</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: <span class="number">1</span></div></pre></td></tr></table></figure>
+<p>我们注意到 1 = x 是一个有效表达式，而它匹配的原因是因为左右两边都等于1。当两边不匹配的时候，一个MatchError错误抛出。</p>
+<p>变量被赋值的时候只能够处于 = 运算符的左边：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span> = unknown</div><div class="line">** (CompileError) iex:<span class="number">1</span>: undefined function unknown/<span class="number">0</span></div></pre></td></tr></table></figure>
+<p>因为之前没有定义unknown变量，Elixir就假设你是想尝试调用 unknown/0 这个函数，但是这样的函数并不存在。</p>
+<h1 id="模式匹配"><a href="#模式匹配" class="headerlink" title="模式匹配"></a><span id="part-two">模式匹配</span></h1><p>匹配运算符不仅是用来匹配简单的值，而且对于解构更复杂的数据类型也是有用的。例如，我们可以在元组上进行模式匹配：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;a, b, c&#125; = &#123;:hello, <span class="string">"world"</span>, <span class="number">42</span>&#125;</div><div class="line">&#123;:hello, <span class="string">"world"</span>, <span class="number">42</span>&#125;</div><div class="line">iex&gt; a</div><div class="line">:hello</div><div class="line">iex&gt; b</div><div class="line"><span class="string">"world"</span></div></pre></td></tr></table></figure>
+<p>在两边不匹配的情况下模式匹配将出错。例如下面的例子，当元组有不同的大小的时候：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;a, b, c&#125; = &#123;:hello, <span class="string">"world"</span>&#125;</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: &#123;:hello, <span class="string">"world"</span>&#125;</div></pre></td></tr></table></figure>
+<p>或者两边的数据类型不一样：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;a, b, c&#125; = [:hello, <span class="string">"world"</span>, <span class="number">42</span>]</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: [:hello, <span class="string">"world"</span>, <span class="number">42</span>]</div></pre></td></tr></table></figure>
+<p>更有趣地是，我们可以在指定的值上进行匹配。比如下面的例子就断言当右边是一个以原子 :ok 开始的元组的时候左边才和右边匹配：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;:ok, result&#125; = &#123;:ok, <span class="number">13</span>&#125;</div><div class="line">&#123;:ok, <span class="number">13</span>&#125;</div><div class="line">iex&gt; result</div><div class="line"><span class="number">13</span></div><div class="line"></div><div class="line">iex&gt; &#123;:ok, result&#125; = &#123;:error, :oops&#125;</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: &#123;:error, :oops&#125;</div></pre></td></tr></table></figure>
+<p>我们也可以在列表上模式匹配：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; [a, b, c] = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">iex&gt; a</div><div class="line"><span class="number">1</span></div></pre></td></tr></table></figure>
+<p>列表也支持匹配它的头部和尾部：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; [head | tail] = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">iex&gt; head</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; tail</div><div class="line">[<span class="number">2</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
+<p>像 hd/1 和 tl/1 函数一样，我们不能用一个头部和尾部的模式来匹配一个空列表：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; [h | t] = []</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: []</div></pre></td></tr></table></figure>
+<p>[head | tail] 格式不仅用在模式匹配而且也可以用在给列表加元素上：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; list = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">iex&gt; [<span class="number">0</span> | list]</div><div class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
+<p>模式匹配允许开发者很容易地解构诸如元组和列表这样的数据类型。正如我们将在接下来的章节看到的，这是Elixir递归的基础之一，并且也应用于像map和二进制数据等其他类型。</p>
+<h1 id="pin运算符"><a href="#pin运算符" class="headerlink" title="pin运算符"></a><span id="part-three">pin运算符</span></h1><p>Elixir的变量可以重新绑定：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; x = <span class="number">1</span></div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; x = <span class="number">2</span></div><div class="line"><span class="number">2</span></div></pre></td></tr></table></figure>
+<p>当你想模式匹配已经存在的变量的值而不是重新绑定这个变量的时候，pin运算符 ^ 就有用处了：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">iex&gt; x = <span class="number">1</span></div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; ^x = <span class="number">2</span></div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: <span class="number">2</span></div><div class="line">iex&gt; &#123;y, ^x&#125; = &#123;<span class="number">2</span>, <span class="number">1</span>&#125;</div><div class="line">&#123;<span class="number">2</span>, <span class="number">1</span>&#125;</div><div class="line">iex&gt; y</div><div class="line"><span class="number">2</span></div><div class="line">iex&gt; &#123;y, ^x&#125; = &#123;<span class="number">2</span>, <span class="number">2</span>&#125;</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: &#123;<span class="number">2</span>, <span class="number">2</span>&#125;</div></pre></td></tr></table></figure>
+<p>因为我们已经将1赋值给变量x，上述最后一个表达式也可以写成下面一样：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;y, <span class="number">1</span>&#125; = &#123;<span class="number">2</span>, <span class="number">2</span>&#125;</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: &#123;<span class="number">2</span>, <span class="number">2</span>&#125;</div></pre></td></tr></table></figure>
+<p>如果一个变量在一个模式里出现了不止一次，则所有对它的引用都应该绑定到相同的模式：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;x, x&#125; = &#123;<span class="number">1</span>, <span class="number">1</span>&#125;</div><div class="line">&#123;<span class="number">1</span>, <span class="number">1</span>&#125;</div><div class="line">iex&gt; &#123;x, x&#125; = &#123;<span class="number">1</span>, <span class="number">2</span>&#125;</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: &#123;<span class="number">1</span>, <span class="number">2</span>&#125;</div></pre></td></tr></table></figure>
+<p>在一些场景里，你不关心模式里的某个特别的值。通用的做法是将这些值绑定到下划线，_ 。例如，如果仅是列表头部是我们需要的，我们可以将尾部赋给下划线：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; [h | _] = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">iex&gt; h</div><div class="line"><span class="number">1</span></div></pre></td></tr></table></figure>
+<p>变量 _ 在这里很特别，它永远不会被读取。如果尝试取读取它，会得到一个 未绑定变量 的错误：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; _</div><div class="line">** (CompileError) iex:<span class="number">1</span>: unbound variable _</div></pre></td></tr></table></figure>
+<p>虽然模式匹配允许我们构建非常有用的结构，但是它的用法是有限制的。例如，你不能在匹配的左边调用函数。下面的例子就是无效的：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; length([<span class="number">1</span>, [<span class="number">2</span>], <span class="number">3</span>]) = <span class="number">3</span></div><div class="line">** (CompileError) iex:<span class="number">1</span>: illegal pattern</div></pre></td></tr></table></figure>
+<p>到此就完成了我们的模式匹配介绍。正如我们将在下一章看到的，模式匹配在Elixir的许多语言构造里是非常普遍的。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="">http://elixir-lang.org/getting-started/pattern-matching.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;匹配运算符&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;模式匹配&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;pin运算符&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;在本章，我们将展示给大家 = 运算符在Elixir里如何实际上是一个匹配运算符的以及如何用它来模式匹配数据结构里的数据。最后，我们将学习pin运算符 ^，它被用来访问变量之前被绑定的值。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="pattern match" scheme="http://szpzs.oschina.io/categories/Elixir/pattern-match/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="pattern match" scheme="http://szpzs.oschina.io/tags/pattern-match/"/>
+    
+  </entry>
   
   <entry>
     <title>Elixir入门教程－基本运算符</title>
@@ -1253,43 +1334,6 @@
       <category term="BIF" scheme="http://szpzs.oschina.io/tags/BIF/"/>
     
       <category term="NIF" scheme="http://szpzs.oschina.io/tags/NIF/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟踪之浅显易懂</title>
-    <link href="http://szpzs.oschina.io/2016/12/18/eli5-tracing/"/>
-    <id>http://szpzs.oschina.io/2016/12/18/eli5-tracing/</id>
-    <published>2016-12-18T01:12:29.000Z</published>
-    <updated>2016-12-18T01:22:41.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Erlang VM 如何跟踪函数调用、消息传递、进程的创建和结束？</p>
-<a id="more"></a>
-<p>跟踪是一种Erlang虚拟机模式，可以被打开和关闭。打开该模式会开始产生一个事件流。调用dbg:tracer()启动一个将接收这个事件流的进程。你可以创建你自己的跟踪器，它有自己的状态，然后给它输送事件。</p>
-<p>跟踪能够产生大量不相关的数据。要限制这些不相关的数据，可以调用dbg:tp/4 （这一类函数）来产生一个跟踪过滤器。</p>
-<p>当所有事情准备好了：一个跟踪器和一个过滤器，就可以开始打开开关接收事件了。一个对dbg:p/2（这一类函数）的调用设置跟踪目标（一个进程、一个端口、创建和退出事件、所有相关事件，诸如此类）。它将开始发送所有匹配跟踪目标和你给跟踪器进程设置的过滤器的事件。</p>
-<h1 id="跟踪的内部运作"><a href="#跟踪的内部运作" class="headerlink" title="跟踪的内部运作"></a>跟踪的内部运作</h1><p>像进程生命周期事件或消息这样简单的事情在虚拟机的C代码中到处都有跟踪器检查。如果跟踪被开启，那么一条消息会发送给当前的跟踪器。</p>
-<p>对BIF函数的调用和返回进行跟踪会更复杂。因为BIF不是真正的Erlang代码，它们必须以某种方式被包裹在跟踪代码里。这是通过用BIF的入口函数地址与另一个表替换BIF表来做到的。这个新表中的每个条目是一个简单的使用函数名称和参数来对erts_bif_trace函数的调用。这个函数执行真正的调用并且发送跟踪消息。</p>
-<p>在某些时刻使用另一个技巧。在BIF结束前，特定的BEAM操作码被推送到栈上，它将发送跟踪事件。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-tracing.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-tracing.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Erlang VM 如何跟踪函数调用、消息传递、进程的创建和结束？&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="tracer" scheme="http://szpzs.oschina.io/categories/Erlang/tracer/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="tracer" scheme="http://szpzs.oschina.io/tags/tracer/"/>
     
   </entry>
   
