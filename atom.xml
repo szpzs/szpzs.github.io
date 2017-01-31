@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-01-30T11:56:11.000Z</updated>
+  <updated>2017-01-31T11:41:26.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,149 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elixir入门教程－case，cond 和 if</title>
+    <link href="http://szpzs.oschina.io/2017/01/31/elixir-getting-started-case-cond-and-if/"/>
+    <id>http://szpzs.oschina.io/2017/01/31/elixir-getting-started-case-cond-and-if/</id>
+    <published>2017-01-31T11:35:56.000Z</published>
+    <updated>2017-01-31T11:41:26.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">case</a></li>
+<li><a href="#part-two">卫语句里的表达式</a></li>
+<li><a href="#part-three">cond</a></li>
+<li><a href="#part-four">if 和 unless</a></li>
+<li><a href="#part-five">do/end 块</a></li>
+</ol>
+<p>在本章，我们将学习 case，cond 和 if 这几个控制流结构。</p>
+<a id="more"></a>
+<h1 id="case"><a href="#case" class="headerlink" title="case"></a><span id="part-one">case</span></h1><p>case允许我们将一个值和许多模式进行比较直到我们找到一个匹配的：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">case</span> &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125; do</div><div class="line">...&gt;   &#123;<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>&#125; -&gt;</div><div class="line">...&gt;     <span class="string">"This clause won't match"</span></div><div class="line">...&gt;   &#123;<span class="number">1</span>, x, <span class="number">3</span>&#125; -&gt;</div><div class="line">...&gt;     <span class="string">"This clause will match and bind x to 2 in this clause"</span></div><div class="line">...&gt;   _ -&gt;</div><div class="line">...&gt;     <span class="string">"This clause would match any value"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"This clause will match and bind x to 2 in this clause"</span></div></pre></td></tr></table></figure>
+<p>如果你想模式匹配已经存在的变量，你需要使用 ^ 运算符：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; x = <span class="number">1</span></div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; <span class="keyword">case</span> <span class="number">10</span> do</div><div class="line">...&gt;   ^x -&gt; <span class="string">"Won't match"</span></div><div class="line">...&gt;   _  -&gt; <span class="string">"Will match"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"Will match"</span></div></pre></td></tr></table></figure>
+<p>分支语句也允许用卫语句来指定额外的条件：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">case</span> &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125; do</div><div class="line">...&gt;   &#123;<span class="number">1</span>, x, <span class="number">3</span>&#125; <span class="keyword">when</span> x &gt; <span class="number">0</span> -&gt;</div><div class="line">...&gt;     <span class="string">"Will match"</span></div><div class="line">...&gt;   _ -&gt;</div><div class="line">...&gt;     <span class="string">"Would match, if guard condition were not satisfied"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"Will match"</span></div></pre></td></tr></table></figure>
+<p>上例中第一个分支语句仅在x大于零的时候才被匹配上。</p>
+<h1 id="卫语句里的表达式"><a href="#卫语句里的表达式" class="headerlink" title="卫语句里的表达式"></a><span id="part-two">卫语句里的表达式</span></h1><p>Elixir默认导入和允许下述表达式在卫语句里：</p>
+<ul>
+<li>比较运算符（==，!=，===，!==，&gt;， &gt;=， &lt;， &lt;=）</li>
+<li>布尔运算符（and，or，not）</li>
+<li>算术运算符（+， -， *， /）</li>
+<li>一元算术运算符（+， -）</li>
+<li>二进制数据串联运算符 &lt;&gt;</li>
+<li>in 运算符，只要它右边是一个范围或者一个列表</li>
+<li><p>所有下述类型检查函数：</p>
+<pre><code>* is_atom/1
+* is_binary/1
+* is_bitstring/1
+* is_boolean/1
+* is_float/1
+* is_function/1
+* is_function/2
+* is_integer/1
+* is_list/1
+* is_map/1
+* is_nil/1
+* is_number/1
+* is_pid/1
+* is_port/1
+* is_reference/1
+* is_tuple/1
+</code></pre></li>
+<li><p>加上下面的函数</p>
+<pre><code>* abs(number)
+* binary_part(binary, start, length)
+* bit_size(bitstring)
+* byte_size(bitstring)
+* div(integer, integer)
+* elem(tuple, n)
+* hd(list)
+* length(list)
+* map_size(map)
+* node()
+* node(pid | ref | port)
+* rem(integer, integer)
+* round(number)
+* self()
+* tl(list)
+* trunc(number)
+* tuple_size(tuple)
+</code></pre></li>
+</ul>
+<p>另外，用户可以定义他们自己的卫语句。例如，Bitwise模块定义作为函数和运算符的卫语句：bnot，~~~，band，&amp;&amp;&amp;，bor，|||，bxor，^^^，bsl，&lt;&lt;&lt;，bsr，&gt;&gt;&gt;。</p>
+<p>注意，虽然布尔运算符，比如：and，or 和 not 运行在卫语句里使用，但是更加通用的运算符 &amp;&amp;，|| 和 ! 却不被允许在卫语句里使用。</p>
+<p>切记：卫语句里的错误不会被抛出，而是使得卫语句失败：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; hd(<span class="number">1</span>)</div><div class="line">** (ArgumentError) argument error</div><div class="line">iex&gt; <span class="keyword">case</span> <span class="number">1</span> do</div><div class="line">...&gt;   x <span class="keyword">when</span> hd(x) -&gt; <span class="string">"Won't match"</span></div><div class="line">...&gt;   x -&gt; <span class="string">"Got #&#123;x&#125;"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"Got 1"</span></div></pre></td></tr></table></figure>
+<p>如果没有一个分支匹配，则有错误抛出：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">case</span> :ok do</div><div class="line">...&gt;   :error -&gt; <span class="string">"Won't match"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">** (CaseClauseError) no <span class="keyword">case</span> clause matching: :ok</div></pre></td></tr></table></figure>
+<p>注意：匿名函数也可以有多个分支和卫语句：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; f = fn</div><div class="line">...&gt;   x, y <span class="keyword">when</span> x &gt; <span class="number">0</span> -&gt; x + y</div><div class="line">...&gt;   x, y -&gt; x * y</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">#Function&lt;<span class="number">12.71889879</span>/<span class="number">2</span> in :erl_eval.expr/<span class="number">5</span>&gt;</div><div class="line">iex&gt; f.(<span class="number">1</span>, <span class="number">3</span>)</div><div class="line"><span class="number">4</span></div><div class="line">iex&gt; f.(-<span class="number">1</span>, <span class="number">3</span>)</div><div class="line">-3</div></pre></td></tr></table></figure>
+<p>匿名函数每个分支的入参格式必须相同，否则有错误抛出：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">iex&gt; f2 = fn</div><div class="line">...&gt;   x, y <span class="keyword">when</span> x &gt; <span class="number">0</span> -&gt; x + y</div><div class="line">...&gt;   x, y, z -&gt; x * y + z</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">** (CompileError) iex:<span class="number">1</span>: cannot mix clauses with different arities in function definition</div></pre></td></tr></table></figure>
+<h1 id="cond"><a href="#cond" class="headerlink" title="cond"></a><span id="part-three">cond</span></h1><p>当你要匹配不同的值的时候，case语句有用。然而，在许多情况中，我们想要检查不同的条件并且找到第一个为true的条件。在这样的场景下，可以使用cond：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">cond</span> do</div><div class="line">...&gt;   <span class="number">2</span> + <span class="number">2</span> == <span class="number">5</span> -&gt;</div><div class="line">...&gt;     <span class="string">"This will not be true"</span></div><div class="line">...&gt;   <span class="number">2</span> * <span class="number">2</span> == <span class="number">3</span> -&gt;</div><div class="line">...&gt;     <span class="string">"Nor this"</span></div><div class="line">...&gt;   <span class="number">1</span> + <span class="number">1</span> == <span class="number">2</span> -&gt;</div><div class="line">...&gt;     <span class="string">"But this will"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"But this will"</span></div></pre></td></tr></table></figure>
+<p>这和许多命令式语言里的 else if 分支等效（虽然不常在这里使用的方法）。</p>
+<p>如果没有一个条件返回true，则一个错误（CondClauseError）被抛出。因为这个原因，增加一个最后条件，它等于true，这个条件将总是可以匹配到，这样的做法可能是必要的。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">cond</span> do</div><div class="line">...&gt;   <span class="number">2</span> + <span class="number">2</span> == <span class="number">5</span> -&gt;</div><div class="line">...&gt;     <span class="string">"This is never true"</span></div><div class="line">...&gt;   <span class="number">2</span> * <span class="number">2</span> == <span class="number">3</span> -&gt;</div><div class="line">...&gt;     <span class="string">"Nor this"</span></div><div class="line">...&gt;   <span class="literal">true</span> -&gt;</div><div class="line">...&gt;     <span class="string">"This is always true (equivalent to else)"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"This is always true (equivalent to else)"</span></div></pre></td></tr></table></figure>
+<p>最后，要注意：cond认为除nil和false外，任何值都是true：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">cond</span> do</div><div class="line">...&gt;   hd([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]) -&gt;</div><div class="line">...&gt;     <span class="string">"1 is considered as true"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"1 is considered as true"</span></div></pre></td></tr></table></figure>
+<h1 id="if-和-unless"><a href="#if-和-unless" class="headerlink" title="if 和 unless"></a><span id="part-four">if 和 unless</span></h1><p>除了case和cond，Elixir也提供宏：if/2 和 unless/2 ，它们在你需要仅仅检查一个条件的时候很有用：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span> <span class="literal">true</span> do</div><div class="line">...&gt;   <span class="string">"This works!"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"This works!"</span></div><div class="line">iex&gt; unless <span class="literal">true</span> do</div><div class="line">...&gt;   <span class="string">"This will never be seen"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">nil</div></pre></td></tr></table></figure>
+<p>如果给予if/2的条件返回false或nil，则do/end之间的语句不会被执行，并且if/2的整体返回值是nil。unless/2的情况则相反。</p>
+<p>它们也支持else块：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span> nil do</div><div class="line">...&gt;   <span class="string">"This won't be seen"</span></div><div class="line">...&gt; else</div><div class="line">...&gt;   <span class="string">"This will"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"This will"</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：一个关于if/2和unless/2的有趣的注意事项是在Elixir里它们被实现为宏；它们不像在其他语言那样是一个特殊的语言结构。你可以参阅官方文档和<a href="https://hexdocs.pm/elixir/Kernel.html" target="_blank" rel="external">Kernel模块的文档</a>中if/2的说明。Kernel模块里也定义了像+/2这样的运算符和像is_function/2这样的函数，这些函数都默认地被自动导入并在你的代码中可用。</p>
+</blockquote>
+<h1 id="do-end块"><a href="#do-end块" class="headerlink" title="do/end块"></a><span id="part-five">do/end块</span></h1><p>到此，我们已经学了四种控制结构：case、cond、if 和 unless ，它们都包裹在 do/end 块里。我们也可以像下面这样写 if 控制结构：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span> <span class="literal">true</span>, do: <span class="number">1</span> + <span class="number">2</span></div><div class="line"><span class="number">3</span></div></pre></td></tr></table></figure>
+<p>注意上面的例子在 true 和 do: 之间有一个逗号，这是因为它使用了Elixir的正规语法，每个参数用逗号分割。我们说这个语法是用<em>关键字列表</em>。我们也可以传递 else 使用关键字：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span> <span class="literal">false</span>, do: :this, else: :that</div><div class="line">:that</div></pre></td></tr></table></figure>
+<p>do/end是构建于关键字上的语法便利措施。这就是为什么在前面的参数和语句块之间不需要逗号。它的确非常有用，因为当写代码块的时候它删除了冗余。下面的例子是等效的：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span> <span class="literal">true</span> do</div><div class="line">...&gt;   a = <span class="number">1</span> + <span class="number">2</span></div><div class="line">...&gt;   a + <span class="number">10</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="number">13</span></div><div class="line">iex&gt; <span class="keyword">if</span> <span class="literal">true</span>, do: (</div><div class="line">...&gt;   a = <span class="number">1</span> + <span class="number">2</span></div><div class="line">...&gt;   a + <span class="number">10</span></div><div class="line">...&gt; )</div><div class="line"><span class="number">13</span></div></pre></td></tr></table></figure>
+<p>有一件事要记住，当你使用do/end的时候，它们总是和最外层函数调用绑定的。例如，下面的表达式：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; is_number <span class="keyword">if</span> <span class="literal">true</span> do</div><div class="line">...&gt;  <span class="number">1</span> + <span class="number">2</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">** (CompileError) undefined function: is_number/<span class="number">2</span></div></pre></td></tr></table></figure>
+<p>将被解析为：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; is_number(<span class="keyword">if</span> <span class="literal">true</span>) do</div><div class="line">...&gt;  <span class="number">1</span> + <span class="number">2</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">** (CompileError) undefined function: is_number/<span class="number">2</span></div></pre></td></tr></table></figure>
+<p>这将导致一个未定义函数错误，因为这个调用传递两个参数，而 is_number/2 并不存在。if true 表达式在这里是无效的，因为它需要代码块；而因为 is_number/2 的参数个数不匹配，Elixir根本就没有调用到它。</p>
+<p>增加明确的括号就足以绑定代码块到 if ：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; is_number(<span class="keyword">if</span> <span class="literal">true</span> do</div><div class="line">...&gt;  <span class="number">1</span> + <span class="number">2</span></div><div class="line">...&gt; <span class="keyword">end</span>)</div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
+<p>关键字列表Elixir里扮演很重要的角色，并且在许多函数和宏里普遍存在。在后续的章节里我们将进一步探索它们。接下来，我们讨论“二进制、字符串和字符列表”。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/case-cond-and-if.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/case-cond-and-if.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;case&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;卫语句里的表达式&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;cond&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;if 和 unless&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;do/end 块&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;在本章，我们将学习 case，cond 和 if 这几个控制流结构。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="control flow structure" scheme="http://szpzs.oschina.io/categories/Elixir/control-flow-structure/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="control flow structure" scheme="http://szpzs.oschina.io/tags/control-flow-structure/"/>
+    
+      <category term="case" scheme="http://szpzs.oschina.io/tags/case/"/>
+    
+      <category term="cond" scheme="http://szpzs.oschina.io/tags/cond/"/>
+    
+      <category term="if" scheme="http://szpzs.oschina.io/tags/if/"/>
+    
+  </entry>
   
   <entry>
     <title>Elixir入门教程－模式匹配</title>
@@ -1292,48 +1435,6 @@
       <category term="gen_server" scheme="http://szpzs.oschina.io/tags/gen-server/"/>
     
       <category term="behavior" scheme="http://szpzs.oschina.io/tags/behavior/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>BIF和NIF函数之浅显易懂</title>
-    <link href="http://szpzs.oschina.io/2016/12/18/eli5-bif-nif/"/>
-    <id>http://szpzs.oschina.io/2016/12/18/eli5-bif-nif/</id>
-    <published>2016-12-18T10:46:43.000Z</published>
-    <updated>2016-12-18T10:53:48.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="BIF函数"><a href="#BIF函数" class="headerlink" title="BIF函数"></a>BIF函数</h1><p>除非你在Erlang/OTP的C源码上工作，你永远不需要创建自己的BIF函数。如果你想为你的项目实现自己的原生函数，请看下一节关于NIF的内容。</p>
-<a id="more"></a>
-<p>在Erlang的标准库里大多数的函数是用Erlang实现的。不过许多虚拟机的特性以及内部函数是不可能用纯Erlang语言来做到的。所以它们被用C语言来写并被导出为BIF，即内部构建函数。BIF被用作标准Erlang库，并且在编译的时候被静态地构建进Erlang虚拟机模拟器。</p>
-<p>当阅读Erlang标准库的时候，你经常会看到一些函数会有一个调用是：erlang:nif_error(…)。这些是BIF的桩。BEAM装载器找到原生库并且使用对C语言的原生实现的引用来替换这些桩。你也可以用其他语言比如C++或Rust来创建BIF或NIF函数。你也可以在一个叫做bif.tab的特殊文件里注册一个新的BIF，当你构建Erlang虚拟机的模拟器的时候，这个文件串联起module:function名字和BIF的对应关系。</p>
-<p>如果你好奇，你可以在Erlang/OTP的C源码中搜索一些函数，比如：erl_bif_lists.c里的lists_reverse_2。一个BIF函数接受进程指针和一个指向寄存器的指针，它可以访问它所需的许多<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">Term</a>（Eterm C 类型）寄存器。一个BIF必须返回一个<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-term" target="_blank" rel="external">Term</a>值或者一个THE_NON_VALUE来针对特殊的执行控制功能，如trap，yield和异常。</p>
-<h1 id="NIF函数"><a href="#NIF函数" class="headerlink" title="NIF函数"></a>NIF函数</h1><p>NIF是一种制作原生函数的不同方式，它更适合于分开编译和被用户模块装载。NIF接口和类型系统也是简化的，他们抽象并隐藏了Erlang虚拟机模拟器的许多内部类型、位和字段。</p>
-<p>在官方标准文档里有很好的<a href="http://erlang.org/doc/tutorial/nif.html" target="_blank" rel="external">NIF教程</a>，并且大约有一百万个有用户写的以及在许多GitHub项目里可用的NIF函数。</p>
-<p>就算它简化了，我们还是一定要小心 ！写得很糟糕的 NIF 是能够搞垮整个虚拟机或抢占资源和减慢执行速度。</p>
-<blockquote>
-<p>参见：<br>BEAM智慧：<a href="http://beam-wisdoms.clau.se/en/latest/interfacing.html" target="_blank" rel="external">Erlang与外部世界的接口</a>，针对一些NIF、交互库以及为不同语言提供的端口驱动器。</p>
-<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-bif-nif.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-bif-nif.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;BIF函数&quot;&gt;&lt;a href=&quot;#BIF函数&quot; class=&quot;headerlink&quot; title=&quot;BIF函数&quot;&gt;&lt;/a&gt;BIF函数&lt;/h1&gt;&lt;p&gt;除非你在Erlang/OTP的C源码上工作，你永远不需要创建自己的BIF函数。如果你想为你的项目实现自己的原生函数，请看下一节关于NIF的内容。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="BIF" scheme="http://szpzs.oschina.io/categories/Erlang/BIF/"/>
-    
-      <category term="NIF" scheme="http://szpzs.oschina.io/categories/Erlang/BIF/NIF/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="BIF" scheme="http://szpzs.oschina.io/tags/BIF/"/>
-    
-      <category term="NIF" scheme="http://szpzs.oschina.io/tags/NIF/"/>
     
   </entry>
   
