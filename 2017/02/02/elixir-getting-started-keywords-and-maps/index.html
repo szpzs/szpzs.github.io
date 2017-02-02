@@ -1,0 +1,962 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="map,Elixir,keyword list," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="关键字列表
+映射
+嵌套数据结构
+
+到目前为止，我们还没讨论过任何关联数据结构，即该数据结构是将一个值（或者多个值）和一个键关联起来。不同的语言对这种数据结构的称呼不一样，比如：字典、哈希、关联数组，等等。
+Elixir里有两种主要的关联数据结构：关键字列表和映射。现在让我们来学习它们！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elixir入门教程－Keywords和maps">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/02/02/elixir-getting-started-keywords-and-maps/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="关键字列表
+映射
+嵌套数据结构
+
+到目前为止，我们还没讨论过任何关联数据结构，即该数据结构是将一个值（或者多个值）和一个键关联起来。不同的语言对这种数据结构的称呼不一样，比如：字典、哈希、关联数组，等等。
+Elixir里有两种主要的关联数据结构：关键字列表和映射。现在让我们来学习它们！">
+<meta property="og:updated_time" content="2017-02-02T05:08:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elixir入门教程－Keywords和maps">
+<meta name="twitter:description" content="关键字列表
+映射
+嵌套数据结构
+
+到目前为止，我们还没讨论过任何关联数据结构，即该数据结构是将一个值（或者多个值）和一个键关联起来。不同的语言对这种数据结构的称呼不一样，比如：字典、哈希、关联数组，等等。
+Elixir里有两种主要的关联数据结构：关键字列表和映射。现在让我们来学习它们！">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/02/02/elixir-getting-started-keywords-and-maps/"/>
+
+  <title> Elixir入门教程－Keywords和maps | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Elixir入门教程－Keywords和maps
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-02T13:01:31+08:00" content="2017-02-02">
+              2017-02-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/keyword-list-map/" itemprop="url" rel="index">
+                    <span itemprop="name">keyword list-map</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/02/elixir-getting-started-keywords-and-maps/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/02/elixir-getting-started-keywords-and-maps/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="#part-one">关键字列表</a></li>
+<li><a href="#part-two">映射</a></li>
+<li><a href="#part-three">嵌套数据结构</a></li>
+</ol>
+<p>到目前为止，我们还没讨论过任何关联数据结构，即该数据结构是将一个值（或者多个值）和一个键关联起来。不同的语言对这种数据结构的称呼不一样，比如：字典、哈希、关联数组，等等。</p>
+<p>Elixir里有两种主要的关联数据结构：关键字列表和映射。现在让我们来学习它们！</p>
+<a id="more"></a>
+<h1 id="关键字列表"><a href="#关键字列表" class="headerlink" title="关键字列表"></a><span id="part-one">关键字列表</span></h1><p>在许多函数式语言里，通常使用两个元素的元组组成的列表来表示一个键值对数据结构。在Elixir里，当我们有一个元组组成的列表，并且元组的第一个元素（即键）是原子，则我们叫这个列表是关键字列表：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; list = [&#123;:a, <span class="number">1</span>&#125;, &#123;:b, <span class="number">2</span>&#125;]</div><div class="line">[a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line">iex&gt; list == [a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
+<p>正如上述所示，Elixir支持一种特殊的语法来定义这样的列表：[key: value]。它在底层是表示上述例子的元组组成的列表。既然关键字列表是列表，我们可以使用列表的所有可用操作。例如，我们可以使用  ++ 增加一个值到关键字列表里。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; list ++ [c: <span class="number">3</span>]</div><div class="line">[a: <span class="number">1</span>, b: <span class="number">2</span>, c: <span class="number">3</span>]</div><div class="line">iex&gt; [a: <span class="number">0</span>] ++ list</div><div class="line">[a: <span class="number">0</span>, a: <span class="number">1</span>, b: <span class="number">2</span>]</div></pre></td></tr></table></figure>
+<p>注意：加到前面的值将被首先查询到：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; new_list = [a: <span class="number">0</span>] ++ list</div><div class="line">[a: <span class="number">0</span>, a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line">iex&gt; new_list[:a]</div><div class="line"><span class="number">0</span></div></pre></td></tr></table></figure>
+<p>关键字列表很重要，因为它有三个特别的特性：</p>
+<ul>
+<li>键必须是原子。</li>
+<li>键的顺序由开发者指定。</li>
+<li>键可以重复出现。</li>
+</ul>
+<p>例如，Ecto库 使用这些特性来提供一个写数据库查询的优雅领域特定语言：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">query</span> = from w in Weather,</div><div class="line">      where: w.prcp &gt; <span class="number">0</span>,</div><div class="line">      where: w.temp &lt; <span class="number">20</span>,</div><div class="line">     select: w</div></pre></td></tr></table></figure>
+<p>这些特性使得关键字列表成为Elixir里传递选项给函数的默认机制。在第5章，我们讨论 if/2 宏的时候，我们提到下述语法是被支持的：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span> <span class="literal">false</span>, do: :this, else: :that</div><div class="line">:that</div></pre></td></tr></table></figure>
+<p>do: 和 else: 对是关键字列表！实际上，上述的调用等价于下面的调用：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span>(<span class="literal">false</span>, [do: :this, else: :that])</div><div class="line">:that</div></pre></td></tr></table></figure>
+<p>也和下面的调用相同：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span>(<span class="literal">false</span>, [&#123;:do, :this&#125;, &#123;:else, :that&#125;])</div><div class="line">:that</div></pre></td></tr></table></figure>
+<p>通常，当关键字列表是函数的最后一个参数的时候，方括号是可省略的。</p>
+<p>虽然我们可以在关键字列表上进行模式匹配，但是实际操作中很少用，因为在列表上进行模式匹配需要列表的元素数量和它们的顺序匹配：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; [a: a] = [a: <span class="number">1</span>]</div><div class="line">[a: <span class="number">1</span>]</div><div class="line">iex&gt; a</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; [a: a] = [a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: [a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line">iex&gt; [b: b, a: a] = [a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: [a: <span class="number">1</span>, b: <span class="number">2</span>]</div></pre></td></tr></table></figure>
+<p>为了操作关键字列表，Elixir提供了<a href="https://hexdocs.pm/elixir/Keyword.html" target="_blank" rel="external">Keyword模块</a>。记住，关键字列表就是列表，因此它们和列表一样提供了线性性能特性。列表越长，就要花越多的时间查找到一个键、计算元素个数，诸如此类的。因为这个原因，关键字列表在Elixir里主要用来传递可选值。如果你需要存储许多项数据或者要保证一个键只对应一个值，那么你应该用映射。</p>
+<h1 id="映射"><a href="#映射" class="headerlink" title="映射"></a><span id="part-two">映射</span></h1><p>在Elixir里，任何时候你需要键值对存储，则映射就是你所要的数据结构。映射使用 %{} 语法来创建：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;</div><div class="line">%&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div><div class="line">iex&gt; map[<span class="symbol">:a</span>]</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; map[<span class="number">2</span>]</div><div class="line"><span class="symbol">:b</span></div><div class="line">iex&gt; map[<span class="symbol">:c</span>]</div><div class="line"><span class="keyword">nil</span></div></pre></td></tr></table></figure>
+<p>与关键字列表比较，我们已经可以看到有两个不同：</p>
+<ul>
+<li>映射允许任何值作为键。</li>
+<li>映射的键不遵循任何顺序。</li>
+</ul>
+<p>与关键字列表相反，映射非常有用于模式匹配。当一个映射用在一个模式中，它将总是匹配上一个给定值的子集：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; %&#123;&#125; = %&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;</div><div class="line">%&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div><div class="line">iex&gt; %&#123;<span class="symbol">:a</span> =&gt; a&#125; = %&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;</div><div class="line">%&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div><div class="line">iex&gt; a</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; %&#123;<span class="symbol">:c</span> =&gt; c&#125; = %&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;</div><div class="line">** (MatchError) no match of right hand side <span class="symbol">value:</span> %&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div></pre></td></tr></table></figure>
+<p>如上所述，一个映射一定匹配，只要模式里的键存在于给定的映射里。因此，一个空映射匹配所有映射。</p>
+<p>当访问、匹配和增加映射的键时，变量可以被使用：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; n = <span class="number">1</span></div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; map = %&#123;n =&gt; <span class="symbol">:one</span>&#125;</div><div class="line">%&#123;<span class="number">1</span> =&gt; <span class="symbol">:one</span>&#125;</div><div class="line">iex&gt; map[n]</div><div class="line"><span class="symbol">:one</span></div><div class="line">iex&gt; %&#123;^n =&gt; <span class="symbol">:one</span>&#125; = %&#123;<span class="number">1</span> =&gt; <span class="symbol">:one</span>, <span class="number">2</span> =&gt; <span class="symbol">:two</span>, <span class="number">3</span> =&gt; <span class="symbol">:three</span>&#125;</div><div class="line">%&#123;<span class="number">1</span> =&gt; <span class="symbol">:one</span>, <span class="number">2</span> =&gt; <span class="symbol">:two</span>, <span class="number">3</span> =&gt; <span class="symbol">:three</span>&#125;</div></pre></td></tr></table></figure>
+<p><a href="https://hexdocs.pm/elixir/Map.html" target="_blank" rel="external">Map模块</a>提供和Keyword模块相似的API来便于操作映射：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; Map.get(%&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;, <span class="symbol">:a</span>)</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; Map.to_list(%&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;)</div><div class="line">[&#123;<span class="number">2</span>, <span class="symbol">:b</span>&#125;, &#123;<span class="symbol">:a</span>, <span class="number">1</span>&#125;]</div></pre></td></tr></table></figure>
+<p>当映射中的所有键都是原子时，您可以使用关键字语法来提高便捷程度：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div><div class="line">%&#123;<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div></pre></td></tr></table></figure>
+<p>映射另一个有趣的特性是提供它们自己的语法来修改和访问原子键：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;</div><div class="line">%&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div><div class="line"></div><div class="line">iex&gt; map.a</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; map.c</div><div class="line">** (KeyError) key <span class="symbol">:c</span> <span class="keyword">not</span> found <span class="symbol">in:</span> %&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div><div class="line"></div><div class="line">iex&gt; %&#123;map | <span class="symbol">:a</span> =&gt; <span class="number">2</span>&#125;</div><div class="line">%&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">2</span>&#125;</div><div class="line">iex&gt; %&#123;map | <span class="symbol">:c</span> =&gt; <span class="number">3</span>&#125;</div><div class="line">** (KeyError) key <span class="symbol">:c</span> <span class="keyword">not</span> found <span class="symbol">in:</span> %&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div></pre></td></tr></table></figure>
+<p>上述访问和修改语法需要给定的键存在。例如，访问和修改 :c 键失败，因为映射里没有这个键。</p>
+<p>当处理映射的时候，Elixir开发者一贯喜欢用 map.field 语法和模式匹配来替代 Map 模块里的函数，因为它们形成了一种断言式的编程风格。<a href="http://blog.plataformatec.com.br/2014/09/writing-assertive-code-with-elixir/" target="_blank" rel="external">这篇博客</a> 提供了解释和例子，如何在Elixir里通过写断言代码获得更简洁和更快的软件。</p>
+<blockquote>
+<p>注意：映射是最近才引入Erlang虚拟机的，并且仅从Elixir v1.2开始，它们才有能力高效处理上百万键。因此，如果你使用较老的Elixir版本（v1.0或v1.1），并且你需要最少支持数百个键，那么你可以考虑使用<a href="https://hexdocs.pm/elixir/HashDict.html" target="_blank" rel="external">HashDict模块</a>。</p>
+</blockquote>
+<h1 id="嵌套数据结构"><a href="#嵌套数据结构" class="headerlink" title="嵌套数据结构"></a><span id="part-three">嵌套数据结构</span></h1><p>我们常常有映射中有映射，或者甚至在映射里有关键字列表，等等。Elixir通过 put_in/2 和 update_in/2 提供了操作嵌套数据结构的便利，以及你可以在命令式语言里发现其他宏也提供这样的遍历而同时保持这个语言的不可修改的特性。</p>
+<p>假设你有如下的结构：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; users = [</div><div class="line">  <span class="symbol">john:</span> %&#123;<span class="symbol">name:</span> <span class="string">"John"</span>, <span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">languages:</span> [<span class="string">"Erlang"</span>, <span class="string">"Ruby"</span>, <span class="string">"Elixir"</span>]&#125;,</div><div class="line">  <span class="symbol">mary:</span> %&#123;<span class="symbol">name:</span> <span class="string">"Mary"</span>, <span class="symbol">age:</span> <span class="number">29</span>, <span class="symbol">languages:</span> [<span class="string">"Elixir"</span>, <span class="string">"F#"</span>, <span class="string">"Clojure"</span>]&#125;</div><div class="line">]</div><div class="line">[<span class="symbol">john:</span> %&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">languages:</span> [<span class="string">"Erlang"</span>, <span class="string">"Ruby"</span>, <span class="string">"Elixir"</span>], <span class="symbol">name:</span> <span class="string">"John"</span>&#125;,</div><div class="line"> <span class="symbol">mary:</span> %&#123;<span class="symbol">age:</span> <span class="number">29</span>, <span class="symbol">languages:</span> [<span class="string">"Elixir"</span>, <span class="string">"F#"</span>, <span class="string">"Clojure"</span>], <span class="symbol">name:</span> <span class="string">"Mary"</span>&#125;]</div></pre></td></tr></table></figure>
+<p>我们有一个用户的关键字列表，它的每一个值是一个映射，这个映射包含名字，年龄和用户喜欢的编程语言组成的列表。如果我们想访问约翰的年龄，我们可以这么写：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; users[<span class="symbol">:john</span>].age</div><div class="line"><span class="number">27</span></div></pre></td></tr></table></figure>
+<p>我们也可以用相同的语法来修改这个值：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; users = put_in users[<span class="symbol">:john</span>].age, <span class="number">31</span></div><div class="line">[<span class="symbol">john:</span> %&#123;<span class="symbol">age:</span> <span class="number">31</span>, <span class="symbol">languages:</span> [<span class="string">"Erlang"</span>, <span class="string">"Ruby"</span>, <span class="string">"Elixir"</span>], <span class="symbol">name:</span> <span class="string">"John"</span>&#125;,</div><div class="line"> <span class="symbol">mary:</span> %&#123;<span class="symbol">age:</span> <span class="number">29</span>, <span class="symbol">languages:</span> [<span class="string">"Elixir"</span>, <span class="string">"F#"</span>, <span class="string">"Clojure"</span>], <span class="symbol">name:</span> <span class="string">"Mary"</span>&#125;]</div></pre></td></tr></table></figure>
+<p>update_in/2 宏也相似，不过它允许我们传递一个函数来控制如何修改值。例如，让我们从玛丽的编程语言列表里删除掉Clojure：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; users = update_in users[<span class="symbol">:mary</span>].languages, &amp;List.delete(&amp;<span class="number">1</span>, <span class="string">"Clojure"</span>)</div><div class="line">[<span class="symbol">john:</span> %&#123;<span class="symbol">age:</span> <span class="number">31</span>, <span class="symbol">languages:</span> [<span class="string">"Erlang"</span>, <span class="string">"Ruby"</span>, <span class="string">"Elixir"</span>], <span class="symbol">name:</span> <span class="string">"John"</span>&#125;,</div><div class="line"> <span class="symbol">mary:</span> %&#123;<span class="symbol">age:</span> <span class="number">29</span>, <span class="symbol">languages:</span> [<span class="string">"Elixir"</span>, <span class="string">"F#"</span>], <span class="symbol">name:</span> <span class="string">"Mary"</span>&#125;]</div></pre></td></tr></table></figure>
+<p>关于 put_in/2 和 update_in/2 还有很多需要学习的，包括 get_and_update_in/2 这个函数允许我们一次性获取一个值并且修改数据结构。也有 put_in/3，update_in/3 和 get_and_update_in/3 这些函数，它们允许动态访问数据结构。请在 <a href="https://hexdocs.pm/elixir/Kernel.html" target="_blank" rel="external">Kernel模块</a>里仔细阅读它们各自的文档来深入理解它们的作用。</p>
+<p>到此我们结束了Elixir里关联数据结构的介绍。你将发现，给定关键字列表和映射，你将总会有适用的工具来解决Elixir里需要关联数据结构的问题。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/keywords-and-maps.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/keywords-and-maps.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/map/" rel="tag">#map</a>
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/keyword-list/" rel="tag">#keyword list</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/01/elixir-getting-started-binaries-strings-and-char-lists/" rel="next" title="Elixir入门教程－二进制数据，字符串 和 字符列表">
+                <i class="fa fa-chevron-left"></i> Elixir入门教程－二进制数据，字符串 和 字符列表
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/02/elixir-getting-started-keywords-and-maps/"
+           data-title="Elixir入门教程－Keywords和maps" data-url="http://szpzs.oschina.io/2017/02/02/elixir-getting-started-keywords-and-maps/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">107</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">58</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">148</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#关键字列表"><span class="nav-number">1.</span> <span class="nav-text">关键字列表</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#映射"><span class="nav-number">2.</span> <span class="nav-text">映射</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#嵌套数据结构"><span class="nav-number">3.</span> <span class="nav-text">嵌套数据结构</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

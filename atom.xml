@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-02-01T11:48:47.000Z</updated>
+  <updated>2017-02-02T05:08:26.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,109 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elixir入门教程－Keywords和maps</title>
+    <link href="http://szpzs.oschina.io/2017/02/02/elixir-getting-started-keywords-and-maps/"/>
+    <id>http://szpzs.oschina.io/2017/02/02/elixir-getting-started-keywords-and-maps/</id>
+    <published>2017-02-02T05:01:31.000Z</published>
+    <updated>2017-02-02T05:08:26.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">关键字列表</a></li>
+<li><a href="#part-two">映射</a></li>
+<li><a href="#part-three">嵌套数据结构</a></li>
+</ol>
+<p>到目前为止，我们还没讨论过任何关联数据结构，即该数据结构是将一个值（或者多个值）和一个键关联起来。不同的语言对这种数据结构的称呼不一样，比如：字典、哈希、关联数组，等等。</p>
+<p>Elixir里有两种主要的关联数据结构：关键字列表和映射。现在让我们来学习它们！</p>
+<a id="more"></a>
+<h1 id="关键字列表"><a href="#关键字列表" class="headerlink" title="关键字列表"></a><span id="part-one">关键字列表</span></h1><p>在许多函数式语言里，通常使用两个元素的元组组成的列表来表示一个键值对数据结构。在Elixir里，当我们有一个元组组成的列表，并且元组的第一个元素（即键）是原子，则我们叫这个列表是关键字列表：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; list = [&#123;:a, <span class="number">1</span>&#125;, &#123;:b, <span class="number">2</span>&#125;]</div><div class="line">[a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line">iex&gt; list == [a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
+<p>正如上述所示，Elixir支持一种特殊的语法来定义这样的列表：[key: value]。它在底层是表示上述例子的元组组成的列表。既然关键字列表是列表，我们可以使用列表的所有可用操作。例如，我们可以使用  ++ 增加一个值到关键字列表里。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; list ++ [c: <span class="number">3</span>]</div><div class="line">[a: <span class="number">1</span>, b: <span class="number">2</span>, c: <span class="number">3</span>]</div><div class="line">iex&gt; [a: <span class="number">0</span>] ++ list</div><div class="line">[a: <span class="number">0</span>, a: <span class="number">1</span>, b: <span class="number">2</span>]</div></pre></td></tr></table></figure>
+<p>注意：加到前面的值将被首先查询到：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; new_list = [a: <span class="number">0</span>] ++ list</div><div class="line">[a: <span class="number">0</span>, a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line">iex&gt; new_list[:a]</div><div class="line"><span class="number">0</span></div></pre></td></tr></table></figure>
+<p>关键字列表很重要，因为它有三个特别的特性：</p>
+<ul>
+<li>键必须是原子。</li>
+<li>键的顺序由开发者指定。</li>
+<li>键可以重复出现。</li>
+</ul>
+<p>例如，Ecto库 使用这些特性来提供一个写数据库查询的优雅领域特定语言：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">query</span> = from w in Weather,</div><div class="line">      where: w.prcp &gt; <span class="number">0</span>,</div><div class="line">      where: w.temp &lt; <span class="number">20</span>,</div><div class="line">     select: w</div></pre></td></tr></table></figure>
+<p>这些特性使得关键字列表成为Elixir里传递选项给函数的默认机制。在第5章，我们讨论 if/2 宏的时候，我们提到下述语法是被支持的：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span> <span class="literal">false</span>, do: :this, else: :that</div><div class="line">:that</div></pre></td></tr></table></figure>
+<p>do: 和 else: 对是关键字列表！实际上，上述的调用等价于下面的调用：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span>(<span class="literal">false</span>, [do: :this, else: :that])</div><div class="line">:that</div></pre></td></tr></table></figure>
+<p>也和下面的调用相同：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">if</span>(<span class="literal">false</span>, [&#123;:do, :this&#125;, &#123;:else, :that&#125;])</div><div class="line">:that</div></pre></td></tr></table></figure>
+<p>通常，当关键字列表是函数的最后一个参数的时候，方括号是可省略的。</p>
+<p>虽然我们可以在关键字列表上进行模式匹配，但是实际操作中很少用，因为在列表上进行模式匹配需要列表的元素数量和它们的顺序匹配：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; [a: a] = [a: <span class="number">1</span>]</div><div class="line">[a: <span class="number">1</span>]</div><div class="line">iex&gt; a</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; [a: a] = [a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: [a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line">iex&gt; [b: b, a: a] = [a: <span class="number">1</span>, b: <span class="number">2</span>]</div><div class="line">** (MatchError) no match <span class="keyword">of</span> right hand side value: [a: <span class="number">1</span>, b: <span class="number">2</span>]</div></pre></td></tr></table></figure>
+<p>为了操作关键字列表，Elixir提供了<a href="https://hexdocs.pm/elixir/Keyword.html" target="_blank" rel="external">Keyword模块</a>。记住，关键字列表就是列表，因此它们和列表一样提供了线性性能特性。列表越长，就要花越多的时间查找到一个键、计算元素个数，诸如此类的。因为这个原因，关键字列表在Elixir里主要用来传递可选值。如果你需要存储许多项数据或者要保证一个键只对应一个值，那么你应该用映射。</p>
+<h1 id="映射"><a href="#映射" class="headerlink" title="映射"></a><span id="part-two">映射</span></h1><p>在Elixir里，任何时候你需要键值对存储，则映射就是你所要的数据结构。映射使用 %{} 语法来创建：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;</div><div class="line">%&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div><div class="line">iex&gt; map[<span class="symbol">:a</span>]</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; map[<span class="number">2</span>]</div><div class="line"><span class="symbol">:b</span></div><div class="line">iex&gt; map[<span class="symbol">:c</span>]</div><div class="line"><span class="keyword">nil</span></div></pre></td></tr></table></figure>
+<p>与关键字列表比较，我们已经可以看到有两个不同：</p>
+<ul>
+<li>映射允许任何值作为键。</li>
+<li>映射的键不遵循任何顺序。</li>
+</ul>
+<p>与关键字列表相反，映射非常有用于模式匹配。当一个映射用在一个模式中，它将总是匹配上一个给定值的子集：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; %&#123;&#125; = %&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;</div><div class="line">%&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div><div class="line">iex&gt; %&#123;<span class="symbol">:a</span> =&gt; a&#125; = %&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;</div><div class="line">%&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div><div class="line">iex&gt; a</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; %&#123;<span class="symbol">:c</span> =&gt; c&#125; = %&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;</div><div class="line">** (MatchError) no match of right hand side <span class="symbol">value:</span> %&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div></pre></td></tr></table></figure>
+<p>如上所述，一个映射一定匹配，只要模式里的键存在于给定的映射里。因此，一个空映射匹配所有映射。</p>
+<p>当访问、匹配和增加映射的键时，变量可以被使用：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; n = <span class="number">1</span></div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; map = %&#123;n =&gt; <span class="symbol">:one</span>&#125;</div><div class="line">%&#123;<span class="number">1</span> =&gt; <span class="symbol">:one</span>&#125;</div><div class="line">iex&gt; map[n]</div><div class="line"><span class="symbol">:one</span></div><div class="line">iex&gt; %&#123;^n =&gt; <span class="symbol">:one</span>&#125; = %&#123;<span class="number">1</span> =&gt; <span class="symbol">:one</span>, <span class="number">2</span> =&gt; <span class="symbol">:two</span>, <span class="number">3</span> =&gt; <span class="symbol">:three</span>&#125;</div><div class="line">%&#123;<span class="number">1</span> =&gt; <span class="symbol">:one</span>, <span class="number">2</span> =&gt; <span class="symbol">:two</span>, <span class="number">3</span> =&gt; <span class="symbol">:three</span>&#125;</div></pre></td></tr></table></figure>
+<p><a href="https://hexdocs.pm/elixir/Map.html" target="_blank" rel="external">Map模块</a>提供和Keyword模块相似的API来便于操作映射：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; Map.get(%&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;, <span class="symbol">:a</span>)</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; Map.to_list(%&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;)</div><div class="line">[&#123;<span class="number">2</span>, <span class="symbol">:b</span>&#125;, &#123;<span class="symbol">:a</span>, <span class="number">1</span>&#125;]</div></pre></td></tr></table></figure>
+<p>当映射中的所有键都是原子时，您可以使用关键字语法来提高便捷程度：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div><div class="line">%&#123;<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div></pre></td></tr></table></figure>
+<p>映射另一个有趣的特性是提供它们自己的语法来修改和访问原子键：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">:a</span> =&gt; <span class="number">1</span>, <span class="number">2</span> =&gt; <span class="symbol">:b</span>&#125;</div><div class="line">%&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div><div class="line"></div><div class="line">iex&gt; map.a</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; map.c</div><div class="line">** (KeyError) key <span class="symbol">:c</span> <span class="keyword">not</span> found <span class="symbol">in:</span> %&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div><div class="line"></div><div class="line">iex&gt; %&#123;map | <span class="symbol">:a</span> =&gt; <span class="number">2</span>&#125;</div><div class="line">%&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">2</span>&#125;</div><div class="line">iex&gt; %&#123;map | <span class="symbol">:c</span> =&gt; <span class="number">3</span>&#125;</div><div class="line">** (KeyError) key <span class="symbol">:c</span> <span class="keyword">not</span> found <span class="symbol">in:</span> %&#123;<span class="number">2</span> =&gt; <span class="symbol">:b</span>, <span class="symbol">:a</span> =&gt; <span class="number">1</span>&#125;</div></pre></td></tr></table></figure>
+<p>上述访问和修改语法需要给定的键存在。例如，访问和修改 :c 键失败，因为映射里没有这个键。</p>
+<p>当处理映射的时候，Elixir开发者一贯喜欢用 map.field 语法和模式匹配来替代 Map 模块里的函数，因为它们形成了一种断言式的编程风格。<a href="http://blog.plataformatec.com.br/2014/09/writing-assertive-code-with-elixir/" target="_blank" rel="external">这篇博客</a> 提供了解释和例子，如何在Elixir里通过写断言代码获得更简洁和更快的软件。</p>
+<blockquote>
+<p>注意：映射是最近才引入Erlang虚拟机的，并且仅从Elixir v1.2开始，它们才有能力高效处理上百万键。因此，如果你使用较老的Elixir版本（v1.0或v1.1），并且你需要最少支持数百个键，那么你可以考虑使用<a href="https://hexdocs.pm/elixir/HashDict.html" target="_blank" rel="external">HashDict模块</a>。</p>
+</blockquote>
+<h1 id="嵌套数据结构"><a href="#嵌套数据结构" class="headerlink" title="嵌套数据结构"></a><span id="part-three">嵌套数据结构</span></h1><p>我们常常有映射中有映射，或者甚至在映射里有关键字列表，等等。Elixir通过 put_in/2 和 update_in/2 提供了操作嵌套数据结构的便利，以及你可以在命令式语言里发现其他宏也提供这样的遍历而同时保持这个语言的不可修改的特性。</p>
+<p>假设你有如下的结构：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; users = [</div><div class="line">  <span class="symbol">john:</span> %&#123;<span class="symbol">name:</span> <span class="string">"John"</span>, <span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">languages:</span> [<span class="string">"Erlang"</span>, <span class="string">"Ruby"</span>, <span class="string">"Elixir"</span>]&#125;,</div><div class="line">  <span class="symbol">mary:</span> %&#123;<span class="symbol">name:</span> <span class="string">"Mary"</span>, <span class="symbol">age:</span> <span class="number">29</span>, <span class="symbol">languages:</span> [<span class="string">"Elixir"</span>, <span class="string">"F#"</span>, <span class="string">"Clojure"</span>]&#125;</div><div class="line">]</div><div class="line">[<span class="symbol">john:</span> %&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">languages:</span> [<span class="string">"Erlang"</span>, <span class="string">"Ruby"</span>, <span class="string">"Elixir"</span>], <span class="symbol">name:</span> <span class="string">"John"</span>&#125;,</div><div class="line"> <span class="symbol">mary:</span> %&#123;<span class="symbol">age:</span> <span class="number">29</span>, <span class="symbol">languages:</span> [<span class="string">"Elixir"</span>, <span class="string">"F#"</span>, <span class="string">"Clojure"</span>], <span class="symbol">name:</span> <span class="string">"Mary"</span>&#125;]</div></pre></td></tr></table></figure>
+<p>我们有一个用户的关键字列表，它的每一个值是一个映射，这个映射包含名字，年龄和用户喜欢的编程语言组成的列表。如果我们想访问约翰的年龄，我们可以这么写：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; users[<span class="symbol">:john</span>].age</div><div class="line"><span class="number">27</span></div></pre></td></tr></table></figure>
+<p>我们也可以用相同的语法来修改这个值：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; users = put_in users[<span class="symbol">:john</span>].age, <span class="number">31</span></div><div class="line">[<span class="symbol">john:</span> %&#123;<span class="symbol">age:</span> <span class="number">31</span>, <span class="symbol">languages:</span> [<span class="string">"Erlang"</span>, <span class="string">"Ruby"</span>, <span class="string">"Elixir"</span>], <span class="symbol">name:</span> <span class="string">"John"</span>&#125;,</div><div class="line"> <span class="symbol">mary:</span> %&#123;<span class="symbol">age:</span> <span class="number">29</span>, <span class="symbol">languages:</span> [<span class="string">"Elixir"</span>, <span class="string">"F#"</span>, <span class="string">"Clojure"</span>], <span class="symbol">name:</span> <span class="string">"Mary"</span>&#125;]</div></pre></td></tr></table></figure>
+<p>update_in/2 宏也相似，不过它允许我们传递一个函数来控制如何修改值。例如，让我们从玛丽的编程语言列表里删除掉Clojure：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; users = update_in users[<span class="symbol">:mary</span>].languages, &amp;List.delete(&amp;<span class="number">1</span>, <span class="string">"Clojure"</span>)</div><div class="line">[<span class="symbol">john:</span> %&#123;<span class="symbol">age:</span> <span class="number">31</span>, <span class="symbol">languages:</span> [<span class="string">"Erlang"</span>, <span class="string">"Ruby"</span>, <span class="string">"Elixir"</span>], <span class="symbol">name:</span> <span class="string">"John"</span>&#125;,</div><div class="line"> <span class="symbol">mary:</span> %&#123;<span class="symbol">age:</span> <span class="number">29</span>, <span class="symbol">languages:</span> [<span class="string">"Elixir"</span>, <span class="string">"F#"</span>], <span class="symbol">name:</span> <span class="string">"Mary"</span>&#125;]</div></pre></td></tr></table></figure>
+<p>关于 put_in/2 和 update_in/2 还有很多需要学习的，包括 get_and_update_in/2 这个函数允许我们一次性获取一个值并且修改数据结构。也有 put_in/3，update_in/3 和 get_and_update_in/3 这些函数，它们允许动态访问数据结构。请在 <a href="https://hexdocs.pm/elixir/Kernel.html" target="_blank" rel="external">Kernel模块</a>里仔细阅读它们各自的文档来深入理解它们的作用。</p>
+<p>到此我们结束了Elixir里关联数据结构的介绍。你将发现，给定关键字列表和映射，你将总会有适用的工具来解决Elixir里需要关联数据结构的问题。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/keywords-and-maps.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/keywords-and-maps.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;关键字列表&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;映射&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;嵌套数据结构&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;到目前为止，我们还没讨论过任何关联数据结构，即该数据结构是将一个值（或者多个值）和一个键关联起来。不同的语言对这种数据结构的称呼不一样，比如：字典、哈希、关联数组，等等。&lt;/p&gt;
+&lt;p&gt;Elixir里有两种主要的关联数据结构：关键字列表和映射。现在让我们来学习它们！&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="keyword list-map" scheme="http://szpzs.oschina.io/categories/Elixir/keyword-list-map/"/>
+    
+    
+      <category term="map" scheme="http://szpzs.oschina.io/tags/map/"/>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="keyword list" scheme="http://szpzs.oschina.io/tags/keyword-list/"/>
+    
+  </entry>
   
   <entry>
     <title>Elixir入门教程－二进制数据，字符串 和 字符列表</title>
@@ -1362,95 +1465,6 @@
       <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
     
       <category term="concurrency" scheme="http://szpzs.oschina.io/tags/concurrency/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>我们没有走过的路</title>
-    <link href="http://szpzs.oschina.io/2016/12/24/road-we-didnt-go-down/"/>
-    <id>http://szpzs.oschina.io/2016/12/24/road-we-didnt-go-down/</id>
-    <published>2016-12-24T04:58:03.000Z</published>
-    <updated>2016-12-24T05:14:24.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>我一直在关注Erlang邮件列表里的一个有趣的讨论，在这个讨论里，Steve Vinoski和朋友们告诉我们RPC的问题是什么。</p>
-<p>讨论开始在5月22日，共同话题是facebook宣布已部署了一个用Erlang写的聊天服务器。</p>
-<p>在其中的一个帖子里Steve写道：</p>
-<a id="more"></a>
-<blockquote>
-<p>“所有那些年的 CORBA 经验教给我的，也就是那个RPC，因为一些原因，总的来说它是一个<strong>真正的坏主意</strong>。它是一个来之不易的教训。Erlang 的 RPC 是很棒的，因为整个 Erlang 系统从根本上设计并将其内置到语言中，但对于普通的语言，RPC 带来的问题比它解决的问题多。”<br><a href="http://www.erlang.org/pipermail/erlang-questions/2008-May/035191.html" target="_blank" rel="external">更多…</a><br>– Steve Vinoski</p>
-</blockquote>
-<p>后续的帖子要求Steve详细阐述这点。</p>
-<p>Steve在Erlang邮件列表里发了一篇很长并且精彩的关于RPC问题总结的帖子：</p>
-<blockquote>
-<p>“但是如果你没有时间或精力，最根本的问题是，RPC试图使得一个分布式调用看起来像一个本地调用。这是行不通的，因为在分布式系统中的错误模式完全不同于本地系统中的错误模式，……”<br><a href="http://www.erlang.org/pipermail/erlang-questions/2008-May/035207.html" target="_blank" rel="external">更多…</a><br>– Steve Vinoski</p>
-</blockquote>
-<p>精辟！是的，是的，是的。当我读到这个，我的大脑大叫：是的，是的，是的 - 谢谢你，史提夫。史提夫在《<a href="http://steve.vinoski.net/pdf/IEEE-RPC_Under_Fire.pdf" target="_blank" rel="external">RPC Under Fire</a>》里关于这点写了更多。</p>
-<h1 id="这是一条我们没走过的路"><a href="#这是一条我们没走过的路" class="headerlink" title="这是一条我们没走过的路"></a>这是一条我们没走过的路</h1><p>Steve沿着这条路走，看见一些事情，也看到它非常糟糕的地方，但他活着回来，可以告诉我们他所看见的事情。</p>
-<p>调用一个远程操作并且包装它看起来像一个本地操作的根本问题是本地的错误模式和远程操作的错误模式是完全不同的。</p>
-<p>如果这还不够糟糕，性能方面也完全不同。本地的操作需要几微秒，当通过一个RPC执行的时候，可能忽然就花掉几毫秒。</p>
-<p>如果程序员不能判断本地和远程调用之间的不同，那么要写出高效的代码基本不可能。随意放置RPC在一些乱七八糟的软件中可以（必定）破坏性能。</p>
-<blockquote>
-<p>我亲眼见证了几个大型项目的失败，正是因为本地和远程过程调用之间的区别还不清楚。</p>
-</blockquote>
-<p>注意：这个因素在有几十个程序员参与的大项目里变得更糟糕。如果是一个小团队，则还有机会挽救，这需要参与者清楚哪些是本地调用，哪些是是远程调用。</p>
-<h1 id="在Erlang的世界我们是如何做的？"><a href="#在Erlang的世界我们是如何做的？" class="headerlink" title="在Erlang的世界我们是如何做的？"></a>在Erlang的世界我们是如何做的？</h1><p>所有Erlang程序是由并行进程集合组成的，这些进程可以创建其他进程并且发送和接收消息。这么做非常简单而且是一个轻量操作。</p>
-<p>为了错误处理的目的，进程可以彼此链接在一起。如果A链接到B并且A崩溃了，那么B会被发送一个错误信号，反之亦然。链接机制与消息发送/接收机制完全正交。</p>
-<p>当我们编写分布式系统，各种形式的RPC通常是非常有用的编程抽象，但RPC的确切形式因问题不同而不同，也因系统架构不同而不同。</p>
-<p>RPC的确切形式凝固成一个刚性框架，不顾错误场景是场灾难。</p>
-<p>用发送、 接收和链接，Erlang 程序员可以很容易把自定义错误处理“揉进他们自己的RPC”。</p>
-<p>在Erlang里没有“标准PRC存根生成器”，Erlang也没有聪明到有一个如此的生成器。</p>
-<p>在很多应用里，RPC尽可能最简单的形式就够了，我们可以定义它如下：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request)</span> -&gt;</span></div><div class="line"> Pid ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">     &#123;Pid, Response&#125; -&gt;</div><div class="line">        Response</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
-<p>这一点都不复杂。这段代码只是发送一条消息然后等待回复。</p>
-<p>在这个主题上有很多的变化。最简单的RPC将永远等待下去，所以如果回复一直不来的话，客户端就会挂起。我们可以用增加超时来修复这个问题：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request, Time)</span> -&gt;</span></div><div class="line"> Pid ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">    &#123;Pid, Response&#125; -&gt;</div><div class="line">        &#123;ok, Response&#125;</div><div class="line">    <span class="keyword">after</span> Time -&gt;</div><div class="line">        &#123;error, timeout&#125;</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
-<p>假设我们希望在一个PRC调用中远程机器死掉的时候一个异常在客户端被抛出，那么我们可以写如下代码：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request)</span> -&gt;</span></div><div class="line"> link(Pid),</div><div class="line"> Pid ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">    Response -&gt;</div><div class="line">        Response</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
-<p>如果在RPC里有任何差错的话，附加的链接将确保客户端终止。</p>
-<p>假设我们想要“并行化两个RPC”，则代码如下：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid1, Pid2, Request)</span> -&gt;</span></div><div class="line"> Pid1 ! Pid2 ! &#123;self(), Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">    &#123;Pid1, Response1&#125; -&gt;</div><div class="line">        <span class="keyword">receive</span></div><div class="line">            &#123;Pid2, Response2&#125; -&gt;</div><div class="line">                &#123;Response1, Response2&#125;</div><div class="line">        <span class="keyword">end</span></div><div class="line">     <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
-<p>（不用担心这段代码的执行，消息的回复顺序是无关紧要的。）</p>
-<p>我想通过一些小例子来说明的观点是，RPC的粒度级别和错误特性是在编程人员的精确控制下的。</p>
-<p>如果事实证明这些RPC的抽象不是我们真正想要的，然后我们可以很容易地用原始的进程和消息方式来写我们的解决方案。</p>
-<p>所以，例如，从一个消息序列图得到Erlang代码是一个简单的编程工作。</p>
-<p>“标准”的RPC也做以下的疯狂的假设”，回复应该一定返回到客户”。</p>
-<p>互相合作的形式，比如告诉X做Y然后发送结果到Z，这种形式是不可能用一个标准的 RPC 框架（如 SOAP)来表达的，但在Erlang中表达却很简单︰</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(tell,X,toDo,Y,replyTo,Z)</span> -&gt;</span></div><div class="line"> X ! &#123;Z, Y&#125;.</div></pre></td></tr></table></figure>
-<p>（这里假设约定我前面一直用发送两个元素的元组当作消息，其中有进程的Id，它被期待当作回复消息的元组的第一元素（在前面的例子例我们用self()，这样就强制要求回复消息返回给原请求者））</p>
-<p>假设我们要加版本信息到我们的协议，这也很容易做到：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Request, Vsn)</span> -&gt;</span></div><div class="line"> Pid ! &#123;self(), vsn, Vsn, Request&#125;,</div><div class="line"> <span class="keyword">receive</span></div><div class="line">     ...</div><div class="line"> <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
-<p>关键点是，这里展示的事情，比如像版本信息、错误处理平行化等等都是容易添加的，只要我们暴露消息和函数调用之间的接口并允许用户定制构建他们自己和远程代码的交互形式。</p>
-<p>当然，组件间交互的一定通用模式将浮现，它们被加入OTP库。</p>
-<h1 id="什么是OTP？"><a href="#什么是OTP？" class="headerlink" title="什么是OTP？"></a>什么是OTP？</h1><p>OTP是在相当常见的场景下像RPC一样做事的一套久经测试验证的方法。OTP方法没有覆盖所有错误场景，不过它们覆盖了通常的场景。我们经常需要跨出OTP框架外设计我们自己特定的错误和恢复策略，不过做这些都很简单，因为OTP它自己是一个消息驱动的框架，所有我们必须要做的是去掉那些存根函数，用我们自己定制的函数来替换它们来发送和接收消息。</p>
-<p>OTP应该重新命名为“OTP on rails”，它真的只是一个构建容错系统的框架。</p>
-<p>这种没有过度依赖一个特别的RPC方式来构建软件的方法可行吗？</p>
-<p>我的回答是可行的，而且肯定可行。</p>
-<p>我们用这种方式构建实时服务器软件在爱立信已经有几十年了。我们已经用PLEX, EriPascal, Erlang 和 C++ with Rose-RT好多年了。所有这些的共同点就是不依赖RPC。我们指定协议，然后我们用一些不同的技术实现它们。</p>
-<p>这些协议比指定使用的RPC是更复杂的方式，但是通过暴露协议和错误模式，我们可以使得系统高可用。</p>
-<p>我一直认为如果我们用RPC来做事情，我们会遇到麻烦。</p>
-<p>Steve这么做过也遇到了这些问题，而我们走的是不同的路。</p>
-<p>真正有趣的是，史提夫的世界和我们的世界开始碰撞-我们有很多东西要互相学习。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://armstrongonsoftware.blogspot.com.ar/2008/05/road-we-didnt-go-down.html" target="_blank" rel="external">http://armstrongonsoftware.blogspot.com.ar/2008/05/road-we-didnt-go-down.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;我一直在关注Erlang邮件列表里的一个有趣的讨论，在这个讨论里，Steve Vinoski和朋友们告诉我们RPC的问题是什么。&lt;/p&gt;
-&lt;p&gt;讨论开始在5月22日，共同话题是facebook宣布已部署了一个用Erlang写的聊天服务器。&lt;/p&gt;
-&lt;p&gt;在其中的一个帖子里Steve写道：&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="RPC" scheme="http://szpzs.oschina.io/categories/Erlang/RPC/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="RPC" scheme="http://szpzs.oschina.io/tags/RPC/"/>
     
   </entry>
   
