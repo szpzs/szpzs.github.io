@@ -1,0 +1,976 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="map,Elixir,module," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="编译
+脚本模式
+命名函数
+函数捕获
+默认参数
+
+在Elixir里我们将几个函数到模块里。在前面的章节里我们已经使用了许多不用的模块，比如String模块：
+12iex&amp;gt; String.length(&quot;hello&quot;)5
+为了在Elixir里创建我们自己的模块，我们使用 defmodule 模块。我们使用 def 宏来定义模块里的函数。
+12345678iex&amp;gt; defmodule Ma">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elixir入门教程－模块">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/02/03/elixir-getting-started-modules/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="编译
+脚本模式
+命名函数
+函数捕获
+默认参数
+
+在Elixir里我们将几个函数到模块里。在前面的章节里我们已经使用了许多不用的模块，比如String模块：
+12iex&amp;gt; String.length(&quot;hello&quot;)5
+为了在Elixir里创建我们自己的模块，我们使用 defmodule 模块。我们使用 def 宏来定义模块里的函数。
+12345678iex&amp;gt; defmodule Ma">
+<meta property="og:updated_time" content="2017-02-03T14:53:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elixir入门教程－模块">
+<meta name="twitter:description" content="编译
+脚本模式
+命名函数
+函数捕获
+默认参数
+
+在Elixir里我们将几个函数到模块里。在前面的章节里我们已经使用了许多不用的模块，比如String模块：
+12iex&amp;gt; String.length(&quot;hello&quot;)5
+为了在Elixir里创建我们自己的模块，我们使用 defmodule 模块。我们使用 def 宏来定义模块里的函数。
+12345678iex&amp;gt; defmodule Ma">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/02/03/elixir-getting-started-modules/"/>
+
+  <title> Elixir入门教程－模块 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Elixir入门教程－模块
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-03T22:51:07+08:00" content="2017-02-03">
+              2017-02-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/module/" itemprop="url" rel="index">
+                    <span itemprop="name">module</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/03/elixir-getting-started-modules/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/03/elixir-getting-started-modules/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="#part-one">编译</a></li>
+<li><a href="#part-two">脚本模式</a></li>
+<li><a href="#part-three">命名函数</a></li>
+<li><a href="#part-four">函数捕获</a></li>
+<li><a href="#part-five">默认参数</a></li>
+</ol>
+<p>在Elixir里我们将几个函数到模块里。在前面的章节里我们已经使用了许多不用的模块，比如<a href="https://hexdocs.pm/elixir/String.html" target="_blank" rel="external">String模块</a>：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; String.length(<span class="string">"hello"</span>)</div><div class="line"><span class="number">5</span></div></pre></td></tr></table></figure>
+<p>为了在Elixir里创建我们自己的模块，我们使用 defmodule 模块。我们使用 def 宏来定义模块里的函数。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">...&gt;   <span class="function"><span class="keyword">def</span> <span class="title">sum</span></span>(a, b) <span class="keyword">do</span></div><div class="line">...&gt;     a + b</div><div class="line">...&gt;   <span class="keyword">end</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"></div><div class="line">iex&gt; Math.sum(<span class="number">1</span>, <span class="number">2</span>)</div><div class="line"><span class="number">3</span></div></pre></td></tr></table></figure>
+<p>下面几个部分，我们的例子变得更长，在shell里将可能难以输入。现在是时候我们学习如何编译Elixir代码以及如何运行Elixir脚本。</p>
+<a id="more"></a>
+<h1 id="编译"><a href="#编译" class="headerlink" title="编译"></a><span id="part-one">编译</span></h1><p>大多数时候，将模块写入文件是很方便的，因此它们可以被编译和重用。让我们假设我们有一个名字为 math.ex 的文件，它的内容如下：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">sum</span></span>(a, b) <span class="keyword">do</span></div><div class="line">    a + b</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>这个文件可以用 elixirc 来编译：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ elixirc math.ex</div></pre></td></tr></table></figure>
+<p>这将生成一个名字为 Elixir.Math.beam 的文件，它包含了定义的模块的字节码。如果我们再次启动 iex ，我们的模块定义将有效（被提供，即 iex 和字节码文件相同的目录里启动）。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Math.sum(<span class="number">1</span>, <span class="number">2</span>)</div><div class="line"><span class="number">3</span></div></pre></td></tr></table></figure>
+<p>Elixir项目通常被组织成三个目录里：</p>
+<ul>
+<li>ebin - 包含被编译的字节码。</li>
+<li>lib - 包含elixir代码（通常是 .ex 文件）。</li>
+<li>test - 包含测试文件（通常是 .exs  文件）。</li>
+</ul>
+<p>当工作在实际项目上时，构建工具（mix）将负责编译和为你设置合适的路径。为了学习目的，Elixir也支持脚本模式，它更灵活而且不生成任何编译的文件。</p>
+<h1 id="脚本模式"><a href="#脚本模式" class="headerlink" title="脚本模式"></a><span id="part-two">脚本模式</span></h1><p>除了Elixir文件后缀 .ex ，Elixir也支持脚本后缀 .exs 文件。Elixir处理这两种文件是用相同的方式，唯一的区别在于意图。.ex 文件意味着被编译，.exs 文件用于脚本。当执行的时候，两中后缀的文件编译并且装载它们的模块到内存里，而只有 .ex  文件以 .beam文件格式写它们的字节码到磁盘上。</p>
+<p>例如，我们可以创建一个文件，名为math.exs：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">sum</span></span>(a, b) <span class="keyword">do</span></div><div class="line">    a + b</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">IO.puts Math.sum(<span class="number">1</span>, <span class="number">2</span>)</div></pre></td></tr></table></figure>
+<p>并且如下方式执行它：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ elixir math.exs</div></pre></td></tr></table></figure>
+<p>这个文件将被编译进内存并执行，结果为输出 3 。没有字节码生成。在后续的例子里，我们建议你写你的代码到脚本文件里，并且按上述所示执行它们。</p>
+<h1 id="命名函数"><a href="#命名函数" class="headerlink" title="命名函数"></a><span id="part-three">命名函数</span></h1><p>在模块里，我们可以用 def/2 定义函数，用 defp/2 定义私有函数。用def/2定义的函数可以被从其他模块调用，而私有函数只能本地调用。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">sum</span></span>(a, b) <span class="keyword">do</span></div><div class="line">    do_sum(a, b)</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">defp</span> <span class="title">do_sum</span></span>(a, b) <span class="keyword">do</span></div><div class="line">    a + b</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">IO.puts Math.sum(<span class="number">1</span>, <span class="number">2</span>)    <span class="comment">#=&gt; 3</span></div><div class="line">IO.puts Math.do_sum(<span class="number">1</span>, <span class="number">2</span>) <span class="comment">#=&gt; ** (UndefinedFunctionError)</span></div></pre></td></tr></table></figure>
+<p>函数定义也支持卫语句和多分支。如果一个函数有几个分支，Elixir将尝试每一个分支直到找到匹配的分支为止。如下的例子是检查给定的数字是否是零的函数的实现：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"> <span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">zero?</span></span>(<span class="number">0</span>) <span class="keyword">do</span></div><div class="line">    <span class="keyword">true</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">zero?</span></span>(x) <span class="keyword">when</span> is_integer(x) <span class="keyword">do</span></div><div class="line">    <span class="keyword">false</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">IO.puts Math.zero?(<span class="number">0</span>)         <span class="comment">#=&gt; true</span></div><div class="line">IO.puts Math.zero?(<span class="number">1</span>)         <span class="comment">#=&gt; false</span></div><div class="line">IO.puts Math.zero?([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]) <span class="comment">#=&gt; ** (FunctionClauseError)</span></div><div class="line">IO.puts Math.zero?(<span class="number">0</span>.<span class="number">0</span>)       <span class="comment">#=&gt; ** (FunctionClauseError)</span></div></pre></td></tr></table></figure>
+<p>给定的入参如果不能匹配任何一个分支则会引起一个错误。</p>
+<p>和结构 if 相似，命名函数支持 do: 和 do/end 块语法，就像<a href="http://elixir-lang.org/getting-started/case-cond-and-if.html#doend-blocks" target="_blank" rel="external">我们学到的 do/end 是为关键字列表格式的便捷语法</a>。例如，我们可以改写上面例子文件 math.exs 为如下样子：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">zero?</span></span>(<span class="number">0</span>), <span class="symbol">do:</span> <span class="keyword">true</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">zero?</span></span>(x) <span class="keyword">when</span> is_integer(x), <span class="symbol">do:</span> <span class="keyword">false</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>它也提供一样的功能。你可以用 do: 于一行代码内，不过应该一直用 do/end 于多行代码。</p>
+<h1 id="函数捕获"><a href="#函数捕获" class="headerlink" title="函数捕获"></a><span id="part-four">函数捕获</span></h1><p>在本教程中，我们已经用符号 name/arity 来引用函数。碰巧，这个符号实际上可以用来检索命名函数作为函数类型。启动 iex ，运行上面定义的 math.exs 文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ iex math.exs</div></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; Math.zero?(0)</div><div class="line">true</div><div class="line">iex&gt; fun = &amp;Math.zero?/1</div><div class="line">&amp;Math.zero?/1</div><div class="line">iex&gt; is_function(fun)</div><div class="line">true</div><div class="line">iex&gt; fun.(0)</div><div class="line">true</div></pre></td></tr></table></figure>
+<p>记住Elixir在匿名函数和命名函数之间做了一个区分，就是前者必需在调用的时候在变量名和圆括号之间加一个点号。捕获运算符通过允许命名函数用我们赋予、调用和传递匿名函数的相同方式被赋予变量并当做参数被传递来消除这种差别。</p>
+<p>本地或被导入的函数，比如 is_function/1 ，可以不需要模块的方式被捕获：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; &amp;is_function/<span class="number">1</span></div><div class="line">&amp;<span class="symbol">:erlang</span>.is_function/<span class="number">1</span></div><div class="line">iex&gt; (&amp;is_function/<span class="number">1</span>).(fun)</div><div class="line"><span class="keyword">true</span></div></pre></td></tr></table></figure>
+<p>注意：捕获语法也可以被用来作为创建函数的便捷方式：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; fun = &amp;(&amp;<span class="number">1</span> + <span class="number">1</span>)</div><div class="line"><span class="comment">#Function&lt;6.71889879/1 in :erl_eval.expr/5&gt;</span></div><div class="line">iex&gt; fun.(<span class="number">1</span>)</div><div class="line"><span class="number">2</span></div></pre></td></tr></table></figure>
+<p>&amp;1表示传入函数的第一个参数。上述 &amp;(&amp;1 + 1) 和 fn x -&gt; x + 1 end 是一样的。上面例子的语法特别适合短函数定义。</p>
+<p>如果你想从一个模块里捕获一个函数，你可以这么做 &amp;Module.function() ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; fun = &amp;List.flatten(&amp;<span class="number">1</span>, &amp;<span class="number">2</span>)</div><div class="line">&amp;List.flatten/<span class="number">2</span></div><div class="line">iex&gt; fun.([<span class="number">1</span>, [[<span class="number">2</span>], <span class="number">3</span>]], [<span class="number">4</span>, <span class="number">5</span>])</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div></pre></td></tr></table></figure>
+<p>&amp;List.flatten(&amp;1, &amp;2) 和 fn(list, tail) -&gt; List.flatten(list, tail) end 写法是一样的，在这个场景，等效于 &amp;List.flatten/2 。你可以在 <a href="https://hexdocs.pm/elixir/Kernel.SpecialForms.html#&amp;/1" target="_blank" rel="external">Kernel.SpecialForms 文档</a>里读到更多关于捕获运算符 &amp; 的内容。</p>
+<h1 id="默认参数"><a href="#默认参数" class="headerlink" title="默认参数"></a><span id="part-five">默认参数</span></h1><p>Elixir里的命名函数也支持默认参数：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Concat</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">join</span></span>(a, b, sep \\ <span class="string">" "</span>) <span class="keyword">do</span></div><div class="line">    a &lt;&gt; sep &lt;&gt; b</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">IO.puts Concat.join(<span class="string">"Hello"</span>, <span class="string">"world"</span>)      <span class="comment">#=&gt; Hello world</span></div><div class="line">IO.puts Concat.join(<span class="string">"Hello"</span>, <span class="string">"world"</span>, <span class="string">"_"</span>) <span class="comment">#=&gt; Hello_world</span></div></pre></td></tr></table></figure>
+<p>任何表达式都允许作为默认值，不过它在函数定义里不会被运算。每次函数调用而且任何它的默认值必须要用的时候，默认值的表达式将被运算：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">DefaultTest</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">dowork</span></span>(x \\ <span class="string">"hello"</span>) <span class="keyword">do</span></div><div class="line">    x</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; DefaultTest.dowork</div><div class="line"><span class="string">"hello"</span></div><div class="line">iex&gt; DefaultTest.dowork <span class="number">123</span></div><div class="line"><span class="number">123</span></div><div class="line">iex&gt; DefaultTest.dowork</div><div class="line"><span class="string">"hello"</span></div></pre></td></tr></table></figure>
+<p>如果一个有默认值函数有多个分支，它需要创建一个函数头（没有函数体）来声明默认值：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Concat</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">join</span></span>(a, b \\ <span class="keyword">nil</span>, sep \\ <span class="string">" "</span>)</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">join</span></span>(a, b, _sep) <span class="keyword">when</span> is_nil(b) <span class="keyword">do</span></div><div class="line">    a</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">join</span></span>(a, b, sep) <span class="keyword">do</span></div><div class="line">    a &lt;&gt; sep &lt;&gt; b</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">IO.puts Concat.join(<span class="string">"Hello"</span>, <span class="string">"world"</span>)      <span class="comment">#=&gt; Hello world</span></div><div class="line">IO.puts Concat.join(<span class="string">"Hello"</span>, <span class="string">"world"</span>, <span class="string">"_"</span>) <span class="comment">#=&gt; Hello_world</span></div><div class="line">IO.puts Concat.join(<span class="string">"Hello"</span>)               <span class="comment">#=&gt; Hello</span></div></pre></td></tr></table></figure>
+<p>当使用默认值的时候，必须要小心避免重叠函数定义。如下例子：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Concat</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">join</span></span>(a, b) <span class="keyword">do</span></div><div class="line">    IO.puts <span class="string">"***First join"</span></div><div class="line">    a &lt;&gt; b</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">join</span></span>(a, b, sep \\ <span class="string">" "</span>) <span class="keyword">do</span></div><div class="line">    IO.puts <span class="string">"***Second join"</span></div><div class="line">    a &lt;&gt; sep &lt;&gt; b</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>如果我们把上述代码保存在 “concat.ex” 文件中并编译它，Elixir将输出如下警告：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">warning:</span> this clause cannot match because a previous clause at line <span class="number">2</span> always matches</div></pre></td></tr></table></figure>
+<p>编译器告诉我们，用两个参数来调用 join 函数将总是选择 join 函数的第一个定义，而它的第二个定义将只在传入三个参数的时候才被调用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ iex concat.exs</div></pre></td></tr></table></figure>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; Concat.join <span class="string">"Hello"</span>, <span class="string">"world"</span></div><div class="line">***First join</div><div class="line"><span class="string">"Helloworld"</span></div></pre></td></tr></table></figure>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; Concat.join <span class="string">"Hello"</span>, <span class="string">"world"</span>, <span class="string">"_"</span></div><div class="line">***Second join</div><div class="line"><span class="string">"Hello_world"</span></div></pre></td></tr></table></figure>
+<p>简短的模块知识介绍到此结束。下一章，我们将学习如何用命名函数来递归；探索Elixir的词汇指令，这些指令可以用来从其他模块导入函数；讨论模块属性。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/modules.html#" target="_blank" rel="external">http://elixir-lang.org/getting-started/modules.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/map/" rel="tag">#map</a>
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/module/" rel="tag">#module</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/02/elixir-getting-started-keywords-and-maps/" rel="next" title="Elixir入门教程－Keywords和maps">
+                <i class="fa fa-chevron-left"></i> Elixir入门教程－Keywords和maps
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/03/elixir-getting-started-modules/"
+           data-title="Elixir入门教程－模块" data-url="http://szpzs.oschina.io/2017/02/03/elixir-getting-started-modules/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">108</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">59</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">149</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#编译"><span class="nav-number">1.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#脚本模式"><span class="nav-number">2.</span> <span class="nav-text">脚本模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#命名函数"><span class="nav-number">3.</span> <span class="nav-text">命名函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#函数捕获"><span class="nav-number">4.</span> <span class="nav-text">函数捕获</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#默认参数"><span class="nav-number">5.</span> <span class="nav-text">默认参数</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
