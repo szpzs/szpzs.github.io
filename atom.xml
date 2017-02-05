@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-02-04T10:23:06.000Z</updated>
+  <updated>2017-02-05T02:53:39.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -16,19 +16,94 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Elixir入门教程－枚举类型和流</title>
+    <link href="http://szpzs.oschina.io/2017/02/05/elixir-getting-started-enumerables-and-streams/"/>
+    <id>http://szpzs.oschina.io/2017/02/05/elixir-getting-started-enumerables-and-streams/</id>
+    <published>2017-02-05T02:50:23.000Z</published>
+    <updated>2017-02-05T02:53:39.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">枚举类型</a></li>
+<li><a href="#part-two">积极 vs 懒惰</a></li>
+<li><a href="#part-three">管道运算符</a></li>
+<li><a href="#part-four">流</a></li>
+</ol>
+<a id="more"></a>
+<h1 id="枚举类型"><a href="#枚举类型" class="headerlink" title="枚举类型"></a><span id="part-one">枚举类型</span></h1><p>Elixir提供了枚举类型的概念以及<a href="https://hexdocs.pm/elixir/Enum.html" target="_blank" rel="external">Enum模块</a>来处理它们。我们已经学了两个枚举类型：list 和 map 。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; Enum.map([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], <span class="keyword">fn</span> x -&gt; x * <span class="number">2</span> <span class="keyword">end</span>)</div><div class="line">[<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>]</div><div class="line">iex&gt; Enum.map(%&#123;<span class="number">1</span> =&gt; <span class="number">2</span>, <span class="number">3</span> =&gt; <span class="number">4</span>&#125;, <span class="keyword">fn</span> &#123;k, v&#125; -&gt; k * v <span class="keyword">end</span>)</div><div class="line">[<span class="number">2</span>, <span class="number">12</span>]</div></pre></td></tr></table></figure>
+<p>Enum模块提供了大量的函数来转换、排序、分组、过滤枚举数据以及从枚举数据里获取元素。它是程序员在他们的Elixir代码里经常使用的模块之一。</p>
+<p>Elixir也提供了范围这种数据类型：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; Enum.map(1..3, fn x -&gt; x * 2 end)</div><div class="line">[2, 4, 6]</div><div class="line">iex&gt; Enum.reduce(1..3, 0, &amp;+/2)</div><div class="line">6</div></pre></td></tr></table></figure>
+<p>Enum模块里的函数正如它的名字所示，它们被限制只能枚举数据结构的值。对于特殊的操作，比如插入和修改特定的元素，你可能需要根据特定的数据类型使用相应的模块。例如，如果你要在列表的给定位置插入一个元素，你应该使用List模块里的List.insert_at/3函数，因为它插入一个值到一个范围数据里是没意义的。</p>
+<p>我们说Enum模块里的函数是多态的，是因为它们可以处理多种数据类型。尤其是，Enum模块里的函数可以处理任何实现了<a href="https://hexdocs.pm/elixir/Enumerable.html" target="_blank" rel="external">Enumerable协议</a>的数据。我们将在后续的章节讨论协议；现在我们将学习叫做流的特殊枚举类型。</p>
+<h1 id="积极-VS-懒惰"><a href="#积极-VS-懒惰" class="headerlink" title="积极 VS 懒惰"></a><span id="part-two">积极 VS 懒惰</span></h1><p>Enum模块里的所有函数都是积极的。许多函数都期盼一个枚举类型数据然后返回一个列表。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; odd? = &amp;(rem(&amp;<span class="number">1</span>, <span class="number">2</span>) != <span class="number">0</span>)</div><div class="line"><span class="comment">#Function&lt;6.80484245/1 in :erl_eval.expr/5&gt;</span></div><div class="line">iex&gt; Enum.filter(<span class="number">1</span>..<span class="number">3</span>, odd?)</div><div class="line">[<span class="number">1</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
+<p>这意味着，当用Enum进行多个操作的时候，每个操作都将生成一个中间列表一直到我们最后得到结果。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span>..<span class="number">100_000</span> |&gt; Enum.map(&amp;(&amp;<span class="number">1</span> * <span class="number">3</span>)) |&gt; Enum.filter(odd?) |&gt; Enum.sum</div><div class="line"><span class="number">7500000000</span></div></pre></td></tr></table></figure>
+<p>上面的例子是一个管道操作。我们从一个范围数据开始，然后将它的每个元素乘于3。第一个操作将创建和返回一个有10万元素的列表。接着我们保留这个列表里的所有奇数元素并生成一个新的有5万元素的列表，最后我们统计这些元素的和。</p>
+<h1 id="管道运算符"><a href="#管道运算符" class="headerlink" title="管道运算符"></a><span id="part-three">管道运算符</span></h1><p>上面例子使用的 |&gt; 符号是管道运算符：它获取它左边表达式的输出然后将这个输出作为第一个参数传给它右边的函数。它和Unix的 | 管道操作符相似。其目的是突出数据被一系列函数变换。为了看清楚它是如何使得代码更简洁的，我们来看看上述例子不用 |&gt; 运算符来写的样子：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Enum.sum(Enum.filter(Enum.map(<span class="number">1</span>..<span class="number">100_000</span>, &amp;(&amp;<span class="number">1</span> * <span class="number">3</span>)), odd?))</div><div class="line"><span class="number">7500000000</span></div></pre></td></tr></table></figure>
+<p>请阅读相关<a href="https://hexdocs.pm/elixir/Kernel.html#%7C%3E/2" target="_blank" rel="external">文档</a>来深入理解管道运算符。</p>
+<h1 id="流"><a href="#流" class="headerlink" title="流"></a><span id="part-four">流</span></h1><p>作为Enum的替代物，Elixir提供了支持懒操作的<a href="https://hexdocs.pm/elixir/Stream.html" target="_blank" rel="external">Stream模块</a>：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span>..<span class="number">100_000</span> |&gt; Stream.map(&amp;(&amp;<span class="number">1</span> * <span class="number">3</span>)) |&gt; Stream.filter(odd?) |&gt; Enum.sum</div><div class="line"><span class="number">7500000000</span></div></pre></td></tr></table></figure>
+<p>流是懒惰的，可组合的枚举数据类型。</p>
+<p>在上述例子里，1..100_000 |&gt; Stream.map(&amp;(&amp;1 * 3)) 返回一个数据类型，实际上就是一个流，它表示在范围数据 1..100_000上的映射计算：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span>..<span class="number">100_000</span> |&gt; Stream.map(&amp;(&amp;<span class="number">1</span> * <span class="number">3</span>))</div><div class="line"><span class="comment">#Stream&lt;[enum: 1..100000, funs: [#Function&lt;34.16982430/1 in Stream.map/2&gt;]]&gt;</span></div></pre></td></tr></table></figure>
+<p>而且，它们是可组合的，因为我们可以用管道操作来组合多个流：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span>..<span class="number">100_000</span> |&gt; Stream.map(&amp;(&amp;<span class="number">1</span> * <span class="number">3</span>)) |&gt; Stream.filter(odd?)</div><div class="line"><span class="comment">#Stream&lt;[enum: 1..100000, funs: [...]]&gt;</span></div></pre></td></tr></table></figure>
+<p>流不是生成中间表，而是建立一系列计算，只有当我们传递底层的流给Enum模块，这些计算才被执行。当处理大的、可能是无限的集合数据时，流非常有用。</p>
+<p>Stream模块里的许多函数接收任何枚举数据作为入参，并且返回一个流作为结果。它也提供函数来创建流。例如，Stream.cycle/1 可以通过无限循环给定的枚举数据来创建一个流。小心：不要在这样的流上调用像 Enum.map/2 这样的函数，因为它们会无限循环下去：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; stream = Stream.cycle([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</div><div class="line"><span class="comment">#Function&lt;15.16982430/2 in Stream.cycle/1&gt;</span></div><div class="line">iex&gt; Enum.take(stream, <span class="number">10</span>)</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>]</div></pre></td></tr></table></figure>
+<p>另一方面，Stream.unfold/2 可以被用来从一个给定的初始值来创建流：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; stream = Stream.unfold(<span class="string">"hełło"</span>, &amp;String.next_codepoint/<span class="number">1</span>)</div><div class="line"><span class="comment">#Function&lt;39.75994740/2 in Stream.unfold/2&gt;</span></div><div class="line">iex&gt; Enum.take(stream, <span class="number">3</span>)</div><div class="line">[<span class="string">"h"</span>, <span class="string">"e"</span>, <span class="string">"ł"</span>]</div></pre></td></tr></table></figure>
+<p>另一个有趣的函数是 stream.resource/3，它可被用来包裹资源，从而保证资源即使在失败的情况下也可以在枚举之前被正确地打开和在后续被关闭。例如，我们可以用它来流式一个文件：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; stream = File.stream!(<span class="string">"path/to/file"</span>)</div><div class="line"><span class="comment">#Function&lt;18.16982430/2 in Stream.resource/3&gt;</span></div><div class="line">iex&gt; Enum.take(stream, <span class="number">10</span>)</div></pre></td></tr></table></figure>
+<p>上面的例子将获取你选在的文件的前10行。这意味着，流在处理大文件或者像网络资源这样的慢资源上非常有用。</p>
+<p>Enum和Stream模块里的函数数量可能让你一开始觉得很难，不过通过各种案例，你将会熟悉它们。尤其是，首先要专注在Enum模块，只在需要懒操作的特别场景，例如处理慢资源或者大的、可能无限的集合数据的时候才转向Stream模块。</p>
+<p>下一章，我们将看看Elixir的一个核心特性：进程，它将允许我们以简单和可理解的方式来写并发、并行和分布式程序。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/enumerables-and-streams.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/enumerables-and-streams.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;枚举类型&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;积极 vs 懒惰&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;管道运算符&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;流&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="enumerable stream" scheme="http://szpzs.oschina.io/categories/Elixir/enumerable-stream/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="enumerable" scheme="http://szpzs.oschina.io/tags/enumerable/"/>
+    
+      <category term="stream" scheme="http://szpzs.oschina.io/tags/stream/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Elixir入门教程－递归</title>
     <link href="http://szpzs.oschina.io/2017/02/04/elixir-getting-started-recursion/"/>
     <id>http://szpzs.oschina.io/2017/02/04/elixir-getting-started-recursion/</id>
     <published>2017-02-04T10:15:23.000Z</published>
-    <updated>2017-02-04T10:23:06.000Z</updated>
+    <updated>2017-02-05T02:54:10.000Z</updated>
     
     <content type="html"><![CDATA[<ol>
 <li><a href="#part-one">用递归实现循环</a></li>
 <li><a href="#part-two">reduce 和 map 算法</a></li>
 </ol>
+<a id="more"></a>
 <h1 id="用递归实现循环"><a href="#用递归实现循环" class="headerlink" title="用递归实现循环"></a><span id="part-one">用递归实现循环</span></h1><p>由于不可修改的特性，Elixir里的循环（如任何其他函数式语言原因）和命令式语言的写法不同。例如，在命令式语言，如C里，循环的写法如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="keyword">sizeof</span>(<span class="built_in">array</span>); i++) &#123;</div><div class="line">  <span class="built_in">array</span>[i] = <span class="built_in">array</span>[i] * <span class="number">2</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<a id="more"></a>
 <p>在上述例子里，我们修改数组和变量i。在Elixir里修改变量值是不可能的。相反，函数式语言依赖于递归：一个函数被递归地调用，直到一个条件符合了才停止递归动作继续进行。在这个过程里面，没有数据被修改。思考一下下面的例子，打印一个字符串任意次数：</p>
 <figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Recursion</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">print_multiple_times</span></span>(msg, n) <span class="keyword">when</span> n &lt;= <span class="number">1</span> <span class="keyword">do</span></div><div class="line">    IO.puts msg</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">print_multiple_times</span></span>(msg, n) <span class="keyword">do</span></div><div class="line">    IO.puts msg</div><div class="line">    print_multiple_times(msg, n - <span class="number">1</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">Recursion.print_multiple_times(<span class="string">"Hello!"</span>, <span class="number">3</span>)</div><div class="line"><span class="comment"># Hello!</span></div><div class="line"><span class="comment"># Hello!</span></div><div class="line"><span class="comment"># Hello!</span></div></pre></td></tr></table></figure>
 <p>和case语句相似，一个函数可能有多个分支。当传递给函数的参数匹配某个分支的参数模式，并且这个分支的卫语句结果为true，那么这个特定的分支将被执行。</p>
@@ -66,8 +141,6 @@
 &lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;用递归实现循环&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;reduce 和 map 算法&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h1 id=&quot;用递归实现循环&quot;&gt;&lt;a href=&quot;#用递归实现循环&quot; class=&quot;headerlink&quot; title=&quot;用递归实现循环&quot;&gt;&lt;/a&gt;&lt;span id=&quot;part-one&quot;&gt;用递归实现循环&lt;/span&gt;&lt;/h1&gt;&lt;p&gt;由于不可修改的特性，Elixir里的循环（如任何其他函数式语言原因）和命令式语言的写法不同。例如，在命令式语言，如C里，循环的写法如下：&lt;/p&gt;
-&lt;figure class=&quot;highlight c&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt;(i = &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;; i &amp;lt; &lt;span class=&quot;keyword&quot;&gt;sizeof&lt;/span&gt;(&lt;span class=&quot;built_in&quot;&gt;array&lt;/span&gt;); i++) &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;built_in&quot;&gt;array&lt;/span&gt;[i] = &lt;span class=&quot;built_in&quot;&gt;array&lt;/span&gt;[i] * &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;#125;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
     
     </summary>
     
@@ -1457,56 +1530,6 @@
       <category term="Time" scheme="http://szpzs.oschina.io/tags/Time/"/>
     
       <category term="时间" scheme="http://szpzs.oschina.io/tags/%E6%97%B6%E9%97%B4/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>纯粹且简单的事务性内存</title>
-    <link href="http://szpzs.oschina.io/2016/12/29/pure-and-simple-transaction-memories/"/>
-    <id>http://szpzs.oschina.io/2016/12/29/pure-and-simple-transaction-memories/</id>
-    <published>2016-12-29T05:22:47.000Z</published>
-    <updated>2016-12-29T14:14:01.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文是一篇纯技术文章。</p>
-<p>几个并行的程序如何维护一个状态的一致性视图？我的意思是，两个程序，可能处于不同的国家，如何用一致性方式来操作共同的状态变量？他们如何用一种不需要任何锁的方式来做到这点？</p>
-<a id="more"></a>
-<p>答案是令人吃惊的简单和不可思议的优美，那就是使用叫做事务性内存的方法。</p>
-<h1 id="事务性内存是如何运作的？"><a href="#事务性内存是如何运作的？" class="headerlink" title="事务性内存是如何运作的？"></a>事务性内存是如何运作的？</h1><p>首先我必须解释为什么并发地更新数据会是一个问题。</p>
-<p><img src="/images/tm1_problem.0.jpg" style="border:0;"></p>
-<p>想像有一个服务器<strong>S</strong>有状态变量<strong>X</strong>和两个客户端<strong>C1</strong>和<strong>C2</strong>。客户端从服务器获取数据（图1）。现在两个客户端都认为<strong>X=20</strong>。<strong>C1</strong>给<strong>X</strong>增加<strong>20</strong>同时<strong>C2</strong>给<strong>X</strong>增加<strong>30</strong>。它们修改它们本地的副本（图2），并且将数据写回服务器（图3和图4）。如果这些操作是一个接一个地进行，那么最后服务器上的X的值应该是70而不是50，很明显现在有问题出现了。</p>
-<p>解决此问题的常规方法是在独立的事务发生时锁定服务器，但这种方法正如<a href="http://armstrongonsoftware.blogspot.com/2006/09/why-i-dont-like-shared-memory.html" target="_blank" rel="external">我前面一篇文章</a>中指出的一样，它会有问题。</p>
-<p>为了允许这些更新并行地执行而且不锁资源，我们可以使用叫做<a href="http://en.wikipedia.org/wiki/Software_transactional_memory" target="_blank" rel="external">事务性内存</a>的方法。</p>
-<h1 id="事务性内存"><a href="#事务性内存" class="headerlink" title="事务性内存"></a>事务性内存</h1><p><img src="/images/tm2_solution.0.jpg" style="border:0;"></p>
-<p>一个事务性内存是一个元组（<strong>Var</strong>,<strong>Version</strong>,<strong>Value</strong>）的集合。如上图，X的版本是1而值是20，Y的版本是6而值是true。</p>
-<p>版本数字表示这个变量被修改的次数。</p>
-<p>现在我们来尝试做一个事务操作。假设我们想修改<strong>X</strong>和<strong>Y</strong>。首先我们给服务器发送消息：<strong>{get,X,Y}</strong>，服务器返回两个变量的值和它们各自的版本数字。</p>
-<p>修改变量后，我们向服务器发送消息：{put,(X,1,30),(Y,6,false)}。仅当所有变量的版本数字与服务器中的变量的版本数字匹配，服务器将接收这个消息。然后服务器接受变量的修改并回复消息：<strong>yes</strong>。如果任何变量的版本数字不匹配，则服务器回复消息：<strong>no</strong>。</p>
-<p>很明显，如果第二个进程在第一个进程回答之前更新内存，那么版本号将不一致，更新将失败。</p>
-<p>请注意，该算法不锁定数据而且在一个分布式的环境中工作得很好，客户端和服务器处于物理上不同的机器上，这些机器之间的传输延迟是未知的。</p>
-<p><strong>这不正是很好而且很老的基于set操作之上归纳出来的test-and-set操作吗？</strong></p>
-<p>是的，当然是。如果你想想他们如何用信号量实现互斥的就明白了。信号量用一个原子的<strong>test-and-set</strong>指令来实现。一个信号量的值只能为0或1。test-and-set操作就是说，如果这个变量的值是0那么就把它的值改为1，这个操作是原子性的。要保留一个关键区域，它由一个标志保护。如果标志为0，那么它可以被保留，如果标志为1，那么它可以被使用。为了避免两个进程同时保留这个关键区域，test-and-set操作必须是原子性的。事务性内存只是概括了这个方法。</p>
-<p>现在让我们用Erlang来实现它。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(tm)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([new/<span class="number">0</span>, addVar/<span class="number">2</span>, getVars/<span class="number">2</span>, putVars/<span class="number">2</span>])</span>.</div><div class="line"></div><div class="line"><span class="comment">%% new() -&gt; Pid</span></div><div class="line"><span class="comment">%%   创建一个新的事务性内存 (TM)</span></div><div class="line"><span class="comment">%%</span></div><div class="line"><span class="comment">%% addVar(Pid, Var) -&gt; ok</span></div><div class="line"><span class="comment">%%   增加一个变量到事务性内存</span></div><div class="line"><span class="comment">%%</span></div><div class="line"><span class="comment">%% getVars([V1,...]) -&gt; [&#123;Vsn,Data&#125;,....]</span></div><div class="line"><span class="comment">%%   在事务性内存里查询变量V1，V2，...</span></div><div class="line"><span class="comment">%%</span></div><div class="line"><span class="comment">%% putVars([&#123;Var,Vsn,Data&#125;]) -&gt; Bool</span></div><div class="line"><span class="comment">%%   修改事务性内存里的变量</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">%% 下面是一个运行的例子</span></div><div class="line"><span class="comment">%%</span></div><div class="line"><span class="comment">%% 1&gt; c(tm).</span></div><div class="line"><span class="comment">%% &#123;ok,tm&#125;</span></div><div class="line"><span class="comment">%% 2&gt; P=tm:new().</span></div><div class="line"><span class="comment">%% &lt;0.47.0&gt;</span></div><div class="line"><span class="comment">%% 3&gt; tm:addVar(x).</span></div><div class="line"><span class="comment">%% ok</span></div><div class="line"><span class="comment">%% 4&gt; tm:addVar(P,x).</span></div><div class="line"><span class="comment">%% ok</span></div><div class="line"><span class="comment">%% 5&gt; tm:addVar(P,y).</span></div><div class="line"><span class="comment">%% ok</span></div><div class="line"><span class="comment">%% 6&gt; tm:getVars(P, [x,y]).</span></div><div class="line"><span class="comment">%% [&#123;ok,&#123;0,void&#125;&#125;,&#123;ok,&#123;0,void&#125;&#125;]</span></div><div class="line"><span class="comment">%% 7&gt; tm:putVars(P, [&#123;x,0,12&#125;,&#123;y,0,true&#125;]).</span></div><div class="line"><span class="comment">%% yes</span></div><div class="line"><span class="comment">%% 8&gt; tm:putVars(P, [&#123;x,1,25&#125;]).</span></div><div class="line"><span class="comment">%% yes</span></div><div class="line"><span class="comment">%% 9&gt; tm:getVars(P, [x,y]).</span></div><div class="line"><span class="comment">%% [&#123;ok,&#123;2,25&#125;&#125;,&#123;ok,&#123;1,true&#125;&#125;]</span></div><div class="line"><span class="comment">%% 10&gt; tm:putVars(P, [&#123;x,1,15&#125;]).</span></div><div class="line"><span class="comment">%% no</span></div><div class="line"></div><div class="line"><span class="function"><span class="title">new</span><span class="params">()</span> -&gt;</span> spawn(<span class="keyword">fun</span>() -&gt; loop(dict:new()) <span class="keyword">end</span>).</div><div class="line"></div><div class="line"><span class="function"><span class="title">addVar</span><span class="params">(Pid, Var)</span> -&gt;</span> rpc(Pid, &#123;create, Var&#125;).</div><div class="line"></div><div class="line"><span class="function"><span class="title">getVars</span><span class="params">(Pid, Vgs)</span> -&gt;</span> rpc(Pid, &#123;get, Vgs&#125;).</div><div class="line"></div><div class="line"><span class="function"><span class="title">putVars</span><span class="params">(Pid, New)</span> -&gt;</span> rpc(Pid, &#123;put, New&#125;).</div><div class="line"></div><div class="line"><span class="comment">%% 内部函数</span></div><div class="line"><span class="comment">%%</span></div><div class="line"><span class="comment">%% 远程过程调用（RPC）</span></div><div class="line"></div><div class="line"><span class="function"><span class="title">rpc</span><span class="params">(Pid, Q)</span> -&gt;</span></div><div class="line">   Pid ! &#123;self(), Q&#125;,</div><div class="line">   <span class="keyword">receive</span></div><div class="line">       &#123;Pid, Reply&#125; -&gt; Reply</div><div class="line">   <span class="keyword">end</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">loop</span><span class="params">(Dict)</span> -&gt;</span></div><div class="line">   <span class="keyword">receive</span></div><div class="line">     &#123;From, &#123;get, Vars&#125;&#125; -&gt;</div><div class="line">        Vgs = lists:map(<span class="keyword">fun</span>(I) -&gt;</div><div class="line">                 dict:find(I, Dict) <span class="keyword">end</span>, Vars),</div><div class="line">        From ! &#123;self(), Vgs&#125;,</div><div class="line">        loop(Dict);</div><div class="line">     &#123;From, &#123;put, Vgs&#125;&#125; -&gt;</div><div class="line">        <span class="keyword">case</span> update(Vgs, Dict) <span class="keyword">of</span></div><div class="line">        no -&gt;</div><div class="line">                From ! &#123;self(), no&#125;,</div><div class="line">                  loop(Dict);</div><div class="line">        &#123;yes, Dict1&#125; -&gt;</div><div class="line">                From ! &#123;self(), yes&#125;,</div><div class="line">                loop(Dict1)</div><div class="line">        <span class="keyword">end</span>;</div><div class="line">    &#123;From, &#123;create, Var&#125;&#125; -&gt;</div><div class="line">       From ! &#123;self(), ok&#125;,</div><div class="line">       loop(create_var(Var, Dict))</div><div class="line">   <span class="keyword">end</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">update</span><span class="params">([&#123;Var,Generation,Val&#125;|T], D)</span> -&gt;</span></div><div class="line">    &#123;G, _&#125; = dict:fetch(Var, D),</div><div class="line">    <span class="keyword">case</span> Generation <span class="keyword">of</span></div><div class="line">     G -&gt; update(T, dict:store(Var, &#123;G+<span class="number">1</span>, Val&#125;, D));</div><div class="line">     _  -&gt; no</div><div class="line">    <span class="keyword">end</span>;</div><div class="line"><span class="function"><span class="title">update</span><span class="params">([], D)</span> -&gt;</span></div><div class="line">    &#123;yes, D&#125;.</div><div class="line"></div><div class="line"><span class="function"><span class="title">create_var</span><span class="params">(Var, Dict)</span> -&gt;</span></div><div class="line">    <span class="keyword">case</span> dict:find(Var, Dict) <span class="keyword">of</span></div><div class="line">   &#123;ok, _&#125; -&gt; Dict;</div><div class="line">   error -&gt; dict:store(Var, &#123;<span class="number">0</span>,void&#125;, Dict)</div><div class="line">    <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://armstrongonsoftware.blogspot.com.ar/2006/09/pure-and-simple-transaction-memories.html" target="_blank" rel="external">http://armstrongonsoftware.blogspot.com.ar/2006/09/pure-and-simple-transaction-memories.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文是一篇纯技术文章。&lt;/p&gt;
-&lt;p&gt;几个并行的程序如何维护一个状态的一致性视图？我的意思是，两个程序，可能处于不同的国家，如何用一致性方式来操作共同的状态变量？他们如何用一种不需要任何锁的方式来做到这点？&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="transaction memories" scheme="http://szpzs.oschina.io/categories/Erlang/transaction-memories/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="transaction memories" scheme="http://szpzs.oschina.io/tags/transaction-memories/"/>
     
   </entry>
   

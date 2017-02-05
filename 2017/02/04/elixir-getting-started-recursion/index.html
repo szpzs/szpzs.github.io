@@ -87,27 +87,18 @@
 
 
 <meta name="description" content="用递归实现循环
-reduce 和 map 算法
-
-用递归实现循环由于不可修改的特性，Elixir里的循环（如任何其他函数式语言原因）和命令式语言的写法不同。例如，在命令式语言，如C里，循环的写法如下：
-123for(i = 0; i &amp;lt; sizeof(array); i++) &amp;#123;  array[i] = array[i] * 2;&amp;#125;">
+reduce 和 map 算法">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Elixir入门教程－递归">
 <meta property="og:url" content="http://szpzs.oschina.io/2017/02/04/elixir-getting-started-recursion/index.html">
 <meta property="og:site_name" content="Time is all">
 <meta property="og:description" content="用递归实现循环
-reduce 和 map 算法
-
-用递归实现循环由于不可修改的特性，Elixir里的循环（如任何其他函数式语言原因）和命令式语言的写法不同。例如，在命令式语言，如C里，循环的写法如下：
-123for(i = 0; i &amp;lt; sizeof(array); i++) &amp;#123;  array[i] = array[i] * 2;&amp;#125;">
-<meta property="og:updated_time" content="2017-02-04T10:23:06.000Z">
+reduce 和 map 算法">
+<meta property="og:updated_time" content="2017-02-05T02:54:10.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Elixir入门教程－递归">
 <meta name="twitter:description" content="用递归实现循环
-reduce 和 map 算法
-
-用递归实现循环由于不可修改的特性，Elixir里的循环（如任何其他函数式语言原因）和命令式语言的写法不同。例如，在命令式语言，如C里，循环的写法如下：
-123for(i = 0; i &amp;lt; sizeof(array); i++) &amp;#123;  array[i] = array[i] * 2;&amp;#125;">
+reduce 和 map 算法">
 
 
 
@@ -375,9 +366,9 @@ reduce 和 map 算法
 <li><a href="#part-one">用递归实现循环</a></li>
 <li><a href="#part-two">reduce 和 map 算法</a></li>
 </ol>
+<a id="more"></a>
 <h1 id="用递归实现循环"><a href="#用递归实现循环" class="headerlink" title="用递归实现循环"></a><span id="part-one">用递归实现循环</span></h1><p>由于不可修改的特性，Elixir里的循环（如任何其他函数式语言原因）和命令式语言的写法不同。例如，在命令式语言，如C里，循环的写法如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="keyword">sizeof</span>(<span class="built_in">array</span>); i++) &#123;</div><div class="line">  <span class="built_in">array</span>[i] = <span class="built_in">array</span>[i] * <span class="number">2</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<a id="more"></a>
 <p>在上述例子里，我们修改数组和变量i。在Elixir里修改变量值是不可能的。相反，函数式语言依赖于递归：一个函数被递归地调用，直到一个条件符合了才停止递归动作继续进行。在这个过程里面，没有数据被修改。思考一下下面的例子，打印一个字符串任意次数：</p>
 <figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Recursion</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">print_multiple_times</span></span>(msg, n) <span class="keyword">when</span> n &lt;= <span class="number">1</span> <span class="keyword">do</span></div><div class="line">    IO.puts msg</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">print_multiple_times</span></span>(msg, n) <span class="keyword">do</span></div><div class="line">    IO.puts msg</div><div class="line">    print_multiple_times(msg, n - <span class="number">1</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">Recursion.print_multiple_times(<span class="string">"Hello!"</span>, <span class="number">3</span>)</div><div class="line"><span class="comment"># Hello!</span></div><div class="line"><span class="comment"># Hello!</span></div><div class="line"><span class="comment"># Hello!</span></div></pre></td></tr></table></figure>
 <p>和case语句相似，一个函数可能有多个分支。当传递给函数的参数匹配某个分支的参数模式，并且这个分支的卫语句结果为true，那么这个特定的分支将被执行。</p>
@@ -447,6 +438,10 @@ reduce 和 map 算法
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/05/elixir-getting-started-enumerables-and-streams/" rel="prev" title="Elixir入门教程－枚举类型和流">
+                Elixir入门教程－枚举类型和流 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -518,7 +513,7 @@ reduce 和 map 算法
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">109</span>
+              <span class="site-state-item-count">110</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -526,7 +521,7 @@ reduce 和 map 算法
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">60</span>
+                <span class="site-state-item-count">61</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -535,7 +530,7 @@ reduce 和 map 算法
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">150</span>
+                <span class="site-state-item-count">152</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
