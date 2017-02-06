@@ -1,0 +1,966 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elixir,process," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="创建进程
+发送和接收消息
+链接
+任务
+状态
+
+在Elixir，所有代码运行在进程里。进程彼此间隔离，彼此间并发运行，并且通过消息传递来交流。进程不仅是Elixir的并发基础，它也为构建分布式和容错程序提供手段。
+Elixir的进程不应该和操作系统的进程混淆。Elixir的进程就内存和CPU的消耗来说是极其轻量的（不同于许多其他编程语言中的线程）。正因如此，成千上万的进程同时运行是很平常的。
+在本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elixir入门教程－进程">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/02/06/elixir-getting-started-processes/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="创建进程
+发送和接收消息
+链接
+任务
+状态
+
+在Elixir，所有代码运行在进程里。进程彼此间隔离，彼此间并发运行，并且通过消息传递来交流。进程不仅是Elixir的并发基础，它也为构建分布式和容错程序提供手段。
+Elixir的进程不应该和操作系统的进程混淆。Elixir的进程就内存和CPU的消耗来说是极其轻量的（不同于许多其他编程语言中的线程）。正因如此，成千上万的进程同时运行是很平常的。
+在本">
+<meta property="og:updated_time" content="2017-02-06T14:48:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elixir入门教程－进程">
+<meta name="twitter:description" content="创建进程
+发送和接收消息
+链接
+任务
+状态
+
+在Elixir，所有代码运行在进程里。进程彼此间隔离，彼此间并发运行，并且通过消息传递来交流。进程不仅是Elixir的并发基础，它也为构建分布式和容错程序提供手段。
+Elixir的进程不应该和操作系统的进程混淆。Elixir的进程就内存和CPU的消耗来说是极其轻量的（不同于许多其他编程语言中的线程）。正因如此，成千上万的进程同时运行是很平常的。
+在本">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/02/06/elixir-getting-started-processes/"/>
+
+  <title> Elixir入门教程－进程 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Elixir入门教程－进程
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-06T22:46:57+08:00" content="2017-02-06">
+              2017-02-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/process/" itemprop="url" rel="index">
+                    <span itemprop="name">process</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/06/elixir-getting-started-processes/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/06/elixir-getting-started-processes/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="#part-one">创建进程</a></li>
+<li><a href="#part-two">发送和接收消息</a></li>
+<li><a href="#part-three">链接</a></li>
+<li><a href="#part-four">任务</a></li>
+<li><a href="#part-five">状态</a></li>
+</ol>
+<p>在Elixir，所有代码运行在进程里。进程彼此间隔离，彼此间并发运行，并且通过消息传递来交流。进程不仅是Elixir的并发基础，它也为构建分布式和容错程序提供手段。</p>
+<p>Elixir的进程不应该和操作系统的进程混淆。Elixir的进程就内存和CPU的消耗来说是极其轻量的（不同于许多其他编程语言中的线程）。正因如此，成千上万的进程同时运行是很平常的。</p>
+<p>在本章里，我们将学习关于创建新进程的基本结构以及进程间收发消息。</p>
+<a id="more"></a>
+<h1 id="创建进程"><a href="#创建进程" class="headerlink" title="创建进程"></a><span id="part-one">创建进程</span></h1><p>创建新进程的基本机制是自动导入的 spawn/1  函数：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; spawn <span class="keyword">fn</span> -&gt; <span class="number">1</span> + <span class="number">2</span> <span class="keyword">end</span></div><div class="line"><span class="comment">#PID&lt;0.43.0&gt;</span></div></pre></td></tr></table></figure>
+<p>spawn/1 的入参是一个函数，这个函数将在另一个进程里执行。</p>
+<p>注意 spawn/1 返回一个PID（进程标识符）。像如上的例子，你产生的过程很可能是死的。被创建的进程将执行给定的函数，并且在函数结束后退出。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; pid = spawn <span class="keyword">fn</span> -&gt; <span class="number">1</span> + <span class="number">2</span> <span class="keyword">end</span></div><div class="line"><span class="comment">#PID&lt;0.44.0&gt;</span></div><div class="line">iex&gt; Process.alive?(pid)</div><div class="line"><span class="keyword">false</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：你将很可能获得一个不同于我们这个例子里获得的进程标识符。</p>
+</blockquote>
+<p>我们可以调用 self/0 来获取当前进程的PID：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">self</span>()</div><div class="line"><span class="comment">#PID&lt;0.41.0&gt;</span></div><div class="line">iex&gt; Process.alive?(<span class="keyword">self</span>())</div><div class="line"><span class="keyword">true</span></div></pre></td></tr></table></figure>
+<p>当我们能够发送和接收消息时，进程变得更加有趣。</p>
+<h1 id="发送和接收消息"><a href="#发送和接收消息" class="headerlink" title="发送和接收消息"></a><span id="part-two">发送和接收消息</span></h1><p>我们可以用 send/2 发送消息给一个进程并且可以用 receive/1 接收消息。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; send <span class="keyword">self</span>(), &#123;<span class="symbol">:hello</span>, <span class="string">"world"</span>&#125;</div><div class="line">&#123;<span class="symbol">:hello</span>, <span class="string">"world"</span>&#125;</div><div class="line">iex&gt; receive <span class="keyword">do</span></div><div class="line">...&gt;   &#123;<span class="symbol">:hello</span>, msg&#125; -&gt; msg</div><div class="line">...&gt;   &#123;<span class="symbol">:world</span>, msg&#125; -&gt; <span class="string">"won't match"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"world"</span></div></pre></td></tr></table></figure>
+<p>当一条消息发送给一个进程，这个消息存储在进程的邮箱里。receive/1 语句块遍历当前邮箱来查找任何匹配给定模式的消息。receive/1 支持卫语句和许多分支，就如 case/2 一样。</p>
+<p>发送消息的进程不会阻塞在 send/2 上，它只是将消息放入接收者的邮箱然后继续执行后面的语句。特别是，进程可以给自己发送消息。在上面的例子里，当 receive 语句块获得执行的时候，发送者进程可能已经死掉了。</p>
+<p>如果没有邮箱里的消息匹配任何模式，则当前进程将等待一直到一个匹配的消息到来。超时也可以被指定：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; receive <span class="keyword">do</span></div><div class="line">...&gt;   &#123;<span class="symbol">:hello</span>, msg&#125;  -&gt; msg</div><div class="line">...&gt; after</div><div class="line">...&gt;   <span class="number">1_000</span> -&gt; <span class="string">"nothing after 1s"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"nothing after 1s"</span></div></pre></td></tr></table></figure>
+<p>当你已经期待的消息已经在邮箱里的时候，可以将超时设置为0。</p>
+<p>让我们把这些放在一起并在进程间发送消息：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; parent = <span class="keyword">self</span>()</div><div class="line"><span class="comment">#PID&lt;0.41.0&gt;</span></div><div class="line">iex&gt; spawn <span class="keyword">fn</span> -&gt; send(parent, &#123;<span class="symbol">:hello</span>, <span class="keyword">self</span>()&#125;) <span class="keyword">end</span></div><div class="line"><span class="comment">#PID&lt;0.48.0&gt;</span></div><div class="line">iex&gt; receive <span class="keyword">do</span></div><div class="line">...&gt;   &#123;<span class="symbol">:hello</span>, pid&#125; -&gt; <span class="string">"Got hello from <span class="subst">#&#123;inspect pid&#125;</span>"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"Got hello from #PID&lt;0.48.0&gt;"</span></div></pre></td></tr></table></figure>
+<p>当在使用shell的时候，你可能发现帮助函数 flush/0 非常有用。它刷新并打印邮箱里的所有消息。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">iex&gt; send <span class="keyword">self</span>(), <span class="symbol">:hello</span></div><div class="line"><span class="symbol">:hello</span></div><div class="line">iex&gt; flush()</div><div class="line"><span class="symbol">:hello</span></div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
+<h1 id="链接"><a href="#链接" class="headerlink" title="链接"></a><span id="part-three">链接</span></h1><p>在Elixir里最通用的创建进程的方式实际上是用 spawn_link/1 函数。在我们展示 spawn_link/1 的例子之前，让我们尝试看看当一个进程失败的时候会发生什么：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; spawn <span class="keyword">fn</span> -&gt; raise <span class="string">"oops"</span> <span class="keyword">end</span></div><div class="line"><span class="comment">#PID&lt;0.58.0&gt;</span></div><div class="line"></div><div class="line">[error] Process <span class="comment">#PID&lt;0.58.00&gt; raised an exception</span></div><div class="line">** (RuntimeError) oops</div><div class="line">    <span class="symbol">:erlang</span>.apply/<span class="number">2</span></div></pre></td></tr></table></figure>
+<p>它只是记录一个错误，而创建者依然运行。这是因为进程间是隔离的。如果我们想一个进程的失败会传递给另一个进程，我们应该将它们链接在一起。这可以用 spawn_link/1 来做到：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; spawn_link <span class="keyword">fn</span> -&gt; raise <span class="string">"oops"</span> <span class="keyword">end</span></div><div class="line"><span class="comment">#PID&lt;0.41.0&gt;</span></div><div class="line"></div><div class="line">** (EXIT from <span class="comment">#PID&lt;0.41.0&gt;) an exception was raised:</span></div><div class="line">    ** (RuntimeError) oops</div><div class="line">        <span class="symbol">:erlang</span>.apply/<span class="number">2</span></div></pre></td></tr></table></figure>
+<p>当在shell里发生一个失败，shell自动地捕获这个失败并以合适的格式展现出来。为了理解在我们的代码里到底将发生什么，让我们在一个文件里使用 spawn_link/1 ，并运行它：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># spawn.exs</span></div><div class="line">spawn_link <span class="keyword">fn</span> -&gt; raise <span class="string">"oops"</span> <span class="keyword">end</span></div><div class="line"></div><div class="line">receive <span class="keyword">do</span></div><div class="line">  <span class="symbol">:hello</span> -&gt; <span class="string">"let's wait until the process fails"</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ elixir spawn.exs</div><div class="line"></div><div class="line">** (EXIT from <span class="comment">#PID&lt;0.47.0&gt;) an exception was raised:</span></div><div class="line">    ** (RuntimeError) oops</div><div class="line">        spawn.exs:1: anonymous fn/0 <span class="keyword">in</span> :elixir_compiler_0.__FILE__/1</div></pre></td></tr></table></figure>
+<p>这一次，进程失败并且把它的父进程也搞垮了，因为它们是链接的。链接也可以通过调用 Process.link/1 来手工做到。我们建议你看一下 Process 模块来研究进程提供的其他功能。</p>
+<p>当构建容错系统的时候，进程和链接扮演重要角色。在Elixir的应用里，我们经常链接我们的进程到一个监督者，当一个进程死掉的时候，这个监督者可以检测到，并且在那个地方启动一个新进程。这是唯一可能的，因为进程是隔离的，默认情况下不共享任何东西。并且因为进程是隔离的，因此没有方法在一个进程失败的时候崩溃或破坏另一个进程的状态。</p>
+<p>其他语言需要我们捕获和处理异常，而在Elixir里，我们实际上是乐于让进程失败，因为我们期望监督者正确地重新启动我们的系统。当我们写Elixir程序的时候，“快速失败”是一种常见的哲学！</p>
+<p>在Elixir里，spawn/1 和 spawn_link/1 是创建进程的基本命令。虽然目前为止我们只使用了它们两个，但是绝大多数时候我们将使用构建于它们之上的抽象。让我们看看这些抽象中最常用的一个，它叫做任务。</p>
+<h1 id="任务"><a href="#任务" class="headerlink" title="任务"></a><span id="part-four">任务</span></h1><p>任务构建在创建进程函数之上，以提供更好的错误报告和内省：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex(<span class="number">1</span>)&gt; Task.start <span class="keyword">fn</span> -&gt; raise <span class="string">"oops"</span> <span class="keyword">end</span></div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.55.0&gt;&#125;</span></div><div class="line"></div><div class="line"><span class="number">15</span><span class="symbol">:</span><span class="number">22</span><span class="symbol">:</span><span class="number">33.046</span> [error] Task <span class="comment">#PID&lt;0.55.0&gt; started from #PID&lt;0.53.0&gt; terminating</span></div><div class="line">** (RuntimeError) oops</div><div class="line">    (elixir) lib/task/supervised.<span class="symbol">ex:</span><span class="number">74</span>: Task.Supervised.do_apply/<span class="number">2</span></div><div class="line">    (stdlib) proc_lib.<span class="symbol">erl:</span><span class="number">239</span>: <span class="symbol">:proc_lib</span>.init_p_do_apply/<span class="number">3</span></div><div class="line"><span class="symbol">Function:</span> <span class="comment">#Function&lt;20.90072148/0 in :erl_eval.expr/5&gt;</span></div><div class="line">    <span class="symbol">Args:</span> []</div></pre></td></tr></table></figure>
+<p>我们用 Task.start/1 和 Task.start_link/1 替代 spawn/1 和 spawn_link/1 ，它们返回 {:ok, pid} ，而不只是PID。这就是为什么使得任务被用在监督树里。而且Task提供像 Task.async/1 和 Task.await/1 这样的便捷的函数以及易于分布式的功能。</p>
+<p>我们将在 <strong>Mix 和 OTP 指导</strong> 里探索这些功能，现在记住使用 Task 来获得更好的错误报告就足够了。</p>
+<h1 id="状态"><a href="#状态" class="headerlink" title="状态"></a><span id="part-five">状态</span></h1><p>到目前为止，我们的教程还没有讨论过状态。如果你正在构建一个需要状态的应用，例如，保存你的应用配置，或者你需要分析一个文件并且保存在内存里，那么你需要保存它在哪里？</p>
+<p>对于这个问题，进程是最通用的回答。我们可以写无限循环的，维护状态的，并且收发消息的进程。作为一个例子，让我们写一个模块，它开始一个新进程，这个进程像一个键值对存储一样工作，这个模块在名字为kv.exs的文件里：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start_link</span></span> <span class="keyword">do</span></div><div class="line">    Task.start_link(<span class="keyword">fn</span> -&gt; loop(%&#123;&#125;) <span class="keyword">end</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">defp</span> <span class="title">loop</span></span>(map) <span class="keyword">do</span></div><div class="line">    receive <span class="keyword">do</span></div><div class="line">      &#123;<span class="symbol">:get</span>, key, caller&#125; -&gt;</div><div class="line">        send caller, Map.get(map, key)</div><div class="line">        loop(map)</div><div class="line">      &#123;<span class="symbol">:put</span>, key, value&#125; -&gt;</div><div class="line">        loop(Map.put(map, key, value))</div><div class="line">    <span class="keyword">end</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>注意：start_link 函数启动一个新进程来运行 loop/1 函数，这个函数以一个空的映射为入参。loop/1 函数然后等待消息，并且为每个消息执行适当的操作。如果是一个 :get 消息，它发送一个消息回去给调用者并再次调用 loop/1 ，接着等待新的消息。而 :put 消息的话，实际上用一个新版本的映射作为入参调用 loop/1 ，这个新版本的映射存储了给定的键和值。</p>
+<p>让我们通过运行 iex kv.exs 来试试：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, pid&#125; = KV.start_link</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.62.0&gt;&#125;</span></div><div class="line">iex&gt; send pid, &#123;<span class="symbol">:get</span>, <span class="symbol">:hello</span>, <span class="keyword">self</span>()&#125;</div><div class="line">&#123;<span class="symbol">:get</span>, <span class="symbol">:hello</span>, <span class="comment">#PID&lt;0.41.0&gt;&#125;</span></div><div class="line">iex&gt; flush()</div><div class="line"><span class="keyword">nil</span></div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
+<p>首先，进程的映射没有键，那么发送一个 :get 消息给它然后刷新当前进程的邮箱将返回 nil ，让我发送一个 :put 消息来试试：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; send pid, &#123;<span class="symbol">:put</span>, <span class="symbol">:hello</span>, <span class="symbol">:world</span>&#125;</div><div class="line">&#123;<span class="symbol">:put</span>, <span class="symbol">:hello</span>, <span class="symbol">:world</span>&#125;</div><div class="line">iex&gt; send pid, &#123;<span class="symbol">:get</span>, <span class="symbol">:hello</span>, <span class="keyword">self</span>()&#125;</div><div class="line">&#123;<span class="symbol">:get</span>, <span class="symbol">:hello</span>, <span class="comment">#PID&lt;0.41.0&gt;&#125;</span></div><div class="line">iex&gt; flush()</div><div class="line"><span class="symbol">:world</span></div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
+<p>注意进程如何保持状态，并且我们通过给进程发送消息来获取和修改这个状态。实际上，任何进程只要知道上面例子的pid都能够给这个pid发送消息并且操作它的进程。</p>
+<p>注册这个pid并给它一个名字也是可以的，并且允许所有知道它名字的进程都可以给它发送消息。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; Process.register(pid, <span class="symbol">:kv</span>)</div><div class="line"><span class="keyword">true</span></div><div class="line">iex&gt; send <span class="symbol">:kv</span>, &#123;<span class="symbol">:get</span>, <span class="symbol">:hello</span>, <span class="keyword">self</span>()&#125;</div><div class="line">&#123;<span class="symbol">:get</span>, <span class="symbol">:hello</span>, <span class="comment">#PID&lt;0.41.0&gt;&#125;</span></div><div class="line">iex&gt; flush()</div><div class="line"><span class="symbol">:world</span></div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
+<p>在Elixir应用里用进程来维护状态和名字注册是非常通用的模式。但是，绝大多数时候，我们不需要像上面例子一样来手工实现那些模式，而是使用Elixir自带的许多抽象之一就可以。例如，Elixir提供了 <a href="https://hexdocs.pm/elixir/Agent.html" target="_blank" rel="external">代理者</a> ，它是以状态为基础的简单抽象：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, pid&#125; = Agent.start_link(<span class="keyword">fn</span> -&gt; %&#123;&#125; <span class="keyword">end</span>)</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.72.0&gt;&#125;</span></div><div class="line">iex&gt; Agent.update(pid, <span class="keyword">fn</span> map -&gt; Map.put(map, <span class="symbol">:hello</span>, <span class="symbol">:world</span>) <span class="keyword">end</span>)</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; Agent.get(pid, <span class="keyword">fn</span> map -&gt; Map.get(map, <span class="symbol">:hello</span>) <span class="keyword">end</span>)</div><div class="line"><span class="symbol">:world</span></div></pre></td></tr></table></figure>
+<p>一个 :name 选项一个可以传给 Agent.start_link/2 ，这样它将被自动注册。除了代理者，Elixir提供了一个API来构建通用服务（叫做 GenServer），任务，以及其他更多事务，这些全部由下面的进程驱动。这些，连同监督树，将在 <strong>Mix 和 OTP 指导</strong>（这个指导将从开始到结束构建一个完整的Elixir应用） 里更详细地探讨。</p>
+<p>接下来，让我们探索Elixir的I/O世界。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/processes.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/processes.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/process/" rel="tag">#process</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/05/elixir-getting-started-enumerables-and-streams/" rel="next" title="Elixir入门教程－枚举类型和流">
+                <i class="fa fa-chevron-left"></i> Elixir入门教程－枚举类型和流
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/06/elixir-getting-started-processes/"
+           data-title="Elixir入门教程－进程" data-url="http://szpzs.oschina.io/2017/02/06/elixir-getting-started-processes/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">111</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">152</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#创建进程"><span class="nav-number">1.</span> <span class="nav-text">创建进程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#发送和接收消息"><span class="nav-number">2.</span> <span class="nav-text">发送和接收消息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#链接"><span class="nav-number">3.</span> <span class="nav-text">链接</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#任务"><span class="nav-number">4.</span> <span class="nav-text">任务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#状态"><span class="nav-number">5.</span> <span class="nav-text">状态</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
