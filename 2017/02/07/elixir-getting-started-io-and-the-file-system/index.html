@@ -1,0 +1,961 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elixir,io,file system,Path,StringIO,group leader,iodata,chardata," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="IO模块
+File模块
+Path模块
+进程和组领导
+iodata和chardata
+
+本章是对输入/输出机制和文件系统相关的任务以及相关模块，比如：IO、File和Path的快速介绍。
+我们原本计划这章在本系列教程中更早地出现。然而，我们注意到 IO 系统提供一个非常好的机会来阐明Elixir和VM的一些哲学和奇特之处。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elixir入门教程－IO和文件系统">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/02/07/elixir-getting-started-io-and-the-file-system/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="IO模块
+File模块
+Path模块
+进程和组领导
+iodata和chardata
+
+本章是对输入/输出机制和文件系统相关的任务以及相关模块，比如：IO、File和Path的快速介绍。
+我们原本计划这章在本系列教程中更早地出现。然而，我们注意到 IO 系统提供一个非常好的机会来阐明Elixir和VM的一些哲学和奇特之处。">
+<meta property="og:updated_time" content="2017-02-07T13:27:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elixir入门教程－IO和文件系统">
+<meta name="twitter:description" content="IO模块
+File模块
+Path模块
+进程和组领导
+iodata和chardata
+
+本章是对输入/输出机制和文件系统相关的任务以及相关模块，比如：IO、File和Path的快速介绍。
+我们原本计划这章在本系列教程中更早地出现。然而，我们注意到 IO 系统提供一个非常好的机会来阐明Elixir和VM的一些哲学和奇特之处。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/02/07/elixir-getting-started-io-and-the-file-system/"/>
+
+  <title> Elixir入门教程－IO和文件系统 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Elixir入门教程－IO和文件系统
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-07T21:24:28+08:00" content="2017-02-07">
+              2017-02-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/io/" itemprop="url" rel="index">
+                    <span itemprop="name">io</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/07/elixir-getting-started-io-and-the-file-system/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/07/elixir-getting-started-io-and-the-file-system/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="#part-one">IO模块</a></li>
+<li><a href="#part-two">File模块</a></li>
+<li><a href="#part-three">Path模块</a></li>
+<li><a href="#part-four">进程和组领导</a></li>
+<li><a href="#part-five">iodata和chardata</a></li>
+</ol>
+<p>本章是对输入/输出机制和文件系统相关的任务以及相关模块，比如：<a href="https://hexdocs.pm/elixir/IO.html" target="_blank" rel="external">IO</a>、<a href="https://hexdocs.pm/elixir/File.html" target="_blank" rel="external">File</a>和<a href="https://hexdocs.pm/elixir/Path.html" target="_blank" rel="external">Path</a>的快速介绍。</p>
+<p>我们原本计划这章在本系列教程中更早地出现。然而，我们注意到 IO 系统提供一个非常好的机会来阐明Elixir和VM的一些哲学和奇特之处。</p>
+<a id="more"></a>
+<h1 id="IO模块"><a href="#IO模块" class="headerlink" title="IO模块"></a><span id="part-one">IO模块</span></h1><p>IO模块是Elixir里读写标准输入输出（:stdio）、标准错误（:stderr）、文件和其他IO设备的主要机制。这个模块的使用方式非常简单：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; IO.puts <span class="string">"hello world"</span></div><div class="line">hello world</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; IO.gets <span class="string">"yes or no? "</span></div><div class="line">yes <span class="keyword">or</span> no? yes</div><div class="line"><span class="string">"yes\n"</span></div></pre></td></tr></table></figure>
+<p>默认情况下，IO模块的函数从标准输入读数据并往标准输出写数据。我们可以改变这个默认方式，例如，通过传递 :stderr 作为一个入参（来写数据到标准错误）：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; IO.puts <span class="symbol">:stderr</span>, <span class="string">"hello world"</span></div><div class="line">hello world</div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
+<h1 id="File模块"><a href="#File模块" class="headerlink" title="File模块"></a><span id="part-two">File模块</span></h1><p>File模块包含函数允许我们打开文件当做IO文件。默认地，文件以二进制模式打开，这些文件就需要开发者使用IO模式的特定函数 IO.binread/2 和 IO.binwrite/2 来读写。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, file&#125; = File.open <span class="string">"hello"</span>, [<span class="symbol">:write</span>]</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.47.0&gt;&#125;</span></div><div class="line">iex&gt; IO.binwrite file, <span class="string">"world"</span></div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; File.close file</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; File.read <span class="string">"hello"</span></div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="string">"world"</span>&#125;</div></pre></td></tr></table></figure>
+<p>文件也可以用 :utf8 编码方式打开，这就告诉File模块解析从文件读取的字节为UTF-8编码的字节。</p>
+<p>除了打开、读写文件的函数，File模块还有许多处理文件系统的函数。那些函数命名方式和Unix的函数相对应。例如，File.rm/1 可以用来删除文件，File.mkdir/1 用来创建目录，File.mkdir_p/1 用来创建目录和它所有的父目录。甚至还有 File.cp_r/2 和 File.rm_rf/1 ，分别递归地拷贝和删除文件和目录（即也复制和删除目录的内容）。</p>
+<p>你可能也注意到了File模块里的函数有两种类型：一种是“正常”的，另一种是尾部有一个!号的。例如，上面例子里当我们读”hello”文件的时候，我们使用 File.read/1 。相应地，我们可以用File.read!/1 ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; File.read <span class="string">"hello"</span></div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="string">"world"</span>&#125;</div><div class="line">iex&gt; File.read! <span class="string">"hello"</span></div><div class="line"><span class="string">"world"</span></div><div class="line">iex&gt; File.read <span class="string">"unknown"</span></div><div class="line">&#123;<span class="symbol">:error</span>, <span class="symbol">:enoent</span>&#125;</div><div class="line">iex&gt; File.read! <span class="string">"unknown"</span></div><div class="line">** (File.Error) could <span class="keyword">not</span> read file <span class="string">"unknown"</span>: no such file <span class="keyword">or</span> directory</div></pre></td></tr></table></figure>
+<p>注意：带叹号的版本返回文件的内容而不是元组，而如果有任何错误，这个函数就抛出一个错误。</p>
+<p>当你想要用模式匹配处理不同的输出的时候，不带叹号的版本是首选：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">case</span> File.read(file) <span class="keyword">do</span></div><div class="line">  &#123;<span class="symbol">:ok</span>, body&#125;      -&gt; <span class="comment"># do something with the `body`</span></div><div class="line">  &#123;<span class="symbol">:error</span>, reason&#125; -&gt; <span class="comment"># handle the error caused by `reason`</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>但是，如果你期望文件就在那里，带叹号版本更加有用，因为它抛出有意义的错误。避免这样写：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="symbol">:ok</span>, body&#125; = File.read(file)</div></pre></td></tr></table></figure>
+<p>因为，一旦有错误，File.read/1 将返回 {:error, reason} 而且模式匹配将失败。你将仍然得到你想要的结果（一个抛出的错误），但是消息却是关于没有匹配上的模式（因此，错误实际上是什么就显得很神秘）。</p>
+<p>因此，如果你不想处理错误结果，就优先使用 File.read!/1 。</p>
+<h1 id="Path模块"><a href="#Path模块" class="headerlink" title="Path模块"></a><span id="part-three">Path模块</span></h1><p>File模块里的绝大多数函数都期望用路径做入参。最常见的是，这些路径将是普通二进制数据。Path模块提供处理这样路径的工具：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; Path.join(<span class="string">"foo"</span>, <span class="string">"bar"</span>)</div><div class="line"><span class="string">"foo/bar"</span></div><div class="line">iex&gt; Path.expand(<span class="string">"~/hello"</span>)</div><div class="line"><span class="string">"/Users/jose/hello"</span></div></pre></td></tr></table></figure>
+<p>使用Path模块的函数，而不是直接操纵字符串是首选，因为Path模块透明地处理不同的操作系统之间的差异。最后，记住当在Windows执行文件操作的时候，Elixir将自动将斜线（/）转成反斜线（\）。</p>
+<p>到此，我们已经讲完了Elixir提供的处理IO和与文件系统交互的主要模块。下面的部分，我们将讨论关于IO的一些高级话题。这些部分不是写Elixir代码所必需的，因此可以略过它们，不过它们对VM里IO系统是如何实现的以及其他特性提供了一个好的概貌。</p>
+<h1 id="进程和组领导"><a href="#进程和组领导" class="headerlink" title="进程和组领导"></a><span id="part-four">进程和组领导</span></h1><p>你可能已经注意到 File.open/2 返回一个元组 {:ok, pid} ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, file&#125; = File.open <span class="string">"hello"</span>, [<span class="symbol">:write</span>]</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.47.0&gt;&#125;</span></div></pre></td></tr></table></figure>
+<p>之所以是如此，是因为IO模块实际上是和进程打交道（参见<a href="http://elixir-lang.org/getting-started/processes.html" target="_blank" rel="external">11章</a>）。当你写 IO.write(pid, binary) 的时候，IO模块将发送一个消息给被pid标识的进程，消息里同时带着期望的操作。让我们看看如果我们用我们自己的进程会发生什么：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; pid = spawn <span class="keyword">fn</span> -&gt;</div><div class="line">...&gt;  receive <span class="symbol">do:</span> (msg -&gt; IO.inspect msg)</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="comment">#PID&lt;0.57.0&gt;</span></div><div class="line">iex&gt; IO.write(pid, <span class="string">"hello"</span>)</div><div class="line">&#123;<span class="symbol">:io_request</span>, <span class="comment">#PID&lt;0.41.0&gt;, #Reference&lt;0.0.8.91&gt;,</span></div><div class="line"> &#123;<span class="symbol">:put_chars</span>, <span class="symbol">:unicode</span>, <span class="string">"hello"</span>&#125;&#125;</div><div class="line">** (ErlangError) erlang <span class="symbol">error:</span> <span class="symbol">:terminated</span></div></pre></td></tr></table></figure>
+<p>上述例子中，在 IO.write/2 后，我们可以看到IO模块发送的请求（四元素元组）被打印出来。紧跟其后，我们看到了失败，因为IO模块所期望的结果我们没有支持。</p>
+<p><a href="https://hexdocs.pm/elixir/StringIO.html" target="_blank" rel="external">StringIO</a>模块提供了基于字符串之上的IO设备消息的实现：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, pid&#125; = StringIO.open(<span class="string">"hello"</span>)</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.43.0&gt;&#125;</span></div><div class="line">iex&gt; IO.read(pid, <span class="number">2</span>)</div><div class="line"><span class="string">"he"</span></div></pre></td></tr></table></figure>
+<p>通过用进程模型化IO设备，Erlang虚拟机允许同一个网络里的不同节点互访文件进程来在不同节点间读写文件。在所有IO设备中，有一个对所有进程都很特别，就是：<strong>组领导</strong>。</p>
+<p>当你写数据给 :stdio 的时候，你实际上是发消息给组领导，由它写数据给标注输出文件描述符：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; IO.puts <span class="symbol">:stdio</span>, <span class="string">"hello"</span></div><div class="line">hello</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; IO.puts Process.group_leader, <span class="string">"hello"</span></div><div class="line">hello</div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
+<p>每个进程都可以配置组领导，组领导在不同的情况下使用。例如，当在一个远程终端上执行代码，它保证远程节点上的消息被重定向并打印在触发请求的终端上。</p>
+<h1 id="iodata和chardata"><a href="#iodata和chardata" class="headerlink" title="iodata和chardata"></a><span id="part-five">iodata和chardata</span></h1><p>在上面所有的例子里，当写数据到文件的时候，我们使用二进制数据。在“二进制数据、字符串和字符列表”那一章，我们提到字符串是怎样由二进制数据构成而字符列表unicode代码点的列表。</p>
+<p>IO模块和File模块里的函数也允许列表作为入参。不仅如此，它们也运行混合列表，列表里包含整数和二进制数据：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; IO.puts <span class="string">'hello world'</span></div><div class="line">hello world</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; IO.puts [<span class="string">'hello'</span>, ?\s, <span class="string">"world"</span>]</div><div class="line">hello world</div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
+<p>然而，在IO操作中使用列表需要一些注意。一个列表可能表示一串二进制数据或者一串字符，而到底使用哪一个依赖于IO设备的编码。如果一个文件没有指定编码方式打开，它被期望是原始模式，则IO模块里以 bin* 开头的函数就必须被使用。这些函数期望一个 iodata 作为入参，也就是，它们期望一个表示字节和二进制数据的整数列表被传入。</p>
+<p>另一方面，:stdio 和以 :utf8 编码打开的文件将用其余的IO模块中的函数处理。这些函数期望一个 char_data 作为入参，也就是，一个字符或者字符串列表。</p>
+<p>虽然这是一个微妙的区别，你只需要担心这些细节，如果你打算传递列表给这些函数。二进制数据已经由底层字节表示，因此它们的表示总是“原始”的。</p>
+<p>到此我们结束了IO设备和IO相关功能之旅。我们已经学了四个Elixir模块：<a href="https://hexdocs.pm/elixir/IO.html" target="_blank" rel="external">IO</a>、<a href="https://hexdocs.pm/elixir/File.html" target="_blank" rel="external">File</a>、<a href="https://hexdocs.pm/elixir/Path.html" target="_blank" rel="external">Path</a>和<a href="https://hexdocs.pm/elixir/StringIO.html" target="_blank" rel="external">StringIO</a>，也学了Erlang虚拟机如何用进程来处理底层IO机制以及如何使用 chardata  和 iodata 来进行IO操作。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/io-and-the-file-system.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/io-and-the-file-system.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/io/" rel="tag">#io</a>
+          
+            <a href="/tags/file-system/" rel="tag">#file system</a>
+          
+            <a href="/tags/Path/" rel="tag">#Path</a>
+          
+            <a href="/tags/StringIO/" rel="tag">#StringIO</a>
+          
+            <a href="/tags/group-leader/" rel="tag">#group leader</a>
+          
+            <a href="/tags/iodata/" rel="tag">#iodata</a>
+          
+            <a href="/tags/chardata/" rel="tag">#chardata</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/06/elixir-getting-started-processes/" rel="next" title="Elixir入门教程－进程">
+                <i class="fa fa-chevron-left"></i> Elixir入门教程－进程
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/07/elixir-getting-started-io-and-the-file-system/"
+           data-title="Elixir入门教程－IO和文件系统" data-url="http://szpzs.oschina.io/2017/02/07/elixir-getting-started-io-and-the-file-system/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">112</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">159</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IO模块"><span class="nav-number">1.</span> <span class="nav-text">IO模块</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#File模块"><span class="nav-number">2.</span> <span class="nav-text">File模块</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Path模块"><span class="nav-number">3.</span> <span class="nav-text">Path模块</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进程和组领导"><span class="nav-number">4.</span> <span class="nav-text">进程和组领导</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#iodata和chardata"><span class="nav-number">5.</span> <span class="nav-text">iodata和chardata</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
