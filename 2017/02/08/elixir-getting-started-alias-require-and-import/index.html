@@ -1,0 +1,976 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elixir,alias,require,import," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="alias
+require
+import
+use
+理解alias
+模块嵌套
+多重 alias/import/require/use
+
+为了便于软件重用，Elixir提供了三个指令（alias、require和import）外加一个叫做use的宏。如下所示：
+1234567891011# 别名一个模块则它可以被叫做Bar而不是Foo.Baralias Foo.Bar, as: Bar# 确认这个模">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elixir入门教程－alias、require、和import">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/02/08/elixir-getting-started-alias-require-and-import/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="alias
+require
+import
+use
+理解alias
+模块嵌套
+多重 alias/import/require/use
+
+为了便于软件重用，Elixir提供了三个指令（alias、require和import）外加一个叫做use的宏。如下所示：
+1234567891011# 别名一个模块则它可以被叫做Bar而不是Foo.Baralias Foo.Bar, as: Bar# 确认这个模">
+<meta property="og:updated_time" content="2017-02-08T07:49:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elixir入门教程－alias、require、和import">
+<meta name="twitter:description" content="alias
+require
+import
+use
+理解alias
+模块嵌套
+多重 alias/import/require/use
+
+为了便于软件重用，Elixir提供了三个指令（alias、require和import）外加一个叫做use的宏。如下所示：
+1234567891011# 别名一个模块则它可以被叫做Bar而不是Foo.Baralias Foo.Bar, as: Bar# 确认这个模">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/02/08/elixir-getting-started-alias-require-and-import/"/>
+
+  <title> Elixir入门教程－alias、require、和import | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Elixir入门教程－alias、require、和import
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-08T15:33:12+08:00" content="2017-02-08">
+              2017-02-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/alias-require-import/" itemprop="url" rel="index">
+                    <span itemprop="name">alias require import</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/08/elixir-getting-started-alias-require-and-import/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/08/elixir-getting-started-alias-require-and-import/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="#part-one">alias</a></li>
+<li><a href="#part-two">require</a></li>
+<li><a href="#part-three">import</a></li>
+<li><a href="#part-four">use</a></li>
+<li><a href="#part-five">理解alias</a></li>
+<li><a href="#part-six">模块嵌套</a></li>
+<li><a href="#part-seven">多重 alias/import/require/use</a></li>
+</ol>
+<p>为了便于软件重用，Elixir提供了三个指令（alias、require和import）外加一个叫做use的宏。如下所示：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 别名一个模块则它可以被叫做Bar而不是Foo.Bar</span></div><div class="line"><span class="keyword">alias</span> Foo.Bar, <span class="symbol">as:</span> Bar</div><div class="line"></div><div class="line"><span class="comment"># 确认这个模块是编译好的并且可用的（常常使用于宏）</span></div><div class="line">require Foo</div><div class="line"></div><div class="line"><span class="comment"># 从Foo导入函数，所以它们被调用可以不需要 Foo. 这个前缀</span></div><div class="line">import Foo</div><div class="line"></div><div class="line"><span class="comment"># 调用Foo里作为一个扩展点定义的代码。</span></div><div class="line"><span class="keyword">use</span> Foo</div></pre></td></tr></table></figure>
+<p>我们现在将详细地探讨它们。记住前三个被叫做指令因为它们有作用范围，而use是一个常见的扩展点。</p>
+<a id="more"></a>
+<h1 id="alias"><a href="#alias" class="headerlink" title="alias"></a><span id="part-one">alias</span></h1><p>alias允许你给任何给定的模块设置别名。</p>
+<p>假设一个模块使用 Math.List 里实现的一个特殊列表。alias 指令允许在模块定义里只使用List来指代Math.List：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Stats</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">alias</span> Math.List, <span class="symbol">as:</span> List</div><div class="line">  <span class="comment"># 在模块的后续的定义里，List将展开为Math.List。</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>原来的List依然可以通过完全限定名Elixir.List在模块Stats里访问。</p>
+<blockquote>
+<p>注意：定义在Elixir里所有的模块定义在Elixir命名空间里。但是，为了方便，当引用它们的时候你可以省略“Elixir.”。</p>
+</blockquote>
+<p>别名常被用来定义快捷方式。实际上，调用 alias 而不用 :as 选项，则自动将别名设置为模块名的最后一部分，例如：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">alias</span> Math.List</div></pre></td></tr></table></figure>
+<p>和如下的代码是一样的效果：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">alias</span> Math.List, <span class="symbol">as:</span> List</div></pre></td></tr></table></figure>
+<p>注意：alias 是有作用范围的，它允许你在特定的函数里设置别名：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">plus</span></span>(a, b) <span class="keyword">do</span></div><div class="line">    <span class="keyword">alias</span> Math.List</div><div class="line">    <span class="comment"># ...</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">minus</span></span>(a, b) <span class="keyword">do</span></div><div class="line">    <span class="comment"># ...</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>上面的例子里，因为我们在 plus/2 里调用 alias ，别名将只在 plus/2 里有效，minus/2 将一点也不受影响。</p>
+<h1 id="require"><a href="#require" class="headerlink" title="require"></a><span id="part-two">require</span></h1><p>Elixir提供宏作为元编程（写代码来生成代码）的一种机制。</p>
+<p>宏是一段代码，它在代码编译的时候被执行和展开。这意味着，为了使用宏，我们需要保证在编译期间它的模块和实现是可用的。这可以用 require 指令来完成：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; Integer.is_odd(<span class="number">3</span>)</div><div class="line">** (UndefinedFunctionError) function Integer.is_odd/<span class="number">1</span> is undefined <span class="keyword">or</span> private. However there is a macro with the same name <span class="keyword">and</span> arity. Be sure to require Integer if you intend to invoke this macro</div><div class="line">iex&gt; require Integer</div><div class="line">Integer</div><div class="line">iex&gt; Integer.is_odd(<span class="number">3</span>)</div><div class="line"><span class="keyword">true</span></div></pre></td></tr></table></figure>
+<p>在Elixir里，Integer.is_odd/1 被定义成为一个宏，所以它可以被用来作为一个卫语句。也就是说，为了调用 Integer.is_odd/1 ，我们首先需要 require Integer模块。</p>
+<p>总而言之，一个模块在使用前是不需要被 require 的，除非是我们想要使得模块里的宏可用。尝试调用一个没有被装载的宏将引起一个错误。注意，像 alias 指令，require 也是有作用范围的。我们将在后面的章节更深入地讨论宏。</p>
+<h1 id="import"><a href="#import" class="headerlink" title="import"></a><span id="part-three">import</span></h1><p>在任何时候我们想不用完全限定名称而方便地访问其他模块的函数或宏，我们就用 import 。例如，如果我们想用 List 里的 duplicate/2 几次，我们可以 import 它：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; import List, <span class="symbol">only:</span> [<span class="symbol">duplicate:</span> <span class="number">2</span>]</div><div class="line">List</div><div class="line">iex&gt; duplicate <span class="symbol">:ok</span>, <span class="number">3</span></div><div class="line">[<span class="symbol">:ok</span>, <span class="symbol">:ok</span>, <span class="symbol">:ok</span>]</div></pre></td></tr></table></figure>
+<p>在这个例子里，我们仅从List里导入函数duplicate（只有两个入参）。虽然 :only 是可选的，但是为了避免将给定模块的所有函数都导入到命名空间里，这个用法是被推荐使用的。:except 也可以作为选项被设置，它的作用是为了导入一个模块里 <em>除了</em> 一些函数外其他所有函数。</p>
+<p>import 也支持把 :macros 和 :functions 给 :only 选项。例如，导入模块的所有宏，可以这么写：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">import Integer, <span class="symbol">only:</span> <span class="symbol">:macros</span></div></pre></td></tr></table></figure>
+<p>或者导入模块的所有函数，你可以这么写：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">import Integer, <span class="symbol">only:</span> <span class="symbol">:functions</span></div></pre></td></tr></table></figure>
+<p>注意：import也是有作用范围的。这意味着我们可以在函数定义里导入特定的宏和函数：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">some_function</span></span> <span class="keyword">do</span></div><div class="line">    import List, <span class="symbol">only:</span> [<span class="symbol">duplicate:</span> <span class="number">2</span>]</div><div class="line">    duplicate(<span class="symbol">:ok</span>, <span class="number">10</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>上述例子，被导入的 List.duplicate/2 只在特定的函数里才可见。duplicate/2 在这个模块（就这个问题而言，在任何其他模块）里的任何其他函数都不可用。</p>
+<p>注意：<em>import</em> 一个模块自动就 <em>require</em> 它了</p>
+<h1 id="use"><a href="#use" class="headerlink" title="use"></a><span id="part-four">use</span></h1><p>虽然不是指令，use却是与require紧密相关的一个宏，它允许你在当前上下文里使用一个模块。这个 use 宏常常被开发者用来把外部功能带入当前作用范围，经常是模块。</p>
+<p>例如，为了用 ExUnit 框架写测试，开发者应该使用 ExUnit.Case 模块：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">AssertionTest</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> ExUnit.Case, <span class="symbol">async:</span> <span class="keyword">true</span></div><div class="line"></div><div class="line">  test <span class="string">"always pass"</span> <span class="keyword">do</span></div><div class="line">    assert <span class="keyword">true</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>背后的原理是，use require 给定的模块然后在它上面调用 __using/1__ 回调函数来允许这个模块注入一些代码到当前上下文。通常来说，如下的模块：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Example</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Feature, <span class="symbol">option:</span> <span class="symbol">:value</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>被编译成如下样子：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Example</span></span> <span class="keyword">do</span></div><div class="line">  require Feature</div><div class="line">  Feature.__using_<span class="number">_</span>(<span class="symbol">option:</span> <span class="symbol">:value</span>)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<h1 id="理解alias"><a href="#理解alias" class="headerlink" title="理解alias"></a><span id="part-five">理解alias</span></h1><p>到此，你可能想知道：Elixir的别名到底是什么？它是如何表示的？</p>
+<p>Elixir里的一个别名是一个大写开头的标识符（像String，Keyword，等等），在编译的时候它被转换成一个原子。例如，String 这个别名默认情况下被转换为 :”Elixir.String” ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; is_atom(String)</div><div class="line"><span class="keyword">true</span></div><div class="line">iex&gt; to_string(String)</div><div class="line"><span class="string">"Elixir.String"</span></div><div class="line">iex&gt; <span class="symbol">:<span class="string">"Elixir.String"</span></span> == String</div><div class="line"><span class="keyword">true</span></div></pre></td></tr></table></figure>
+<p>通过用 alias/2 指令，我们改变了别名所要转换成的原子。</p>
+<p>别名转换为原子是因为在Erlang虚拟机里（也是Elixir里）模块总是用原子来表示。例如，如下就是我们用来调用Erlang模块的机制：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:lists</span>.flatten([<span class="number">1</span>, [<span class="number">2</span>], <span class="number">3</span>])</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
+<h1 id="模块嵌套"><a href="#模块嵌套" class="headerlink" title="模块嵌套"></a><span id="part-six">模块嵌套</span></h1><p>现在我们已经讨论了别名，我们可以讨论嵌套和它在Elixir里是如何运作的。考虑一下如下例子：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Foo</span></span> <span class="keyword">do</span></div><div class="line">  <span class="class"><span class="keyword">defmodule</span> <span class="title">Bar</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>上面的例子将定义两个模块：Foo 和 Foo.Bar 。第二个模块可以在Foo里以Bar来访问只要它们在相同的作用范围里。上面的代码和下面的代码完全一样：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Elixir</span></span>.Foo <span class="keyword">do</span></div><div class="line">  <span class="class"><span class="keyword">defmodule</span> <span class="title">Elixir</span></span>.Foo.Bar <span class="keyword">do</span></div><div class="line">  <span class="keyword">end</span></div><div class="line">  <span class="keyword">alias</span> Elixir.Foo.Bar, <span class="symbol">as:</span> Bar</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>如果，以后，Bar 模块被移到Foo模块定义的外面，它必须用完全限定名称（Foo.Bar）引用或者一个别名必须用前面讨论过的alias指令来设置。</p>
+<p>注意：在Elixir里，你不必在定义Foo.Bar模块前必须要定义Foo模块，因为Elixir转换所有模块名字为原子。你可以定义任意嵌套的模块而不需要定义链上的任何模块（比如，定义Foo.Bar.Baz而没有先定义Foo或Foo.Bar）。</p>
+<p>正如我们将在后面章节看到的，别名在宏里也扮演了一个至关重要的角色，来保证宏的整洁。</p>
+<h1 id="多重-alias-import-require-use"><a href="#多重-alias-import-require-use" class="headerlink" title="多重 alias/import/require/use"></a><span id="part-seven">多重 alias/import/require/use</span></h1><p>从Elixir v1.2开始，一次 alias、 import 或 require 多个模块是可能的。当我们开始嵌套模块这是特别有用的，当构建Elixir的应用程序时这是很常见的。例如，假设你有一个应用，所有模块都嵌套在MyApp下，你可以如下面例子一样一次性为MyApp.Foo，MyApp.Bar 和 MyApp.Baz指定别名：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">alias</span> MyApp.&#123;Foo, Bar, Baz&#125;</div></pre></td></tr></table></figure>
+<p>我们已经完成了我们的Elixir模块之旅。最后一个主题是模块属性。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/alias-require-and-import.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/alias-require-and-import.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/alias/" rel="tag">#alias</a>
+          
+            <a href="/tags/require/" rel="tag">#require</a>
+          
+            <a href="/tags/import/" rel="tag">#import</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/07/elixir-getting-started-io-and-the-file-system/" rel="next" title="Elixir入门教程－IO和文件系统">
+                <i class="fa fa-chevron-left"></i> Elixir入门教程－IO和文件系统
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/08/elixir-getting-started-alias-require-and-import/"
+           data-title="Elixir入门教程－alias、require、和import" data-url="http://szpzs.oschina.io/2017/02/08/elixir-getting-started-alias-require-and-import/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">113</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">162</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#alias"><span class="nav-number">1.</span> <span class="nav-text">alias</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#require"><span class="nav-number">2.</span> <span class="nav-text">require</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#import"><span class="nav-number">3.</span> <span class="nav-text">import</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#use"><span class="nav-number">4.</span> <span class="nav-text">use</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#理解alias"><span class="nav-number">5.</span> <span class="nav-text">理解alias</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#模块嵌套"><span class="nav-number">6.</span> <span class="nav-text">模块嵌套</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多重-alias-import-require-use"><span class="nav-number">7.</span> <span class="nav-text">多重 alias/import/require/use</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
