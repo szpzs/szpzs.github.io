@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-02-09T12:48:07.000Z</updated>
+  <updated>2017-02-09T14:15:35.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,77 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elixir入门教程－结构体</title>
+    <link href="http://szpzs.oschina.io/2017/02/09/elixir-getting-started-structs/"/>
+    <id>http://szpzs.oschina.io/2017/02/09/elixir-getting-started-structs/</id>
+    <published>2017-02-09T14:13:18.000Z</published>
+    <updated>2017-02-09T14:15:35.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">定义结构体</a></li>
+<li><a href="#part-two">访问和修改结构体</a></li>
+<li><a href="#part-three">结构体的底层是裸映射</a></li>
+<li><a href="#part-four">默认值和所需的键</a></li>
+</ol>
+<p>在第七章我们学了映射：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div><div class="line">%&#123;<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div><div class="line">iex&gt; map[<span class="symbol">:a</span>]</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; %&#123;map | <span class="symbol">a:</span> <span class="number">3</span>&#125;</div><div class="line">%&#123;<span class="symbol">a:</span> <span class="number">3</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div></pre></td></tr></table></figure>
+<p>结构体是构建于映射之上的扩展，它提供了编译时检查和默认值。</p>
+<a id="more"></a>
+<h1 id="定义结构体"><a href="#定义结构体" class="headerlink" title="定义结构体"></a><span id="part-one">定义结构体</span></h1><p>要定义结构体，就要使用 defstruct 结构</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">User</span></span> <span class="keyword">do</span></div><div class="line">...&gt;   defstruct <span class="symbol">name:</span> <span class="string">"John"</span>, <span class="symbol">age:</span> <span class="number">27</span></div><div class="line">...&gt; <span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>defstruct 用关键字列表定义结构体有什么字段以及它们的默认值。</p>
+<p>结构体的名字就是它们被定义所在的模块的名字。上面例子中，我们定义了一个名字为User的结构体。</p>
+<p>我们现在可以用与创建映射相似的语法来创建 User 结构体：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; %User&#123;&#125;</div><div class="line">%User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"John"</span>&#125;</div><div class="line">iex&gt; %User&#123;<span class="symbol">name:</span> <span class="string">"Meg"</span>&#125;</div><div class="line">%User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"Meg"</span>&#125;</div></pre></td></tr></table></figure>
+<p>结构体提供编译时检查来保证只有通过 defstruct 定义的字段（包括所有被定义的字段）才被允许存在它里面：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; %User&#123;<span class="symbol">oops:</span> <span class="symbol">:field</span>&#125;</div><div class="line">** (KeyError) key <span class="symbol">:oops</span> <span class="keyword">not</span> found <span class="symbol">in:</span> %User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"John"</span>&#125;</div></pre></td></tr></table></figure>
+<h1 id="访问和修改结构体"><a href="#访问和修改结构体" class="headerlink" title="访问和修改结构体"></a><span id="part-two">访问和修改结构体</span></h1><p>当我们讨论映射的时候，我们展示了我们如何访问和修改映射的字段。同样的技术（和同样的语法）也应用在结构体：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; john = %User&#123;&#125;</div><div class="line">%User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"John"</span>&#125;</div><div class="line">iex&gt; john.name</div><div class="line"><span class="string">"John"</span></div><div class="line">iex&gt; meg = %&#123;john | <span class="symbol">name:</span> <span class="string">"Meg"</span>&#125;</div><div class="line">%User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"Meg"</span>&#125;</div><div class="line">iex&gt; %&#123;meg | <span class="symbol">oops:</span> <span class="symbol">:field</span>&#125;</div><div class="line">** (KeyError) key <span class="symbol">:oops</span> <span class="keyword">not</span> found <span class="symbol">in:</span> %User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"Meg"</span>&#125;</div></pre></td></tr></table></figure>
+<p>当使用修改语法（|）的时候，Erlang虚拟机意识到没有新的键将加入结构体，准许底层的映射在内存里共享它们的结构。上述例子里，john 和 meg 共享内存里相同的键结构。</p>
+<p>结构也可以用于模式匹配，既为匹配上的特定键的值以及确保匹配的值是一个同一类型的结构的匹配值。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; %User&#123;<span class="symbol">name:</span> name&#125; = john</div><div class="line">%User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"John"</span>&#125;</div><div class="line">iex&gt; name</div><div class="line"><span class="string">"John"</span></div><div class="line">iex&gt; %User&#123;&#125; = %&#123;&#125;</div><div class="line">** (MatchError) no match of right hand side <span class="symbol">value:</span> %&#123;&#125;</div></pre></td></tr></table></figure>
+<h1 id="结构体的底层是裸映射"><a href="#结构体的底层是裸映射" class="headerlink" title="结构体的底层是裸映射"></a><span id="part-three">结构体的底层是裸映射</span></h1><p>上面的例子里，模式匹配可以运作是因为结构体的底层是有固定字段集合的裸映射。作为映射，结构体存储了一个名字为 __struct__ 的“特别的”字段，它持有结构体的名字：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; is_map(john)</div><div class="line"><span class="keyword">true</span></div><div class="line">iex&gt; john.__struct_<span class="number">_</span></div><div class="line">User</div></pre></td></tr></table></figure>
+<p>注意：我们称结构体为裸映射是因为为映射实现的协议没有任何一个可用于结构体。例如，你既不能枚举也不能访问一个结构体：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; john = %User&#123;&#125;</div><div class="line">%User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"John"</span>&#125;</div><div class="line">iex&gt; john[<span class="symbol">:name</span>]</div><div class="line">** (UndefinedFunctionError) function User.fetch/<span class="number">2</span> is undefined (User does <span class="keyword">not</span> implement the Access behaviour)</div><div class="line">             User.fetch(%User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"John"</span>&#125;, <span class="symbol">:name</span>)</div><div class="line">iex&gt; Enum.each john, <span class="keyword">fn</span>(&#123;field, value&#125;) -&gt; IO.puts(value) <span class="keyword">end</span></div><div class="line">** (Protocol.UndefinedError) protocol Enumerable <span class="keyword">not</span> implemented <span class="keyword">for</span> %User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"John"</span>&#125;</div></pre></td></tr></table></figure>
+<p>然后，因为结构体就是映射，它们可以应用于Map模块的函数：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; kurt = Map.put(%User&#123;&#125;, <span class="symbol">:name</span>, <span class="string">"Kurt"</span>)</div><div class="line">%User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"Kurt"</span>&#125;</div><div class="line">iex&gt; Map.merge(kurt, %User&#123;<span class="symbol">name:</span> <span class="string">"Takashi"</span>&#125;)</div><div class="line">%User&#123;<span class="symbol">age:</span> <span class="number">27</span>, <span class="symbol">name:</span> <span class="string">"Takashi"</span>&#125;</div><div class="line">iex&gt; Map.keys(john)</div><div class="line">[<span class="symbol">:__struct__</span>, <span class="symbol">:age</span>, <span class="symbol">:name</span>]</div></pre></td></tr></table></figure>
+<p>结构和协议为Elixir开发者提供了最重要的特征之一：数据多态性。这是我们下一章将要探索的。</p>
+<h1 id="默认值和所需的键"><a href="#默认值和所需的键" class="headerlink" title="默认值和所需的键"></a><span id="part-four">默认值和所需的键</span></h1><p>如果在定义结构体的时候你没有指定一个键的默认值，则nil将被当做它的默认值：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">Product</span></span> <span class="keyword">do</span></div><div class="line">...&gt;   defstruct [<span class="symbol">:name</span>]</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">iex&gt; %Product&#123;&#125;</div><div class="line">%Product&#123;<span class="symbol">name:</span> <span class="keyword">nil</span>&#125;</div></pre></td></tr></table></figure>
+<p>你也可以强制在创建结构体的时候某些键必需被指定：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">Car</span></span> <span class="keyword">do</span></div><div class="line">...&gt;   <span class="variable">@enforce_keys</span> [<span class="symbol">:make</span>]</div><div class="line">...&gt;   defstruct [<span class="symbol">:model</span>, <span class="symbol">:make</span>]</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">iex&gt; %Car&#123;&#125;</div><div class="line">** (ArgumentError) the following keys must also be given <span class="keyword">when</span> building struct <span class="symbol">Car:</span> [<span class="symbol">:make</span>]</div><div class="line">    expanding <span class="symbol">struct:</span> Car.__struct_<span class="number">_</span>/<span class="number">1</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/structs.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/structs.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;定义结构体&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;访问和修改结构体&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;结构体的底层是裸映射&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;默认值和所需的键&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;在第七章我们学了映射：&lt;/p&gt;
+&lt;figure class=&quot;highlight elixir&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;iex&amp;gt; map = %&amp;#123;&lt;span class=&quot;symbol&quot;&gt;a:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;, &lt;span class=&quot;symbol&quot;&gt;b:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;&amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;%&amp;#123;&lt;span class=&quot;symbol&quot;&gt;a:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;, &lt;span class=&quot;symbol&quot;&gt;b:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;&amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;iex&amp;gt; map[&lt;span class=&quot;symbol&quot;&gt;:a&lt;/span&gt;]&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;iex&amp;gt; %&amp;#123;map | &lt;span class=&quot;symbol&quot;&gt;a:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;&amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;%&amp;#123;&lt;span class=&quot;symbol&quot;&gt;a:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;, &lt;span class=&quot;symbol&quot;&gt;b:&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;&amp;#125;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;结构体是构建于映射之上的扩展，它提供了编译时检查和默认值。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="struct" scheme="http://szpzs.oschina.io/categories/Elixir/struct/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="struct" scheme="http://szpzs.oschina.io/tags/struct/"/>
+    
+  </entry>
   
   <entry>
     <title>Elixir入门教程－模块属性</title>
@@ -1659,50 +1730,6 @@
       <category term="asynchronous" scheme="http://szpzs.oschina.io/tags/asynchronous/"/>
     
       <category term="implementation" scheme="http://szpzs.oschina.io/tags/implementation/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>外部数据格式之浅显易懂</title>
-    <link href="http://szpzs.oschina.io/2017/01/08/eli5-etf/"/>
-    <id>http://szpzs.oschina.io/2017/01/08/eli5-etf/</id>
-    <published>2017-01-08T02:35:34.000Z</published>
-    <updated>2017-01-08T02:41:24.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>与外部世界和其他Erlang节点进行通信，同时保存东西在磁盘上，Erlang都使用特殊编码格式 – 外部数据格式。</p>
-<a id="more"></a>
-<p>这种格式的主要要求如下：</p>
-<ul>
-<li>易于人类和机器看懂编码的数据和理解这些数据是什么。一个外部数据总是第一个字节值为131 (0x83)。</li>
-<li>压缩的数据有压缩的标志项。数据的头部第一个字节为：131 (0x83)，第二个字节为：80<br>(0x50)，第三到第六个字节为：无符号32位大端的整数表示未压缩的数据长度，这几个元素组成一个标签表示这是一个压缩数据。</li>
-<li>为了适用于跨平台，所有整数被编码为<a href="https://en.wikipedia.org/wiki/Endianness" target="_blank" rel="external">大端序</a>（从最高有效位到最低有效位字节），所有浮点数用大端的<a href="https://en.wikipedia.org/wiki/IEEE_floating_point" target="_blank" rel="external">IEEE编码</a>，所有文本用UTF-8<br>或 ISO-8859-1（ASCII超集） 来编码。</li>
-</ul>
-<p>编码一个数据用erlang:term_to_binary，相反的操作，即解码用erlang:binary_to_term。解码包含有意设定的二进制数据也使得本来不可能构建出来的数据成为可能，比如端口号，进程标识。（注：感谢少帮主的翻译）</p>
-<p>通常原子被编码为字符串。在基于网络的分布式模式下，为进一步减少协议的大小，一个分布式头部可以被添加进来。它包含了在已经编码的消息中的原子名称的表。然后在消息中的原子被替换为此表中的索引。</p>
-<p>那些从来没出现在Erlang程序中的虚拟机内部值的类型是不可能被编码的，比如THE_NON_VALUE、寄存器的引用、<a href="http://beam-wisdoms.clau.se/en/latest/definitions.html#def-cp" target="_blank" rel="external">CP</a>等。</p>
-<blockquote>
-<p>请参阅<br><a href="http://erlang.org/doc/apps/erts/erl_ext_dist.html" target="_blank" rel="external">外部数据格式文档</a></p>
-</blockquote>
-<p>&nbsp;</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://beam-wisdoms.clau.se/en/latest/eli5-etf.html" target="_blank" rel="external">http://beam-wisdoms.clau.se/en/latest/eli5-etf.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;与外部世界和其他Erlang节点进行通信，同时保存东西在磁盘上，Erlang都使用特殊编码格式 – 外部数据格式。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="External Term Format" scheme="http://szpzs.oschina.io/categories/Erlang/External-Term-Format/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="External Term Format" scheme="http://szpzs.oschina.io/tags/External-Term-Format/"/>
     
   </entry>
   
