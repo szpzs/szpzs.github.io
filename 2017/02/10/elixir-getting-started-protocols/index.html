@@ -1,0 +1,970 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elixir,protocol," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="协议和结构体
+实现Any 2.1. 派生 2.3. 回退到Any
+内建协议
+协议整合
+
+协议是Elixir里实现多态的一种机制。在一个协议上派发消息给任意数据类型是可行的，只要这个数据类型实现了这个协议。让我们看一个例子。
+在Elixir里，我们有两个动作来检查在一个数据结构里有多少个元素：length 和 size。length 意味着信息必需是被计算的。例如：length(list)需要遍历">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elixir入门教程－协议">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/02/10/elixir-getting-started-protocols/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="协议和结构体
+实现Any 2.1. 派生 2.3. 回退到Any
+内建协议
+协议整合
+
+协议是Elixir里实现多态的一种机制。在一个协议上派发消息给任意数据类型是可行的，只要这个数据类型实现了这个协议。让我们看一个例子。
+在Elixir里，我们有两个动作来检查在一个数据结构里有多少个元素：length 和 size。length 意味着信息必需是被计算的。例如：length(list)需要遍历">
+<meta property="og:updated_time" content="2017-02-10T13:38:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elixir入门教程－协议">
+<meta name="twitter:description" content="协议和结构体
+实现Any 2.1. 派生 2.3. 回退到Any
+内建协议
+协议整合
+
+协议是Elixir里实现多态的一种机制。在一个协议上派发消息给任意数据类型是可行的，只要这个数据类型实现了这个协议。让我们看一个例子。
+在Elixir里，我们有两个动作来检查在一个数据结构里有多少个元素：length 和 size。length 意味着信息必需是被计算的。例如：length(list)需要遍历">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/02/10/elixir-getting-started-protocols/"/>
+
+  <title> Elixir入门教程－协议 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Elixir入门教程－协议
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-10T21:36:51+08:00" content="2017-02-10">
+              2017-02-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/protocol/" itemprop="url" rel="index">
+                    <span itemprop="name">protocol</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/10/elixir-getting-started-protocols/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/10/elixir-getting-started-protocols/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="#part-one">协议和结构体</a></li>
+<li><a href="#part-two">实现Any</a><br> 2.1. <a href="#part-two-one">派生</a><br> 2.3. <a href="#part-two-two">回退到Any</a></li>
+<li><a href="#part-three">内建协议</a></li>
+<li><a href="#part-four">协议整合</a></li>
+</ol>
+<p>协议是Elixir里实现多态的一种机制。在一个协议上派发消息给任意数据类型是可行的，只要这个数据类型实现了这个协议。让我们看一个例子。</p>
+<p>在Elixir里，我们有两个动作来检查在一个数据结构里有多少个元素：length 和 size。length 意味着信息必需是被计算的。例如：length(list)需要遍历整个列表来计算它的长度。而另一方面，tuple_size(tuple) 和 byte_size(binary) 不依赖于元组和二进制数据的大小，因为在数据结构里大小的信息已经被预先计算了。</p>
+<p>虽然我们已经有Elixir内建的获取大小的指定类型函数（比如tuple_size/1），我们还是想实现一个通用的 Size 协议，然后所有数据结构只要它的大小是预先计算的，都可以实现这个协议。</p>
+<a id="more"></a>
+<p>协议的定义看起来像下面这样：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defprotocol</span> <span class="title">Size</span></span> <span class="keyword">do</span></div><div class="line">  <span class="variable">@doc</span> <span class="string">"Calculates the size (and not the length!) of a data structure"</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(data)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>Size协议期望有一个接受一个入参（我们想要知道大小的数据结构）叫做size的函数被实现。我们现在可以为一些数据结构实现这个协议，这些数据结构应该有一个合适的实现：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> BitString <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(string), <span class="symbol">do:</span> byte_size(string)</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> Map <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(map), <span class="symbol">do:</span> map_size(map)</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> Tuple <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(tuple), <span class="symbol">do:</span> tuple_size(tuple)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>我们没有为列表实现Size协议，因为列表没有预先计算好的“大小”信息，并且列表的长度必须要被计算出来（用 length/1）。</p>
+<p>现在我们有了协议定义和实现，我们可以开始使用它：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; Size.size(<span class="string">"foo"</span>)</div><div class="line"><span class="number">3</span></div><div class="line">iex&gt; Size.size(&#123;<span class="symbol">:ok</span>, <span class="string">"hello"</span>&#125;)</div><div class="line"><span class="number">2</span></div><div class="line">iex&gt; Size.size(%&#123;<span class="symbol">label:</span> <span class="string">"some label"</span>&#125;)</div><div class="line"><span class="number">1</span></div></pre></td></tr></table></figure>
+<p>传入一个没有实现协议的数据类型将会引起一个错误：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Size.size([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</div><div class="line">** (Protocol.UndefinedError) protocol Size <span class="keyword">not</span> implemented <span class="keyword">for</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
+<p>为所有Elixir数据类型实现协议是可能的：</p>
+<ul>
+<li>Atom</li>
+<li>BitString</li>
+<li>Float</li>
+<li>Function</li>
+<li>Integer</li>
+<li>List</li>
+<li>Map</li>
+<li>PID</li>
+<li>Port</li>
+<li>Reference</li>
+<li>Tuple</li>
+</ul>
+<h1 id="协议和结构体"><a href="#协议和结构体" class="headerlink" title="协议和结构体"></a><span id="part-one">协议和结构体</span></h1><p>Elixir的可扩展性的能力来自当协议和结构一起使用时。</p>
+<p>在上一章，我们已经学到，虽然结构体底层是映射，但是它没有和映射共享协议实现。例如，<a href="https://hexdocs.pm/elixir/MapSet.html" target="_blank" rel="external">MapSet</a> （基于映射的集合）被实现为结构体。让我们尝试应用Size协议于MapSet上：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; Size.size(%&#123;&#125;)</div><div class="line"><span class="number">0</span></div><div class="line">iex&gt; set = %MapSet&#123;&#125; = MapSet.new</div><div class="line"><span class="comment">#MapSet&lt;[]&gt;</span></div><div class="line">iex&gt; Size.size(set)</div><div class="line">** (Protocol.UndefinedError) protocol Size <span class="keyword">not</span> implemented <span class="keyword">for</span> <span class="comment">#MapSet&lt;[]&gt;</span></div></pre></td></tr></table></figure>
+<p>结构体没有和映射共享协议实现，而是需要它自己的协议实现。因为MapSet有它自己的预先计算大小并且可以通过MapSet.size/1访问，我们可以为它定义一个Size协议的实现：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> MapSet <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(set), <span class="symbol">do:</span> MapSet.size(set)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>如果需要，你可以拿出你自己结构大小的语义。你不仅可以用结构体来构建更健壮的数据类型，比如像队列，而且可以为这个数据类型实现所有相关的协议，比如 Enumerable 和 可能的 Size。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">User</span></span> <span class="keyword">do</span></div><div class="line">  defstruct [<span class="symbol">:name</span>, <span class="symbol">:age</span>]</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> User <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(_user), <span class="symbol">do:</span> <span class="number">2</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<h1 id="实现Any"><a href="#实现Any" class="headerlink" title="实现Any"></a><span id="part-two">实现Any</span></h1><p>手工为所有类型实现协议可能很快就变得重复和单调乏味。在这种情况下，Elixir提供了两种选择：我们可以明确地为我们的类型派生协议的实现或自动为所有类型实现协议。在这两种情况下，我们需要为Any实现协议。</p>
+<h2 id="派生"><a href="#派生" class="headerlink" title="派生"></a><span id="part-two-one">派生</span></h2><p>Elixir允许我们基于Any的实现派生一个协议实现。让我们先实现Any：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> Any <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(<span class="number">_</span>), <span class="symbol">do:</span> <span class="number">0</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>上述的实现可以说是不合理的。例如，说一个PID或一个整数的大小为零。</p>
+<p>然而，我们应该很好地处理这个Any的实现。为了使用这个实现，我们应该需要告诉我们的结构体明确地派生于这个Size协议：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">OtherUser</span></span> <span class="keyword">do</span></div><div class="line">  <span class="variable">@derive</span> [Size]</div><div class="line">  defstruct [<span class="symbol">:name</span>, <span class="symbol">:age</span>]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>当派生的时候，Elixir将基于为Any提供的实现为OtherUser实现Size协议。</p>
+<h2 id="回退到Any"><a href="#回退到Any" class="headerlink" title="回退到Any"></a><span id="part-two-two">回退到Any</span></h2><p>当找不到实现的时候，对于 @derive 的另外一个选择就是明确地告诉协议退回到Any。这可以在协议定义里通过设置@fallback_to_any为true来实现：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defprotocol</span> <span class="title">Size</span></span> <span class="keyword">do</span></div><div class="line">  <span class="variable">@fallback_to_any</span> <span class="keyword">true</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(data)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>正如我们在前一节所说，为Any所做的Size实现不能应用到所有数据类型。这就是为什么@fallback_to_any是一个可选项的原因之一。对于大多数协议来说，当没有实现的时候抛出一个错误是正确的行为。也就是说，假设像上一节一样我们已经实现了Any：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> Any <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(<span class="number">_</span>), <span class="symbol">do:</span> <span class="number">0</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>那么现在所有数据类型（包括结构体），如果它没有实现Size协议，则被认为大小为0。</p>
+<p>派生和回退到Any哪一个技术最好，这要依赖于使用场景。但是，Elixir开发者喜欢明确的而不是推断的。你可以看到许多库倾向于 @derive 方法。</p>
+<h1 id="内建协议"><a href="#内建协议" class="headerlink" title="内建协议"></a><span id="part-three">内建协议</span></h1><p>Elixir内建了一些协议。前面的章节里，我们讨论过的Enum模块，它提供了许多函数处理任意数据结构，这个模块就实现了 Enumerable 协议：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; Enum.map [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], <span class="keyword">fn</span>(x) -&gt; x * <span class="number">2</span> <span class="keyword">end</span></div><div class="line">[<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>]</div><div class="line">iex&gt; Enum.reduce <span class="number">1</span>..<span class="number">3</span>, <span class="number">0</span>, <span class="keyword">fn</span>(x, acc) -&gt; x + acc <span class="keyword">end</span></div><div class="line"><span class="number">6</span></div></pre></td></tr></table></figure>
+<p>另一个有用的例子是String.Chars协议，它指明如何用字符转换一个数据结构为一个字符串。它通过to_string函数暴露出来：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; to_string <span class="symbol">:hello</span></div><div class="line"><span class="string">"hello"</span></div></pre></td></tr></table></figure>
+<p>注意到Elixir字符串插入是调用to_string函数：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="string">"age: <span class="subst">#&#123;<span class="number">25</span>&#125;</span>"</span></div><div class="line"><span class="string">"age: 25"</span></div></pre></td></tr></table></figure>
+<p>上面的例子可以正常运行是因为数字数据类型实现了String.Chars协议。如果传递一个元组，则会导致一个错误：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; tuple = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</div><div class="line">&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</div><div class="line">iex&gt; <span class="string">"tuple: <span class="subst">#&#123;tuple&#125;</span>"</span></div><div class="line">** (Protocol.UndefinedError) protocol String.Chars <span class="keyword">not</span> implemented <span class="keyword">for</span> &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</div></pre></td></tr></table></figure>
+<p>当需要“打印”一个更复杂的数据结构的时候，我们可以用基于Inspect协议的inspect函数：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="string">"tuple: <span class="subst">#&#123;inspect tuple&#125;</span>"</span></div><div class="line"><span class="string">"tuple: &#123;1, 2, 3&#125;"</span></div></pre></td></tr></table></figure>
+<p>Inspect协议被用来转换任何数据结构为一个易于阅读的文本。像IEx这样的工具就是用它来打印的：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</div><div class="line">&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</div><div class="line">iex&gt; %User&#123;&#125;</div><div class="line">%User&#123;<span class="symbol">name:</span> <span class="string">"john"</span>, <span class="symbol">age:</span> <span class="number">27</span>&#125;</div></pre></td></tr></table></figure>
+<p>记住，按照惯例，每当被检查的价值以#开头，它是代表这是非有Elixir的语法的数据结构。这意味着inspect协议是不可逆的，因为以这种方式信息可能会丢失：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; inspect &amp;(&amp;<span class="number">1</span>+<span class="number">2</span>)</div><div class="line"><span class="string">"#Function&lt;6.71889879/1 in :erl_eval.expr/5&gt;"</span></div></pre></td></tr></table></figure>
+<p>Elixir还有其他协议，不过本文讲最常用的这几个。</p>
+<h1 id="协议整合"><a href="#协议整合" class="headerlink" title="协议整合"></a><span id="part-four">协议整合</span></h1><p>当处理Elixir项目的时候，使用Mix构建工具，你可以看到如下的输出：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Consolidated String.Chars</div><div class="line">Consolidated Collectable</div><div class="line">Consolidated List.Chars</div><div class="line">Consolidated IEx.Info</div><div class="line">Consolidated Enumerable</div><div class="line">Consolidated Inspect</div></pre></td></tr></table></figure>
+<p>这些是Elixir自带的所有协议并且它们被整合。因为一个协议可以派发消息到任何数据类型，如果对于给定的类型的实现存在，则协议一定检查每一个调用。这可能非常消耗资源。</p>
+<p>但是，在我们的项目使用像Mix这样的工具被编译后，我们知道所有被定义的模块，包括协议和他们的实现。用这个方法，协议可以被合并到一个非常简单快速的派发模块。</p>
+<p>从Elixir v1.2开始，对于所有项目，协议合并都自动发生。我们将在<strong>Mix和OTP指引</strong>里构建我们的项目。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/protocols.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/protocols.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/protocol/" rel="tag">#protocol</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/09/elixir-getting-started-structs/" rel="next" title="Elixir入门教程－结构体">
+                <i class="fa fa-chevron-left"></i> Elixir入门教程－结构体
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/10/elixir-getting-started-protocols/"
+           data-title="Elixir入门教程－协议" data-url="http://szpzs.oschina.io/2017/02/10/elixir-getting-started-protocols/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">116</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">67</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">165</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#协议和结构体"><span class="nav-number">1.</span> <span class="nav-text">协议和结构体</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现Any"><span class="nav-number">2.</span> <span class="nav-text">实现Any</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#派生"><span class="nav-number">2.1.</span> <span class="nav-text">派生</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#回退到Any"><span class="nav-number">2.2.</span> <span class="nav-text">回退到Any</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内建协议"><span class="nav-number">3.</span> <span class="nav-text">内建协议</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#协议整合"><span class="nav-number">4.</span> <span class="nav-text">协议整合</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
