@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-02-10T13:38:31.000Z</updated>
+  <updated>2017-02-11T13:01:10.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,84 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elixir入门教程－速构</title>
+    <link href="http://szpzs.oschina.io/2017/02/11/elixir-getting-started-comprehensions/"/>
+    <id>http://szpzs.oschina.io/2017/02/11/elixir-getting-started-comprehensions/</id>
+    <published>2017-02-11T12:59:06.000Z</published>
+    <updated>2017-02-11T13:01:10.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">生成器和过滤器</a></li>
+<li><a href="#part-two">位串生成器</a></li>
+<li><a href="#part-three">:into选项</a></li>
+</ol>
+<p>在Elixir中，遍历一个枚举类型数据，过滤其中一些值并且将值映射到另一个列表里这种做法是很平常的。速构是对于这种数据结构的语法糖：Elixir里将这种语法组织成 for 的格式。</p>
+<p>例如，我们可以将一个整数列表的每个值都求平方：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">for</span> n &lt;- [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>], <span class="symbol">do:</span> n * n</div><div class="line">[<span class="number">1</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">16</span>]</div></pre></td></tr></table></figure>
+<p>一个速构有三部分组成：生成器、过滤器和收集动作。</p>
+<a id="more"></a>
+<h1 id="生成器和过滤器"><a href="#生成器和过滤器" class="headerlink" title="生成器和过滤器"></a><span id="part-one">生成器和过滤器</span></h1><p>上面的表达式中，n &lt;- [1, 2, 3, 4] 是<strong>生成器</strong>。它逐个生成在速构中被使用的值。任何枚举类型数据都可以置于生成器表达式的右边：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">for</span> n &lt;- <span class="number">1</span>..<span class="number">4</span>, <span class="symbol">do:</span> n * n</div><div class="line">[<span class="number">1</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">16</span>]</div></pre></td></tr></table></figure>
+<p>生成器表达式的左边也支持模式匹配；所有没有匹配到的数据被忽略。想象一下，我们用一个关键字列表而不是一个范围类型数据，键有 :good 和 :bad ，而我们只是想计算 :good 的值的平方：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; values = [<span class="symbol">good:</span> <span class="number">1</span>, <span class="symbol">good:</span> <span class="number">2</span>, <span class="symbol">bad:</span> <span class="number">3</span>, <span class="symbol">good:</span> <span class="number">4</span>]</div><div class="line">iex&gt; <span class="keyword">for</span> &#123;<span class="symbol">:good</span>, n&#125; &lt;- values, <span class="symbol">do:</span> n * n</div><div class="line">[<span class="number">1</span>, <span class="number">4</span>, <span class="number">16</span>]</div></pre></td></tr></table></figure>
+<p>除了生成器使用模式匹配，过滤器可以被用来选择一些特定的元素。例如，我们可以选择是3的倍数的值而丢弃其他的值：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; multiple_of_3? = <span class="keyword">fn</span>(n) -&gt; rem(n, <span class="number">3</span>) == <span class="number">0</span> <span class="keyword">end</span></div><div class="line">iex&gt; <span class="keyword">for</span> n &lt;- <span class="number">0</span>..<span class="number">5</span>, multiple_of_3?.(n), <span class="symbol">do:</span> n * n</div><div class="line">[<span class="number">0</span>, <span class="number">9</span>]</div></pre></td></tr></table></figure>
+<p>速构丢弃所有过滤器返回false或者nil的元素，而选择其他元素。</p>
+<p>速构通常提供比使用Enum 和 Stream模块里的函数更加简洁的描述。而且，速构也运行有多个生成器和过滤器。这里有一个例子，接收一个目录组成的列表，然后获得这些目录里每一个文件的大小：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">dirs = [<span class="string">'/home/mikey'</span>, <span class="string">'/home/james'</span>]</div><div class="line"><span class="keyword">for</span> dir  &lt;- dirs,</div><div class="line">    file &lt;- File.ls!(dir),</div><div class="line">    path = Path.join(dir, file),</div><div class="line">    File.regular?(path) <span class="keyword">do</span></div><div class="line">  File.stat!(path).size</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>多生成器也可以被用来计算两个列表的笛卡儿积：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">for</span> i &lt;- [<span class="symbol">:a</span>, <span class="symbol">:b</span>, <span class="symbol">:c</span>], j &lt;- [<span class="number">1</span>, <span class="number">2</span>], <span class="symbol">do:</span>  &#123;i, j&#125;</div><div class="line">[<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">a:</span> <span class="number">2</span>, <span class="symbol">b:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>, <span class="symbol">c:</span> <span class="number">1</span>, <span class="symbol">c:</span> <span class="number">2</span>]</div></pre></td></tr></table></figure>
+<p>一个更高级的多生成器和多过滤器的例子是毕达哥拉斯三元数组。一个毕达哥拉斯三元数组是满足形如 a<em>a + b</em>b = c*c 这样等式的一个正整数集合，让我们来写一个速构到名为triple.exs的文件里：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Triple</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">pythagorean</span></span>(n) <span class="keyword">when</span> n &gt; <span class="number">0</span> <span class="keyword">do</span></div><div class="line">    <span class="keyword">for</span> a &lt;- <span class="number">1</span>..n,</div><div class="line">        b &lt;- <span class="number">1</span>..n,</div><div class="line">        c &lt;- <span class="number">1</span>..n,</div><div class="line">        a + b + c &lt;= n,</div><div class="line">        a*a + b*b == c*c,</div><div class="line">        <span class="symbol">do:</span> &#123;a, b, c&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>接着在终端里运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">iex triple.exs</div></pre></td></tr></table></figure>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; Triple.pythagorean(<span class="number">5</span>)</div><div class="line">[]</div><div class="line">iex&gt; Triple.pythagorean(<span class="number">12</span>)</div><div class="line">[&#123;<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;, &#123;<span class="number">4</span>, <span class="number">3</span>, <span class="number">5</span>&#125;]</div><div class="line">iex&gt; Triple.pythagorean(<span class="number">48</span>)</div><div class="line">[&#123;<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;, &#123;<span class="number">4</span>, <span class="number">3</span>, <span class="number">5</span>&#125;, &#123;<span class="number">5</span>, <span class="number">12</span>, <span class="number">13</span>&#125;, &#123;<span class="number">6</span>, <span class="number">8</span>, <span class="number">10</span>&#125;, &#123;<span class="number">8</span>, <span class="number">6</span>, <span class="number">10</span>&#125;, &#123;<span class="number">8</span>, <span class="number">15</span>, <span class="number">17</span>&#125;,</div><div class="line"> &#123;<span class="number">9</span>, <span class="number">12</span>, <span class="number">15</span>&#125;, &#123;<span class="number">12</span>, <span class="number">5</span>, <span class="number">13</span>&#125;, &#123;<span class="number">12</span>, <span class="number">9</span>, <span class="number">15</span>&#125;, &#123;<span class="number">12</span>, <span class="number">16</span>, <span class="number">20</span>&#125;, &#123;<span class="number">15</span>, <span class="number">8</span>, <span class="number">17</span>&#125;, &#123;<span class="number">16</span>, <span class="number">12</span>, <span class="number">20</span>&#125;]</div></pre></td></tr></table></figure>
+<p>当输入值很大的时候，上面例子的代码是非常耗时的。另外，因为元组 {b, a, c} 和元组{a, b, c}表示的是相同的毕达哥拉斯三元数组，我们的函数产生了重复的结果。我们可以通过在后续的生成器里从前面的生成器引用变量来优化速构并排除重复的结果，例如：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Triple</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">pythagorean</span></span>(n) <span class="keyword">when</span> n &gt; <span class="number">0</span> <span class="keyword">do</span></div><div class="line">    <span class="keyword">for</span> a &lt;- <span class="number">1</span>..n-<span class="number">2</span>,</div><div class="line">        b &lt;- a+<span class="number">1</span>..n-<span class="number">1</span>,</div><div class="line">        c &lt;- b+<span class="number">1</span>..n,</div><div class="line">        a + b + c &lt;= n,</div><div class="line">        a*a + b*b == c*c,</div><div class="line">        <span class="symbol">do:</span> &#123;a, b, c&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>最后，要记住，速构里的，在生成器、过滤器或者内部代码块里赋值的变量，不会反映到速构外面去。</p>
+<h1 id="位串生成器"><a href="#位串生成器" class="headerlink" title="位串生成器"></a><span id="part-two">位串生成器</span></h1><p>位串生成器也是被支持的，并且当你需要解析位串流的时候是非常有用的。下面的例子里，从一个二进制数据里接收一个由像素组成的列表，数据分别代表红、绿和蓝的值，然后将每个像素转换为三个元素的元组：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; pixels = &lt;&lt;<span class="number">213</span>, <span class="number">45</span>, <span class="number">132</span>, <span class="number">64</span>, <span class="number">76</span>, <span class="number">32</span>, <span class="number">76</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">234</span>, <span class="number">32</span>, <span class="number">15</span>&gt;&gt;</div><div class="line">iex&gt; <span class="keyword">for</span> &lt;&lt;<span class="symbol">r:</span><span class="symbol">:</span><span class="number">8</span>, <span class="symbol">g:</span><span class="symbol">:</span><span class="number">8</span>, <span class="symbol">b:</span><span class="symbol">:</span><span class="number">8</span> &lt;- pixels&gt;&gt;, <span class="symbol">do:</span> &#123;r, g, b&#125;</div><div class="line">[&#123;<span class="number">213</span>, <span class="number">45</span>, <span class="number">132</span>&#125;, &#123;<span class="number">64</span>, <span class="number">76</span>, <span class="number">32</span>&#125;, &#123;<span class="number">76</span>, <span class="number">0</span>, <span class="number">0</span>&#125;, &#123;<span class="number">234</span>, <span class="number">32</span>, <span class="number">15</span>&#125;]</div></pre></td></tr></table></figure>
+<p>位串生成器也可以和“常规的”枚举类型数据生成器混合使用，同时也支持过滤器。</p>
+<h1 id="into选项"><a href="#into选项" class="headerlink" title=":into选项"></a><span id="part-three">:into选项</span></h1><p>上面所有的例子，所有的速构都是返回列表作为它们的结果。但是，通过传递 :into 选项给速构，则速构的结果可以被插入到不同的数据结构里。</p>
+<p>例如，一个位串生成器可以使用 :into 选项来很容易地删除一个字符串里的所有空格：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">for</span> &lt;&lt;c &lt;- <span class="string">" hello world "</span>&gt;&gt;, c != ?\s, <span class="symbol">into:</span> <span class="string">""</span>, <span class="symbol">do:</span> &lt;&lt;c&gt;&gt;</div><div class="line"><span class="string">"helloworld"</span></div></pre></td></tr></table></figure>
+<p>集合、映射和其他字典类型数据也可以赋给 :into 选项。总而言之，:into 接收任何实现了 Collectable 协议的数据结构。</p>
+<p>:into常见用例是转换映射里的值，而不需要理会它的键：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">for</span> &#123;key, val&#125; &lt;- %&#123;<span class="string">"a"</span> =&gt; <span class="number">1</span>, <span class="string">"b"</span> =&gt; <span class="number">2</span>&#125;, <span class="symbol">into:</span> %&#123;&#125;, <span class="symbol">do:</span> &#123;key, val * val&#125;</div><div class="line">%&#123;<span class="string">"a"</span> =&gt; <span class="number">1</span>, <span class="string">"b"</span> =&gt; <span class="number">4</span>&#125;</div></pre></td></tr></table></figure>
+<p>让我们用流来做另一个例子。因为IO模块提供流（就是实现了Enumerable 和 Collectable 协议），那么一个回响终端，即无论输入的是什么都将其大写后返回的终端，可以使用速构来实现：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; stream = IO.stream(<span class="symbol">:stdio</span>, <span class="symbol">:line</span>)</div><div class="line">iex&gt; <span class="keyword">for</span> line &lt;- stream, <span class="symbol">into:</span> stream <span class="keyword">do</span></div><div class="line">...&gt;   String.upcase(line) &lt;&gt; <span class="string">"\n"</span></div><div class="line">...&gt; <span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>现在，输入任何字符串到终端里，你将看到大写化后的相同字符串打印在终端里。不幸的是，这个例子也使得你的IEx停在速构里，所以你要按两次 Ctl+C来退出。：）</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/comprehensions.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/comprehensions.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;生成器和过滤器&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;位串生成器&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;:into选项&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;在Elixir中，遍历一个枚举类型数据，过滤其中一些值并且将值映射到另一个列表里这种做法是很平常的。速构是对于这种数据结构的语法糖：Elixir里将这种语法组织成 for 的格式。&lt;/p&gt;
+&lt;p&gt;例如，我们可以将一个整数列表的每个值都求平方：&lt;/p&gt;
+&lt;figure class=&quot;highlight elixir&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;iex&amp;gt; &lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt; n &amp;lt;- [&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;], &lt;span class=&quot;symbol&quot;&gt;do:&lt;/span&gt; n * n&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;9&lt;/span&gt;, &lt;span class=&quot;number&quot;&gt;16&lt;/span&gt;]&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;一个速构有三部分组成：生成器、过滤器和收集动作。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="comprehension" scheme="http://szpzs.oschina.io/categories/Elixir/comprehension/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="comprehension" scheme="http://szpzs.oschina.io/tags/comprehension/"/>
+    
+  </entry>
   
   <entry>
     <title>Elixir入门教程－协议</title>
@@ -1690,107 +1768,6 @@
       <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
     
       <category term="Distributed Systems" scheme="http://szpzs.oschina.io/tags/Distributed-Systems/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>耗尽弹药时你不能爆炸！</title>
-    <link href="http://szpzs.oschina.io/2017/01/13/running-out-of-ammo/"/>
-    <id>http://szpzs.oschina.io/2017/01/13/running-out-of-ammo/</id>
-    <published>2017-01-13T02:16:13.000Z</published>
-    <updated>2017-01-13T02:44:44.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文（和<a href="https://medium.com/erlang-battleground/beyond-the-limits-of-an-ets-cdd79fa8300c#.tsfdkduyd" target="_blank" rel="external">上一篇文章</a>一样）也是受我在哥伦比亚卡利的学生的好奇心所启发。这次的问题是：什么时候并且为什么 bang（!）（即消息发送）操作符失败？</p>
-<a id="more"></a>
-<p><img src="/images/running-out-of-ammo-1.jpeg" style="border:0;"></p>
-<h1 id="有时候你有无限的子弹"><a href="#有时候你有无限的子弹" class="headerlink" title="有时候你有无限的子弹"></a>有时候你有无限的子弹</h1><p>那些天我和我的学生讨论的是Erlang的一个核心概念：消息传递。Erlang中消息传递是用发送操作符（即 ！，也叫做bang）来完成的。这次我给他们介绍bang，我用一个Pid放在它的左边。就像这样：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; Pid = self().</div><div class="line">&lt;<span class="number">0.65</span>.<span class="number">0</span>&gt;</div><div class="line"><span class="number">2</span>&gt; Pid ! &#123;a, message&#125;.</div><div class="line">&#123;a,message&#125;</div><div class="line"><span class="number">3</span>&gt;</div></pre></td></tr></table></figure>
-<p>在这种情况下（当表达式的左边是一个Pid），bang从来不失败。即使Pid表示的是一个死亡进程。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="number">3</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">4</span>&gt; erlang:is_process_alive(Pid).</div><div class="line"><span class="literal">false</span></div><div class="line"><span class="number">5</span>&gt; Pid ! &#123;another, message&#125;.</div><div class="line">&#123;another,message&#125;</div><div class="line"><span class="number">6</span>&gt;</div></pre></td></tr></table></figure>
-<h1 id="有时候你就是不能开枪"><a href="#有时候你就是不能开枪" class="headerlink" title="有时候你就是不能开枪"></a>有时候你就是不能开枪</h1><p>但是Pid并不是在bang左边唯一有效的表达式，你也可以用原子和元组放在bang的左边，例如：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="number">6</span>&gt; register(my, self()).</div><div class="line"><span class="literal">true</span></div><div class="line"><span class="number">7</span>&gt; my ! &#123;third, message&#125;.</div><div class="line">&#123;third,message&#125;</div><div class="line"><span class="number">8</span>&gt; &#123;my, node()&#125; ! &#123;fourth, message&#125;.</div><div class="line">&#123;fourth,message&#125;</div><div class="line"><span class="number">9</span>&gt; flush().</div><div class="line">Shell got &#123;third,message&#125;</div><div class="line">Shell got &#123;fourth,message&#125;</div><div class="line">ok</div><div class="line"><span class="number">10</span>&gt;</div></pre></td></tr></table></figure>
-<p>在这种情况下，如果没有进程被注册为这个名字，bang操作可能失败：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">10</span>&gt; no_proc ! &#123;fifth, message&#125;.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as no_proc ! &#123;fifth,message&#125;</div><div class="line"><span class="number">11</span>&gt;</div></pre></td></tr></table></figure>
-<h1 id="去读官方文档吧！"><a href="#去读官方文档吧！" class="headerlink" title="去读官方文档吧！"></a>去读官方文档吧！</h1><p>所有问题在<a href="http://erlang.org/doc/reference_manual/expressions.html#id80833" target="_blank" rel="external">官方文档</a>里都有清晰的说明。</p>
-<blockquote>
-<p>Expr1的计算结果必须是一个pid、一个注册的名字（原子），或者是一个格式为{Name, Node}的元组。Name是一个原子而Node是一个节点名字，也是一个原子。</p>
-<p>如果Expr1的计算结果是一个名字，但是这个名字没有注册，则一个badarg运行时错误发生。</p>
-<p>发送消息给一个pid永远都不会失败，即使这个pid指的是一个不存在的进程。</p>
-<p>也就是说，如果Expr1的计算结果是一个格式为{Name, Node}元组（或者是另外一个节点的pid），分布式消息发送也永远不会失败。</p>
-</blockquote>
-<p><img src="/images/running-out-of-ammo-2.gif" style="border:0;"></p>
-<h1 id="是的，不过…"><a href="#是的，不过…" class="headerlink" title="是的，不过…"></a>是的，不过…</h1><p>现在，我们不能只是满足了解这点知识。</p>
-<p>正如你可能猜到的，我们没有那样做。我们问自己：</p>
-<blockquote>
-<p>当没有进程用相关名字注册，而如果发送消息给这个名字时，会抛出badarg错误：<br>1、一个进程可以用一个名字注册，但它却是不存在的？换句话说：bang操作失败意味着这个进程不存在？<br>2、我如何在用<strong>bang</strong>操作前检查是否有进程用相关名字注册。</p>
-</blockquote>
-<h2 id="问题1：我能注册已经死亡的进程吗？"><a href="#问题1：我能注册已经死亡的进程吗？" class="headerlink" title="问题1：我能注册已经死亡的进程吗？"></a>问题1：我能注册已经死亡的进程吗？</h2><p>为回答问题1，我们必须先检查一些事情。一个进程可以死掉并且还能用一个名字注册吗？我们用两种方法来尝试：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; Pid = self().</div><div class="line">&lt;<span class="number">0.65</span>.<span class="number">0</span>&gt;</div><div class="line"><span class="number">2</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">3</span>&gt; register(my, Pid).</div><div class="line">** exception error: bad argument</div><div class="line">     in function  register/<span class="number">2</span></div><div class="line">        called as register(my,&lt;<span class="number">0.65</span>.<span class="number">0</span>&gt;)</div><div class="line"><span class="number">4</span>&gt;</div></pre></td></tr></table></figure>
-<p>首先我们尝试一个已经死亡的进程作为入参来调用erlang:register/2函数，结果我们失败了。然后我们尝试注册一个进程，接着杀掉它：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="number">4</span>&gt; register(my, self()).</div><div class="line"><span class="literal">true</span></div><div class="line"><span class="number">5</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">6</span>&gt; my ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as my ! message</div><div class="line"><span class="number">7</span>&gt;</div></pre></td></tr></table></figure>
-<p>还是失败了。不过这次的失败是因为进程已经死亡了还是因为发送消息的时候它没有被注册？这就带我们进入问题2…</p>
-<h2 id="问题2：我怎么能够阻止bagarg错误发生？"><a href="#问题2：我怎么能够阻止bagarg错误发生？" class="headerlink" title="问题2：我怎么能够阻止bagarg错误发生？"></a>问题2：我怎么能够阻止bagarg错误发生？</h2><p>现在，我如何可以找出实际在对某个名字使用bang操作之前是否有一个用这个名字注册的进程？</p>
-<p>快速而且非常精确的答案是：你做不到。因为Erlang的并发本质，在你检测进程是否存在的时候和你发送消息的时候这两个时间点之间，这个进程可能已经死掉了（或者一个新的进程使用了相同的名字来注册）。</p>
-<p>尽管如此，还是有一个方法来只是检查在你的节点上是否有一个用某个名字注册的进程，并找到那个进程是哪个进程来作为奖赏：<a href="http://erlang.org/doc/man/erlang.html#whereis-1" target="_blank" rel="external">whereis/1</a>。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="number">7</span>&gt; whereis(my).</div><div class="line">undefined</div><div class="line"><span class="number">8</span>&gt; register(my, self()).</div><div class="line"><span class="literal">true</span></div><div class="line"><span class="number">9</span>&gt; whereis(my).</div><div class="line">&lt;<span class="number">0.75</span>.<span class="number">0</span>&gt;</div><div class="line"><span class="number">10</span>&gt; <span class="number">1</span> / <span class="number">0</span>.</div><div class="line">** exception error: an error occurred <span class="keyword">when</span> evaluating an arithmetic expression</div><div class="line">     in operator  '/'/<span class="number">2</span></div><div class="line">        called as <span class="number">1</span> / <span class="number">0</span></div><div class="line"><span class="number">11</span>&gt; whereis(my).</div><div class="line">undefined</div><div class="line"><span class="number">12</span>&gt;</div></pre></td></tr></table></figure>
-<p>如果whereis/1返回undefined，你就知道在你的节点里没有用那个名字注册的进程。但是，如上所述，您不应该编写像如下的代码：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">case</span> whereis(my) <span class="keyword">of</span></div><div class="line">  undefined -&gt; do_nothing;</div><div class="line">  APid -&gt; APid ! message</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>你那是正在给自己购买了去竞争条件之地的票。你所需要的就如下代码所示：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> my ! message</div><div class="line"><span class="keyword">catch</span></div><div class="line">  _:badarg -&gt; do_nothing</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p><img src="/images/running-out-of-ammo-3.gif" style="border:0;"></p>
-<h1 id="但是我们讨厌-try…catch！"><a href="#但是我们讨厌-try…catch！" class="headerlink" title="但是我们讨厌 try…catch！"></a>但是我们讨厌 try…catch！</h1><p>如果你真的不喜欢像上面那样用try…catch来处理每一个消息，这里有一个小技巧。还记得前面官方文档说过的吗？</p>
-<blockquote>
-<p>也就是说，如果Expr1的计算结果是一个格式为{Name, Node}元组（或者是另外一个节点的pid），分布式消息发送也永远不会失败。</p>
-</blockquote>
-<p>考虑到这一点，看看你能做些什么来替代上面的做法：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="number">12</span>&gt; my ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as my ! message</div><div class="line"><span class="number">13</span>&gt; &#123;my, node()&#125; ! message.</div><div class="line">message</div><div class="line"><span class="number">14</span>&gt;</div></pre></td></tr></table></figure>
-<p>使用元组语法，其中用到了你自己所在节点的名称，如果那个叫做my的进程存在的话，你就正在有效地发送消息给它；而如果这个进程不存在，则会丢弃这些消息。如果你用Pid来替换元组的话，也是这个结果。</p>
-<p><img src="/images/running-out-of-ammo-4.gif" style="border:0;"></p>
-<h1 id="附加内容"><a href="#附加内容" class="headerlink" title="附加内容"></a>附加内容</h1><p>我想用我们在卡利发现的另一个比较酷的事情来结束本文。当谈论这些事情的时候，我们并不真正地了解bang操作在Erlang虚拟机内部的运作过程，只是考虑bang操作失败的情况，我们尝试想像Erlang虚拟机内部如何运行。</p>
-<h2 id="可能的错误"><a href="#可能的错误" class="headerlink" title="可能的错误"></a>可能的错误</h2><p>首先来考虑这个问题：当bang操作失败的时候，它总是报badarg错误。当你用一个没有注册为进程名字的原子的时候，它会失败，但是你用其他东西，它也会失败。看如下例子：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; x ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as x ! message</div><div class="line"><span class="number">2</span>&gt; <span class="string">"a list"</span> ! message.</div><div class="line">** exception error: bad argument</div><div class="line">     in operator  !/<span class="number">2</span></div><div class="line">        called as <span class="string">"a list"</span> ! message</div><div class="line"><span class="number">3</span>&gt;</div></pre></td></tr></table></figure>
-<p>用一点想象力，我们可能会认为，当你使用一个原子，Erlang虚拟机转换原子为Pid，然后在其上执行bang操作的原始版。如果它未能把原子转换成Pid，那么当然badarg错误就发生。换句话说，看起来Erlang VM在将下面的语句…</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; x ! message.</div></pre></td></tr></table></figure>
-<p>改为如下的语句：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; whereis(x) ! message.</div></pre></td></tr></table></figure>
-<p>那么，当whereis 返回 undefined, bang操作失败。</p>
-<h2 id="等一等"><a href="#等一等" class="headerlink" title="等一等"></a>等一等</h2><p>哦，不错。但是undefined也是一个原子啊。Erlang虚拟机为何在那里不陷入一个无限的递归循环呢？嗯，它可能有一个处理undefined的特殊分支。在这个分支里，它可以避免把undefined当做其他任何原子来处理。但是，那么，如果我注册一个进程的名字为undefined呢？</p>
-<p><img src="/images/running-out-of-ammo-5.jpeg" style="border:0;"></p>
-<p>让我们来试试，好吗？</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">3</span>&gt; register(undefined, self()).</div><div class="line">** exception error: bad argument</div><div class="line">     in function  register/<span class="number">2</span></div><div class="line">        called as register(undefined,&lt;<span class="number">0.69</span>.<span class="number">0</span>&gt;)</div><div class="line"><span class="number">4</span>&gt;</div></pre></td></tr></table></figure>
-<p>好吧，我们做不到。实际上<a href="http://erlang.org/doc/man/erlang.html#register-2" target="_blank" rel="external">官方文档</a>说的很清楚。</p>
-<blockquote>
-<p>badarg<br>如果 RegName 是原子undefined.</p>
-</blockquote>
-<p>干得不错，Erlang/OTP团队。干得不错，真的！</p>
-<p><img src="/images/running-out-of-ammo-6.gif" style="border:0;"></p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://medium.com/erlang-battleground/running-out-of-ammo-769bb28baac2#.sm8fbhd9q" target="_blank" rel="external">https://medium.com/erlang-battleground/running-out-of-ammo-769bb28baac2#.sm8fbhd9q</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文（和&lt;a href=&quot;https://medium.com/erlang-battleground/beyond-the-limits-of-an-ets-cdd79fa8300c#.tsfdkduyd&quot;&gt;上一篇文章&lt;/a&gt;一样）也是受我在哥伦比亚卡利的学生的好奇心所启发。这次的问题是：什么时候并且为什么 bang（!）（即消息发送）操作符失败？&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="bang" scheme="http://szpzs.oschina.io/categories/Erlang/bang/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="bang" scheme="http://szpzs.oschina.io/tags/bang/"/>
-    
-      <category term="erlang:register/2" scheme="http://szpzs.oschina.io/tags/erlang-register-2/"/>
-    
-      <category term="whereis/1" scheme="http://szpzs.oschina.io/tags/whereis-1/"/>
-    
-      <category term="undefined" scheme="http://szpzs.oschina.io/tags/undefined/"/>
-    
-      <category term="try catch" scheme="http://szpzs.oschina.io/tags/try-catch/"/>
     
   </entry>
   
