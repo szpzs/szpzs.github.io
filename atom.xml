@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-02-12T02:11:40.000Z</updated>
+  <updated>2017-02-12T11:44:08.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,107 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elixir入门教程－尝试、捕获和挽救</title>
+    <link href="http://szpzs.oschina.io/2017/02/12/elixir-getting-started-try-catch-and-rescue/"/>
+    <id>http://szpzs.oschina.io/2017/02/12/elixir-getting-started-try-catch-and-rescue/</id>
+    <published>2017-02-12T11:41:15.000Z</published>
+    <updated>2017-02-12T11:44:08.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">Errors</a></li>
+<li><a href="#part-two">Throws</a></li>
+<li><a href="#part-three">Exits</a></li>
+<li><a href="#part-four">After</a></li>
+<li><a href="#part-five">Else</a></li>
+<li><a href="#part-six">变量作用域</a></li>
+</ol>
+<p>Elixir有三种错误机制：errors，throws，和 exits 。本章我们将探索它们每一个，并且包括应该何时使用哪一个的评论。</p>
+<a id="more"></a>
+<h1 id="Errors"><a href="#Errors" class="headerlink" title="Errors"></a><span id="part-one">Errors</span></h1><p>错误（或者叫异常）是在代码里有异常的事情发生的时候被使用的。例如，通过尝试将一个数字和原子相加就可以获得一个错误：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:foo</span> + <span class="number">1</span></div><div class="line">** (ArithmeticError) bad argument <span class="keyword">in</span> arithmetic expression</div><div class="line">     <span class="symbol">:erlang</span>.+(<span class="symbol">:foo</span>, <span class="number">1</span>)</div></pre></td></tr></table></figure>
+<p>任何时候用 raise/1 一个运行时错误可以被抛出：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; raise <span class="string">"oops"</span></div><div class="line">** (RuntimeError) oops</div></pre></td></tr></table></figure>
+<p>其他种类的错误可以通过传入错误名字和一个关键字列表作为入参给函数 raise/2 来抛出：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; raise ArgumentError, <span class="symbol">message:</span> <span class="string">"invalid argument foo"</span></div><div class="line">** (ArgumentError) invalid argument foo</div></pre></td></tr></table></figure>
+<p>通过创建一个模块并在它里面使用 defexception 结构，你也可以定义自己的错误；用这种方式，你将创建一个和这个错误定义所在的模块的名字相同的错误。最常见的场景是定义一个自定义的异常，并且有一个消息字段：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">MyError</span></span> <span class="keyword">do</span></div><div class="line">iex&gt;   defexception <span class="symbol">message:</span> <span class="string">"default message"</span></div><div class="line">iex&gt; <span class="keyword">end</span></div><div class="line">iex&gt; raise MyError</div><div class="line">** (MyError) default message</div><div class="line">iex&gt; raise MyError, <span class="symbol">message:</span> <span class="string">"custom message"</span></div><div class="line">** (MyError) custom message</div></pre></td></tr></table></figure>
+<p>错误可以用 try/rescue  结构来<strong>挽救</strong>：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   raise <span class="string">"oops"</span></div><div class="line">...&gt; rescue</div><div class="line">...&gt;   e <span class="keyword">in</span> RuntimeError -&gt; e</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">%RuntimeError&#123;<span class="symbol">message:</span> <span class="string">"oops"</span>&#125;</div></pre></td></tr></table></figure>
+<p>上面的例子挽救了运行时错误并且返回这个错误，然后这个错误被打印在iex会话里。</p>
+<p>如果错误对你无用，你就不需要返回它：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   raise <span class="string">"oops"</span></div><div class="line">...&gt; rescue</div><div class="line">...&gt;   RuntimeError -&gt; <span class="string">"Error!"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"Error!"</span></div></pre></td></tr></table></figure>
+<p>但是在实践中，Elixir开发者很少使用 try/rescue 结构。例如，当一个文件不能被成功打开的时候，许多语言会强制要求你去挽救这个错误。Elixir反而是提供了一个函数 File.read/1 ，它返回一个元组，包含了关于这个文件是否被成功打开的相关消息：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; File.read <span class="string">"hello"</span></div><div class="line">&#123;<span class="symbol">:error</span>, <span class="symbol">:enoent</span>&#125;</div><div class="line">iex&gt; File.write <span class="string">"hello"</span>, <span class="string">"world"</span></div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; File.read <span class="string">"hello"</span></div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="string">"world"</span>&#125;</div></pre></td></tr></table></figure>
+<p>这里就没有 try/rescue 。如果你想要处理打开一个文件的不同输出，你可以在case语句里使用模式匹配：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">case</span> File.read <span class="string">"hello"</span> <span class="keyword">do</span></div><div class="line">...&gt;   &#123;<span class="symbol">:ok</span>, body&#125;      -&gt; IO.puts <span class="string">"Success: <span class="subst">#&#123;body&#125;</span>"</span></div><div class="line">...&gt;   &#123;<span class="symbol">:error</span>, reason&#125; -&gt; IO.puts <span class="string">"Error: <span class="subst">#&#123;reason&#125;</span>"</span></div><div class="line">...&gt; <span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>最终由你的程序来决定打开一个文件出现的出错是否是一个异常。这就是为什么Elixir在File.read/1和许多函数上没有强制输出异常。相反，它留给开发者选择最好的方法进行处理。</p>
+<p>对于你确实期望一个文件存在（而这个文件不存在就一定是一个错误）的场景，你可以使用 File.read!/1 ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; File.read! <span class="string">"unknown"</span></div><div class="line">** (File.Error) could <span class="keyword">not</span> read file <span class="symbol">unknown:</span> no such file <span class="keyword">or</span> directory</div><div class="line">    (elixir) lib/file.<span class="symbol">ex:</span><span class="number">305</span>: File.read!<span class="regexp">/1</span></div></pre></td></tr></table></figure>
+<p>标准库里的许多函数遵循这样的模式：它有一个副本函数，它抛出异常而不是返回用来匹配的元组。这个约定习惯是，创建一个返回 {:ok, result} 或 {:error, reason} 元组的函数（foo）而另一个函数（foo!，相同的名字不过尾部有一个！字符）接收和foo函数一样的入参，但是如果有错误的时候，它抛出一个异常。如果一切正常，foo!将返回结果（而不是用元组包裹起来）。<a href="https://hexdocs.pm/elixir/File.html" target="_blank" rel="external">File模块</a>是这个约定习惯的很好的例子。</p>
+<p>在Elixir里，我们避免使用 try/rescue ，因为我们不使用错误来进行流程控制。我们真正对待错误的看法是：他们是为意外和/或例外情况预留的。如果你确实需要流程控制结构，可以使用 throws 。它就是我们接下来看到的。</p>
+<h1 id="Throws"><a href="#Throws" class="headerlink" title="Throws"></a><span id="part-two">Throws</span></h1><p>在Elixir里，一个值可以被抛出然后被捕获。throw 和 catch 是为这样的情况保留的，就是：除了用throw 和 catch，不可能来获取到一个值。</p>
+<p>实际上这些场景是非常罕见的，除非当你和没有提供合适API的库交互的时候。例如，让我们假设Enum模块没有提供任何API来找到一个值，而这个值就是我们需要在一个数字列表里找到第一个13的倍数的数字：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   Enum.each -<span class="number">50</span>..<span class="number">50</span>, <span class="keyword">fn</span>(x) -&gt;</div><div class="line">...&gt;     if rem(x, <span class="number">13</span>) == <span class="number">0</span>, <span class="symbol">do:</span> throw(x)</div><div class="line">...&gt;   <span class="keyword">end</span></div><div class="line">...&gt;   <span class="string">"Got nothing"</span></div><div class="line">...&gt; catch</div><div class="line">...&gt;   x -&gt; <span class="string">"Got <span class="subst">#&#123;x&#125;</span>"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"Got -39"</span></div></pre></td></tr></table></figure>
+<p>因为Enum的确是提供了合适的API，所以实际上Enum.find/2是最好的人选：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Enum.find -<span class="number">50</span>..<span class="number">50</span>, &amp;(rem(&amp;<span class="number">1</span>, <span class="number">13</span>) == <span class="number">0</span>)</div><div class="line">-<span class="number">39</span></div></pre></td></tr></table></figure>
+<h1 id="Exits"><a href="#Exits" class="headerlink" title="Exits"></a><span id="part-three">Exits</span></h1><p>所有Elixir代码运行在彼此交互的进程里。当一个进程死于“自然原因”（比如，没有处理异常），它会发送一个退出信号。一个进程也可以通过明确地发送一个退出信号而死亡：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; spawn_link <span class="keyword">fn</span> -&gt; exit(<span class="number">1</span>) <span class="keyword">end</span></div><div class="line"><span class="comment">#PID&lt;0.56.0&gt;</span></div><div class="line">** (EXIT from <span class="comment">#PID&lt;0.56.0&gt;) 1</span></div></pre></td></tr></table></figure>
+<p>上面的例子，通过发送值为1的退出信号，被链接的进程死亡。Elixir shell自动处理那些消息并打印在终端上。</p>
+<p>退出可以用try/catch来“捕获”：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   exit <span class="string">"I am exiting"</span></div><div class="line">...&gt; catch</div><div class="line">...&gt;   <span class="symbol">:exit</span>, <span class="number">_</span> -&gt; <span class="string">"not really"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"not really"</span></div></pre></td></tr></table></figure>
+<p>使用 try/catch 已经很少见了，用它来捕获退出更加罕见。</p>
+<p>退出信号是由Erlang虚拟机提供的容错系统的一个重要部分。进程常常运行在监督树下，监督树也是进程；这些进程监听从被监督进程来的退出信号。一旦接收到一个退出信号，监督策略被触发，被监督进程被重启。</p>
+<p>正是这种监督体系，使得像 try/catch 和 try/rescue 这样的结构在Elixir里那么罕见。我们宁愿“速错”而不是挽救一个错误，因为我们的监督树将保证我们的应用在错误后将回到一个可知的初始状态。</p>
+<h1 id="After"><a href="#After" class="headerlink" title="After"></a><span id="part-four">After</span></h1><p>有时候，在一些可能潜在地引起错误的动作后确保资源被清理干净是必须的。try/after 结构允许你这么做。例如，我们可以打开一个文件并使用after分支关闭它，即使有一些事情出错：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, file&#125; = File.open <span class="string">"sample"</span>, [<span class="symbol">:utf8</span>, <span class="symbol">:write</span>]</div><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   IO.write file, <span class="string">"olá"</span></div><div class="line">...&gt;   raise <span class="string">"oops, something went wrong"</span></div><div class="line">...&gt; after</div><div class="line">...&gt;   File.close(file)</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">** (RuntimeError) oops, something went wrong</div></pre></td></tr></table></figure>
+<p>after分支将被执行而不管try语句块时候成功。然而需要注意，如果一个被链接的进程退出，这个进程将退出并且after分支将不会被执行。因此，after仅提供一个软保证。幸运地是，Elixir里的文件也被链接到当前进程，因此如果当前进程崩溃了，它们将总是被关闭，而与after分支无关。你将发现其他资源比如ETS表、socket、port等等也是这样。</p>
+<p>有时你可能想在一个try结构中封装一个函数的整个身体部分，这样通常是为了保证一些代码在后面被执行。这样的场景，Elixir允许你省略 try 这一行：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">RunAfter</span></span> <span class="keyword">do</span></div><div class="line">...&gt;   <span class="function"><span class="keyword">def</span> <span class="title">without_even_trying</span></span> <span class="keyword">do</span></div><div class="line">...&gt;     raise <span class="string">"oops"</span></div><div class="line">...&gt;   after</div><div class="line">...&gt;     IO.puts <span class="string">"cleaning up!"</span></div><div class="line">...&gt;   <span class="keyword">end</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">iex&gt; RunAfter.without_even_trying</div><div class="line">cleaning up!</div><div class="line">** (RuntimeError) oops</div></pre></td></tr></table></figure>
+<p>任何时候，after、rescue 或 catch 其中任何一个被用到了，Elixir将自动地封装函数的身体部分到try结构里。</p>
+<h1 id="Else"><a href="#Else" class="headerlink" title="Else"></a><span id="part-five">Else</span></h1><p>提供一个 else 块来允许在表达式执行结果上进行模式匹配。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">x = <span class="number">2</span></div><div class="line">try <span class="keyword">do</span></div><div class="line">  <span class="number">1</span> / x</div><div class="line">rescue</div><div class="line">  ArithmeticError -&gt;</div><div class="line">    <span class="symbol">:infinity</span></div><div class="line">else</div><div class="line">  y <span class="keyword">when</span> y &lt; <span class="number">1</span> <span class="keyword">and</span> y &gt; -<span class="number">1</span> -&gt;</div><div class="line">    <span class="symbol">:small</span></div><div class="line">  <span class="number">_</span> -&gt;</div><div class="line">    <span class="symbol">:large</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>结果被传递给else，并且在那里陪匹配。请注意，如果一个异常被捕获，else也被执行，catch/rescue 块的结果将传递给else。</p>
+<p>else块的异常不被捕获。如果else块里的模式没有被匹配上，一个异常将被抛出，这个异常不被当前的 try/catch/rescue/after 块捕获。</p>
+<h1 id="变量作用域"><a href="#变量作用域" class="headerlink" title="变量作用域"></a><span id="part-six">变量作用域</span></h1><p>重要的是要记住，定义在try/catch/rescue/after块内的变量不泄漏到外部环境。这是因为try块可能失败，并且变量可能在第一个地方没有被绑定。换句话说，下面的代码是无效的：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   raise <span class="string">"fail"</span></div><div class="line">...&gt;   what_happened = <span class="symbol">:did_not_raise</span></div><div class="line">...&gt; rescue</div><div class="line">...&gt;   <span class="number">_</span> -&gt; what_happened = <span class="symbol">:rescued</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">iex&gt; what_happened</div><div class="line">** (RuntimeError) undefined <span class="symbol">function:</span> what_happened/<span class="number">0</span></div></pre></td></tr></table></figure>
+<p>相反，你可以存储try表达式的值：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; what_happened =</div><div class="line">...&gt;   try <span class="keyword">do</span></div><div class="line">...&gt;     raise <span class="string">"fail"</span></div><div class="line">...&gt;     <span class="symbol">:did_not_raise</span></div><div class="line">...&gt;   rescue</div><div class="line">...&gt;     <span class="number">_</span> -&gt; <span class="symbol">:rescued</span></div><div class="line">...&gt;   <span class="keyword">end</span></div><div class="line">iex&gt; what_happened</div><div class="line"><span class="symbol">:rescued</span></div></pre></td></tr></table></figure>
+<p>到此我们结束了try、catch 和 rescue的介绍。你将发现它们在Elixir里用得频率比在其他语言里少很多，虽然在一些库或某些特定的代码不“按规则”玩的情况下，它们用起来可能很方便。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/try-catch-and-rescue.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/try-catch-and-rescue.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;Errors&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;Throws&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;Exits&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;After&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;Else&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-six&quot;&gt;变量作用域&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Elixir有三种错误机制：errors，throws，和 exits 。本章我们将探索它们每一个，并且包括应该何时使用哪一个的评论。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="try catch rescue" scheme="http://szpzs.oschina.io/categories/Elixir/try-catch-rescue/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="try" scheme="http://szpzs.oschina.io/tags/try/"/>
+    
+      <category term="catch" scheme="http://szpzs.oschina.io/tags/catch/"/>
+    
+      <category term="rescue" scheme="http://szpzs.oschina.io/tags/rescue/"/>
+    
+  </entry>
   
   <entry>
     <title>Elixir入门教程－印记</title>
@@ -1771,48 +1872,6 @@
       <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
     
       <category term="Atom" scheme="http://szpzs.oschina.io/tags/Atom/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>用Erlang进行分布式计算 -- 第二篇</title>
-    <link href="http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-2/"/>
-    <id>http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-2/</id>
-    <published>2017-01-23T06:01:59.000Z</published>
-    <updated>2017-01-23T06:09:28.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>在前一篇文章里，我们已经看到如何连接一个远程节点并且运行Erlang里内建的模块。本文我们将学习如何可以运行我们自己的模块来做一些任务。例如我们将从远程节点获取分配给它们网络接口的ip地址。</p>
-<a id="more"></a>
-<p>我们的模块看起来像如下所示：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">% 文件名应该是 ourmodule.erl</div><div class="line">-module(ourmodule).</div><div class="line">-export([ getip/0 ]).</div><div class="line">getip()-&gt;</div><div class="line">    % 这是用于Mac终端的</div><div class="line">    % B = os:cmd('ifconfig $2 | grep \"inet \" | awk -F\' \' \'&#123;print    $2&#125;\' | awk \'&#123;print $1&#125;\''),</div><div class="line">    % 这是用于Linux终端的</div><div class="line">    B = os:cmd('ifconfig $2 | grep \"inet \" | awk -F\' \' \'&#123;print $2&#125;\' | awk \'&#123;print $1&#125;\' | awk -F \':\' \'&#123;print $2&#125;\''),</div><div class="line">    io:format("node: ~s ~n ~s ", [node(), B]),</div><div class="line">    ok.</div></pre></td></tr></table></figure>
-<p>保存这份代码为<strong>ourmodule.erl</strong>。</p>
-<p>现在让我们来编译我们的模块。首先我们必须去到我们模块存放的目录。然后打开Erlang shell并且编译它：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">c(ourmodule). %%% 输出是: &#123;ok,ourmodule&#125;</div></pre></td></tr></table></figure>
-<p>编译后，我们在同一个目录里将有一个 <strong>ourmodule.beam</strong> 文件，它是这个模块的erlang可执行文件。然后我们必须拷贝这个 <strong>ourmodule.beam</strong> 文件到远程节点。现在从相同的目录（远程节点上该文件存放的目录）让我们打开一个Erlang shell：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -name cloud@remote-host -setcookie <span class="string">"12345"</span></div></pre></td></tr></table></figure>
-<p>做完这些。这些就是我们在远程节点需要做的所有工作。</p>
-<p>现在从你的主（也就是本地）节点执行如下命令：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">rpc:call('cloud@remote-host', ourmodule, getip, []).</div><div class="line"><span class="comment">% 输出是 : 将有节点名和一些ip地址的列表</span></div><div class="line"><span class="comment">%</span></div><div class="line"><span class="comment">% node: cloud@remote-host</span></div><div class="line"><span class="comment">% 127.0.0.1</span></div><div class="line"><span class="comment">% 192.168.1.45</span></div><div class="line"><span class="comment">% ok.</span></div></pre></td></tr></table></figure>
-<p>这是一个简单例子，就是我们如何可以在分布式Erlang环境里运行我们自己的模块。我们可以通过增加更多函数来做其他任务，或者我们可以只是为我们的目的写新的模块，然后我们可以分布可执行文件到不同的节点并远程执行它们。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://medium.com/@smirazzakee/distributed-computing-using-erlang-2-c57f3242a2e0#.acwcop39g" target="_blank" rel="external">https://medium.com/@smirazzakee/distributed-computing-using-erlang-2-c57f3242a2e0#.acwcop39g</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;在前一篇文章里，我们已经看到如何连接一个远程节点并且运行Erlang里内建的模块。本文我们将学习如何可以运行我们自己的模块来做一些任务。例如我们将从远程节点获取分配给它们网络接口的ip地址。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="Distributed Systems" scheme="http://szpzs.oschina.io/categories/Erlang/Distributed-Systems/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="Distributed Systems" scheme="http://szpzs.oschina.io/tags/Distributed-Systems/"/>
     
   </entry>
   

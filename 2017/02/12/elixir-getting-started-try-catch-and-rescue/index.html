@@ -1,0 +1,964 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elixir,try,catch,rescue," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="Errors
+Throws
+Exits
+After
+Else
+变量作用域
+
+Elixir有三种错误机制：errors，throws，和 exits 。本章我们将探索它们每一个，并且包括应该何时使用哪一个的评论。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elixir入门教程－尝试、捕获和挽救">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/02/12/elixir-getting-started-try-catch-and-rescue/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="Errors
+Throws
+Exits
+After
+Else
+变量作用域
+
+Elixir有三种错误机制：errors，throws，和 exits 。本章我们将探索它们每一个，并且包括应该何时使用哪一个的评论。">
+<meta property="og:updated_time" content="2017-02-12T11:44:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elixir入门教程－尝试、捕获和挽救">
+<meta name="twitter:description" content="Errors
+Throws
+Exits
+After
+Else
+变量作用域
+
+Elixir有三种错误机制：errors，throws，和 exits 。本章我们将探索它们每一个，并且包括应该何时使用哪一个的评论。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/02/12/elixir-getting-started-try-catch-and-rescue/"/>
+
+  <title> Elixir入门教程－尝试、捕获和挽救 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Elixir入门教程－尝试、捕获和挽救
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-12T19:41:15+08:00" content="2017-02-12">
+              2017-02-12
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/try-catch-rescue/" itemprop="url" rel="index">
+                    <span itemprop="name">try catch rescue</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/12/elixir-getting-started-try-catch-and-rescue/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/12/elixir-getting-started-try-catch-and-rescue/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="#part-one">Errors</a></li>
+<li><a href="#part-two">Throws</a></li>
+<li><a href="#part-three">Exits</a></li>
+<li><a href="#part-four">After</a></li>
+<li><a href="#part-five">Else</a></li>
+<li><a href="#part-six">变量作用域</a></li>
+</ol>
+<p>Elixir有三种错误机制：errors，throws，和 exits 。本章我们将探索它们每一个，并且包括应该何时使用哪一个的评论。</p>
+<a id="more"></a>
+<h1 id="Errors"><a href="#Errors" class="headerlink" title="Errors"></a><span id="part-one">Errors</span></h1><p>错误（或者叫异常）是在代码里有异常的事情发生的时候被使用的。例如，通过尝试将一个数字和原子相加就可以获得一个错误：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:foo</span> + <span class="number">1</span></div><div class="line">** (ArithmeticError) bad argument <span class="keyword">in</span> arithmetic expression</div><div class="line">     <span class="symbol">:erlang</span>.+(<span class="symbol">:foo</span>, <span class="number">1</span>)</div></pre></td></tr></table></figure>
+<p>任何时候用 raise/1 一个运行时错误可以被抛出：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; raise <span class="string">"oops"</span></div><div class="line">** (RuntimeError) oops</div></pre></td></tr></table></figure>
+<p>其他种类的错误可以通过传入错误名字和一个关键字列表作为入参给函数 raise/2 来抛出：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; raise ArgumentError, <span class="symbol">message:</span> <span class="string">"invalid argument foo"</span></div><div class="line">** (ArgumentError) invalid argument foo</div></pre></td></tr></table></figure>
+<p>通过创建一个模块并在它里面使用 defexception 结构，你也可以定义自己的错误；用这种方式，你将创建一个和这个错误定义所在的模块的名字相同的错误。最常见的场景是定义一个自定义的异常，并且有一个消息字段：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">MyError</span></span> <span class="keyword">do</span></div><div class="line">iex&gt;   defexception <span class="symbol">message:</span> <span class="string">"default message"</span></div><div class="line">iex&gt; <span class="keyword">end</span></div><div class="line">iex&gt; raise MyError</div><div class="line">** (MyError) default message</div><div class="line">iex&gt; raise MyError, <span class="symbol">message:</span> <span class="string">"custom message"</span></div><div class="line">** (MyError) custom message</div></pre></td></tr></table></figure>
+<p>错误可以用 try/rescue  结构来<strong>挽救</strong>：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   raise <span class="string">"oops"</span></div><div class="line">...&gt; rescue</div><div class="line">...&gt;   e <span class="keyword">in</span> RuntimeError -&gt; e</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">%RuntimeError&#123;<span class="symbol">message:</span> <span class="string">"oops"</span>&#125;</div></pre></td></tr></table></figure>
+<p>上面的例子挽救了运行时错误并且返回这个错误，然后这个错误被打印在iex会话里。</p>
+<p>如果错误对你无用，你就不需要返回它：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   raise <span class="string">"oops"</span></div><div class="line">...&gt; rescue</div><div class="line">...&gt;   RuntimeError -&gt; <span class="string">"Error!"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"Error!"</span></div></pre></td></tr></table></figure>
+<p>但是在实践中，Elixir开发者很少使用 try/rescue 结构。例如，当一个文件不能被成功打开的时候，许多语言会强制要求你去挽救这个错误。Elixir反而是提供了一个函数 File.read/1 ，它返回一个元组，包含了关于这个文件是否被成功打开的相关消息：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; File.read <span class="string">"hello"</span></div><div class="line">&#123;<span class="symbol">:error</span>, <span class="symbol">:enoent</span>&#125;</div><div class="line">iex&gt; File.write <span class="string">"hello"</span>, <span class="string">"world"</span></div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; File.read <span class="string">"hello"</span></div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="string">"world"</span>&#125;</div></pre></td></tr></table></figure>
+<p>这里就没有 try/rescue 。如果你想要处理打开一个文件的不同输出，你可以在case语句里使用模式匹配：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">case</span> File.read <span class="string">"hello"</span> <span class="keyword">do</span></div><div class="line">...&gt;   &#123;<span class="symbol">:ok</span>, body&#125;      -&gt; IO.puts <span class="string">"Success: <span class="subst">#&#123;body&#125;</span>"</span></div><div class="line">...&gt;   &#123;<span class="symbol">:error</span>, reason&#125; -&gt; IO.puts <span class="string">"Error: <span class="subst">#&#123;reason&#125;</span>"</span></div><div class="line">...&gt; <span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>最终由你的程序来决定打开一个文件出现的出错是否是一个异常。这就是为什么Elixir在File.read/1和许多函数上没有强制输出异常。相反，它留给开发者选择最好的方法进行处理。</p>
+<p>对于你确实期望一个文件存在（而这个文件不存在就一定是一个错误）的场景，你可以使用 File.read!/1 ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; File.read! <span class="string">"unknown"</span></div><div class="line">** (File.Error) could <span class="keyword">not</span> read file <span class="symbol">unknown:</span> no such file <span class="keyword">or</span> directory</div><div class="line">    (elixir) lib/file.<span class="symbol">ex:</span><span class="number">305</span>: File.read!<span class="regexp">/1</span></div></pre></td></tr></table></figure>
+<p>标准库里的许多函数遵循这样的模式：它有一个副本函数，它抛出异常而不是返回用来匹配的元组。这个约定习惯是，创建一个返回 {:ok, result} 或 {:error, reason} 元组的函数（foo）而另一个函数（foo!，相同的名字不过尾部有一个！字符）接收和foo函数一样的入参，但是如果有错误的时候，它抛出一个异常。如果一切正常，foo!将返回结果（而不是用元组包裹起来）。<a href="https://hexdocs.pm/elixir/File.html" target="_blank" rel="external">File模块</a>是这个约定习惯的很好的例子。</p>
+<p>在Elixir里，我们避免使用 try/rescue ，因为我们不使用错误来进行流程控制。我们真正对待错误的看法是：他们是为意外和/或例外情况预留的。如果你确实需要流程控制结构，可以使用 throws 。它就是我们接下来看到的。</p>
+<h1 id="Throws"><a href="#Throws" class="headerlink" title="Throws"></a><span id="part-two">Throws</span></h1><p>在Elixir里，一个值可以被抛出然后被捕获。throw 和 catch 是为这样的情况保留的，就是：除了用throw 和 catch，不可能来获取到一个值。</p>
+<p>实际上这些场景是非常罕见的，除非当你和没有提供合适API的库交互的时候。例如，让我们假设Enum模块没有提供任何API来找到一个值，而这个值就是我们需要在一个数字列表里找到第一个13的倍数的数字：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   Enum.each -<span class="number">50</span>..<span class="number">50</span>, <span class="keyword">fn</span>(x) -&gt;</div><div class="line">...&gt;     if rem(x, <span class="number">13</span>) == <span class="number">0</span>, <span class="symbol">do:</span> throw(x)</div><div class="line">...&gt;   <span class="keyword">end</span></div><div class="line">...&gt;   <span class="string">"Got nothing"</span></div><div class="line">...&gt; catch</div><div class="line">...&gt;   x -&gt; <span class="string">"Got <span class="subst">#&#123;x&#125;</span>"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"Got -39"</span></div></pre></td></tr></table></figure>
+<p>因为Enum的确是提供了合适的API，所以实际上Enum.find/2是最好的人选：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Enum.find -<span class="number">50</span>..<span class="number">50</span>, &amp;(rem(&amp;<span class="number">1</span>, <span class="number">13</span>) == <span class="number">0</span>)</div><div class="line">-<span class="number">39</span></div></pre></td></tr></table></figure>
+<h1 id="Exits"><a href="#Exits" class="headerlink" title="Exits"></a><span id="part-three">Exits</span></h1><p>所有Elixir代码运行在彼此交互的进程里。当一个进程死于“自然原因”（比如，没有处理异常），它会发送一个退出信号。一个进程也可以通过明确地发送一个退出信号而死亡：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; spawn_link <span class="keyword">fn</span> -&gt; exit(<span class="number">1</span>) <span class="keyword">end</span></div><div class="line"><span class="comment">#PID&lt;0.56.0&gt;</span></div><div class="line">** (EXIT from <span class="comment">#PID&lt;0.56.0&gt;) 1</span></div></pre></td></tr></table></figure>
+<p>上面的例子，通过发送值为1的退出信号，被链接的进程死亡。Elixir shell自动处理那些消息并打印在终端上。</p>
+<p>退出可以用try/catch来“捕获”：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   exit <span class="string">"I am exiting"</span></div><div class="line">...&gt; catch</div><div class="line">...&gt;   <span class="symbol">:exit</span>, <span class="number">_</span> -&gt; <span class="string">"not really"</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="string">"not really"</span></div></pre></td></tr></table></figure>
+<p>使用 try/catch 已经很少见了，用它来捕获退出更加罕见。</p>
+<p>退出信号是由Erlang虚拟机提供的容错系统的一个重要部分。进程常常运行在监督树下，监督树也是进程；这些进程监听从被监督进程来的退出信号。一旦接收到一个退出信号，监督策略被触发，被监督进程被重启。</p>
+<p>正是这种监督体系，使得像 try/catch 和 try/rescue 这样的结构在Elixir里那么罕见。我们宁愿“速错”而不是挽救一个错误，因为我们的监督树将保证我们的应用在错误后将回到一个可知的初始状态。</p>
+<h1 id="After"><a href="#After" class="headerlink" title="After"></a><span id="part-four">After</span></h1><p>有时候，在一些可能潜在地引起错误的动作后确保资源被清理干净是必须的。try/after 结构允许你这么做。例如，我们可以打开一个文件并使用after分支关闭它，即使有一些事情出错：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, file&#125; = File.open <span class="string">"sample"</span>, [<span class="symbol">:utf8</span>, <span class="symbol">:write</span>]</div><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   IO.write file, <span class="string">"olá"</span></div><div class="line">...&gt;   raise <span class="string">"oops, something went wrong"</span></div><div class="line">...&gt; after</div><div class="line">...&gt;   File.close(file)</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">** (RuntimeError) oops, something went wrong</div></pre></td></tr></table></figure>
+<p>after分支将被执行而不管try语句块时候成功。然而需要注意，如果一个被链接的进程退出，这个进程将退出并且after分支将不会被执行。因此，after仅提供一个软保证。幸运地是，Elixir里的文件也被链接到当前进程，因此如果当前进程崩溃了，它们将总是被关闭，而与after分支无关。你将发现其他资源比如ETS表、socket、port等等也是这样。</p>
+<p>有时你可能想在一个try结构中封装一个函数的整个身体部分，这样通常是为了保证一些代码在后面被执行。这样的场景，Elixir允许你省略 try 这一行：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">RunAfter</span></span> <span class="keyword">do</span></div><div class="line">...&gt;   <span class="function"><span class="keyword">def</span> <span class="title">without_even_trying</span></span> <span class="keyword">do</span></div><div class="line">...&gt;     raise <span class="string">"oops"</span></div><div class="line">...&gt;   after</div><div class="line">...&gt;     IO.puts <span class="string">"cleaning up!"</span></div><div class="line">...&gt;   <span class="keyword">end</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">iex&gt; RunAfter.without_even_trying</div><div class="line">cleaning up!</div><div class="line">** (RuntimeError) oops</div></pre></td></tr></table></figure>
+<p>任何时候，after、rescue 或 catch 其中任何一个被用到了，Elixir将自动地封装函数的身体部分到try结构里。</p>
+<h1 id="Else"><a href="#Else" class="headerlink" title="Else"></a><span id="part-five">Else</span></h1><p>提供一个 else 块来允许在表达式执行结果上进行模式匹配。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">x = <span class="number">2</span></div><div class="line">try <span class="keyword">do</span></div><div class="line">  <span class="number">1</span> / x</div><div class="line">rescue</div><div class="line">  ArithmeticError -&gt;</div><div class="line">    <span class="symbol">:infinity</span></div><div class="line">else</div><div class="line">  y <span class="keyword">when</span> y &lt; <span class="number">1</span> <span class="keyword">and</span> y &gt; -<span class="number">1</span> -&gt;</div><div class="line">    <span class="symbol">:small</span></div><div class="line">  <span class="number">_</span> -&gt;</div><div class="line">    <span class="symbol">:large</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>结果被传递给else，并且在那里陪匹配。请注意，如果一个异常被捕获，else也被执行，catch/rescue 块的结果将传递给else。</p>
+<p>else块的异常不被捕获。如果else块里的模式没有被匹配上，一个异常将被抛出，这个异常不被当前的 try/catch/rescue/after 块捕获。</p>
+<h1 id="变量作用域"><a href="#变量作用域" class="headerlink" title="变量作用域"></a><span id="part-six">变量作用域</span></h1><p>重要的是要记住，定义在try/catch/rescue/after块内的变量不泄漏到外部环境。这是因为try块可能失败，并且变量可能在第一个地方没有被绑定。换句话说，下面的代码是无效的：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; try <span class="keyword">do</span></div><div class="line">...&gt;   raise <span class="string">"fail"</span></div><div class="line">...&gt;   what_happened = <span class="symbol">:did_not_raise</span></div><div class="line">...&gt; rescue</div><div class="line">...&gt;   <span class="number">_</span> -&gt; what_happened = <span class="symbol">:rescued</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">iex&gt; what_happened</div><div class="line">** (RuntimeError) undefined <span class="symbol">function:</span> what_happened/<span class="number">0</span></div></pre></td></tr></table></figure>
+<p>相反，你可以存储try表达式的值：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; what_happened =</div><div class="line">...&gt;   try <span class="keyword">do</span></div><div class="line">...&gt;     raise <span class="string">"fail"</span></div><div class="line">...&gt;     <span class="symbol">:did_not_raise</span></div><div class="line">...&gt;   rescue</div><div class="line">...&gt;     <span class="number">_</span> -&gt; <span class="symbol">:rescued</span></div><div class="line">...&gt;   <span class="keyword">end</span></div><div class="line">iex&gt; what_happened</div><div class="line"><span class="symbol">:rescued</span></div></pre></td></tr></table></figure>
+<p>到此我们结束了try、catch 和 rescue的介绍。你将发现它们在Elixir里用得频率比在其他语言里少很多，虽然在一些库或某些特定的代码不“按规则”玩的情况下，它们用起来可能很方便。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/try-catch-and-rescue.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/try-catch-and-rescue.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/try/" rel="tag">#try</a>
+          
+            <a href="/tags/catch/" rel="tag">#catch</a>
+          
+            <a href="/tags/rescue/" rel="tag">#rescue</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/12/elixir-getting-started-sigils/" rel="next" title="Elixir入门教程－印记">
+                <i class="fa fa-chevron-left"></i> Elixir入门教程－印记
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/12/elixir-getting-started-try-catch-and-rescue/"
+           data-title="Elixir入门教程－尝试、捕获和挽救" data-url="http://szpzs.oschina.io/2017/02/12/elixir-getting-started-try-catch-and-rescue/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">119</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">70</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">170</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Errors"><span class="nav-number">1.</span> <span class="nav-text">Errors</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Throws"><span class="nav-number">2.</span> <span class="nav-text">Throws</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Exits"><span class="nav-number">3.</span> <span class="nav-text">Exits</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#After"><span class="nav-number">4.</span> <span class="nav-text">After</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Else"><span class="nav-number">5.</span> <span class="nav-text">Else</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#变量作用域"><span class="nav-number">6.</span> <span class="nav-text">变量作用域</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
