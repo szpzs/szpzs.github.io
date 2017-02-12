@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-02-11T13:01:10.000Z</updated>
+  <updated>2017-02-12T02:11:40.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,103 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elixir入门教程－印记</title>
+    <link href="http://szpzs.oschina.io/2017/02/12/elixir-getting-started-sigils/"/>
+    <id>http://szpzs.oschina.io/2017/02/12/elixir-getting-started-sigils/</id>
+    <published>2017-02-12T01:44:02.000Z</published>
+    <updated>2017-02-12T02:11:40.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">正则表达式</a></li>
+<li><a href="#part-two">字符串、字符列表和词列表印记</a><br> 2.1 <a href="#part-two-one">字符串</a><br> 2.2 <a href="#part-two-two">字符列表</a><br> 2.3 <a href="#part-two-three">词列表</a></li>
+<li><a href="#part-three">在印记中插入文本和转义字符</a></li>
+<li><a href="#part-four">自定义印记</a></li>
+</ol>
+<p>我们已经学了Elixir提供双引号字符串和单引号字符列表。然而，这只是涵盖了该语言有文本表示的数据类型结构的表面。例如，原子主要就是通过 :atom 表示来创建的。</p>
+<p>Elixir其中一个目标是可扩展性：开发者可以扩展该语言来解决任何特定的领域问题。计算机科学已经成为如此广阔的领域，一门语言解决许多领域的问题来作为它的核心部分是不太可能的。相反，我们最好的方法是使语言具有可扩展性，因此开发人员、公司和社区可以将语言扩展到相关领域。</p>
+<p>本章，我们将探索印记，它是由Elixir这门语言提供的处理文本描述数据类型的其中一种机制。印记由波浪字符（~）开始，紧接着是一个字符（这个字符定义本印记），然后是一个分隔符，可选性的修饰符可以增加在最后的分隔符后。</p>
+<a id="more"></a>
+<h1 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a><span id="part-one">正则表达式</span></h1><p>Elixir里最常用的印记是~r，它被用来创建<a href="https://en.wikipedia.org/wiki/Regular_Expressions" target="_blank" rel="external">正则表达式</a>：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># A regular expression that matches strings which contain "foo" or "bar":</span></div><div class="line">iex&gt; regex = ~r/foo|bar/</div><div class="line">~r/foo|bar/</div><div class="line">iex&gt; <span class="string">"foo"</span> =~ regex</div><div class="line"><span class="keyword">true</span></div><div class="line">iex&gt; <span class="string">"bat"</span> =~ regex</div><div class="line"><span class="keyword">false</span></div></pre></td></tr></table></figure>
+<p>Elixir提供Perl兼容正则表达式（regexes），它由<a href="http://www.pcre.org/" target="_blank" rel="external">PCRE</a>库实现。regexes也支持修饰符。例如，i修饰符使得正则表达式不大小写敏感：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="string">"HELLO"</span> =~ ~r/hello/</div><div class="line"><span class="keyword">false</span></div><div class="line">iex&gt; <span class="string">"HELLO"</span> =~ ~r/hello/i</div><div class="line"><span class="keyword">true</span></div></pre></td></tr></table></figure>
+<p>请查阅<a href="https://hexdocs.pm/elixir/Regex.html" target="_blank" rel="external">Regex模块</a>获取正则表达式的其他修饰符和被支持的操作的信息。</p>
+<p>到目前为止，所有例子都是用 / 来界定一个正则表达式。然后印记支持8种不同的分隔符：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">~r/hello/</div><div class="line">~r|hello|</div><div class="line">~r<span class="string">"hello"</span></div><div class="line">~r<span class="string">'hello'</span></div><div class="line">~r(hello)</div><div class="line">~r[hello]</div><div class="line">~r&#123;hello&#125;</div><div class="line">~r&lt;hello&gt;</div></pre></td></tr></table></figure>
+<p>支持不同分隔符背后的原因是提供一种不需要转义分隔符来写字面量。例如，一个有斜杠的正则表达式，这样写：~r(^https?://) 肯定比这么写 ~r/^https?:\/\/ 更容易读。相似地，如果正则表达式含有斜杠和捕获组（即使用()），那么你可以使用双引号来替代圆括号。</p>
+<h1 id="字符串、字符列表和词列表印记"><a href="#字符串、字符列表和词列表印记" class="headerlink" title="字符串、字符列表和词列表印记"></a><span id="part-two">字符串、字符列表和词列表印记</span></h1><p>除了正则表达式，Elixir还有三种其他印记。</p>
+<h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a><span id="part-two-one">字符串</span></h2><p>~s印记被用来创建字符串，像双引号一样。当一个字符串包含有双引号的时候，~s印记很有用：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~s(this is a string with <span class="string">"double"</span> quotes, <span class="keyword">not</span> <span class="string">'single'</span> ones)</div><div class="line"><span class="string">"this is a string with \"double\" quotes, not 'single' ones"</span></div></pre></td></tr></table></figure>
+<h2 id="字符列表"><a href="#字符列表" class="headerlink" title="字符列表"></a><span id="part-two-two">字符列表</span></h2><p>~c印记被用来创建含有单引号的字符列表：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~c(this is a char list containing <span class="string">'single quotes'</span>)</div><div class="line"><span class="string">'this is a char list containing \'single quotes\''</span></div></pre></td></tr></table></figure>
+<h2 id="词列表"><a href="#词列表" class="headerlink" title="词列表"></a><span id="part-two-three">词列表</span></h2><p>~w印记被用来创建词列表（词就是普通字符串）。在~w印记里，词被空白分隔。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~w(foo bar bat)</div><div class="line">[<span class="string">"foo"</span>, <span class="string">"bar"</span>, <span class="string">"bat"</span>]</div></pre></td></tr></table></figure>
+<p>~w印记也接收c， s 和 a 修饰符（分别对应，字符列表、字符串和原子），它们指定结果列表的元素的数据类型：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~w(foo bar bat)a</div><div class="line">[<span class="symbol">:foo</span>, <span class="symbol">:bar</span>, <span class="symbol">:bat</span>]</div></pre></td></tr></table></figure>
+<h1 id="在印记中插入文本和转义字符"><a href="#在印记中插入文本和转义字符" class="headerlink" title="在印记中插入文本和转义字符"></a><span id="part-three">在印记中插入文本和转义字符</span></h1><p>除了小写印记，Elixir也支持大写印记来处理转义字符和插入文本。虽然 ~s 和 ~S 都返回字符串，但是前者允许转义码和插入文本，而后者则不允许：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~s(String with escape codes \x26 <span class="comment">#&#123;"inter" &lt;&gt; "polation"&#125;)</span></div><div class="line"><span class="string">"String with escape codes &amp; interpolation"</span></div><div class="line">iex&gt; ~S(String without escape codes \x26 without <span class="comment">#&#123;interpolation&#125;)</span></div><div class="line"><span class="string">"String without escape codes \\x26 without \#&#123;interpolation&#125;"</span></div></pre></td></tr></table></figure>
+<p>下面的转义码可以被用在字符串和字符列表里：</p>
+<ul>
+<li>\ - 单个反斜杠</li>
+<li>\a - 铃声/警报</li>
+<li>\b - 退格键</li>
+<li>\d - 删除键</li>
+<li>\e - 退出键</li>
+<li>\f - 换页符</li>
+<li>\n - 新行符</li>
+<li>\r - 回车符</li>
+<li>\s - 空格付</li>
+<li>\t - Tab键</li>
+<li>\v - 垂直Tab键</li>
+<li>\0 - 空字节</li>
+<li>\xDD - 用十六进制表示的单字节（比如：\x13）</li>
+<li>\uDDDD 和 \u{D…} - 用十六进制表示的Unicode代码点（比如：\u{1F600}）</li>
+</ul>
+<p>另外，在双引号字符串里的双引号需要用\”来转义，类似的，单引号字符列表里的单引号需要用\’来转义。然而，向上述的例子那样改变分隔符而不是转义它们是一种更好的方式。</p>
+<p>印记也支持 heredocs ，即 三个双或单引号作为分隔符：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~s<span class="string">""</span><span class="string">"</span></div><div class="line">...&gt; this is</div><div class="line">...&gt; a heredoc string</div><div class="line">...&gt; "<span class="string">""</span></div></pre></td></tr></table></figure>
+<p>heredocs印记最常用的地方是在写文档的时候。例如，在文档里写转义字符很容易出错，因为需要两次转义一些字符：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">Converts double-quotes to single-quotes.</div><div class="line"></div><div class="line">## Examples</div><div class="line"></div><div class="line">    iex&gt; convert("\\\<span class="string">"foo\\\""</span>)</div><div class="line">    <span class="string">"'foo'"</span></div><div class="line"></div><div class="line"><span class="string">""</span><span class="string">"</span></div><div class="line">def convert(...)</div></pre></td></tr></table></figure>
+<p>但是用~S，这个问题可以完全避免：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="variable">@doc</span> ~S<span class="string">""</span><span class="string">"</span></div><div class="line">Converts double-quotes to single-quotes.</div><div class="line"></div><div class="line">## Examples</div><div class="line"></div><div class="line">    iex&gt; convert("\<span class="string">"foo\""</span>)</div><div class="line">    <span class="string">"'foo'"</span></div><div class="line"></div><div class="line"><span class="string">""</span><span class="string">"</span></div><div class="line">def convert(...)</div></pre></td></tr></table></figure>
+<h1 id="自定义印记"><a href="#自定义印记" class="headerlink" title="自定义印记"></a><span id="part-four">自定义印记</span></h1><p>如本文开始的时候所提示，Elixir中的印记是一种扩展。实际上，用印记 ~r/foo/i 和以一个二进制数据和一个字符列表作为入参调用 sigil_r 是等效的：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; sigil_r(&lt;&lt;<span class="string">"foo"</span>&gt;&gt;, <span class="string">'i'</span>)</div><div class="line">~r<span class="string">"foo"</span>i</div></pre></td></tr></table></figure>
+<p>我们可以通过访问sigil_r文档来看看~r：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; h sigil_r</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>我们也可以通过遵循 sigil_{identifier} 模式来实现函数以提供我们自己的印记。例如，让我们来实现 ~i 印记，它返回一个整数（使用可选择的 n 修饰符来返回它的负数）：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">MySigils</span></span> <span class="keyword">do</span></div><div class="line">...&gt;   <span class="function"><span class="keyword">def</span> <span class="title">sigil_i</span></span>(string, []), <span class="symbol">do:</span> String.to_integer(string)</div><div class="line">...&gt;   <span class="function"><span class="keyword">def</span> <span class="title">sigil_i</span></span>(string, [?n]), <span class="symbol">do:</span> -String.to_integer(string)</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">iex&gt; import MySigils</div><div class="line">iex&gt; ~i(<span class="number">13</span>)</div><div class="line"><span class="number">13</span></div><div class="line">iex&gt; ~i(<span class="number">42</span>)n</div><div class="line">-<span class="number">42</span></div></pre></td></tr></table></figure>
+<p>印记也可以在宏的帮助下被用来做编译期工作。例如，Elixir里的正则表达式可以在源代码编译期间被编译为一个高效的描述，因此在运行期跳过这一步。如果你对这个主题有兴趣，我们建议你学习更多关于宏的知识，并查阅印记在Kernel模块（即形如sigil_*相关被定义的函数）里是如何实现的。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/sigils.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/sigils.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;正则表达式&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;字符串、字符列表和词列表印记&lt;/a&gt;&lt;br&gt; 2.1 &lt;a href=&quot;#part-two-one&quot;&gt;字符串&lt;/a&gt;&lt;br&gt; 2.2 &lt;a href=&quot;#part-two-two&quot;&gt;字符列表&lt;/a&gt;&lt;br&gt; 2.3 &lt;a href=&quot;#part-two-three&quot;&gt;词列表&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;在印记中插入文本和转义字符&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;自定义印记&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;我们已经学了Elixir提供双引号字符串和单引号字符列表。然而，这只是涵盖了该语言有文本表示的数据类型结构的表面。例如，原子主要就是通过 :atom 表示来创建的。&lt;/p&gt;
+&lt;p&gt;Elixir其中一个目标是可扩展性：开发者可以扩展该语言来解决任何特定的领域问题。计算机科学已经成为如此广阔的领域，一门语言解决许多领域的问题来作为它的核心部分是不太可能的。相反，我们最好的方法是使语言具有可扩展性，因此开发人员、公司和社区可以将语言扩展到相关领域。&lt;/p&gt;
+&lt;p&gt;本章，我们将探索印记，它是由Elixir这门语言提供的处理文本描述数据类型的其中一种机制。印记由波浪字符（~）开始，紧接着是一个字符（这个字符定义本印记），然后是一个分隔符，可选性的修饰符可以增加在最后的分隔符后。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="sigil" scheme="http://szpzs.oschina.io/categories/Elixir/sigil/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="sigil" scheme="http://szpzs.oschina.io/tags/sigil/"/>
+    
+  </entry>
   
   <entry>
     <title>Elixir入门教程－速构</title>
@@ -1705,58 +1802,6 @@
     <summary type="html">
     
       &lt;p&gt;在前一篇文章里，我们已经看到如何连接一个远程节点并且运行Erlang里内建的模块。本文我们将学习如何可以运行我们自己的模块来做一些任务。例如我们将从远程节点获取分配给它们网络接口的ip地址。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="Distributed Systems" scheme="http://szpzs.oschina.io/categories/Erlang/Distributed-Systems/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="Distributed Systems" scheme="http://szpzs.oschina.io/tags/Distributed-Systems/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>用Erlang进行分布式计算 -- 第一篇</title>
-    <link href="http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-1/"/>
-    <id>http://szpzs.oschina.io/2017/01/23/distributed-computing-using-erlang-1/</id>
-    <published>2017-01-23T05:30:17.000Z</published>
-    <updated>2017-01-23T05:45:12.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文我们将看看Erlang里的分布式系统是如何运作的。</p>
-<p>Erlang是一种函数式语言，其最被大家所熟知的是分布式和并发计算。</p>
-<a id="more"></a>
-<p>一般Erlang程序运行在节点上（<strong>节点名默认是nonode@nohost</strong>）。</p>
-<p>在一个分布式系统里，节点间彼此交互。本文我们将用两个节点：<strong>sakib@localhost</strong> 和 <strong>cloud@remote-host</strong> 。</p>
-<p>节点<strong>sakib@localhost</strong>运行在我本地系统，节点<strong>cloud@remote-host</strong>运行在远程服务器上。<strong>remote-host</strong>是我的远程服务器的主机名。</p>
-<p>连接到远程节点，节点名的后缀（节点名@符号后的部分）和主机名相同是很重要。</p>
-<p>现在如下所示打开本地系统的Erlang的shell：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -name sakib@localhost -setcookie <span class="string">"12345"</span></div></pre></td></tr></table></figure>
-<p>并且如下所示打开远程服务器的Erlang的shell：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -name cloud@remote-host -setcookie <span class="string">"12345"</span></div></pre></td></tr></table></figure>
-<p>两个节点的cookie必须一样，或者稍后你可以设置节点的cookie。如果远程节点的cookie没有设置，那么本地节点的cookie将被用来连接远程节点。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">% 给指定的节点设置cookie</span></div><div class="line">erlang:set_cookie('cloud@remote-host', '<span class="number">12345</span>').</div><div class="line"><span class="comment">% 第一个参数是节点名，第二参数是cookie</span></div><div class="line"><span class="comment">% 连接远程节点</span></div><div class="line">net_kernel:connect_node('cloud@remote-host').</div></pre></td></tr></table></figure>
-<p>如果响应是true，则连接建立；如果响应是false，则连接失败。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">% 列出已经连接的节点列表</div><div class="line">nodes().</div><div class="line">% 输出是 : ['cloud@remote-host']</div><div class="line">% 因为我们现在仅仅连接了一个远程节点</div></pre></td></tr></table></figure>
-<p>现在我们可以用<strong>RPC</strong>来运行远程节点的模块。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rpc:call('cloud@remote-host', os, cmd, [whoami]).</div></pre></td></tr></table></figure>
-<p>rpc:call()函数有4个入参。</p>
-<p>第一个是节点名，第二个是模块名，第三个是函数名，第四个是函数的入参。</p>
-<p>上述例子是我们运行<strong>os</strong>模块里的<strong>cmd()</strong>函数，入参是<strong>whoami</strong>。它将返回远程系统的当前用户名。<strong>os</strong>是Erlang的内建模块。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">% 使用multicall函数 (跨所有连接的节点执行rpc调用)</span></div><div class="line">rpc:multicall(nodes(), os, cmd, [whoami]).</div><div class="line"><span class="comment">% 与远程节点断开连接</span></div><div class="line">erlang:disconnect_node('cloud@remote-host').</div></pre></td></tr></table></figure>
-<p>用同样的方式我们可以将不同的任务分布到不同的节点来处理，然后在主节点上获取结果。这就是在Erlang里一个分布式系统的运作方式。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://medium.com/@sakibsami/distributed-computing-using-erlang-1-cdd051a77c85#.maaswacq4" target="_blank" rel="external">https://medium.com/@sakibsami/distributed-computing-using-erlang-1-cdd051a77c85#.maaswacq4</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文我们将看看Erlang里的分布式系统是如何运作的。&lt;/p&gt;
-&lt;p&gt;Erlang是一种函数式语言，其最被大家所熟知的是分布式和并发计算。&lt;/p&gt;
     
     </summary>
     

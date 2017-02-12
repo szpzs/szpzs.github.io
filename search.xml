@@ -4,6 +4,75 @@
   
     
     <entry>
+      <title><![CDATA[Elixir入门教程－印记]]></title>
+      <url>http://szpzs.oschina.io/2017/02/12/elixir-getting-started-sigils/</url>
+      <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">正则表达式</a></li>
+<li><a href="#part-two">字符串、字符列表和词列表印记</a><br> 2.1 <a href="#part-two-one">字符串</a><br> 2.2 <a href="#part-two-two">字符列表</a><br> 2.3 <a href="#part-two-three">词列表</a></li>
+<li><a href="#part-three">在印记中插入文本和转义字符</a></li>
+<li><a href="#part-four">自定义印记</a></li>
+</ol>
+<p>我们已经学了Elixir提供双引号字符串和单引号字符列表。然而，这只是涵盖了该语言有文本表示的数据类型结构的表面。例如，原子主要就是通过 :atom 表示来创建的。</p>
+<p>Elixir其中一个目标是可扩展性：开发者可以扩展该语言来解决任何特定的领域问题。计算机科学已经成为如此广阔的领域，一门语言解决许多领域的问题来作为它的核心部分是不太可能的。相反，我们最好的方法是使语言具有可扩展性，因此开发人员、公司和社区可以将语言扩展到相关领域。</p>
+<p>本章，我们将探索印记，它是由Elixir这门语言提供的处理文本描述数据类型的其中一种机制。印记由波浪字符（~）开始，紧接着是一个字符（这个字符定义本印记），然后是一个分隔符，可选性的修饰符可以增加在最后的分隔符后。</p>
+<a id="more"></a>
+<h1 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a><span id="part-one">正则表达式</span></h1><p>Elixir里最常用的印记是~r，它被用来创建<a href="https://en.wikipedia.org/wiki/Regular_Expressions" target="_blank" rel="external">正则表达式</a>：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># A regular expression that matches strings which contain "foo" or "bar":</span></div><div class="line">iex&gt; regex = ~r/foo|bar/</div><div class="line">~r/foo|bar/</div><div class="line">iex&gt; <span class="string">"foo"</span> =~ regex</div><div class="line"><span class="keyword">true</span></div><div class="line">iex&gt; <span class="string">"bat"</span> =~ regex</div><div class="line"><span class="keyword">false</span></div></pre></td></tr></table></figure>
+<p>Elixir提供Perl兼容正则表达式（regexes），它由<a href="http://www.pcre.org/" target="_blank" rel="external">PCRE</a>库实现。regexes也支持修饰符。例如，i修饰符使得正则表达式不大小写敏感：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="string">"HELLO"</span> =~ ~r/hello/</div><div class="line"><span class="keyword">false</span></div><div class="line">iex&gt; <span class="string">"HELLO"</span> =~ ~r/hello/i</div><div class="line"><span class="keyword">true</span></div></pre></td></tr></table></figure>
+<p>请查阅<a href="https://hexdocs.pm/elixir/Regex.html" target="_blank" rel="external">Regex模块</a>获取正则表达式的其他修饰符和被支持的操作的信息。</p>
+<p>到目前为止，所有例子都是用 / 来界定一个正则表达式。然后印记支持8种不同的分隔符：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">~r/hello/</div><div class="line">~r|hello|</div><div class="line">~r<span class="string">"hello"</span></div><div class="line">~r<span class="string">'hello'</span></div><div class="line">~r(hello)</div><div class="line">~r[hello]</div><div class="line">~r&#123;hello&#125;</div><div class="line">~r&lt;hello&gt;</div></pre></td></tr></table></figure>
+<p>支持不同分隔符背后的原因是提供一种不需要转义分隔符来写字面量。例如，一个有斜杠的正则表达式，这样写：~r(^https?://) 肯定比这么写 ~r/^https?:\/\/ 更容易读。相似地，如果正则表达式含有斜杠和捕获组（即使用()），那么你可以使用双引号来替代圆括号。</p>
+<h1 id="字符串、字符列表和词列表印记"><a href="#字符串、字符列表和词列表印记" class="headerlink" title="字符串、字符列表和词列表印记"></a><span id="part-two">字符串、字符列表和词列表印记</span></h1><p>除了正则表达式，Elixir还有三种其他印记。</p>
+<h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a><span id="part-two-one">字符串</span></h2><p>~s印记被用来创建字符串，像双引号一样。当一个字符串包含有双引号的时候，~s印记很有用：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~s(this is a string with <span class="string">"double"</span> quotes, <span class="keyword">not</span> <span class="string">'single'</span> ones)</div><div class="line"><span class="string">"this is a string with \"double\" quotes, not 'single' ones"</span></div></pre></td></tr></table></figure>
+<h2 id="字符列表"><a href="#字符列表" class="headerlink" title="字符列表"></a><span id="part-two-two">字符列表</span></h2><p>~c印记被用来创建含有单引号的字符列表：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~c(this is a char list containing <span class="string">'single quotes'</span>)</div><div class="line"><span class="string">'this is a char list containing \'single quotes\''</span></div></pre></td></tr></table></figure>
+<h2 id="词列表"><a href="#词列表" class="headerlink" title="词列表"></a><span id="part-two-three">词列表</span></h2><p>~w印记被用来创建词列表（词就是普通字符串）。在~w印记里，词被空白分隔。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~w(foo bar bat)</div><div class="line">[<span class="string">"foo"</span>, <span class="string">"bar"</span>, <span class="string">"bat"</span>]</div></pre></td></tr></table></figure>
+<p>~w印记也接收c， s 和 a 修饰符（分别对应，字符列表、字符串和原子），它们指定结果列表的元素的数据类型：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~w(foo bar bat)a</div><div class="line">[<span class="symbol">:foo</span>, <span class="symbol">:bar</span>, <span class="symbol">:bat</span>]</div></pre></td></tr></table></figure>
+<h1 id="在印记中插入文本和转义字符"><a href="#在印记中插入文本和转义字符" class="headerlink" title="在印记中插入文本和转义字符"></a><span id="part-three">在印记中插入文本和转义字符</span></h1><p>除了小写印记，Elixir也支持大写印记来处理转义字符和插入文本。虽然 ~s 和 ~S 都返回字符串，但是前者允许转义码和插入文本，而后者则不允许：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~s(String with escape codes \x26 <span class="comment">#&#123;"inter" &lt;&gt; "polation"&#125;)</span></div><div class="line"><span class="string">"String with escape codes &amp; interpolation"</span></div><div class="line">iex&gt; ~S(String without escape codes \x26 without <span class="comment">#&#123;interpolation&#125;)</span></div><div class="line"><span class="string">"String without escape codes \\x26 without \#&#123;interpolation&#125;"</span></div></pre></td></tr></table></figure>
+<p>下面的转义码可以被用在字符串和字符列表里：</p>
+<ul>
+<li>\ - 单个反斜杠</li>
+<li>\a - 铃声/警报</li>
+<li>\b - 退格键</li>
+<li>\d - 删除键</li>
+<li>\e - 退出键</li>
+<li>\f - 换页符</li>
+<li>\n - 新行符</li>
+<li>\r - 回车符</li>
+<li>\s - 空格付</li>
+<li>\t - Tab键</li>
+<li>\v - 垂直Tab键</li>
+<li>\0 - 空字节</li>
+<li>\xDD - 用十六进制表示的单字节（比如：\x13）</li>
+<li>\uDDDD 和 \u{D…} - 用十六进制表示的Unicode代码点（比如：\u{1F600}）</li>
+</ul>
+<p>另外，在双引号字符串里的双引号需要用\”来转义，类似的，单引号字符列表里的单引号需要用\’来转义。然而，向上述的例子那样改变分隔符而不是转义它们是一种更好的方式。</p>
+<p>印记也支持 heredocs ，即 三个双或单引号作为分隔符：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; ~s<span class="string">""</span><span class="string">"</span></div><div class="line">...&gt; this is</div><div class="line">...&gt; a heredoc string</div><div class="line">...&gt; "<span class="string">""</span></div></pre></td></tr></table></figure>
+<p>heredocs印记最常用的地方是在写文档的时候。例如，在文档里写转义字符很容易出错，因为需要两次转义一些字符：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">Converts double-quotes to single-quotes.</div><div class="line"></div><div class="line">## Examples</div><div class="line"></div><div class="line">    iex&gt; convert("\\\<span class="string">"foo\\\""</span>)</div><div class="line">    <span class="string">"'foo'"</span></div><div class="line"></div><div class="line"><span class="string">""</span><span class="string">"</span></div><div class="line">def convert(...)</div></pre></td></tr></table></figure>
+<p>但是用~S，这个问题可以完全避免：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="variable">@doc</span> ~S<span class="string">""</span><span class="string">"</span></div><div class="line">Converts double-quotes to single-quotes.</div><div class="line"></div><div class="line">## Examples</div><div class="line"></div><div class="line">    iex&gt; convert("\<span class="string">"foo\""</span>)</div><div class="line">    <span class="string">"'foo'"</span></div><div class="line"></div><div class="line"><span class="string">""</span><span class="string">"</span></div><div class="line">def convert(...)</div></pre></td></tr></table></figure>
+<h1 id="自定义印记"><a href="#自定义印记" class="headerlink" title="自定义印记"></a><span id="part-four">自定义印记</span></h1><p>如本文开始的时候所提示，Elixir中的印记是一种扩展。实际上，用印记 ~r/foo/i 和以一个二进制数据和一个字符列表作为入参调用 sigil_r 是等效的：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; sigil_r(&lt;&lt;<span class="string">"foo"</span>&gt;&gt;, <span class="string">'i'</span>)</div><div class="line">~r<span class="string">"foo"</span>i</div></pre></td></tr></table></figure>
+<p>我们可以通过访问sigil_r文档来看看~r：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; h sigil_r</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>我们也可以通过遵循 sigil_{identifier} 模式来实现函数以提供我们自己的印记。例如，让我们来实现 ~i 印记，它返回一个整数（使用可选择的 n 修饰符来返回它的负数）：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">MySigils</span></span> <span class="keyword">do</span></div><div class="line">...&gt;   <span class="function"><span class="keyword">def</span> <span class="title">sigil_i</span></span>(string, []), <span class="symbol">do:</span> String.to_integer(string)</div><div class="line">...&gt;   <span class="function"><span class="keyword">def</span> <span class="title">sigil_i</span></span>(string, [?n]), <span class="symbol">do:</span> -String.to_integer(string)</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">iex&gt; import MySigils</div><div class="line">iex&gt; ~i(<span class="number">13</span>)</div><div class="line"><span class="number">13</span></div><div class="line">iex&gt; ~i(<span class="number">42</span>)n</div><div class="line">-<span class="number">42</span></div></pre></td></tr></table></figure>
+<p>印记也可以在宏的帮助下被用来做编译期工作。例如，Elixir里的正则表达式可以在源代码编译期间被编译为一个高效的描述，因此在运行期跳过这一步。如果你对这个主题有兴趣，我们建议你学习更多关于宏的知识，并查阅印记在Kernel模块（即形如sigil_*相关被定义的函数）里是如何实现的。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/sigils.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/sigils.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Elixir入门教程－速构]]></title>
       <url>http://szpzs.oschina.io/2017/02/11/elixir-getting-started-comprehensions/</url>
       <content type="html"><![CDATA[<ol>
