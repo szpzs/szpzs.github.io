@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-02-13T03:23:16.000Z</updated>
+  <updated>2017-02-13T22:22:34.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,90 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elixir入门教程－Erlang的库</title>
+    <link href="http://szpzs.oschina.io/2017/02/14/elixir-getting-started-erlang-libraries/"/>
+    <id>http://szpzs.oschina.io/2017/02/14/elixir-getting-started-erlang-libraries/</id>
+    <published>2017-02-13T22:18:33.000Z</published>
+    <updated>2017-02-13T22:22:34.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">binary模块</a></li>
+<li><a href="#part-two">格式化文本输出</a></li>
+<li><a href="#part-three">crypto模块</a></li>
+<li><a href="#part-four">digraph模块</a></li>
+<li><a href="#part-five">ETS</a></li>
+<li><a href="#part-six">math模块</a></li>
+<li><a href="#part-seven">queue模块</a></li>
+<li><a href="#part-eight">rand模块</a></li>
+<li><a href="#part-nine">zip和zlib模块</a></li>
+</ol>
+<p>Elixir提供了非常棒的与Erlang的库交互的能力。实际上，Elixir不鼓励简单地封装Erlang的库，而是提倡直接与Erlang代码交互。本文我们将介绍一些最常见和有用的而在Elixir里找不到的Erlang功能。</p>
+<p>当你逐渐熟悉了Elixir，你可能想要探索Erlang的<a href="http://erlang.org/doc/apps/stdlib/index.html" target="_blank" rel="external">STDLIB指引手册</a>来获得更多细节。</p>
+<a id="more"></a>
+<h1 id="binary模块"><a href="#binary模块" class="headerlink" title="binary模块"></a><span id="part-one">binary模块</span></h1><p>Elixir内建的String模块处理用UTF-8编码的二进制数据。当你要处理不一定要用UTF-8编码的二进制数据的时候，<a href="http://erlang.org/doc/man/binary.html" target="_blank" rel="external">binary模块</a>就有用。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; String.to_charlist <span class="string">"Ø"</span></div><div class="line">[<span class="number">216</span>]</div><div class="line">iex&gt; <span class="symbol">:binary</span>.bin_to_list <span class="string">"Ø"</span></div><div class="line">[<span class="number">195</span>, <span class="number">152</span>]</div></pre></td></tr></table></figure>
+<p>上面的例子展示了区别；String模块返回Unicode代码点，而 :binary 处理原始数据的字节。</p>
+<h1 id="格式化文本输出"><a href="#格式化文本输出" class="headerlink" title="格式化文本输出"></a><span id="part-two">格式化文本输出</span></h1><p>Elixir没有包含与C语言和其他语言里的printf函数相似的函数。幸运地是，Erlang标准库函数 :io.format/2 和 :io_lib.format/2 可以被用作这样的功能。第一个函数格式化数据输出到终端，而第二个函数格式化数据为一个iolist。格式化说明符不同于printf，<a href="http://erlang.org/doc/man/io.html#format-1" target="_blank" rel="external">细节请参阅Erlang官方文档</a>。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:io</span>.format(<span class="string">"Pi is approximately given by:~10.3f~n"</span>, [<span class="symbol">:math</span>.pi])</div><div class="line">Pi is approximately given <span class="symbol">by:</span>     <span class="number">3.142</span></div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; to_string <span class="symbol">:io_lib</span>.format(<span class="string">"Pi is approximately given by:~10.3f~n"</span>, [<span class="symbol">:math</span>.pi])</div><div class="line"><span class="string">"Pi is approximately given by:     3.142\n"</span></div></pre></td></tr></table></figure>
+<p>另外要注意Erlang的格式化函数需要特别注意Unicode的处理。</p>
+<h1 id="crypto模块"><a href="#crypto模块" class="headerlink" title="crypto模块"></a><span id="part-three">crypto模块</span></h1><p>crypto模块包含哈希函数、数字签名、加解密等等函数。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Base.encode16(<span class="symbol">:crypto</span>.hash(<span class="symbol">:sha256</span>, <span class="string">"Elixir"</span>))</div><div class="line"><span class="string">"3315715A7A3AD57428298676C5AE465DADA38D951BDFAC9348A8A31E9C7401CB"</span></div></pre></td></tr></table></figure>
+<p>:crypto模块不是Erlang标准库的一部分，但是它包含在Erlang发行版里。这意味着，任何时候你要使用 :crypto 的时候，就要把它加入你的项目应用列表里。要这么做的话，编辑你的 mix.exs 文件包含它：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">application</span></span> <span class="keyword">do</span></div><div class="line">  [<span class="symbol">extra_applications:</span> [<span class="symbol">:crypto</span>]]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<h1 id="digraph模块"><a href="#digraph模块" class="headerlink" title="digraph模块"></a><span id="part-four">digraph模块</span></h1><p><a href="http://erlang.org/doc/man/digraph.html" target="_blank" rel="external">digraph模块</a>（还有<a href="http://erlang.org/doc/man/digraph_utils.html" target="_blank" rel="external">digraph工具</a>）包含了处理用点和边构建的有向图的函数。在构建了图后，模块里的算法将帮助找到图里的两个节点间的最短路径或回环路径。</p>
+<p>给定三个节点，找到从第一个到最后一个节点的最短路径。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; digraph = <span class="symbol">:digraph</span>.new()</div><div class="line">iex&gt; coords = [&#123;<span class="number">0</span>.<span class="number">0</span>, <span class="number">0</span>.<span class="number">0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0</span>.<span class="number">0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">1.0</span>&#125;]</div><div class="line">iex&gt; [v<span class="number">0</span>, v1, v2] = (<span class="keyword">for</span> c &lt;- coords, <span class="symbol">do:</span> <span class="symbol">:digraph</span>.add_vertex(digraph, c))</div><div class="line">iex&gt; <span class="symbol">:digraph</span>.add_edge(digraph, v<span class="number">0</span>, v1)</div><div class="line">iex&gt; <span class="symbol">:digraph</span>.add_edge(digraph, v1, v2)</div><div class="line">iex&gt; <span class="symbol">:digraph</span>.get_short_path(digraph, v<span class="number">0</span>, v2)</div><div class="line">[&#123;<span class="number">0</span>.<span class="number">0</span>, <span class="number">0</span>.<span class="number">0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0</span>.<span class="number">0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">1.0</span>&#125;]</div></pre></td></tr></table></figure>
+<p>注意：:digraph里的函数在内部修改了图的结构，这是可能的，因为它们被实现为ETS表。下面我们来看看ETS。</p>
+<h1 id="ETS"><a href="#ETS" class="headerlink" title="ETS"></a><span id="part-five">ETS</span></h1><p><a href="http://erlang.org/doc/man/ets.html" target="_blank" rel="external">ets</a> 和 <a href="http://erlang.org/doc/man/dets.html" target="_blank" rel="external">dets</a> 模块分别处理内存或硬盘的大数据结构存储。</p>
+<p>ETS让你创建一个包含元组的表。默认情况下，ETS表是被保护的，就是说只有拥有者进程可以写这个表，而其他任何进程可以读这个表。ETS有一些功能被用来当做简单数据库、KV存储或者缓存机制。</p>
+<p>ets模块的函数将修改表的状态作为副作用。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; table = <span class="symbol">:ets</span>.new(<span class="symbol">:ets_test</span>, [])</div><div class="line"><span class="comment"># Store as tuples with &#123;name, population&#125;</span></div><div class="line">iex&gt; <span class="symbol">:ets</span>.insert(table, &#123;<span class="string">"China"</span>, <span class="number">1_374_000_000</span>&#125;)</div><div class="line">iex&gt; <span class="symbol">:ets</span>.insert(table, &#123;<span class="string">"India"</span>, <span class="number">1_284_000_000</span>&#125;)</div><div class="line">iex&gt; <span class="symbol">:ets</span>.insert(table, &#123;<span class="string">"USA"</span>, <span class="number">322_000_000</span>&#125;)</div><div class="line">iex&gt; <span class="symbol">:ets</span>.i(table)</div><div class="line">&lt;<span class="number">1</span>   &gt; &#123;&lt;&lt;<span class="string">"India"</span>&gt;&gt;,<span class="number">1284000000</span>&#125;</div><div class="line">&lt;<span class="number">2</span>   &gt; &#123;&lt;&lt;<span class="string">"USA"</span>&gt;&gt;,<span class="number">322000000</span>&#125;</div><div class="line">&lt;<span class="number">3</span>   &gt; &#123;&lt;&lt;<span class="string">"China"</span>&gt;&gt;,<span class="number">1374000000</span>&#125;</div></pre></td></tr></table></figure>
+<h1 id="math模块"><a href="#math模块" class="headerlink" title="math模块"></a><span id="part-six">math模块</span></h1><p><a href="http://erlang.org/doc/man/math.html" target="_blank" rel="external">math模块</a>包含常用的数学运算，覆盖三角函数、指数函数、对数函数。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; angle_45_deg = <span class="symbol">:math</span>.pi() * <span class="number">45.0</span> / <span class="number">180.0</span></div><div class="line">iex&gt; <span class="symbol">:math</span>.sin(angle_45_deg)</div><div class="line"><span class="number">0</span>.<span class="number">7071067811865475</span></div><div class="line">iex&gt; <span class="symbol">:math</span>.exp(<span class="number">55.0</span>)</div><div class="line"><span class="number">7.694785265142018</span>e23</div><div class="line">iex&gt; <span class="symbol">:math</span>.log(<span class="number">7.694785265142018</span>e23)</div><div class="line"><span class="number">55.0</span></div></pre></td></tr></table></figure>
+<h1 id="queue模块"><a href="#queue模块" class="headerlink" title="queue模块"></a><span id="part-seven">queue模块</span></h1><p><a href="http://erlang.org/doc/man/queue.html" target="_blank" rel="external">queue是一个数据结构</a>，它高效地实现了（双端）FIFO（先进先出）队列。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">iex&gt; q = <span class="symbol">:queue</span>.new</div><div class="line">iex&gt; q = <span class="symbol">:queue</span>.<span class="keyword">in</span>(<span class="string">"A"</span>, q)</div><div class="line">iex&gt; q = <span class="symbol">:queue</span>.<span class="keyword">in</span>(<span class="string">"B"</span>, q)</div><div class="line">iex&gt; &#123;value, q&#125; = <span class="symbol">:queue</span>.out(q)</div><div class="line">iex&gt; value</div><div class="line">&#123;<span class="symbol">:value</span>, <span class="string">"A"</span>&#125;</div><div class="line">iex&gt; &#123;value, q&#125; = <span class="symbol">:queue</span>.out(q)</div><div class="line">iex&gt; value</div><div class="line">&#123;<span class="symbol">:value</span>, <span class="string">"B"</span>&#125;</div><div class="line">iex&gt; &#123;value, q&#125; = <span class="symbol">:queue</span>.out(q)</div><div class="line">iex&gt; value</div><div class="line"><span class="symbol">:empty</span></div></pre></td></tr></table></figure>
+<h1 id="rand模块"><a href="#rand模块" class="headerlink" title="rand模块"></a><span id="part-eight">rand模块</span></h1><p><a href="http://erlang.org/doc/man/rand.html" target="_blank" rel="external">rand</a>有返回随机数和设置随机种子的函数。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:rand</span>.uniform()</div><div class="line"><span class="number">0</span>.<span class="number">8175669086010815</span></div><div class="line">iex&gt; <span class="number">_</span> = <span class="symbol">:rand</span>.seed(<span class="symbol">:exs1024</span>, &#123;<span class="number">123</span>, <span class="number">123534</span>, <span class="number">345345</span>&#125;)</div><div class="line">iex&gt; <span class="symbol">:rand</span>.uniform()</div><div class="line"><span class="number">0</span>.<span class="number">5820506340260994</span></div><div class="line">iex&gt; <span class="symbol">:rand</span>.uniform(<span class="number">6</span>)</div><div class="line"><span class="number">6</span></div></pre></td></tr></table></figure>
+<h1 id="zip和zlib模块"><a href="#zip和zlib模块" class="headerlink" title="zip和zlib模块"></a><span id="part-nine">zip和zlib模块</span></h1><p>zip模块让你从硬盘或内存读写ZIP文件，也提取文件的信息。</p>
+<p>下面的代码统计ZIP文件里的文件个数：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:zip</span>.foldl(<span class="keyword">fn</span> <span class="number">_</span>, <span class="number">_</span>, <span class="number">_</span>, acc -&gt; acc + <span class="number">1</span> <span class="keyword">end</span>, <span class="number">0</span>, <span class="symbol">:binary</span>.bin_to_list(<span class="string">"file.zip"</span>))</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="number">633</span>&#125;</div></pre></td></tr></table></figure>
+<p>zlib模块用zlib格式，就如gzip命令里找到的格式，来处理压缩数据：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">iex&gt; song = <span class="string">"</span></div><div class="line">...&gt; Mary had a little lamb,</div><div class="line">...&gt; His fleece was white as snow,</div><div class="line">...&gt; And everywhere that Mary went,</div><div class="line">...&gt; The lamb was sure to go."</div><div class="line">iex&gt; compressed = <span class="symbol">:zlib</span>.compress(song)</div><div class="line">iex&gt; byte_size song</div><div class="line"><span class="number">110</span></div><div class="line">iex&gt; byte_size compressed</div><div class="line"><span class="number">99</span></div><div class="line">iex&gt; <span class="symbol">:zlib</span>.uncompress(compressed)</div><div class="line"><span class="string">"\nMary had a little lamb,\nHis fleece was white as snow,\nAnd everywhere that Mary went,\nThe lamb was sure to go."</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/erlang-libraries.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/erlang-libraries.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;binary模块&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;格式化文本输出&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;crypto模块&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;digraph模块&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;ETS&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-six&quot;&gt;math模块&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-seven&quot;&gt;queue模块&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-eight&quot;&gt;rand模块&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-nine&quot;&gt;zip和zlib模块&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Elixir提供了非常棒的与Erlang的库交互的能力。实际上，Elixir不鼓励简单地封装Erlang的库，而是提倡直接与Erlang代码交互。本文我们将介绍一些最常见和有用的而在Elixir里找不到的Erlang功能。&lt;/p&gt;
+&lt;p&gt;当你逐渐熟悉了Elixir，你可能想要探索Erlang的&lt;a href=&quot;http://erlang.org/doc/apps/stdlib/index.html&quot;&gt;STDLIB指引手册&lt;/a&gt;来获得更多细节。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="Erlang&#39;s libraries" scheme="http://szpzs.oschina.io/categories/Elixir/Erlang-s-libraries/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="Erlang&#39;s libraries" scheme="http://szpzs.oschina.io/tags/Erlang-s-libraries/"/>
+    
+  </entry>
   
   <entry>
     <title>Elixir入门教程－Typespecs 和 behaviours</title>
@@ -1814,74 +1898,6 @@
       <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
     
       <category term="basic type" scheme="http://szpzs.oschina.io/tags/basic-type/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Elixir入门教程－介绍</title>
-    <link href="http://szpzs.oschina.io/2017/01/27/elixir-getting-started-introduction/"/>
-    <id>http://szpzs.oschina.io/2017/01/27/elixir-getting-started-introduction/</id>
-    <published>2017-01-27T12:31:52.000Z</published>
-    <updated>2017-01-27T12:57:15.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>欢迎你的到来！</p>
-<p>本教程我们将教你Elixir的基础，语言的语法，如何定义模块，如何处理常见的数据结构和更多的特点。本章将聚焦在确保Elixir已经安装并且你能够成功地运行Elixir的交互Shell，即IEx。</p>
-<a id="more"></a>
-<p>我们的必要条件是：</p>
-<ul>
-<li>Elixir － 版本至少是1.4.0</li>
-<li>Erlang － 版本至少是18.0</li>
-</ul>
-<p>让我们开始吧！</p>
-<blockquote>
-<p>如果你在本教程或本网站上发现任何错误，<a href="https://github.com/elixir-lang/elixir-lang.github.com" target="_blank" rel="external">请报告这个bug或者发一个pull requst到我们的问题跟踪里</a>。</p>
-</blockquote>
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>如果你还没有安装好Elixir，请到我们的<a href="http://elixir-lang.org/install.html" target="_blank" rel="external">安装指南</a>页面。一旦你安装好Elixir，你就能够运行  elixir –version 来得到当前Elixir的版本。</p>
-<h1 id="交互模式"><a href="#交互模式" class="headerlink" title="交互模式"></a>交互模式</h1><p>当你安装Elixir，你将有三个新的可执行文件：iex，elixir和elixirc。如果你是从源码编译Elixir或者使用预先打包好的版本，你可以在bin目录里找到这三个可执行文件。</p>
-<p>现在，让我们运行iex（如果你在Windows下则运行iex.bat），它代表交互式Elixir。在交互模式，我们能够输入任何Elixir表达式并且得到它的结果。让我们用一些基本表达式来热身。</p>
-<p>运行iex并输入如下的表达式：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Interactive Elixir - press Ctrl+C to exit (type h() ENTER <span class="keyword">for</span> help)</div><div class="line">iex&gt; <span class="number">40</span> + <span class="number">2</span></div><div class="line"><span class="number">42</span></div><div class="line">iex&gt; <span class="string">"hello"</span> &lt;&gt; <span class="string">" world"</span></div><div class="line"><span class="string">"hello world"</span></div></pre></td></tr></table></figure>
-<p>看来我们准备好了！我们从下下一章开始将在接下来的章节里大量使用交互shell来进一步熟悉这门语言的构造和基本类型。</p>
-<blockquote>
-<p>注意：如果你使用的是Windows，你也可以尝试 iex.bat - -werl 根据你正在用的控制台来提供更好的体验。</p>
-</blockquote>
-<h1 id="运行脚本"><a href="#运行脚本" class="headerlink" title="运行脚本"></a>运行脚本</h1><p>初步熟悉这门语言后，你可能想尝试写简单的程序，这个任务可以通过把下述Elixir代码放到一个文件里来完成：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">IO.puts “Hello world from Elixir<span class="string">"</span></div></pre></td></tr></table></figure>
-<p>保存文件为simple.exs并且用elixir执行它：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">elixir simple.exs</div><div class="line">Hello world from Elixir</div></pre></td></tr></table></figure>
-<p>后续我们将学习如何编译Elixir代码（<a href="http://elixir-lang.org/getting-started/modules.html" target="_blank" rel="external">在第八章</a>）并且如何使用Mix构建工具（在<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix&amp;OTP guide</a>）。现在，让我们进入到<a href="http://elixir-lang.org/getting-started/basic-types.html" target="_blank" rel="external">第二章</a>。</p>
-<h1 id="如何问问题"><a href="#如何问问题" class="headerlink" title="如何问问题"></a>如何问问题</h1><p>在本教程的学习过程中，有一些疑问是很常见的，毕竟，这是学习过程的一部分！有很多地方你可以请教他们来更多地了解Elixir：</p>
-<ul>
-<li><a href="irc://irc.freenode.net/elixir-lang" target="_blank" rel="external">#elixir-lang on freenode IRC</a></li>
-<li><a href="https://elixir-slackin.herokuapp.com/" target="_blank" rel="external">Elixir on Slack</a></li>
-<li><a href="http://elixirforum.com/" target="_blank" rel="external">Elixir Forum</a></li>
-<li><a href="https://stackoverflow.com/questions/tagged/elixir" target="_blank" rel="external">elixir tag on StackOverflow</a></li>
-</ul>
-<p>当问问题的时候，记住两个技巧：</p>
-<ul>
-<li>不是问“在Elixir里如何去做X”，而是问“在Elixir里怎样去解决Y”。换句话说，不要问如何实现一个特定的解决方案，而是描述手头上的问题。描述一个问题的时候给予更多的上下文信息以及更少的对一个正确答案的偏见。</li>
-<li>如果事情并不如预想的那样，请在你的报告里尽可能多地提供相关信息，比如：你的Elixir版本，代码片段和错误信息以及错误堆栈。使用像Gist这样的网站发布这些信息。</li>
-</ul>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/introduction.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/introduction.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;欢迎你的到来！&lt;/p&gt;
-&lt;p&gt;本教程我们将教你Elixir的基础，语言的语法，如何定义模块，如何处理常见的数据结构和更多的特点。本章将聚焦在确保Elixir已经安装并且你能够成功地运行Elixir的交互Shell，即IEx。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-      <category term="introduction" scheme="http://szpzs.oschina.io/categories/Elixir/introduction/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-      <category term="introduction" scheme="http://szpzs.oschina.io/tags/introduction/"/>
     
   </entry>
   
