@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-02-13T22:22:34.000Z</updated>
+  <updated>2017-02-15T06:13:04.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,63 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elixir入门教程－下一步</title>
+    <link href="http://szpzs.oschina.io/2017/02/15/elixir-getting-started-where-to-go-next/"/>
+    <id>http://szpzs.oschina.io/2017/02/15/elixir-getting-started-where-to-go-next/</id>
+    <published>2017-02-15T06:01:27.000Z</published>
+    <updated>2017-02-15T06:13:04.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">构建你的第一个Elixir项目</a></li>
+<li><a href="#part-two">元编程</a></li>
+<li><a href="#part-three">社区和其他资源</a></li>
+<li><a href="#part-four">关于Erlang</a></li>
+</ol>
+<p>渴望学更多吗？请继续阅读！</p>
+<a id="more"></a>
+<h1 id="构建你的第一个Elixir项目"><a href="#构建你的第一个Elixir项目" class="headerlink" title="构建你的第一个Elixir项目"></a><span id="part-one">构建你的第一个Elixir项目</span></h1><p>为了开始你的第一个项目，Elixir提供了一个构建工具，叫做Mix。你可以按如下所示开始你的新项目：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mix new path/to/new/project</div></pre></td></tr></table></figure>
+<p>我们已经写了一个教程，涵盖了如何构建一个Elixir应用，包括它自己的监督树、配置、测试等等。这个应用是一个分布式键值存储，我们把键值对放入容器中，并且把这些容器跨多节点分布：</p>
+<ul>
+<li><a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix and OTP</a></li>
+</ul>
+<h1 id="元编程"><a href="#元编程" class="headerlink" title="元编程"></a><span id="part-two">元编程</span></h1><p>Elixir是一种可扩展和非常定制化的编程语言，这归功于它的元编程支持。Elixir中绝大多数元编程是通过宏来做的，宏在一些场景下非常有用，特别是写领域特定语言。我们已经写了一个简短教程来解释宏背后的基本机制，展示如何写宏，以及如何用宏来创建领域特定语言。</p>
+<ul>
+<li><a href="http://elixir-lang.org/getting-started/meta/quote-and-unquote.html" target="_blank" rel="external">Elixir中的元编程</a></li>
+</ul>
+<h1 id="社区和其他资源"><a href="#社区和其他资源" class="headerlink" title="社区和其他资源"></a><span id="part-three">社区和其他资源</span></h1><p>我们有一个<a href="http://elixir-lang.org/learning.html" target="_blank" rel="external">学习区</a>，在里面我们推荐一些书籍、视频和其他资源，都是关于学习Elixir和浏览它的生态系统的。除此之外，社区也提供了大量Elixir资源，比如，会议的演讲、开源项目以及其他学习Elixir的资源。</p>
+<p>别忘了你也可以从Github上获取<a href="https://github.com/elixir-lang/elixir" target="_blank" rel="external">Elixir它自己的源代码</a>，Elixir绝大多数代码是用Elixir写的（主要在lib目录里），或者<a href="http://elixir-lang.org/docs.html" target="_blank" rel="external">浏览Elixir的官方文档</a>。</p>
+<h1 id="关于Erlang"><a href="#关于Erlang" class="headerlink" title="关于Erlang"></a><span id="part-four">关于Erlang</span></h1><p>Elixir运行在Erlang虚拟机之上，而作为一个名Elixir开发者，他迟早会想要与已存在的Erlang库进行交互。在线上有大量的资源，包括Erlang的基础知识和Erlang的更高级特性：</p>
+<ul>
+<li><a href="http://elixir-lang.org/crash-course.html" target="_blank" rel="external">Erlang语法：速成课程</a>提供了一个Erlang语法的简洁介绍。每一段代码都伴随着等效的Elixir代码。这是一个好机会，对于你来说不仅可以熟悉Erlang语法，也可以复习你在本教程学到的一些知识。</li>
+<li>Erlang的官方网站有一个简短的<a href="http://www.erlang.org/course/concurrent_programming.html" target="_blank" rel="external">教程</a>，它用图来简单地描述了Erlang并发编程的基础知识。</li>
+<li><a href="http://learnyousomeerlang.com/" target="_blank" rel="external">《Learn You Some Erlang for Great Good!》</a>是一本非常棒的介绍Erlang的设计原则、标准库、最佳实践以及其他知识的书籍。一旦你已经阅读了上面提及的速成课程，你就可以安全地略过这本书介绍语法的前面几章。当你读到 <a href="http://learnyousomeerlang.com/the-hitchhikers-guide-to-concurrency" target="_blank" rel="external">并发指南</a> 这一章的时候，才是真正有趣的开始。</li>
+</ul>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/where-to-go-next.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/where-to-go-next.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;构建你的第一个Elixir项目&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;元编程&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;社区和其他资源&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;关于Erlang&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;渴望学更多吗？请继续阅读！&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+  </entry>
   
   <entry>
     <title>Elixir入门教程－Erlang的库</title>
@@ -1757,147 +1814,6 @@
       <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
     
       <category term="basic operator" scheme="http://szpzs.oschina.io/tags/basic-operator/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Elixir入门教程－基本类型</title>
-    <link href="http://szpzs.oschina.io/2017/01/28/elixir-getting-started-basic-types/"/>
-    <id>http://szpzs.oschina.io/2017/01/28/elixir-getting-started-basic-types/</id>
-    <published>2017-01-28T14:33:44.000Z</published>
-    <updated>2017-01-28T14:39:17.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">基本算术运算</a></li>
-<li><a href="#part-two">布尔类型</a></li>
-<li><a href="#part-three">原子</a></li>
-<li><a href="#part-four">字符串</a></li>
-<li><a href="#part-five">匿名函数</a></li>
-<li><a href="#part-six">(链接) 列表</a></li>
-<li><a href="#part-seven">元组</a></li>
-<li><a href="#part-eight">列表还是元组？</a></li>
-</ol>
-<a id="more"></a>
-<p>本章我们将学习更多Elixir的基本数据类型：整数、浮点数、布尔值、原子、字符串、列表和元组。一些基本类型数据如下：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span>          # 整数</div><div class="line">iex&gt; <span class="number">0</span>x1F       # 整数</div><div class="line">iex&gt; <span class="number">1.0</span>        # 浮点数</div><div class="line">iex&gt; <span class="literal">true</span>       # 布尔值</div><div class="line">iex&gt; :atom      # 原子 / 符号</div><div class="line">iex&gt; <span class="string">"elixir"</span>   # 字符串</div><div class="line">iex&gt; [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]  # 列表</div><div class="line">iex&gt; &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;  # 元组</div></pre></td></tr></table></figure>
-<h1 id="基本算术运算"><a href="#基本算术运算" class="headerlink" title="基本算术运算"></a><span id="part-one">基本算术运算</span></h1><p>打开 iex 输入如下表达式：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1</span> + <span class="number">2</span></div><div class="line"><span class="number">3</span></div><div class="line">iex&gt; <span class="number">5</span> * <span class="number">5</span></div><div class="line"><span class="number">25</span></div><div class="line">iex&gt; <span class="number">10</span> / <span class="number">2</span></div><div class="line"><span class="number">5.0</span></div></pre></td></tr></table></figure>
-<p>我们注意到 10 / 2 返回了一个浮点数5.0而不是整数5。这是正常的。在Elixir里，运算符 / 总是返回浮点数。如果你想要做整数除法或者想得到除法的余数，你可以调用 div 和 rem 函数：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">div</span>(<span class="number">10</span>, <span class="number">2</span>)</div><div class="line"><span class="number">5</span></div><div class="line">iex&gt; <span class="keyword">div</span> <span class="number">10</span>, <span class="number">2</span></div><div class="line"><span class="number">5</span></div><div class="line">iex&gt; <span class="keyword">rem</span> <span class="number">10</span>, <span class="number">3</span></div><div class="line"><span class="number">1</span></div></pre></td></tr></table></figure>
-<p>注意！Elixir允许你在调用一个命名函数时候省略圆括号。这个特性使得当你写声明和控制流结构的时候由更加简洁的语法。</p>
-<p>Elixir也支持快捷符号来输入二进制、八进制以及十六进制数字：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">0</span>b1010</div><div class="line"><span class="number">10</span></div><div class="line">iex&gt; <span class="number">0</span>o777</div><div class="line"><span class="number">511</span></div><div class="line">iex&gt; <span class="number">0</span>x1F</div><div class="line"><span class="number">31</span></div></pre></td></tr></table></figure>
-<p>浮点数最少要求小数点后有一位数字，并且也支持用e符号表达式表示指数数字：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="number">1.0</span></div><div class="line"><span class="number">1.0</span></div><div class="line">iex&gt; <span class="number">1.0e-10</span></div><div class="line"><span class="number">1.0e-10</span></div></pre></td></tr></table></figure>
-<p>在Elixir里浮点数是64位双精度。</p>
-<p>你可以调用 round 函数获得与给定的浮点数最接近的整数，或者调用 trunc 函数获得一个浮点数的整数部分。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; round(<span class="number">3.58</span>)</div><div class="line"><span class="number">4</span></div><div class="line">iex&gt; trunc(<span class="number">3.58</span>)</div><div class="line"><span class="number">3</span></div></pre></td></tr></table></figure>
-<h2 id="识别函数"><a href="#识别函数" class="headerlink" title="识别函数"></a>识别函数</h2><p>Elixir里的函数是通过它的名字和函数参数个数来区分的。函数的arity指的是函数的参数个数。从这一点上，我们将在整个文档里使用的函数的名称和它的参数个数来描述函数。round/1 确定函数的名字是round，参数个数是1，而 round/2 确定一个不同（其实是不存在的）的函数，相同的名字，参数个数是2。</p>
-<h1 id="布尔类型"><a href="#布尔类型" class="headerlink" title="布尔类型"></a><span id="part-two">布尔类型</span></h1><p>Elixir支持 true 和 false 为布尔值。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="literal">true</span></div><div class="line"><span class="literal">true</span></div><div class="line">iex&gt; <span class="literal">true</span> == <span class="literal">false</span></div><div class="line"><span class="literal">false</span></div></pre></td></tr></table></figure>
-<p>Elixir提供很多断言函数来检查一个值的类型。例如，is_boolean/2 函数可以用来检查一个值是不是布尔类型。</p>
-<p>注：Elixir的函数是通过函数名和参数个数（即arity）来区分的。因此，is_boolean/1 表示函数名是is_boolean而且有一个入参。is_boolean/2 （其实并不存在这个函数）表示有相同的函数名却有不同的arity的函数。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; is_boolean(<span class="literal">true</span>)</div><div class="line"><span class="literal">true</span></div><div class="line">iex&gt; is_boolean(<span class="number">1</span>)</div><div class="line"><span class="literal">false</span></div></pre></td></tr></table></figure>
-<p>如果入参是一个整数、一个浮点数或者其他数字，你也可以分别用 is_integer/1，is_float/1或is_number/1来检查。</p>
-<blockquote>
-<p>注：在任何时候，你可以在shell里输入 h() 来打印如何使用shell的信息。这个 h 帮助者也可以用来访问任何函数的文档。例如，输入 h is_integer/1 将打印 is_integer/1 函数的文档。它也可以运用在操作符和其他结构上（试一下 h ==/2）。</p>
-</blockquote>
-<h1 id="原子"><a href="#原子" class="headerlink" title="原子"></a><span id="part-three">原子</span></h1><p>原子是常量，它们名字就是它们自己的值。其他语言里叫这种数据类型为符号：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; :hello</div><div class="line">:hello</div><div class="line">iex&gt; :hello == :world</div><div class="line"><span class="literal">false</span></div></pre></td></tr></table></figure>
-<p>布尔值 true 和 false 实际上是原子。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="literal">true</span> == :<span class="literal">true</span></div><div class="line"><span class="literal">true</span></div><div class="line">iex&gt; is_atom(<span class="literal">false</span>)</div><div class="line"><span class="literal">true</span></div><div class="line">iex&gt; is_boolean(:<span class="literal">false</span>)</div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
-<h1 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a><span id="part-four">字符串</span></h1><p>在Elixir里，字符串被包裹在两个双引号中，并且它们被用UTF-8来编码的。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="string">"hellö"</span></div><div class="line"><span class="string">"hellö"</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p>注意：如果你在Windows中，你的终端可能默认就不用UTF-8编码。你可以通过在输入IEx前运行chcp 56001来改变当前会话的编码。</p>
-</blockquote>
-<p>Elixir也支持字符串插入：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="string">"hellö #&#123;:world&#125;"</span></div><div class="line"><span class="string">"hellö world"</span></div></pre></td></tr></table></figure>
-<p>字符串内可以有换行符。你可以用转义字符引入它们。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">iex&gt; "hello</div><div class="line">...&gt; world"</div><div class="line">"hello\nworld"</div><div class="line">iex&gt; "hello\nworld"</div><div class="line">"hello\nworld"</div></pre></td></tr></table></figure>
-<p>你可以用IO模块内的函数IO.puts/1来打印一个字符串。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; IO.puts <span class="string">"hello\nworld"</span></div><div class="line">hello</div><div class="line">world</div><div class="line">:ok</div></pre></td></tr></table></figure>
-<p>注意：IO.puts/1函数在打印字符串后返回原子 :ok 作为结果。</p>
-<p>在Elixir内部字符串是用一组字节组成的二进制数据来表示的。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; is_binary(<span class="string">"hellö"</span>)</div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
-<p>我们也可以获得一个字符串内的字节数。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; byte_size(<span class="string">"hellö"</span>)</div><div class="line"><span class="number">6</span></div></pre></td></tr></table></figure>
-<p>我们注意到上述例子的字符串的字节数是6，即使它只有5个字符。这是因为字符 “ö” 用UTF-8来编码的时候占用了两个字节。我们可以通过用String.length/1函数来基于字符数获得字符串的实际长度。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; String.length(<span class="string">"hellö"</span>)</div><div class="line"><span class="number">5</span></div></pre></td></tr></table></figure>
-<p><a href="https://hexdocs.pm/elixir/String.html" target="_blank" rel="external">String模块</a>包含了一些操作以Unicode标准定义的字符串的函数。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; String.upcase(<span class="string">"hellö"</span>)</div><div class="line"><span class="string">"HELLÖ"</span></div></pre></td></tr></table></figure>
-<h1 id="匿名函数"><a href="#匿名函数" class="headerlink" title="匿名函数"></a><span id="part-five">匿名函数</span></h1><p>匿名函数可以在行内被创建，并且它是被关键字fn和end界定的函数：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">iex&gt; add = fn a, b -&gt; a + b <span class="keyword">end</span></div><div class="line">#Function&lt;<span class="number">12.71889879</span>/<span class="number">2</span> in :erl_eval.expr/<span class="number">5</span>&gt;</div><div class="line">iex&gt; add.(<span class="number">1</span>, <span class="number">2</span>)</div><div class="line"><span class="number">3</span></div><div class="line">iex&gt; is_function(add)</div><div class="line"><span class="literal">true</span></div><div class="line">iex&gt; is_function(add, <span class="number">2</span>) #检查add是否是一个有两个参数的函数</div><div class="line"><span class="literal">true</span></div><div class="line">iex&gt; is_function(add, <span class="number">1</span>) #检查add是否是一个有一个参数的函数</div><div class="line"><span class="literal">false</span></div></pre></td></tr></table></figure>
-<p>函数在Elixir里是“一等公民”，这意味着它跟整数和字符串一样可以被当作参数传给其他函数。上述例子，我们把持有函数的变量add传给函数is_function/1，得到了正确的结果 true。我们也能够通过调用is_function/2来检查这个函数的参数个数。</p>
-<p>注意：在变量和圆括号之间的 点 号（.）在调用一个匿名函数的时候是必须存在的。这个点号确定在调用匿名函数add和命名函数add/2的时候没有歧义。在这个意义上，Elixir使匿名函数和函数名之间有明显的区别。我们将在<a href="http://elixir-lang.org/getting-started/modules.html" target="_blank" rel="external">第八章</a>来看看那些区别。</p>
-<p>匿名函数都是闭包，因此它可以访问那些和函数定义在一个范围内的变量。让我们定义一个新的匿名函数，它使用我们前面已经定义的匿名函数的变量add：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; double = fn a -&gt; add.(a, a) <span class="keyword">end</span></div><div class="line">#Function&lt;<span class="number">6.71889879</span>/<span class="number">1</span> in :erl_eval.expr/<span class="number">5</span>&gt;</div><div class="line">iex&gt; double.(<span class="number">2</span>)</div><div class="line"><span class="number">4</span></div></pre></td></tr></table></figure>
-<p>记住：一个变量在一个函数里被赋值不会影响它周围的环境：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; x = <span class="number">42</span></div><div class="line"><span class="number">42</span></div><div class="line">iex&gt; (fn -&gt; x = <span class="number">0</span> <span class="keyword">end</span>).()</div><div class="line"><span class="number">0</span></div><div class="line">iex&gt; x</div><div class="line"><span class="number">42</span></div></pre></td></tr></table></figure>
-<h1 id="（链接）列表"><a href="#（链接）列表" class="headerlink" title="（链接）列表"></a><span id="part-six">（链接）列表</span></h1><p>Elixir用方括号来指定一个若干值组成的列表。这些值可以是任何类型：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; [<span class="number">1</span>, <span class="number">2</span>, <span class="literal">true</span>, <span class="number">3</span>]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="literal">true</span>, <span class="number">3</span>]</div><div class="line">iex&gt; length [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line"><span class="number">3</span></div></pre></td></tr></table></figure>
-<p>两个列表可以用 ++/2 和 - -/2 操作符来串联和相减：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>] ++ [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]</div><div class="line">iex&gt; [<span class="number">1</span>, <span class="literal">true</span>, <span class="number">2</span>, <span class="literal">false</span>, <span class="number">3</span>, <span class="literal">true</span>] -- [<span class="literal">true</span>, <span class="literal">false</span>]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="literal">true</span>]</div></pre></td></tr></table></figure>
-<p>在本教材中，我们将谈论很多关于列表的头部和尾部的事情。头部是一个列表的第一个元素而尾部则是剩下的部分。它们可以用函数 hd/1 和 tl/1 来获取。让我们将一个列表赋给一个变量然后获取它的头部和尾部：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">iex&gt; list = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div><div class="line">iex&gt; hd(list)</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; tl(list)</div><div class="line">[<span class="number">2</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
-<p>尝试获取一个空列表的头部或尾部会发生一个错误：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; hd []</div><div class="line">** (ArgumentError) argument error</div></pre></td></tr></table></figure>
-<p>有时候你创建一个列表，返回来的是一个用单引号括起来的值。比如：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; [<span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>]</div><div class="line">'\v\f\r'</div><div class="line">iex&gt; [<span class="number">104</span>, <span class="number">101</span>, <span class="number">108</span>, <span class="number">108</span>, <span class="number">111</span>]</div><div class="line">'hello'</div></pre></td></tr></table></figure>
-<p>当Elixir遇到一个由可打印的ASCII码组成的列表，Elixir将把它当作字符列表打印出来（字面上的字符列表）。当和Erlang代码交互的时候字符列表十分常见。任何时候，当你在Elixir里遇到一个值而你不能十分确定它的类型的时候，你可以用 i/1 函数来获得它的信息。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">iex&gt; i 'hello'</div><div class="line">Term</div><div class="line">  'hello'</div><div class="line">Data type</div><div class="line">  List</div><div class="line">Description</div><div class="line">  ...</div><div class="line">Raw representation</div><div class="line">  [<span class="number">104</span>, <span class="number">101</span>, <span class="number">108</span>, <span class="number">108</span>, <span class="number">111</span>]</div><div class="line">Reference modules</div><div class="line">  List</div></pre></td></tr></table></figure>
-<p>记住：单引号括住的值和双引号括住的值在Elixir里是不想等的，因为它们表示不同的类型：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; 'hello' == <span class="string">"hello"</span></div><div class="line"><span class="literal">false</span></div></pre></td></tr></table></figure>
-<p>单引号的是字符列表，双引号的是字符串。我们将在“<a href="http://elixir-lang.org/getting-started/binaries-strings-and-char-lists.html" target="_blank" rel="external">二进制，字符串和字符列表</a>”章节中详细讨论它们。</p>
-<h1 id="元组"><a href="#元组" class="headerlink" title="元组"></a><span id="part-seven">元组</span></h1><p>Elixir用大括号来定义元组。和列表一样，元组可以持有任何类型的值。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;:ok, <span class="string">"hello"</span>&#125;</div><div class="line">&#123;:ok, <span class="string">"hello"</span>&#125;</div><div class="line">iex&gt; tuple_size &#123;:ok, <span class="string">"hello"</span>&#125;</div><div class="line"><span class="number">2</span></div></pre></td></tr></table></figure>
-<p>元组会连续将元素存储在内存中。这意味着通过索引访问一个元组的元素或获取元组的大小是一个快速的操作。索引从零开始：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; tuple = &#123;:ok, <span class="string">"hello"</span>&#125;</div><div class="line">&#123;:ok, <span class="string">"hello"</span>&#125;</div><div class="line">iex&gt; elem(tuple, <span class="number">1</span>)</div><div class="line"><span class="string">"hello"</span></div><div class="line">iex&gt; tuple_size(tuple)</div><div class="line"><span class="number">2</span></div></pre></td></tr></table></figure>
-<p>用函数 put_elem/3 放置一个元素到一个元组的指定的索引位置也是可能的：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; tuple = &#123;:ok, <span class="string">"hello"</span>&#125;</div><div class="line">&#123;:ok, <span class="string">"hello"</span>&#125;</div><div class="line">iex&gt; put_elem(tuple, <span class="number">1</span>, <span class="string">"world"</span>)</div><div class="line">&#123;:ok, <span class="string">"world"</span>&#125;</div><div class="line">iex&gt; tuple</div><div class="line">&#123;:ok, <span class="string">"hello"</span>&#125;</div></pre></td></tr></table></figure>
-<p>注意：put_elem/3 返回了一个新的元组。原来存储在tuple变量里的元组没有被修改，因为Elixir的数据类型是不可修改的。由于是不可修改的，Elixir代码更容易推导，因为你永远不用担心是否有特别的代码正在某处修改你的数据结构。</p>
-<h1 id="列表还是元组"><a href="#列表还是元组" class="headerlink" title="列表还是元组"></a><span id="part-eight">列表还是元组</span></h1><p>列表和元组有何不同？</p>
-<p>列表在内存中就如链接列表，意味着列表中的每一个元素持有它的值和指向后继元素的指针，如此一直到列表的尾部。我们称每一个值和指针对是一个 cons cell：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; list = [<span class="number">1</span> | [<span class="number">2</span> | [<span class="number">3</span> | []]]]</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
-<p>这意味着访问列表的长度是一个线性操作：我们需要遍历整改列表来计算它的长度。只要我们在列表前面加元素则更新列表是快速的：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; [<span class="number">0</span> | list]</div><div class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
-<p>相反，元组在内存中连续存储。这意味着获取元组的长度和通过索引获取元素是快速的。然而，元组的修改或增加是昂贵的操作，因为它需要在内存中拷贝整个元组。</p>
-<p>这些性能特性决定了两类数据结构的用法。元组的一种非常通用的使用场景是用它们从函数返回额外的信息。例如：File.read/1 是一个可以用来读取文件内容的函数，而它返回的是元组：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; File.read(<span class="string">"path/to/existing/file"</span>)</div><div class="line">&#123;:ok, <span class="string">"... contents ..."</span>&#125;</div><div class="line">iex&gt; File.read(<span class="string">"path/to/unknown/file"</span>)</div><div class="line">&#123;:error, :enoent&#125;</div></pre></td></tr></table></figure>
-<p>如果传给File.read/1的路径存在，它返回一个元组，第一个元素是原子 :ok，第一个元素是文件内容。否则，它返回一个由原子 :error 和错误描述组成的元组。</p>
-<p>大多数时候，Elixir会引导你做正确的事情。例如，有一个函数 elem/2 用来访问元组元素的，而对于列表则没有对应的内建函数：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; tuple = &#123;:ok, <span class="string">"hello"</span>&#125;</div><div class="line">&#123;:ok, <span class="string">"hello"</span>&#125;</div><div class="line">iex&gt; elem(tuple, <span class="number">1</span>)</div><div class="line"><span class="string">"hello"</span></div></pre></td></tr></table></figure>
-<p>当计算一个数据结构的元素个数的时候，Elixir也遵从一个简单的规则：如果这个操作是在常数时间内的（即是该值是预先计算的）则这个函数命名为szie；或者，如果这个操作是线性的（即是计算长度随着输入数据的增长而越来越慢）则这个函数命名为length。为便于记忆，“长度”和“线性”都是“l”字母开始的。</p>
-<p>例如，我们目前已经用过4个计算函数：byte_size/1 （计算字符串的字节数），tuple_size/1 （计算元组大小），length/1 （计算列表长度）以及 String.length/1（计算字符串的字符个数）。也就是说，我们用 byte_size 来获取字符串的字节数是廉价操作，但是用 String.length 获取unicode字符的个数可能是昂贵的操作因为整个字符串需要被遍历。</p>
-<p>Elixir也提供 Port，Reference和PID作为数据类型（它们通常用于进程间通信），当我们讨论进程的时候将快速浏览它们一下。接下来，让我们看看在我们基本类型上的一些基本操作。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/basic-types.html#identifying-functions" target="_blank" rel="external">http://elixir-lang.org/getting-started/basic-types.html#identifying-functions</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;基本算术运算&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;布尔类型&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;原子&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;字符串&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;匿名函数&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-six&quot;&gt;(链接) 列表&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-seven&quot;&gt;元组&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-eight&quot;&gt;列表还是元组？&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-      <category term="basic type" scheme="http://szpzs.oschina.io/categories/Elixir/basic-type/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-      <category term="basic type" scheme="http://szpzs.oschina.io/tags/basic-type/"/>
     
   </entry>
   

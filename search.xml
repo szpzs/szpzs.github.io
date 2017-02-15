@@ -4,6 +4,41 @@
   
     
     <entry>
+      <title><![CDATA[Elixir入门教程－下一步]]></title>
+      <url>http://szpzs.oschina.io/2017/02/15/elixir-getting-started-where-to-go-next/</url>
+      <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">构建你的第一个Elixir项目</a></li>
+<li><a href="#part-two">元编程</a></li>
+<li><a href="#part-three">社区和其他资源</a></li>
+<li><a href="#part-four">关于Erlang</a></li>
+</ol>
+<p>渴望学更多吗？请继续阅读！</p>
+<a id="more"></a>
+<h1 id="构建你的第一个Elixir项目"><a href="#构建你的第一个Elixir项目" class="headerlink" title="构建你的第一个Elixir项目"></a><span id="part-one">构建你的第一个Elixir项目</span></h1><p>为了开始你的第一个项目，Elixir提供了一个构建工具，叫做Mix。你可以按如下所示开始你的新项目：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mix new path/to/new/project</div></pre></td></tr></table></figure>
+<p>我们已经写了一个教程，涵盖了如何构建一个Elixir应用，包括它自己的监督树、配置、测试等等。这个应用是一个分布式键值存储，我们把键值对放入容器中，并且把这些容器跨多节点分布：</p>
+<ul>
+<li><a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix and OTP</a></li>
+</ul>
+<h1 id="元编程"><a href="#元编程" class="headerlink" title="元编程"></a><span id="part-two">元编程</span></h1><p>Elixir是一种可扩展和非常定制化的编程语言，这归功于它的元编程支持。Elixir中绝大多数元编程是通过宏来做的，宏在一些场景下非常有用，特别是写领域特定语言。我们已经写了一个简短教程来解释宏背后的基本机制，展示如何写宏，以及如何用宏来创建领域特定语言。</p>
+<ul>
+<li><a href="http://elixir-lang.org/getting-started/meta/quote-and-unquote.html" target="_blank" rel="external">Elixir中的元编程</a></li>
+</ul>
+<h1 id="社区和其他资源"><a href="#社区和其他资源" class="headerlink" title="社区和其他资源"></a><span id="part-three">社区和其他资源</span></h1><p>我们有一个<a href="http://elixir-lang.org/learning.html" target="_blank" rel="external">学习区</a>，在里面我们推荐一些书籍、视频和其他资源，都是关于学习Elixir和浏览它的生态系统的。除此之外，社区也提供了大量Elixir资源，比如，会议的演讲、开源项目以及其他学习Elixir的资源。</p>
+<p>别忘了你也可以从Github上获取<a href="https://github.com/elixir-lang/elixir" target="_blank" rel="external">Elixir它自己的源代码</a>，Elixir绝大多数代码是用Elixir写的（主要在lib目录里），或者<a href="http://elixir-lang.org/docs.html" target="_blank" rel="external">浏览Elixir的官方文档</a>。</p>
+<h1 id="关于Erlang"><a href="#关于Erlang" class="headerlink" title="关于Erlang"></a><span id="part-four">关于Erlang</span></h1><p>Elixir运行在Erlang虚拟机之上，而作为一个名Elixir开发者，他迟早会想要与已存在的Erlang库进行交互。在线上有大量的资源，包括Erlang的基础知识和Erlang的更高级特性：</p>
+<ul>
+<li><a href="http://elixir-lang.org/crash-course.html" target="_blank" rel="external">Erlang语法：速成课程</a>提供了一个Erlang语法的简洁介绍。每一段代码都伴随着等效的Elixir代码。这是一个好机会，对于你来说不仅可以熟悉Erlang语法，也可以复习你在本教程学到的一些知识。</li>
+<li>Erlang的官方网站有一个简短的<a href="http://www.erlang.org/course/concurrent_programming.html" target="_blank" rel="external">教程</a>，它用图来简单地描述了Erlang并发编程的基础知识。</li>
+<li><a href="http://learnyousomeerlang.com/" target="_blank" rel="external">《Learn You Some Erlang for Great Good!》</a>是一本非常棒的介绍Erlang的设计原则、标准库、最佳实践以及其他知识的书籍。一旦你已经阅读了上面提及的速成课程，你就可以安全地略过这本书介绍语法的前面几章。当你读到 <a href="http://learnyousomeerlang.com/the-hitchhikers-guide-to-concurrency" target="_blank" rel="external">并发指南</a> 这一章的时候，才是真正有趣的开始。</li>
+</ul>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/where-to-go-next.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/where-to-go-next.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Elixir入门教程－Erlang的库]]></title>
       <url>http://szpzs.oschina.io/2017/02/14/elixir-getting-started-erlang-libraries/</url>
       <content type="html"><![CDATA[<ol>
