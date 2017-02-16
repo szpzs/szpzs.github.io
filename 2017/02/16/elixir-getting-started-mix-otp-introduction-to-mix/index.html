@@ -1,0 +1,994 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elixir,Mix," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="我们第一个项目
+项目编译
+运行测试
+环境
+探索
+
+在本教程里，我们将学习如何构建一个完整的Elixir应用，该应用有自己的监督树、配置、测试等等。
+这个应用是一个分布式键值对存储。我们将组织键值对到容器中，然后跨多节点分布这些容器。我们也将构建一个简单的客户端来让我们连接到那些节点中的任何一个，并且像如下所示发送请求：
+123456789101112131415CREATE shoppingOK">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mix 和 OTP－Mix简介">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="我们第一个项目
+项目编译
+运行测试
+环境
+探索
+
+在本教程里，我们将学习如何构建一个完整的Elixir应用，该应用有自己的监督树、配置、测试等等。
+这个应用是一个分布式键值对存储。我们将组织键值对到容器中，然后跨多节点分布这些容器。我们也将构建一个简单的客户端来让我们连接到那些节点中的任何一个，并且像如下所示发送请求：
+123456789101112131415CREATE shoppingOK">
+<meta property="og:updated_time" content="2017-02-16T08:09:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mix 和 OTP－Mix简介">
+<meta name="twitter:description" content="我们第一个项目
+项目编译
+运行测试
+环境
+探索
+
+在本教程里，我们将学习如何构建一个完整的Elixir应用，该应用有自己的监督树、配置、测试等等。
+这个应用是一个分布式键值对存储。我们将组织键值对到容器中，然后跨多节点分布这些容器。我们也将构建一个简单的客户端来让我们连接到那些节点中的任何一个，并且像如下所示发送请求：
+123456789101112131415CREATE shoppingOK">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/"/>
+
+  <title> Mix 和 OTP－Mix简介 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Mix 和 OTP－Mix简介
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-16T15:54:20+08:00" content="2017-02-16">
+              2017-02-16
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/Mix/" itemprop="url" rel="index">
+                    <span itemprop="name">Mix</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="#part-one">我们第一个项目</a></li>
+<li><a href="#part-two">项目编译</a></li>
+<li><a href="#part-three">运行测试</a></li>
+<li><a href="#part-four">环境</a></li>
+<li><a href="#part-five">探索</a></li>
+</ol>
+<p>在本教程里，我们将学习如何构建一个完整的Elixir应用，该应用有自己的监督树、配置、测试等等。</p>
+<p>这个应用是一个分布式键值对存储。我们将组织键值对到容器中，然后跨多节点分布这些容器。我们也将构建一个简单的客户端来让我们连接到那些节点中的任何一个，并且像如下所示发送请求：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">CREATE shopping</div><div class="line">OK</div><div class="line"></div><div class="line">PUT shopping milk 1</div><div class="line">OK</div><div class="line"></div><div class="line">PUT shopping eggs 3</div><div class="line">OK</div><div class="line"></div><div class="line">GET shopping milk</div><div class="line">1</div><div class="line">OK</div><div class="line"></div><div class="line">DELETE shopping eggs</div><div class="line">OK</div></pre></td></tr></table></figure>
+<p>为了构建我们的键值对应用，我们将使用三个主要工具：</p>
+<ul>
+<li>OTP（开放电信平台）是一个Erlang自带的库的集合。Erlang开发者用OTP来构建健壮、容错的应用。在本章中我们将探讨OTP和Elixir整合有多少方面，包括监督树、事件管理器等等；</li>
+<li>Mix是一个Elixir自带的构建工具，它为创建、编译、测试你的应用、管理应用的依赖等等提供任务；</li>
+<li>ExUnit是一个Elixir自带的基于单元测试的框架。</li>
+</ul>
+<p>在本章里，我们将用Mix创建我们的第一个项目，然后逐步探索OTP、Mix和ExUnit里的不同特性。</p>
+<blockquote>
+<p>注意：本教程需要Elixir v1.2.0 或者更高版本。你可以用 elixir –version 来检查你的Elixir版本并且如果需要的话，你可以按 <a href="http://elixir-lang.org/getting-started/introduction.html" target="_blank" rel="external">Elixir入门教程第一章里</a> 描述的步骤安装一个最新的版本。</p>
+<p>如果你对本教程有任何疑问或改进建议请到诸如 <a href="https://elixirforum.com/" target="_blank" rel="external">Elixir论坛</a> 或 <a href="https://github.com/elixir-lang/elixir-lang.github.com/issues" target="_blank" rel="external">问题跟踪</a> 告诉我们。你的建议对我们的教程真的很重要。</p>
+<p>最后，本教程的代码在这个<a href="https://github.com/josevalim/kv_umbrella" target="_blank" rel="external">仓库</a>里，你可以把它当做参考。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="我们第一个项目"><a href="#我们第一个项目" class="headerlink" title="我们第一个项目"></a><span id="part-one">我们第一个项目</span></h1><p>当你安装Elixir的时候，除了得到 elixir、elixirc 和 iex 这些可执行文件，你也得到一个叫做Mix的可执行Elixir脚本。</p>
+<p>让我们从命令行通过调用 mix new 创建我们的第一个项目。我们将传递项目名字作为这个命令的参数（在这个例子里项目名字是kv），并且告诉Mix我们的主模块应该是全部大写的KV，而不是默认的Kv：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mix new kv --module KV</div></pre></td></tr></table></figure>
+<p>Mix将创建一个名为kv的目录，并在这个目录里创建一些文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">* creating README.md</div><div class="line">* creating .gitignore</div><div class="line">* creating mix.exs</div><div class="line">* creating config</div><div class="line">* creating config/config.exs</div><div class="line">* creating lib</div><div class="line">* creating lib/kv.ex</div><div class="line">* creating <span class="built_in">test</span></div><div class="line">* creating <span class="built_in">test</span>/test_helper.exs</div><div class="line">* creating <span class="built_in">test</span>/kv_test.exs</div></pre></td></tr></table></figure>
+<p>让我们简单地看一下那些被创建的文件：</p>
+<blockquote>
+<p>注意：Mix是一个Elixir可执行文件。这就是说要运行mix，你需要在你的路径里有Elixir可执行文件。如果没有，你可以通过传递这个脚本作为Elixir的参数来运行它：</p>
+<pre><code>$ bin/elixir bin/mix new kv --module KV
+</code></pre><p>注意：你也可以通过 -S 选项用Elixir执行你路径里的任何脚本：</p>
+<pre><code>$ bin/elixir -S mix new kv --module KV
+</code></pre><p>当使用 -S 的时候，Elixir在你的路径里找到脚本并执行它。</p>
+</blockquote>
+<h1 id="项目编译"><a href="#项目编译" class="headerlink" title="项目编译"></a><span id="part-two">项目编译</span></h1><p>在我们新项目的目录（kv）里一个名为mix.exs被创建出来，它的主要职责是配置我们的项目。让我们来看看它（注释被删除）:</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span>.Mixfile <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Mix.Project</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">project</span></span> <span class="keyword">do</span></div><div class="line">    [<span class="symbol">app:</span> <span class="symbol">:kv</span>,</div><div class="line">     <span class="symbol">version:</span> <span class="string">"0.1.0"</span>,</div><div class="line">     <span class="symbol">elixir:</span> <span class="string">"~&gt; 1.3"</span>,</div><div class="line">     <span class="symbol">build_embedded:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">     <span class="symbol">start_permanent:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">     <span class="symbol">deps:</span> deps()]</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">application</span></span> <span class="keyword">do</span></div><div class="line">    [<span class="symbol">extra_applications:</span> [<span class="symbol">:logger</span>]]</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">defp</span> <span class="title">deps</span></span> <span class="keyword">do</span></div><div class="line">    []</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>我们的mix.exs定义了两个公共函数：project和application。project返回项目的配置，比如，项目名字和版本；application被用来生成一个应用文件。</p>
+<p>还有一个名字为 deps 的私有函数，它被project函数调用，它定义我们项目的依赖。定义 deps 作为一个独立函数不是必需的，但是它有助于我们项目配置的整洁。</p>
+<p>Mix也用一个简单模块定义来创建了文件 lib/kv.ex ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span> <span class="keyword">do</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>这样的结构已经足够编译我们的项目：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> kv</div><div class="line">$ mix compile</div></pre></td></tr></table></figure>
+<p>将输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Compiling 1 file (.ex)</div><div class="line">Generated kv app</div></pre></td></tr></table></figure>
+<p>lib/kv.ex文件被编译，一个名为 kv.app 的应用清单被创建，并且<a href="http://elixir-lang.org/getting-started/protocols.html#protocol-consolidation" target="_blank" rel="external">如入门教程里所描述的一样，所有协议被整合</a>。所有编译产出物用 mix.exs文件里的选项被置于 _build 目录里，。</p>
+<p>一旦项目被编译，你就可以如下所示在项目里启动一个iex会话：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ iex -S mix</div></pre></td></tr></table></figure>
+<h1 id="运行测试"><a href="#运行测试" class="headerlink" title="运行测试"></a><span id="part-three">运行测试</span></h1><p>Mix也创建合适的结构来运行我们的项目测试。Mix项目通常遵循这样的习惯，就是lib目录里的每一个文件，在test目录里都有对应的一个文件，文件名格式为：&lt;filename&gt;_test.exs 。正因为这个缘故，我们已经可以找到一个 test/kv_test.exs 文件对应于我们的 lib/kv.ex 文件。它当前还没有做太多功能：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KVTest</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> ExUnit.Case</div><div class="line">  doctest KV</div><div class="line"></div><div class="line">  test <span class="string">"the truth"</span> <span class="keyword">do</span></div><div class="line">    assert <span class="number">1</span> + <span class="number">1</span> == <span class="number">2</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>重要的是要注意两点：</p>
+<ol>
+<li>测试文件是Elixir脚本文件（.exs）。这样很方便，因为我们不需要在运行它们前编译它们。</li>
+<li>我们定义一个名为 KVTest 的测试模块，用 <a href="https://hexdocs.pm/ex_unit/ExUnit.Case.html" target="_blank" rel="external">ExUnit.Case</a> 来注入测试API，并且用 test/2 宏定义一个简单的测试用例。</li>
+</ol>
+<p>Mix也创建了一个名为 test/test_helper.exs 的文件，它负责设置测试框架：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ExUnit.start()</div></pre></td></tr></table></figure>
+<p>每一次我们运行我们的测试前，这个文件将被Mix自动 require 。我们可以用 mix test 来运行测试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">Compiled lib/kv.ex</div><div class="line">Generated kv app</div><div class="line">[...]</div><div class="line">.</div><div class="line"></div><div class="line">Finished <span class="keyword">in</span> 0.04 seconds (0.04s on load, 0.00s on tests)</div><div class="line">1 <span class="built_in">test</span>, 0 failures</div><div class="line"></div><div class="line">Randomized with seed 540224</div></pre></td></tr></table></figure>
+<p>注意：通过运行 mix test ，Mix再一次编译源文件并且创建应用文件。这是因为Mix支持多环境，这个我们将在下一节讨论。</p>
+<p>而且，你可以看到ExUnit为一个成功的测试用例打印一个点号，而且也自动地随机化测试。让我们故意让测试失败，看看会发生什么。</p>
+<p>如下一样修改 test/kv_test.exs 里的断言：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">assert <span class="number">1</span> + <span class="number">1</span> == <span class="number">3</span></div></pre></td></tr></table></figure>
+<p>现在我们再次运行 mix test （注意，这次没有编译）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">  1) <span class="built_in">test</span> the truth (KVTest)</div><div class="line">     <span class="built_in">test</span>/kv_test.exs:5</div><div class="line">     Assertion with == failed</div><div class="line">     code: 1 + 1 == 3</div><div class="line">     lhs:  2</div><div class="line">     rhs:  3</div><div class="line">     stacktrace:</div><div class="line">       <span class="built_in">test</span>/kv_test.exs:6</div><div class="line"></div><div class="line">Finished <span class="keyword">in</span> 0.05 seconds (0.05s on load, 0.00s on tests)</div><div class="line">1 <span class="built_in">test</span>, 1 failure</div></pre></td></tr></table></figure>
+<p>对于每个失败，Mix打印详细的报告，包含测试用例的名字，失败的代码，以及 == 运算符左边的值（lhs）和右边的值（rhs）。</p>
+<p>失败的第二行，正好在测试用例名字下面，这是测试被定义的位置。如果你拷贝测试位置这行（包括文件和行数）然后加在Mix test 后面，Mix将装载和运行这个指定的测试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mix <span class="built_in">test</span> <span class="built_in">test</span>/kv_test.exs:5</div></pre></td></tr></table></figure>
+<p>该快捷方式当我们建立我们的项目时将是非常有用的，让我们仅仅运行一个特定的测试来快速迭代。</p>
+<p>最后，堆栈跟踪涉及失败本身，它给出有关测试和失败在源文件生成的位置信息。</p>
+<h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a><span id="part-four">环境</span></h1><p>Mix支持“环境”这个概念。它们允许开发者为特定的场景定制编译和其他选项。默认情况下，Mix理解三种环境：</p>
+<ul>
+<li>:dev - 这是Mix任务（像 compile）默认运行的</li>
+<li>:test - 被 mix test 使用</li>
+<li>:prod - 你将在生成环境运行你的项目时使用它</li>
+</ul>
+<p>环境仅运用到当前的项目。正如稍后我们将看到的，任何你添加到你的项目的依赖将默认运行在 :prod 环境。</p>
+<p>定制化每一个环境可以通过在你的mix.exs文件里访问<a href="https://hexdocs.pm/mix/Mix.html#env/1" target="_blank" rel="external">Mix.env函数</a>来做到，这个函数以一个原子方式返回当前环境。我们已经在 :build_embedded 和 :start_permanent 选项里这么使用了：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">project</span></span> <span class="keyword">do</span></div><div class="line">  [...,</div><div class="line">   <span class="symbol">build_embedded:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">   <span class="symbol">start_permanent:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">   ...]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>当你编译你的源码的时候，Elixir把编译的生成物放置到 _build 目录里。然而，在许多场合为了避免不必要的拷贝，Elixir将创建文件系统链接，从 _build 到实际源文件。当 :build_embedded 选项为 true 时，它将禁止这个行为，因为它的目的是在 _build 目录里提供运行你的应用的所需要的一切。</p>
+<p>相似地，当 :start_permanent 选项为 true 时，它以 permanent  模式启动你的应用，意思是，当你的应用的监督树结束了，Erlang虚拟机也崩溃。注意：我们不想在开发和测试的时候用这种方式，因为为了解决问题而保持Erlang虚拟机实例运行在那样的环境是有用的。</p>
+<p>Mix默认使用 :dev 环境，除了 test 任务默认使用 :test 环境。环境可以通过环境变量 MIX_ENV 修改：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ MIX_ENV=prod mix compile</div></pre></td></tr></table></figure>
+<p>或在Windows下这样做：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&gt; <span class="built_in">set</span> <span class="string">"MIX_ENV=prod"</span> &amp;&amp; mix compile</div></pre></td></tr></table></figure>
+<h1 id="探索"><a href="#探索" class="headerlink" title="探索"></a><span id="part-five">探索</span></h1><p>Mix的知识还有很多，我们将在构建我们的项目中继续探索它。<a href="https://hexdocs.pm/mix/" target="_blank" rel="external">Mix官方文档里有它的总览</a>。</p>
+<p>记住，你可以一直调用 help 任务列出所有可用的任务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mix <span class="built_in">help</span></div></pre></td></tr></table></figure>
+<p>调用 mix help TASK 你可以得到指定任务的更多信息。</p>
+<p>接下来让我们写一些代码！</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/Mix/" rel="tag">#Mix</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/15/elixir-getting-started-where-to-go-next/" rel="next" title="Elixir入门教程－下一步">
+                <i class="fa fa-chevron-left"></i> Elixir入门教程－下一步
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/"
+           data-title="Mix 和 OTP－Mix简介" data-url="http://szpzs.oschina.io/2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">123</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">73</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">174</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#我们第一个项目"><span class="nav-number">1.</span> <span class="nav-text">我们第一个项目</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#项目编译"><span class="nav-number">2.</span> <span class="nav-text">项目编译</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#运行测试"><span class="nav-number">3.</span> <span class="nav-text">运行测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#环境"><span class="nav-number">4.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#探索"><span class="nav-number">5.</span> <span class="nav-text">探索</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
