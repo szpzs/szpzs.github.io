@@ -1,0 +1,958 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elixir,Agent," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="状态的麻烦
+Agents
+用ExUnit回调函数设置测试
+其他Agent动作
+Agent的Client/Server
+
+本章是Mix和OTP教程的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。
+在本章，我们将创建一个名为 KV.Bucket 的模块。这个模块将以某种方式存储我们的键值对实体，并允许其他进程读取和修改它们。
+如果你跳过了入门教程或">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mix 和 OTP－Agent">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/02/17/elixir-getting-started-mix-otp-agent/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="状态的麻烦
+Agents
+用ExUnit回调函数设置测试
+其他Agent动作
+Agent的Client/Server
+
+本章是Mix和OTP教程的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。
+在本章，我们将创建一个名为 KV.Bucket 的模块。这个模块将以某种方式存储我们的键值对实体，并允许其他进程读取和修改它们。
+如果你跳过了入门教程或">
+<meta property="og:updated_time" content="2017-02-17T12:56:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mix 和 OTP－Agent">
+<meta name="twitter:description" content="状态的麻烦
+Agents
+用ExUnit回调函数设置测试
+其他Agent动作
+Agent的Client/Server
+
+本章是Mix和OTP教程的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。
+在本章，我们将创建一个名为 KV.Bucket 的模块。这个模块将以某种方式存储我们的键值对实体，并允许其他进程读取和修改它们。
+如果你跳过了入门教程或">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/02/17/elixir-getting-started-mix-otp-agent/"/>
+
+  <title> Mix 和 OTP－Agent | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Mix 和 OTP－Agent
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-17T20:54:47+08:00" content="2017-02-17">
+              2017-02-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/Agent/" itemprop="url" rel="index">
+                    <span itemprop="name">Agent</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/17/elixir-getting-started-mix-otp-agent/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/17/elixir-getting-started-mix-otp-agent/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="#part-one">状态的麻烦</a></li>
+<li><a href="#part-two">Agents</a></li>
+<li><a href="#part-three">用ExUnit回调函数设置测试</a></li>
+<li><a href="#part-four">其他Agent动作</a></li>
+<li><a href="#part-five">Agent的Client/Server</a></li>
+</ol>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。</p>
+<p>在本章，我们将创建一个名为 KV.Bucket 的模块。这个模块将以某种方式存储我们的键值对实体，并允许其他进程读取和修改它们。</p>
+<p>如果你跳过了入门教程或已经读过了很长时间，你应该重新读一下<a href="http://elixir-lang.org/getting-started/processes.html" target="_blank" rel="external">进程</a>这一章。我们将用它作为起始点。</p>
+<a id="more"></a>
+<h1 id="状态的麻烦"><a href="#状态的麻烦" class="headerlink" title="状态的麻烦"></a><span id="part-one">状态的麻烦</span></h1><p>Elixir是一门不可修改的语言，也就是说默认情况下是没有任何东西是共享的。如果我们想要提供状态，在状态里我们创建“桶”，从其他地方可以放置和读取“桶”里的数据，我们在Elixir有两种主要的选择：</p>
+<ul>
+<li>进程</li>
+<li><a href="http://www.erlang.org/doc/man/ets.html" target="_blank" rel="external">ETS（Erlang Term Storage）</a></li>
+</ul>
+<p>我们已经谈论过进程，而ETS是个新事物，我们将在本教程的后面讨论它。当需要使用进程的时候，我们几乎没有自己亲自处理它的，反而是使用Elixir和OTP里可用的进程抽象：</p>
+<ul>
+<li><a href="https://hexdocs.pm/elixir/Agent.html" target="_blank" rel="external">Agent</a> - 对状态的简单封装</li>
+<li><a href="https://hexdocs.pm/elixir/GenServer.html" target="_blank" rel="external">GenServer</a> - “通用服务器”（进程），它封装状态，提供同步和异步调用，支持代码重载等等。</li>
+<li><a href="https://hexdocs.pm/elixir/GenEvent.html" target="_blank" rel="external">GenEvent</a> - “通用事件”管理器，它允许发布事件给多个处理者。</li>
+<li><a href="https://hexdocs.pm/elixir/Task.html" target="_blank" rel="external">Task</a> - 计算的异步单元，它允许创建一个进程并且在稍后获取它的结果。</li>
+</ul>
+<p>我们将在本教程里探讨这些抽象中的大多数。我们要记住：它们都是基于进程之上的实现，使用了Erlang虚拟机提供的基本特性，比如：send、receive、spawn和link。</p>
+<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a><span id="part-two">Agents</span></h1><p><a href="https://hexdocs.pm/elixir/Agent.html" target="_blank" rel="external">Agent</a>是状态的简单封装。如果你想要从一个进程的所有所得是保持状态，那么agent非常合适。让我们在项目里启动一个iex会话：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ iex -S mix</div></pre></td></tr></table></figure>
+<p>并且玩一下agent：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, agent&#125; = Agent.start_link <span class="keyword">fn</span> -&gt; [] <span class="keyword">end</span></div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.57.0&gt;&#125;</span></div><div class="line">iex&gt; Agent.update(agent, <span class="keyword">fn</span> list -&gt; [<span class="string">"eggs"</span> | list] <span class="keyword">end</span>)</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; Agent.get(agent, <span class="keyword">fn</span> list -&gt; list <span class="keyword">end</span>)</div><div class="line">[<span class="string">"eggs"</span>]</div><div class="line">iex&gt; Agent.stop(agent)</div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
+<p>我们用一个空列表作为初识状态来启动一个agent。我们修改agent的状态，增加我们新的元素到列表头部。<a href="https://hexdocs.pm/elixir/Agent.html#update/3" target="_blank" rel="external">Agent.update/3</a> 的第二个入参是一个函数，这个函数将agent的当前状态作为输入并返回它期望的新状态。最后，我们获取整个列表。<a href="https://hexdocs.pm/elixir/Agent.html#get/3" target="_blank" rel="external">Agent.get/3</a> 的第二个入参是一个函数，这个函数把状态当做输入，然后返回 <a href="https://hexdocs.pm/elixir/Agent.html#get/3" target="_blank" rel="external">Agent.get/3</a> 将返回的值。一旦我们用完agent，我们可以调用 <a href="Agent.stop/3">Agent.stop/3</a> 来终止agent进程。</p>
+<p>让我们用agent来实现我们的 KV.Bucket 。不过在开始实现之前，让我们首先写一些测试用例。创建一个文件 test/kv/bucket_test.exs （记住后缀是 .exs），内容如下：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span>.BucketTest <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> ExUnit.Case, <span class="symbol">async:</span> <span class="keyword">true</span></div><div class="line"></div><div class="line">  test <span class="string">"stores values by key"</span> <span class="keyword">do</span></div><div class="line">    &#123;<span class="symbol">:ok</span>, bucket&#125; = KV.Bucket.start_link</div><div class="line">    assert KV.Bucket.get(bucket, <span class="string">"milk"</span>) == <span class="keyword">nil</span></div><div class="line"></div><div class="line">    KV.Bucket.put(bucket, <span class="string">"milk"</span>, <span class="number">3</span>)</div><div class="line">    assert KV.Bucket.get(bucket, <span class="string">"milk"</span>) == <span class="number">3</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>我们第一个测试用例启动一个新的 KV.Bucket 并且在其上执行一些 get/2 和 put/3 操作，断言结果。我们不需要明确地停止agent因为它被链接到测试进程，一旦测试结束agent自动地结束。这将一直有效除非这个进程被命名。</p>
+<p>也请注意：async: true 选项被传给 ExUnit.Case 。这个选项通过使用我们机器的多核使得这个测试用例和其他 :async 测试用例平行地运行。这对加速我们的测试套件非常有用。但是， :async 必需在不依赖或修改任何全局值的情况下才能被设置。例如，如果测试需要写文件系统、注册进程或访问数据库，那么就保持它为同步的（删除 :async 选项）以避免测试之间的竞争条件。</p>
+<p>不管异步与否，我们新的测试将明显会失败，因为被测试的模块里任何一个功能都没有实现。</p>
+<p>为了修复失败的测试，让我们创建一个文件： lib/kv/bucket.ex ，它的内容如下所示。在看下面内容前，你自己尝试一下用agent实现 KV.Bucket 模块。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span>.Bucket <span class="keyword">do</span></div><div class="line">  <span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">  Starts a new bucket.</div><div class="line">  "<span class="string">""</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start_link</span></span> <span class="keyword">do</span></div><div class="line">    Agent.start_link(<span class="keyword">fn</span> -&gt; %&#123;&#125; <span class="keyword">end</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">  Gets a value from the `bucket` by `key`.</div><div class="line">  "<span class="string">""</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">get</span></span>(bucket, key) <span class="keyword">do</span></div><div class="line">    Agent.get(bucket, &amp;Map.get(&amp;<span class="number">1</span>, key))</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">  Puts the `value` for the given `key` in the `bucket`.</div><div class="line">  "<span class="string">""</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">put</span></span>(bucket, key, value) <span class="keyword">do</span></div><div class="line">    Agent.update(bucket, &amp;Map.put(&amp;<span class="number">1</span>, key, value))</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>我们用一个映射来保存我们的键和值。捕获运算符，&amp; ，在<a href="http://elixir-lang.org/getting-started/modules-and-functions.html#function-capturing" target="_blank" rel="external">入门教程</a>里有介绍。</p>
+<p>现在 KV.Bucket 模块已经被定义，我们的测试应该pass！你可以运行 mix test 来尝试一下。</p>
+<h1 id="用ExUnit回调函数设置测试"><a href="#用ExUnit回调函数设置测试" class="headerlink" title="用ExUnit回调函数设置测试"></a><span id="part-three">用ExUnit回调函数设置测试</span></h1><p>在继续往 KV.Bucket 添加更多功能之前，我们来讨论一下 ExUnit 的回调函数。正如你所期望的，所有KV.Bucket的测试用例在设置和测试后停止期间将需要一个启动的bucket。幸运的是，ExUnit支持回调函数来允许我们来跳过这样的重复任务。</p>
+<p>让我们用回调函数来重新写测试用例：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span>.BucketTest <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> ExUnit.Case, <span class="symbol">async:</span> <span class="keyword">true</span></div><div class="line"></div><div class="line">  setup <span class="keyword">do</span></div><div class="line">    &#123;<span class="symbol">:ok</span>, bucket&#125; = KV.Bucket.start_link</div><div class="line">    &#123;<span class="symbol">:ok</span>, <span class="symbol">bucket:</span> bucket&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  test <span class="string">"stores values by key"</span>, %&#123;<span class="symbol">bucket:</span> bucket&#125; <span class="keyword">do</span></div><div class="line">    assert KV.Bucket.get(bucket, <span class="string">"milk"</span>) == <span class="keyword">nil</span></div><div class="line"></div><div class="line">    KV.Bucket.put(bucket, <span class="string">"milk"</span>, <span class="number">3</span>)</div><div class="line">    assert KV.Bucket.get(bucket, <span class="string">"milk"</span>) == <span class="number">3</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>我们首先在 setup/1 宏的帮助下定义了一个设置回调。在每次测试之前，在与测试本身相同的过程中运行setup/1 回调。</p>
+<p>注意我们需要一种机制从回调传递 bucket 的pid给测试用例。我们使用测试上下文来做这种机制。当我们从回调返回 {:ok, bucket: bucket} ，ExUnit将元组的第二个元素（一个字典）合并到测试上下文。测试上下文是一个映射，我们可以在测试定义匹配它，在代码块里访问这些值：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">test <span class="string">"stores values by key"</span>, %&#123;<span class="symbol">bucket:</span> bucket&#125; <span class="keyword">do</span></div><div class="line">  <span class="comment"># `bucket` 正是从setup传递过来的bucket</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>你可以在<a href="https://hexdocs.pm/ex_unit/ExUnit.Case.html" target="_blank" rel="external">ExUnit.Case模块文档</a>里读到更多关于ExUnit用例的内容，在<a href="https://hexdocs.pm/ex_unit/ExUnit.Callbacks.html" target="_blank" rel="external">ExUnit.Callbacks文档</a>里读到更多回调的内容。</p>
+<h1 id="其他Agent动作"><a href="#其他Agent动作" class="headerlink" title="其他Agent动作"></a><span id="part-four">其他Agent动作</span></h1><p>除了获取一个值和修改agent状态，agent允许我们通过 Agent.get_and_update/2 在一个函数调用里获取一个值并且修改agent状态。让我们实现KV.Bucket.delete/2函数，它从bucket删除一个键并返回它的当前值：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">Deletes `key` from `bucket`.</div><div class="line"></div><div class="line">Returns the current value of `key`, if `key` exists.</div><div class="line">"<span class="string">""</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span></span>(bucket, key) <span class="keyword">do</span></div><div class="line">  Agent.get_and_update(bucket, &amp;Map.pop(&amp;<span class="number">1</span>, key))</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>现在轮到你写一个上面代码的测试用例！另外，要阅读一下<a href="https://hexdocs.pm/elixir/Agent.html" target="_blank" rel="external">Agent模块的文档</a>学习更多内容。</p>
+<h1 id="Agent的Client-Server"><a href="#Agent的Client-Server" class="headerlink" title="Agent的Client/Server"></a><span id="part-five">Agent的Client/Server</span></h1><p>在我们转到下一章内容前，让我们讨论一下agent里的客户端/服务端的概念。让我们展开我们刚刚实现的delete/2函数：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span></span>(bucket, key) <span class="keyword">do</span></div><div class="line">  Agent.get_and_update(bucket, <span class="keyword">fn</span> dict-&gt;</div><div class="line">    Map.pop(dict, key)</div><div class="line">  <span class="keyword">end</span>)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>在函数内我们传递给agent的所有内容都发生在agent进程中。在这个场景里，因为agent进程是接收和相应我们消息的，那么我们说agent进程是服务器。函数外不的所有事情发生在客户端。</p>
+<p>这个区分很重要。如果有耗时的动作要做，你必须要考虑是在服务端还是在客户端执行这些操作更好。例如：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span></span>(bucket, key) <span class="keyword">do</span></div><div class="line">  Process.sleep(<span class="number">1000</span>) <span class="comment"># puts client to sleep</span></div><div class="line">  Agent.get_and_update(bucket, <span class="keyword">fn</span> dict -&gt;</div><div class="line">    Process.sleep(<span class="number">1000</span>) <span class="comment"># puts server to sleep</span></div><div class="line">    Map.pop(dict, key)</div><div class="line">  <span class="keyword">end</span>)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>当一个长时间的动作在服务器上执行，则所有对这个特定服务器的其他请求将一直等待到这个动作完成才能得到处理，这可能导致一些客户端超时。</p>
+<p>在下一章，我们将探讨GenServers，它的客户机和服务器之间的隔离变得更加明显。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/mix-otp/agent.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/mix-otp/agent.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/Agent/" rel="tag">#Agent</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/" rel="next" title="Mix 和 OTP－Mix简介">
+                <i class="fa fa-chevron-left"></i> Mix 和 OTP－Mix简介
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/17/elixir-getting-started-mix-otp-agent/"
+           data-title="Mix 和 OTP－Agent" data-url="http://szpzs.oschina.io/2017/02/17/elixir-getting-started-mix-otp-agent/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">124</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">74</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">175</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#状态的麻烦"><span class="nav-number">1.</span> <span class="nav-text">状态的麻烦</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Agents"><span class="nav-number">2.</span> <span class="nav-text">Agents</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#用ExUnit回调函数设置测试"><span class="nav-number">3.</span> <span class="nav-text">用ExUnit回调函数设置测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其他Agent动作"><span class="nav-number">4.</span> <span class="nav-text">其他Agent动作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Agent的Client-Server"><span class="nav-number">5.</span> <span class="nav-text">Agent的Client/Server</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
