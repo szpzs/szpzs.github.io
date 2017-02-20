@@ -109,7 +109,7 @@ Observer
 本章是Mix和OTP教程的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。
 到目前为止，我们的应用有一个registry，它可以监测数十个而不是数百个bucket。虽然我们认为我们的">
 <meta property="og:image" content="http://szpzs.oschina.io/images/getting-started-mix-otp-supervisor-and-application-kv-observer.png">
-<meta property="og:updated_time" content="2017-02-19T11:50:11.000Z">
+<meta property="og:updated_time" content="2017-02-20T05:50:15.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Mix 和 OTP－监督者和应用">
 <meta name="twitter:description" content="我们第一个监督者
@@ -393,7 +393,7 @@ Observer
 <li><a href="#part-five">Observer</a></li>
 <li><a href="#part-six">测试里的共享状态</a></li>
 </ol>
-<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。</p>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">第一章</a>，或者查看本教程的章节索引。</p>
 <p>到目前为止，我们的应用有一个registry，它可以监测数十个而不是数百个bucket。虽然我们认为我们的当前的实现是非常棒的，但是没有软件是没有bug的，失败一定会发生。</p>
 <p>当失败发生时，你的第一反应可能是：“让我们补救这些失败”。但是在Elixir中，我们避免挽救异常的防御型编程习惯，这在其他语言中常常见到。相反，我们说“让它崩溃”。如果有bug导致我们的registry崩溃，我们没有什么可担心的，因为我们将设置一个监督者，它会重启一个新的registry。</p>
 <p>在本章，我们将学习监督者和应用。我们不止创建一个监督者，而是创建两个监督者，并使用它们来监督我们的进程。</p>
@@ -552,6 +552,10 @@ Observer
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2017/02/20/elixir-getting-started-mix-otp-ets/" rel="prev" title="Mix 和 OTP－ETS">
+                Mix 和 OTP－ETS <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -622,7 +626,7 @@ Observer
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">126</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -630,7 +634,7 @@ Observer
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">76</span>
+                <span class="site-state-item-count">77</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

@@ -283,6 +283,149 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/20/elixir-getting-started-mix-otp-ets/" itemprop="url">
+                  Mix 和 OTP－ETS
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-20T13:41:49+08:00" content="2017-02-20">
+              2017-02-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/ETS/" itemprop="url" rel="index">
+                    <span itemprop="name">ETS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/20/elixir-getting-started-mix-otp-ets/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/20/elixir-getting-started-mix-otp-ets/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ol>
+<li><a href="#part-one">ETS作为缓存</a></li>
+<li><a href="#part-two">竞争条件</a></li>
+</ol>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">第一章</a>，或者查看本教程的章节索引。</p>
+<p>每次我们需要查询一个bucket，我们需要发送一个消息给registry。这样的话，我们的registry被多个进程并发地访问，registry可能成为瓶颈！</p>
+<p>在本章，我们将学习ETS（Erlang数据存储）并且学习如何使用它来作为缓存机制。</p>
+<blockquote>
+<p>警告：不要贸然使用ETS作为缓存！记录并分析你应用的性能并识别哪部分是瓶颈，这样你就知道你应该在哪里缓存，你应该缓存什么。本章只是在你一旦需要的情况下，ETS如何被使用的一个例子。</p>
+</blockquote>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/20/elixir-getting-started-mix-otp-ets/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/19/elixir-getting-started-mix-otp-supervisor-and-application/" itemprop="url">
                   Mix 和 OTP－监督者和应用
                 </a>
@@ -372,7 +515,7 @@
 <li><a href="#part-five">Observer</a></li>
 <li><a href="#part-six">测试里的共享状态</a></li>
 </ol>
-<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。</p>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">第一章</a>，或者查看本教程的章节索引。</p>
 <p>到目前为止，我们的应用有一个registry，它可以监测数十个而不是数百个bucket。虽然我们认为我们的当前的实现是非常棒的，但是没有软件是没有bug的，失败一定会发生。</p>
 <p>当失败发生时，你的第一反应可能是：“让我们补救这些失败”。但是在Elixir中，我们避免挽救异常的防御型编程习惯，这在其他语言中常常见到。相反，我们说“让它崩溃”。如果有bug导致我们的registry崩溃，我们没有什么可担心的，因为我们将设置一个监督者，它会重启一个新的registry。</p>
 <p>在本章，我们将学习监督者和应用。我们不止创建一个监督者，而是创建两个监督者，并使用它们来监督我们的进程。</p>
@@ -516,7 +659,7 @@
 <li><a href="#part-four">call、cast还是info？</a></li>
 <li><a href="#part-five">监测还是链接？</a></li>
 </ol>
-<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。</p>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">第一章</a>，或者查看本教程的章节索引。</p>
 <p>在<a href="http://elixir-lang.org/getting-started/mix-otp/agent.html">上一章</a>我们用agent来表示我们的bucket（容器）。在第一章中，我们指出了我们要命名每个bucket，这样我们就可以做到以下几点：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">CREATE shopping</div><div class="line">OK</div><div class="line"></div><div class="line">PUT shopping milk 1</div><div class="line">OK</div><div class="line"></div><div class="line">GET shopping milk</div><div class="line">1</div><div class="line">OK</div></pre></td></tr></table></figure>
 <p>既然agent是进程，那么每个bucket有一个进程标识符（pid），但是它没有名字。我们已经在进程那一章中了解了的名字注册，你可能会倾向于使用此注册来解决这个问题。例如，我们可以像下面这样来创建一个bucket：</p>
@@ -666,7 +809,7 @@
 <li><a href="#part-four">其他Agent动作</a></li>
 <li><a href="#part-five">Agent的Client/Server</a></li>
 </ol>
-<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。</p>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">第一章</a>，或者查看本教程的章节索引。</p>
 <p>在本章，我们将创建一个名为 KV.Bucket 的模块。这个模块将以某种方式存储我们的键值对实体，并允许其他进程读取和修改它们。</p>
 <p>如果你跳过了入门教程或已经读过了很长时间，你应该重新读一下<a href="http://elixir-lang.org/getting-started/processes.html">进程</a>这一章。我们将用它作为起始点。</p>
           <div class="post-more-link text-center">
@@ -1550,148 +1693,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/11/elixir-getting-started-comprehensions/" itemprop="url">
-                  Elixir入门教程－速构
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-11T20:59:06+08:00" content="2017-02-11">
-              2017-02-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/" itemprop="url" rel="index">
-                    <span itemprop="name">Elixir</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/comprehension/" itemprop="url" rel="index">
-                    <span itemprop="name">comprehension</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/02/11/elixir-getting-started-comprehensions/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/11/elixir-getting-started-comprehensions/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <ol>
-<li><a href="#part-one">生成器和过滤器</a></li>
-<li><a href="#part-two">位串生成器</a></li>
-<li><a href="#part-three">:into选项</a></li>
-</ol>
-<p>在Elixir中，遍历一个枚举类型数据，过滤其中一些值并且将值映射到另一个列表里这种做法是很平常的。速构是对于这种数据结构的语法糖：Elixir里将这种语法组织成 for 的格式。</p>
-<p>例如，我们可以将一个整数列表的每个值都求平方：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">for</span> n &lt;- [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>], <span class="symbol">do:</span> n * n</div><div class="line">[<span class="number">1</span>, <span class="number">4</span>, <span class="number">9</span>, <span class="number">16</span>]</div></pre></td></tr></table></figure>
-<p>一个速构有三部分组成：生成器、过滤器和收集动作。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/11/elixir-getting-started-comprehensions/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1737,7 +1738,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">126</span>
+              <span class="site-state-item-count">127</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1745,7 +1746,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">76</span>
+                <span class="site-state-item-count">77</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
