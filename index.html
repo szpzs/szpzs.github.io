@@ -283,6 +283,152 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/21/elixir-getting-started-mix-otp-dependencies-and-umbrella-apps/" itemprop="url">
+                  Mix 和 OTP－依赖和伞型项目
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-21T06:25:27+08:00" content="2017-02-21">
+              2017-02-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/Dependency-Umbrella-Apps/" itemprop="url" rel="index">
+                    <span itemprop="name">Dependency Umbrella-Apps</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/21/elixir-getting-started-mix-otp-dependencies-and-umbrella-apps/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/21/elixir-getting-started-mix-otp-dependencies-and-umbrella-apps/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ol>
+<li><a href="#part-one">外部依赖</a></li>
+<li><a href="#part-two">内部依赖</a></li>
+<li><a href="#part-three">伞型项目</a></li>
+<li><a href="#part-four">伞型项目里的依赖</a></li>
+<li><a href="#part-five">总结</a></li>
+</ol>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">第一章</a>，或者查看本教程的章节索引。</p>
+<p>在本章，我们将讨论用Mix如何管理依赖。</p>
+<p>我们的 kv 应用已经完成，所以是时候实现一个服务器，它将处理在第一章我们定义的请求：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">CREATE shopping</div><div class="line">OK</div><div class="line"></div><div class="line">PUT shopping milk 1</div><div class="line">OK</div><div class="line"></div><div class="line">PUT shopping eggs 3</div><div class="line">OK</div><div class="line"></div><div class="line">GET shopping milk</div><div class="line">1</div><div class="line">OK</div><div class="line"></div><div class="line">DELETE shopping eggs</div><div class="line">OK</div></pre></td></tr></table></figure>
+<p>但是，我们不是增加更多代码到 kv 应用里，而是将构建一个TCP服务器作为另一个应用，它是 kv 应用的一个客户端。因为整个运行时和Elixir生态是面向应用的，因此把我们的项目分成一起运作的更小的应用比构建一个巨大单一的应用有意义。</p>
+<p>构建我们新应用前，我们必须讨论Mix如何处理依赖。在实践中，我们通常运用两种依赖：内部依赖和外部依赖。Mix支持运用这两种依赖。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/21/elixir-getting-started-mix-otp-dependencies-and-umbrella-apps/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/20/elixir-getting-started-mix-otp-ets/" itemprop="url">
                   Mix 和 OTP－ETS
                 </a>
@@ -1551,148 +1697,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/12/elixir-getting-started-sigils/" itemprop="url">
-                  Elixir入门教程－印记
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-12T09:44:02+08:00" content="2017-02-12">
-              2017-02-12
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/" itemprop="url" rel="index">
-                    <span itemprop="name">Elixir</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/sigil/" itemprop="url" rel="index">
-                    <span itemprop="name">sigil</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/02/12/elixir-getting-started-sigils/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/12/elixir-getting-started-sigils/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <ol>
-<li><a href="#part-one">正则表达式</a></li>
-<li><a href="#part-two">字符串、字符列表和词列表印记</a><br> 2.1 <a href="#part-two-one">字符串</a><br> 2.2 <a href="#part-two-two">字符列表</a><br> 2.3 <a href="#part-two-three">词列表</a></li>
-<li><a href="#part-three">在印记中插入文本和转义字符</a></li>
-<li><a href="#part-four">自定义印记</a></li>
-</ol>
-<p>我们已经学了Elixir提供双引号字符串和单引号字符列表。然而，这只是涵盖了该语言有文本表示的数据类型结构的表面。例如，原子主要就是通过 :atom 表示来创建的。</p>
-<p>Elixir其中一个目标是可扩展性：开发者可以扩展该语言来解决任何特定的领域问题。计算机科学已经成为如此广阔的领域，一门语言解决许多领域的问题来作为它的核心部分是不太可能的。相反，我们最好的方法是使语言具有可扩展性，因此开发人员、公司和社区可以将语言扩展到相关领域。</p>
-<p>本章，我们将探索印记，它是由Elixir这门语言提供的处理文本描述数据类型的其中一种机制。印记由波浪字符（~）开始，紧接着是一个字符（这个字符定义本印记），然后是一个分隔符，可选性的修饰符可以增加在最后的分隔符后。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/12/elixir-getting-started-sigils/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1738,7 +1742,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">127</span>
+              <span class="site-state-item-count">128</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1746,7 +1750,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">77</span>
+                <span class="site-state-item-count">78</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1755,7 +1759,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">178</span>
+                <span class="site-state-item-count">180</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

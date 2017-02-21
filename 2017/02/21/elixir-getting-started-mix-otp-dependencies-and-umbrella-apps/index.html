@@ -1,0 +1,987 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elixir,Dependency,Umbrella-Apps," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="外部依赖
+内部依赖
+伞型项目
+伞型项目里的依赖
+总结
+
+本章是Mix和OTP教程的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。
+在本章，我们将讨论用Mix如何管理依赖。
+我们的 kv 应用已经完成，所以是时候实现一个服务器，它将处理在第一章我们定义的请求：
+123456789101112131415CREATE shoppingOKPUT s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mix 和 OTP－依赖和伞型项目">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/02/21/elixir-getting-started-mix-otp-dependencies-and-umbrella-apps/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="外部依赖
+内部依赖
+伞型项目
+伞型项目里的依赖
+总结
+
+本章是Mix和OTP教程的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。
+在本章，我们将讨论用Mix如何管理依赖。
+我们的 kv 应用已经完成，所以是时候实现一个服务器，它将处理在第一章我们定义的请求：
+123456789101112131415CREATE shoppingOKPUT s">
+<meta property="og:updated_time" content="2017-02-20T22:28:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mix 和 OTP－依赖和伞型项目">
+<meta name="twitter:description" content="外部依赖
+内部依赖
+伞型项目
+伞型项目里的依赖
+总结
+
+本章是Mix和OTP教程的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的第一章，或者查看本教程的章节索引。
+在本章，我们将讨论用Mix如何管理依赖。
+我们的 kv 应用已经完成，所以是时候实现一个服务器，它将处理在第一章我们定义的请求：
+123456789101112131415CREATE shoppingOKPUT s">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/02/21/elixir-getting-started-mix-otp-dependencies-and-umbrella-apps/"/>
+
+  <title> Mix 和 OTP－依赖和伞型项目 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Mix 和 OTP－依赖和伞型项目
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-21T06:25:27+08:00" content="2017-02-21">
+              2017-02-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/Dependency-Umbrella-Apps/" itemprop="url" rel="index">
+                    <span itemprop="name">Dependency Umbrella-Apps</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/21/elixir-getting-started-mix-otp-dependencies-and-umbrella-apps/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/21/elixir-getting-started-mix-otp-dependencies-and-umbrella-apps/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="#part-one">外部依赖</a></li>
+<li><a href="#part-two">内部依赖</a></li>
+<li><a href="#part-three">伞型项目</a></li>
+<li><a href="#part-four">伞型项目里的依赖</a></li>
+<li><a href="#part-five">总结</a></li>
+</ol>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">第一章</a>，或者查看本教程的章节索引。</p>
+<p>在本章，我们将讨论用Mix如何管理依赖。</p>
+<p>我们的 kv 应用已经完成，所以是时候实现一个服务器，它将处理在第一章我们定义的请求：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">CREATE shopping</div><div class="line">OK</div><div class="line"></div><div class="line">PUT shopping milk 1</div><div class="line">OK</div><div class="line"></div><div class="line">PUT shopping eggs 3</div><div class="line">OK</div><div class="line"></div><div class="line">GET shopping milk</div><div class="line">1</div><div class="line">OK</div><div class="line"></div><div class="line">DELETE shopping eggs</div><div class="line">OK</div></pre></td></tr></table></figure>
+<p>但是，我们不是增加更多代码到 kv 应用里，而是将构建一个TCP服务器作为另一个应用，它是 kv 应用的一个客户端。因为整个运行时和Elixir生态是面向应用的，因此把我们的项目分成一起运作的更小的应用比构建一个巨大单一的应用有意义。</p>
+<p>构建我们新应用前，我们必须讨论Mix如何处理依赖。在实践中，我们通常运用两种依赖：内部依赖和外部依赖。Mix支持运用这两种依赖。</p>
+<a id="more"></a>
+<h1 id="外部依赖"><a href="#外部依赖" class="headerlink" title="外部依赖"></a><span id="part-one">外部依赖</span></h1><p>外包依赖是没有绑定到你的业务领域的。例如，如果你需要为你的分布式 kv 应用提供HTTP API，你可以用 <a href="https://github.com/elixir-lang/plug" target="_blank" rel="external">Plug</a> 项目作为一个外包依赖。</p>
+<p>安装外部依赖是简单的。最常见的，我们通过在我们的mix.exs文件里的deps函数内列出依赖来使用 <a href="https://hex.pm/" target="_blank" rel="external">Hex包管理器</a>：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">deps</span></span> <span class="keyword">do</span></div><div class="line">  [&#123;<span class="symbol">:plug</span>, <span class="string">"~&gt; 1.0"</span>&#125;]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>这个依赖指向已经发布到Hex的Plug的1.x.x版本系列的最新版本。这由版本号数字前的 ~&gt; 符号表示。有关指定版本要求的更多信息，请参见<a href="https://hexdocs.pm/elixir/Version.html" target="_blank" rel="external">版本模块的文档</a>。</p>
+<p>通常，稳定版本被发布到Hex。如果你想依赖一个还处于开发中的外部依赖，Mix也能够管理git依赖：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">deps</span></span> <span class="keyword">do</span></div><div class="line">  [&#123;<span class="symbol">:plug</span>, <span class="symbol">git:</span> <span class="string">"git://github.com/elixir-lang/plug.git"</span>&#125;]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>你将注意到，当你增加一个依赖到你的项目，Mix生成一个mix.lock文件来保证<em>可重复构建</em>。这个lock文件必需被提交到你的版本控制系统，以便保证所有使用这个项目的人将使用和你一样的依赖版本。</p>
+<p>Mix提供很多任务来处理依赖，这些任务可以用 mix help 来列出来：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ mix <span class="built_in">help</span></div><div class="line">mix deps              <span class="comment"># 列出依赖和它们的状态</span></div><div class="line">mix deps.clean        <span class="comment"># 删除给定的依赖文件</span></div><div class="line">mix deps.compile      <span class="comment"># 编译依赖</span></div><div class="line">mix deps.get          <span class="comment"># 获取所有过时的依赖</span></div><div class="line">mix deps.tree         <span class="comment"># 打印依赖树</span></div><div class="line">mix deps.unlock       <span class="comment"># 解锁给定的依赖</span></div><div class="line">mix deps.update       <span class="comment"># 更新给定的依赖</span></div></pre></td></tr></table></figure>
+<p>最常用的任务是 mix deps.get 和 mix deps.update 。一旦被获取到，依赖被自动编译。你可以通过输入 mix help deps 和在 <a href="https://hexdocs.pm/mix/Mix.Tasks.Deps.html" target="_blank" rel="external">Mix.Tasks.Deps 模块文档</a>里读到更多关于依赖的内容。</p>
+<h1 id="内部依赖"><a href="#内部依赖" class="headerlink" title="内部依赖"></a><span id="part-two">内部依赖</span></h1><p>内部依赖项是特定于你的项目的依赖。它们通常在你的项目/公司/组织范围之外是没有意义的。大多数时候，你想让他们私有化，无论是由于技术，经济或商业原因。</p>
+<p>如果你有一个内部依赖，Mix支持两种方法与它一起工作：git仓库和伞型项目。</p>
+<p>例如，如果你推送 kv 应用到一个git仓库，你将需要在你的依赖代码里列出它以便使用它：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">deps</span></span> <span class="keyword">do</span></div><div class="line">  [&#123;<span class="symbol">:kv</span>, <span class="symbol">git:</span> <span class="string">"https://github.com/YOUR_ACCOUNT/kv.git"</span>&#125;]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>如果仓库是私有的，您可能需要指定私有URL git@github.com:YOUR_ACCOUNT/kv.git 。在任何情况下，Mix将能够把它拿来给你，只要你有适当的凭据。</p>
+<p>在Elixir里不鼓励使用git依赖作为内部依赖。记住：运行时和Elixir生态已经提供了应用这个概念。因此，我们希望你经常将你的代码分解成可以被逻辑地组织的应用，即使在单个项目中也是如此。</p>
+<p>然而，如果你把每个应用作为一个独立的项目放入一个git仓库，那么你的项目可能非常难以维护，因为你将花费大量时间来管理那些git仓库而不是写你代码。</p>
+<p>因为这个原因，Mix支持“伞型项目”。伞型项目允许你创建一个项目，它拥有许多项目，而且保持它们在一个单独源码仓库里。这正是下一节我们将要探索的风格。</p>
+<p>让我们创建一个新的Mix项目。我们将创造性地命名它为 kv_umbrella ，这个新项目里面将拥有已经存在的 kv 应用和新的 kv_server 应用。目录结构将如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">+ kv_umbrella</div><div class="line">  + apps</div><div class="line">    + kv</div><div class="line">    + kv_server</div></pre></td></tr></table></figure>
+<p>关于这个方法令人感兴趣的事情是，Mix有许多遍历措施来处理这样的项目，诸如用一个命令将apps里的所有应用都编译和测试的能力。但是，尽管它们都在apps目录里，它们依然是彼此解耦的，所以，如果你想的话，你就可以独立地构建、测试和部署每一个应用。</p>
+<p>所以让我们开始吧！</p>
+<h1 id="伞型项目"><a href="#伞型项目" class="headerlink" title="伞型项目"></a><span id="part-three">伞型项目</span></h1><p>让我们用 mix new 开始一个新项目。这个新项目将被命名为 kv_umbrella ，并且在创建它的时候，我们需要传递 --umbrella 参数。不要在已经存在的 kv 项目里创建这个新项目！</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ mix new kv_umbrella --umbrella</div><div class="line">* creating .gitignore</div><div class="line">* creating README.md</div><div class="line">* creating mix.exs</div><div class="line">* creating apps</div><div class="line">* creating config</div><div class="line">* creating config/config.exs</div></pre></td></tr></table></figure>
+<p>从打印出来的信息我们可以看到生成的文件少了很多。生成的mix.exs文件也不同。让我们看一看这个文件（注释已经被删除）：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KvUmbrella</span></span>.Mixfile <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Mix.Project</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">project</span></span> <span class="keyword">do</span></div><div class="line">    [<span class="symbol">apps_path:</span> <span class="string">"apps"</span>,</div><div class="line">     <span class="symbol">build_embedded:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">     <span class="symbol">start_permanent:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">     <span class="symbol">deps:</span> deps]</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">defp</span> <span class="title">deps</span></span> <span class="keyword">do</span></div><div class="line">    []</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>使得这个项目与前面的项目不同的是在项目定义里有一个 apps_path: “apps” 条目。它的意思是这个项目将表现得像一把伞。这样的项目既没有源码文件也没有测试用例，但是它们可以有它们自己的依赖。每一个子应用必须定义在apps目录里。</p>
+<p>让我们进入apps目录里开始构建 kv_server 。这一次，我们将传递 --sup 标志，它将告诉Mix自动为我们生成一颗监督树，替代在前面章节里如我们所做的手工构建监督树：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> kv_umbrella/apps</div><div class="line">$ mix new kv_server --module KVServer --sup</div></pre></td></tr></table></figure>
+<p>生成的文件与我们第一次为 kv 所生成的相似，有一些不同。让我们打开 mix.exs ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KVServer</span></span>.Mixfile <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Mix.Project</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">project</span></span> <span class="keyword">do</span></div><div class="line">    [<span class="symbol">app:</span> <span class="symbol">:kv_server</span>,</div><div class="line">     <span class="symbol">version:</span> <span class="string">"0.1.0"</span>,</div><div class="line">     <span class="symbol">build_path:</span> <span class="string">"../../_build"</span>,</div><div class="line">     <span class="symbol">config_path:</span> <span class="string">"../../config/config.exs"</span>,</div><div class="line">     <span class="symbol">deps_path:</span> <span class="string">"../../deps"</span>,</div><div class="line">     <span class="symbol">lockfile:</span> <span class="string">"../../mix.lock"</span>,</div><div class="line">     <span class="symbol">elixir:</span> <span class="string">"~&gt; 1.4"</span>,</div><div class="line">     <span class="symbol">build_embedded:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">     <span class="symbol">start_permanent:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">     <span class="symbol">deps:</span> deps]</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">application</span></span> <span class="keyword">do</span></div><div class="line">    [<span class="symbol">extra_applications:</span> [<span class="symbol">:logger</span>],</div><div class="line">     <span class="symbol">mod:</span> &#123;KVServer.Application, []&#125;]</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">defp</span> <span class="title">deps</span></span> <span class="keyword">do</span></div><div class="line">    []</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>首先，因为我们在kv_umbrella/apps里创建这个项目，Mix自动监测到伞型结构并且增加四行到项目定义里：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">build_path:</span> <span class="string">"../../_build"</span>,</div><div class="line"><span class="symbol">config_path:</span> <span class="string">"../../config/config.exs"</span>,</div><div class="line"><span class="symbol">deps_path:</span> <span class="string">"../../deps"</span>,</div><div class="line"><span class="symbol">lockfile:</span> <span class="string">"../../mix.lock"</span>,</div></pre></td></tr></table></figure>
+<p>这些选项的意思是，所有选项将被放置到 kv_umbrella/deps ，并且它们将共享同样的构建、配置和锁文件。这确保为整个伞型结构，依赖将被获取并被编译一次，而不是每一个伞型应用一次。</p>
+<p>第二个改变是在 mix.exs 里的 application 函数中：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">application</span></span> <span class="keyword">do</span></div><div class="line">  [<span class="symbol">extra_applications:</span> [<span class="symbol">:logger</span>],</div><div class="line">   <span class="symbol">mod:</span> &#123;KVServer.Application, []&#125;]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>因为我们传递了 --sup 标志，Mix自动增加了 mod: {KVServer.Application, []} ，指明 KVServer.Application 是我们的应用回调模块。KVServer.Application 将启动我们的应用监督树。</p>
+<p>事实上，让我们打开 lib/kv_server/application.ex ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KVServer</span></span>.Application <span class="keyword">do</span></div><div class="line">  <span class="comment"># See http://elixir-lang.org/docs/stable/elixir/Application.html</span></div><div class="line">  <span class="comment"># for more information on OTP Applications</span></div><div class="line">  <span class="variable">@moduledoc</span> <span class="keyword">false</span></div><div class="line"></div><div class="line">  <span class="keyword">use</span> Application</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start</span></span>(_type, _args) <span class="keyword">do</span></div><div class="line">    import Supervisor.Spec, <span class="symbol">warn:</span> <span class="keyword">false</span></div><div class="line"></div><div class="line">    <span class="comment"># Define workers and child supervisors to be supervised</span></div><div class="line">    children = [</div><div class="line">      <span class="comment"># Starts a worker by calling: KVServer.Worker.start_link(arg1, arg2, arg3)</span></div><div class="line">      <span class="comment"># worker(KVServer.Worker, [arg1, arg2, arg3]),</span></div><div class="line">    ]</div><div class="line"></div><div class="line">    <span class="comment"># See http://elixir-lang.org/docs/stable/elixir/Supervisor.html</span></div><div class="line">    <span class="comment"># for other strategies and supported options</span></div><div class="line">    opts = [<span class="symbol">strategy:</span> <span class="symbol">:one_for_one</span>, <span class="symbol">name:</span> KVServer.Supervisor]</div><div class="line">    Supervisor.start_link(children, opts)</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>注意：它定义了应用回调函数，start/2，而不是使用 Supervisor 模块定义一个名为 KVServer.Supervisor 的监督者，它便捷地在行内定义了监督者！你可以通过阅读<a href="https://hexdocs.pm/elixir/Supervisor.html" target="_blank" rel="external">Supervisor模块文档</a>获得更多这样的监督者的内容。</p>
+<p>我们已经可以试试我们第一个伞型子应用。我们可以在 apps/kv_server 里运行测试，但是那样不好玩。相反，到伞型项目的根目录，运行 mix test ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mix <span class="built_in">test</span></div></pre></td></tr></table></figure>
+<p>它正常运行！</p>
+<p>因为我们想让 kv_server 最终使用我们在 kv 里定义的功能，因此我们需要将 kv 作为一个依赖加入我们的应用。</p>
+<h1 id="伞型项目里的依赖"><a href="#伞型项目里的依赖" class="headerlink" title="伞型项目里的依赖"></a><span id="part-four">伞型项目里的依赖</span></h1><p>Mix支持一种简单的机制使得一个伞型子应用依赖于另一个伞型子应用。打开 apps/kv_server/mix.exs 并且按如下所示修改 deps/0 函数：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">defp</span> <span class="title">deps</span></span> <span class="keyword">do</span></div><div class="line">  [&#123;<span class="symbol">:kv</span>, <span class="symbol">in_umbrella:</span> <span class="keyword">true</span>&#125;]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>上述代码使得 :kv作为 :kv_server 里的一个可用依赖并且在启动 :kv_server 前自动启动 :kv 应用。</p>
+<p>最后，拷贝我们已经构建好的 kv 应用到我们新的伞型项目的 apps 目录里。最终的目录结构和我们前面提到的结构匹配上：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">+ kv_umbrella</div><div class="line">  + apps</div><div class="line">    + kv</div><div class="line">    + kv_server</div></pre></td></tr></table></figure>
+<p>我们现在需要修改 apps/kv/mix.exs 让其包含我们已经在 apps/kv_server/mix.exs 所见到的伞型相关条目。打开 apps/kv/mix.exs 并将如下内容加入 project 函数：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">build_path:</span> <span class="string">"../../_build"</span>,</div><div class="line"><span class="symbol">config_path:</span> <span class="string">"../../config/config.exs"</span>,</div><div class="line"><span class="symbol">deps_path:</span> <span class="string">"../../deps"</span>,</div><div class="line"><span class="symbol">lockfile:</span> <span class="string">"../../mix.lock"</span>,</div></pre></td></tr></table></figure>
+<p>现在你可以从伞型项目根目录用 mix test 运行两个应用的测试。太棒了！</p>
+<p>请记住，伞型项目是一个方便工具用来帮助你组织和管理你的应用。apps 目录里的应用仍然是彼此解耦的。它们之间的依赖必须明确地列出来。这允许它们被一起开发，但是如果需要的话，独立地编译、测试和部署。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a><span id="part-five">总结</span></h1><p>在这一章，我们学到了更多关于Mix依赖和伞型项目的内容。我们决定构建一个伞型项目，因为我们认为 kv 和 kv_server 是内部依赖的，其重要性只存在于这个项目的上下文里。</p>
+<p>在将来，你将写应用并且你将注意到它们可以被提取到一个简洁的单元，这个单元能被不同的项目使用。在这种情况下，使用Git或Hex依赖是要走的路。</p>
+<p>这里有几个问题，当你使用依赖的时候你可以问自己。问题是：这个应用在这个项目之外有意义吗？</p>
+<ul>
+<li>如果没有，则使用一个有伞型子应用的伞型项目。</li>
+<li>如果有，则这个项目在你的公司或组织外部可以被共享吗？<ul>
+<li>不可以， 则使用一个私有git仓库。</li>
+<li>如果可以，则推送你的代码到一个git仓库并且用Hex做频繁的发布。</li>
+</ul>
+</li>
+</ul>
+<p>我们的伞型项目构建好并运行了，是时候开始写我们的服务器了。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/mix-otp/dependencies-and-umbrella-apps.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/mix-otp/dependencies-and-umbrella-apps.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/Dependency/" rel="tag">#Dependency</a>
+          
+            <a href="/tags/Umbrella-Apps/" rel="tag">#Umbrella-Apps</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/20/elixir-getting-started-mix-otp-ets/" rel="next" title="Mix 和 OTP－ETS">
+                <i class="fa fa-chevron-left"></i> Mix 和 OTP－ETS
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/21/elixir-getting-started-mix-otp-dependencies-and-umbrella-apps/"
+           data-title="Mix 和 OTP－依赖和伞型项目" data-url="http://szpzs.oschina.io/2017/02/21/elixir-getting-started-mix-otp-dependencies-and-umbrella-apps/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">128</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">78</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">180</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#外部依赖"><span class="nav-number">1.</span> <span class="nav-text">外部依赖</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内部依赖"><span class="nav-number">2.</span> <span class="nav-text">内部依赖</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#伞型项目"><span class="nav-number">3.</span> <span class="nav-text">伞型项目</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#伞型项目里的依赖"><span class="nav-number">4.</span> <span class="nav-text">伞型项目里的依赖</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"szpzs"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
