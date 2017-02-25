@@ -4,6 +4,67 @@
   
     
     <entry>
+      <title><![CDATA[Mix 和 OTP－Quote 和 Unquote]]></title>
+      <url>http://szpzs.oschina.io/2017/02/25/elixir-getting-started-meta-quote-and-unquote/</url>
+      <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">Quoting</a></li>
+<li><a href="#part-two">Unquoting</a></li>
+<li><a href="#part-three">Escaping</a></li>
+</ol>
+<p>一个Elixir程序可以由Elixir自己的数据结构表示。在本章里，我们将学习那些数据结构看起来是什么样的，以及如何组成它们。在本章中学习的概念是宏的构建块，我们将在下一章中更深入地研究它。</p>
+<a id="more"></a>
+<h1 id="Quoting"><a href="#Quoting" class="headerlink" title="Quoting"></a><span id="part-one">Quoting</span></h1><p>一个Elixir程序的构建块上一个三元素的元组。例如，一个函数调用 sum(1, 2, 3) 被内部表示为：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="symbol">:sum</span>, [], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]&#125;</div></pre></td></tr></table></figure>
+<p>你通过使用 quote 宏得到任何表达式的表示：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> sum(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line">&#123;<span class="symbol">:sum</span>, [], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]&#125;</div></pre></td></tr></table></figure>
+<p>第一个元素是函数名，第二个元素是一个包含元数据的关键字列表，第三个元素是参数列表。</p>
+<p>运算符也可以表示为这样的元组：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> <span class="number">1</span> + <span class="number">2</span></div><div class="line">&#123;<span class="symbol">:+</span>, [<span class="symbol">context:</span> Elixir, <span class="symbol">import:</span> Kernel], [<span class="number">1</span>, <span class="number">2</span>]&#125;</div></pre></td></tr></table></figure>
+<p>甚至一个映射被表示为对 %{} 的调用：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> %&#123;<span class="number">1</span> =&gt; <span class="number">2</span>&#125;</div><div class="line">&#123;<span class="symbol">:%</span>&#123;&#125;, [], [&#123;<span class="number">1</span>, <span class="number">2</span>&#125;]&#125;</div></pre></td></tr></table></figure>
+<p>变量也可以用这样的三元素的元组来表示，其最后一个元素不是一个列表而是一个原子：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> x</div><div class="line">&#123;<span class="symbol">:x</span>, [], Elixir&#125;</div></pre></td></tr></table></figure>
+<p>当引用更负责的表达式，我们可以看到代码用这样的元组来表示，这样的元组经常彼此嵌套为一个像一颗树的结构。许多语言叫这样的表示为抽象语法树（AST）。Elixir叫它们为被引用的表达式：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> sum(<span class="number">1</span>, <span class="number">2</span> + <span class="number">3</span>, <span class="number">4</span>)</div><div class="line">&#123;<span class="symbol">:sum</span>, [], [<span class="number">1</span>, &#123;<span class="symbol">:+</span>, [<span class="symbol">context:</span> Elixir, <span class="symbol">import:</span> Kernel], [<span class="number">2</span>, <span class="number">3</span>]&#125;, <span class="number">4</span>]&#125;</div></pre></td></tr></table></figure>
+<p>有时使用引用表达式时，返回代码的文本表示可能是有用的。这可以用 Macro.to_string/1 ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> sum(<span class="number">1</span>, <span class="number">2</span> + <span class="number">3</span>, <span class="number">4</span>))</div><div class="line"><span class="string">"sum(1, 2 + 3, 4)"</span></div></pre></td></tr></table></figure>
+<p>总的来说，以上元组按以下格式构造：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;atom | tuple, list, list | atom&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>第一个元素是一个原子或是相同表示格式的另一个元组。</li>
+<li>第二个元素是一个包含元数据，比如数字和上下文，的关键字列表。</li>
+<li>第三个元素是一个函数调用的参数列表或者一个原子。当这个元素是一个原子，则意味着这个元组表示一个变量。</li>
+</ul>
+<p>除了上述定义的元组，有五个Elixir字面量，当被引用的时候，返回的是它们自己（而不是一个元组）。它们是：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">:sum</span>         <span class="comment">#=&gt; 原子</span></div><div class="line"><span class="number">1.0</span>          <span class="comment">#=&gt; 数字</span></div><div class="line">[<span class="number">1</span>, <span class="number">2</span>]       <span class="comment">#=&gt; 列表</span></div><div class="line"><span class="string">"strings"</span>    <span class="comment">#=&gt; 字符串</span></div><div class="line">&#123;key, value&#125; <span class="comment">#=&gt; 两个元素的元组</span></div></pre></td></tr></table></figure>
+<p>大多数Elixir代码有一个它的底层引用表达式的直接翻译。我们建议你尝试不同的代码样例然后看看结果是怎么样的。例如，String.upcase(“foo”) 展开后是什么样子？我们也学到了 if(true, do: :this, else: :that) 和 if true do :this else :that end 是一样的。这个肯定是如何用引用表达式支持的？</p>
+<h1 id="Unquoting"><a href="#Unquoting" class="headerlink" title="Unquoting"></a><span id="part-two">Unquoting</span></h1><p>quote是关于获取一些特指代码块的内部表示。但是，有时候可能必须注入一些其他特指代码块到我们想要获取的表示里。</p>
+<p>例如，你有一个包含数字的变量number，你想要把它注入到一个引用表达式里。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; number = <span class="number">13</span></div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> <span class="number">11</span> + number)</div><div class="line"><span class="string">"11 + number"</span></div></pre></td></tr></table></figure>
+<p>这不是我们想要的，因为number变量的值没有被注入并且number已经被引入表达式。为了注入number变量的值，unquote必须被使用在被引用的描述里：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; number = <span class="number">13</span></div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> <span class="number">11</span> + unquote(number))</div><div class="line"><span class="string">"11 + 13"</span></div></pre></td></tr></table></figure>
+<p>unquote甚至可以被用于注入函数名：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; fun = <span class="symbol">:hello</span></div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> unquote(fun)(<span class="symbol">:world</span>))</div><div class="line"><span class="string">"hello(:world)"</span></div></pre></td></tr></table></figure>
+<p>在一些场景里，可能必须注入许多值在一个列表里。例如，假设你有一个列表 [1, 2, 6] 并且你想把 [3, 4, 5] 注入进去。使用 unquote 不会长生想要的结果：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; inner = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> [<span class="number">1</span>, <span class="number">2</span>, unquote(inner), <span class="number">6</span>])</div><div class="line"><span class="string">"[1, 2, [3, 4, 5], 6]"</span></div></pre></td></tr></table></figure>
+<p>这个时候就要使用 unquote_splicing ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; inner = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> [<span class="number">1</span>, <span class="number">2</span>, unquote_splicing(inner), <span class="number">6</span>])</div><div class="line"><span class="string">"[1, 2, 3, 4, 5, 6]"</span></div></pre></td></tr></table></figure>
+<p>当使用宏的时候，Unquoting 非常有用。当写宏的时候，开发者能够接收代码块并且注入它们到其他代码块里，这能被用来转换代码或者写代码，在编译期间生成代码。</p>
+<h1 id="Escaping"><a href="#Escaping" class="headerlink" title="Escaping"></a><span id="part-three">Escaping</span></h1><p>正如我们在本章开始的时候所见，在Elixir里只有一些值是有效引用表达式。例如，一个映射不是一个有效引用表达式。有四个元素的元组也不是。但是，这样的值可以被表达为一个引用表达式：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> %&#123;<span class="number">1</span> =&gt; <span class="number">2</span>&#125;</div><div class="line">&#123;<span class="symbol">:%</span>&#123;&#125;, [], [&#123;<span class="number">1</span>, <span class="number">2</span>&#125;]&#125;</div></pre></td></tr></table></figure>
+<p>在一些场景下，你可能需要注入这样的值到引用表达式里。为了这么做，我们需要首先用 Macro.escape/1 帮主来转义那些值为引用表达式：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">hello:</span> <span class="symbol">:world</span>&#125;</div><div class="line">iex&gt; Macro.escape(map)</div><div class="line">&#123;<span class="symbol">:%</span>&#123;&#125;, [], [<span class="symbol">hello:</span> <span class="symbol">:world</span>]&#125;</div></pre></td></tr></table></figure>
+<p>宏接收引用表达式并且必须返回引用表达式。然后，有些时候，在宏执行期间，你可能需要使用值并且使得值和将被需求的引用表达式之间有差别。</p>
+<p>换句话说，使得一个普通Elixir值（像一个列表、一个映射、一个进程、一个引用等等）和一个引用表达式之间有差别是很重要的。一些值，比如，整数、原子和字符串，有一个引用表达式等于值的本身。其他值，像映射，需要被明确地转换。最后，像函数和引用这样的值完全不能被转换为引用表达式。</p>
+<p>在 <a href="https://hexdocs.pm/elixir/Kernel.SpecialForms.html" target="_blank" rel="external">Kernel.SpecialForms 模块</a>里，你可以阅读到跟多关于 quote 和 unquote 的内容。Macro.escape/1 和其他与引用表达式相关的函数的文档可以在 <a href="https://hexdocs.pm/elixir/Macro.html" target="_blank" rel="external">Macro 模块</a>里找到。</p>
+<p>在这篇介绍文章里，我们已经为最终写我们的第一个宏奠定了基础，所以让我们开始下一章。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/meta/quote-and-unquote.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/meta/quote-and-unquote.html</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Mix 和 OTP－分布式任务和配置]]></title>
       <url>http://szpzs.oschina.io/2017/02/24/elixir-getting-started-mix-otp-distributed-tasks-and-configuration/</url>
       <content type="html"><![CDATA[<ol>

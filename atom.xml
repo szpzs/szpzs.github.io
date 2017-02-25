@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-02-24T04:26:05.000Z</updated>
+  <updated>2017-02-25T08:23:46.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,98 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Mix 和 OTP－Quote 和 Unquote</title>
+    <link href="http://szpzs.oschina.io/2017/02/25/elixir-getting-started-meta-quote-and-unquote/"/>
+    <id>http://szpzs.oschina.io/2017/02/25/elixir-getting-started-meta-quote-and-unquote/</id>
+    <published>2017-02-25T08:20:29.000Z</published>
+    <updated>2017-02-25T08:23:46.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">Quoting</a></li>
+<li><a href="#part-two">Unquoting</a></li>
+<li><a href="#part-three">Escaping</a></li>
+</ol>
+<p>一个Elixir程序可以由Elixir自己的数据结构表示。在本章里，我们将学习那些数据结构看起来是什么样的，以及如何组成它们。在本章中学习的概念是宏的构建块，我们将在下一章中更深入地研究它。</p>
+<a id="more"></a>
+<h1 id="Quoting"><a href="#Quoting" class="headerlink" title="Quoting"></a><span id="part-one">Quoting</span></h1><p>一个Elixir程序的构建块上一个三元素的元组。例如，一个函数调用 sum(1, 2, 3) 被内部表示为：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="symbol">:sum</span>, [], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]&#125;</div></pre></td></tr></table></figure>
+<p>你通过使用 quote 宏得到任何表达式的表示：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> sum(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line">&#123;<span class="symbol">:sum</span>, [], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]&#125;</div></pre></td></tr></table></figure>
+<p>第一个元素是函数名，第二个元素是一个包含元数据的关键字列表，第三个元素是参数列表。</p>
+<p>运算符也可以表示为这样的元组：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> <span class="number">1</span> + <span class="number">2</span></div><div class="line">&#123;<span class="symbol">:+</span>, [<span class="symbol">context:</span> Elixir, <span class="symbol">import:</span> Kernel], [<span class="number">1</span>, <span class="number">2</span>]&#125;</div></pre></td></tr></table></figure>
+<p>甚至一个映射被表示为对 %{} 的调用：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> %&#123;<span class="number">1</span> =&gt; <span class="number">2</span>&#125;</div><div class="line">&#123;<span class="symbol">:%</span>&#123;&#125;, [], [&#123;<span class="number">1</span>, <span class="number">2</span>&#125;]&#125;</div></pre></td></tr></table></figure>
+<p>变量也可以用这样的三元素的元组来表示，其最后一个元素不是一个列表而是一个原子：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> x</div><div class="line">&#123;<span class="symbol">:x</span>, [], Elixir&#125;</div></pre></td></tr></table></figure>
+<p>当引用更负责的表达式，我们可以看到代码用这样的元组来表示，这样的元组经常彼此嵌套为一个像一颗树的结构。许多语言叫这样的表示为抽象语法树（AST）。Elixir叫它们为被引用的表达式：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> sum(<span class="number">1</span>, <span class="number">2</span> + <span class="number">3</span>, <span class="number">4</span>)</div><div class="line">&#123;<span class="symbol">:sum</span>, [], [<span class="number">1</span>, &#123;<span class="symbol">:+</span>, [<span class="symbol">context:</span> Elixir, <span class="symbol">import:</span> Kernel], [<span class="number">2</span>, <span class="number">3</span>]&#125;, <span class="number">4</span>]&#125;</div></pre></td></tr></table></figure>
+<p>有时使用引用表达式时，返回代码的文本表示可能是有用的。这可以用 Macro.to_string/1 ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> sum(<span class="number">1</span>, <span class="number">2</span> + <span class="number">3</span>, <span class="number">4</span>))</div><div class="line"><span class="string">"sum(1, 2 + 3, 4)"</span></div></pre></td></tr></table></figure>
+<p>总的来说，以上元组按以下格式构造：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;atom | tuple, list, list | atom&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>第一个元素是一个原子或是相同表示格式的另一个元组。</li>
+<li>第二个元素是一个包含元数据，比如数字和上下文，的关键字列表。</li>
+<li>第三个元素是一个函数调用的参数列表或者一个原子。当这个元素是一个原子，则意味着这个元组表示一个变量。</li>
+</ul>
+<p>除了上述定义的元组，有五个Elixir字面量，当被引用的时候，返回的是它们自己（而不是一个元组）。它们是：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">:sum</span>         <span class="comment">#=&gt; 原子</span></div><div class="line"><span class="number">1.0</span>          <span class="comment">#=&gt; 数字</span></div><div class="line">[<span class="number">1</span>, <span class="number">2</span>]       <span class="comment">#=&gt; 列表</span></div><div class="line"><span class="string">"strings"</span>    <span class="comment">#=&gt; 字符串</span></div><div class="line">&#123;key, value&#125; <span class="comment">#=&gt; 两个元素的元组</span></div></pre></td></tr></table></figure>
+<p>大多数Elixir代码有一个它的底层引用表达式的直接翻译。我们建议你尝试不同的代码样例然后看看结果是怎么样的。例如，String.upcase(“foo”) 展开后是什么样子？我们也学到了 if(true, do: :this, else: :that) 和 if true do :this else :that end 是一样的。这个肯定是如何用引用表达式支持的？</p>
+<h1 id="Unquoting"><a href="#Unquoting" class="headerlink" title="Unquoting"></a><span id="part-two">Unquoting</span></h1><p>quote是关于获取一些特指代码块的内部表示。但是，有时候可能必须注入一些其他特指代码块到我们想要获取的表示里。</p>
+<p>例如，你有一个包含数字的变量number，你想要把它注入到一个引用表达式里。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; number = <span class="number">13</span></div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> <span class="number">11</span> + number)</div><div class="line"><span class="string">"11 + number"</span></div></pre></td></tr></table></figure>
+<p>这不是我们想要的，因为number变量的值没有被注入并且number已经被引入表达式。为了注入number变量的值，unquote必须被使用在被引用的描述里：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; number = <span class="number">13</span></div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> <span class="number">11</span> + unquote(number))</div><div class="line"><span class="string">"11 + 13"</span></div></pre></td></tr></table></figure>
+<p>unquote甚至可以被用于注入函数名：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; fun = <span class="symbol">:hello</span></div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> unquote(fun)(<span class="symbol">:world</span>))</div><div class="line"><span class="string">"hello(:world)"</span></div></pre></td></tr></table></figure>
+<p>在一些场景里，可能必须注入许多值在一个列表里。例如，假设你有一个列表 [1, 2, 6] 并且你想把 [3, 4, 5] 注入进去。使用 unquote 不会长生想要的结果：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; inner = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> [<span class="number">1</span>, <span class="number">2</span>, unquote(inner), <span class="number">6</span>])</div><div class="line"><span class="string">"[1, 2, [3, 4, 5], 6]"</span></div></pre></td></tr></table></figure>
+<p>这个时候就要使用 unquote_splicing ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; inner = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> [<span class="number">1</span>, <span class="number">2</span>, unquote_splicing(inner), <span class="number">6</span>])</div><div class="line"><span class="string">"[1, 2, 3, 4, 5, 6]"</span></div></pre></td></tr></table></figure>
+<p>当使用宏的时候，Unquoting 非常有用。当写宏的时候，开发者能够接收代码块并且注入它们到其他代码块里，这能被用来转换代码或者写代码，在编译期间生成代码。</p>
+<h1 id="Escaping"><a href="#Escaping" class="headerlink" title="Escaping"></a><span id="part-three">Escaping</span></h1><p>正如我们在本章开始的时候所见，在Elixir里只有一些值是有效引用表达式。例如，一个映射不是一个有效引用表达式。有四个元素的元组也不是。但是，这样的值可以被表达为一个引用表达式：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> %&#123;<span class="number">1</span> =&gt; <span class="number">2</span>&#125;</div><div class="line">&#123;<span class="symbol">:%</span>&#123;&#125;, [], [&#123;<span class="number">1</span>, <span class="number">2</span>&#125;]&#125;</div></pre></td></tr></table></figure>
+<p>在一些场景下，你可能需要注入这样的值到引用表达式里。为了这么做，我们需要首先用 Macro.escape/1 帮主来转义那些值为引用表达式：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">hello:</span> <span class="symbol">:world</span>&#125;</div><div class="line">iex&gt; Macro.escape(map)</div><div class="line">&#123;<span class="symbol">:%</span>&#123;&#125;, [], [<span class="symbol">hello:</span> <span class="symbol">:world</span>]&#125;</div></pre></td></tr></table></figure>
+<p>宏接收引用表达式并且必须返回引用表达式。然后，有些时候，在宏执行期间，你可能需要使用值并且使得值和将被需求的引用表达式之间有差别。</p>
+<p>换句话说，使得一个普通Elixir值（像一个列表、一个映射、一个进程、一个引用等等）和一个引用表达式之间有差别是很重要的。一些值，比如，整数、原子和字符串，有一个引用表达式等于值的本身。其他值，像映射，需要被明确地转换。最后，像函数和引用这样的值完全不能被转换为引用表达式。</p>
+<p>在 <a href="https://hexdocs.pm/elixir/Kernel.SpecialForms.html" target="_blank" rel="external">Kernel.SpecialForms 模块</a>里，你可以阅读到跟多关于 quote 和 unquote 的内容。Macro.escape/1 和其他与引用表达式相关的函数的文档可以在 <a href="https://hexdocs.pm/elixir/Macro.html" target="_blank" rel="external">Macro 模块</a>里找到。</p>
+<p>在这篇介绍文章里，我们已经为最终写我们的第一个宏奠定了基础，所以让我们开始下一章。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/meta/quote-and-unquote.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/meta/quote-and-unquote.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;Quoting&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;Unquoting&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;Escaping&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;一个Elixir程序可以由Elixir自己的数据结构表示。在本章里，我们将学习那些数据结构看起来是什么样的，以及如何组成它们。在本章中学习的概念是宏的构建块，我们将在下一章中更深入地研究它。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="meta-programming" scheme="http://szpzs.oschina.io/categories/Elixir/meta-programming/"/>
+    
+      <category term="quote unquote" scheme="http://szpzs.oschina.io/categories/Elixir/meta-programming/quote-unquote/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="meta-programming" scheme="http://szpzs.oschina.io/tags/meta-programming/"/>
+    
+      <category term="quote" scheme="http://szpzs.oschina.io/tags/quote/"/>
+    
+      <category term="unquote" scheme="http://szpzs.oschina.io/tags/unquote/"/>
+    
+  </entry>
   
   <entry>
     <title>Mix 和 OTP－分布式任务和配置</title>
@@ -1992,104 +2084,6 @@
       <category term="require" scheme="http://szpzs.oschina.io/tags/require/"/>
     
       <category term="import" scheme="http://szpzs.oschina.io/tags/import/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Elixir入门教程－IO和文件系统</title>
-    <link href="http://szpzs.oschina.io/2017/02/07/elixir-getting-started-io-and-the-file-system/"/>
-    <id>http://szpzs.oschina.io/2017/02/07/elixir-getting-started-io-and-the-file-system/</id>
-    <published>2017-02-07T13:24:28.000Z</published>
-    <updated>2017-02-07T13:27:58.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">IO模块</a></li>
-<li><a href="#part-two">File模块</a></li>
-<li><a href="#part-three">Path模块</a></li>
-<li><a href="#part-four">进程和组领导</a></li>
-<li><a href="#part-five">iodata和chardata</a></li>
-</ol>
-<p>本章是对输入/输出机制和文件系统相关的任务以及相关模块，比如：<a href="https://hexdocs.pm/elixir/IO.html" target="_blank" rel="external">IO</a>、<a href="https://hexdocs.pm/elixir/File.html" target="_blank" rel="external">File</a>和<a href="https://hexdocs.pm/elixir/Path.html" target="_blank" rel="external">Path</a>的快速介绍。</p>
-<p>我们原本计划这章在本系列教程中更早地出现。然而，我们注意到 IO 系统提供一个非常好的机会来阐明Elixir和VM的一些哲学和奇特之处。</p>
-<a id="more"></a>
-<h1 id="IO模块"><a href="#IO模块" class="headerlink" title="IO模块"></a><span id="part-one">IO模块</span></h1><p>IO模块是Elixir里读写标准输入输出（:stdio）、标准错误（:stderr）、文件和其他IO设备的主要机制。这个模块的使用方式非常简单：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; IO.puts <span class="string">"hello world"</span></div><div class="line">hello world</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; IO.gets <span class="string">"yes or no? "</span></div><div class="line">yes <span class="keyword">or</span> no? yes</div><div class="line"><span class="string">"yes\n"</span></div></pre></td></tr></table></figure>
-<p>默认情况下，IO模块的函数从标准输入读数据并往标准输出写数据。我们可以改变这个默认方式，例如，通过传递 :stderr 作为一个入参（来写数据到标准错误）：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; IO.puts <span class="symbol">:stderr</span>, <span class="string">"hello world"</span></div><div class="line">hello world</div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
-<h1 id="File模块"><a href="#File模块" class="headerlink" title="File模块"></a><span id="part-two">File模块</span></h1><p>File模块包含函数允许我们打开文件当做IO文件。默认地，文件以二进制模式打开，这些文件就需要开发者使用IO模式的特定函数 IO.binread/2 和 IO.binwrite/2 来读写。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, file&#125; = File.open <span class="string">"hello"</span>, [<span class="symbol">:write</span>]</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.47.0&gt;&#125;</span></div><div class="line">iex&gt; IO.binwrite file, <span class="string">"world"</span></div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; File.close file</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; File.read <span class="string">"hello"</span></div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="string">"world"</span>&#125;</div></pre></td></tr></table></figure>
-<p>文件也可以用 :utf8 编码方式打开，这就告诉File模块解析从文件读取的字节为UTF-8编码的字节。</p>
-<p>除了打开、读写文件的函数，File模块还有许多处理文件系统的函数。那些函数命名方式和Unix的函数相对应。例如，File.rm/1 可以用来删除文件，File.mkdir/1 用来创建目录，File.mkdir_p/1 用来创建目录和它所有的父目录。甚至还有 File.cp_r/2 和 File.rm_rf/1 ，分别递归地拷贝和删除文件和目录（即也复制和删除目录的内容）。</p>
-<p>你可能也注意到了File模块里的函数有两种类型：一种是“正常”的，另一种是尾部有一个!号的。例如，上面例子里当我们读”hello”文件的时候，我们使用 File.read/1 。相应地，我们可以用File.read!/1 ：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; File.read <span class="string">"hello"</span></div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="string">"world"</span>&#125;</div><div class="line">iex&gt; File.read! <span class="string">"hello"</span></div><div class="line"><span class="string">"world"</span></div><div class="line">iex&gt; File.read <span class="string">"unknown"</span></div><div class="line">&#123;<span class="symbol">:error</span>, <span class="symbol">:enoent</span>&#125;</div><div class="line">iex&gt; File.read! <span class="string">"unknown"</span></div><div class="line">** (File.Error) could <span class="keyword">not</span> read file <span class="string">"unknown"</span>: no such file <span class="keyword">or</span> directory</div></pre></td></tr></table></figure>
-<p>注意：带叹号的版本返回文件的内容而不是元组，而如果有任何错误，这个函数就抛出一个错误。</p>
-<p>当你想要用模式匹配处理不同的输出的时候，不带叹号的版本是首选：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">case</span> File.read(file) <span class="keyword">do</span></div><div class="line">  &#123;<span class="symbol">:ok</span>, body&#125;      -&gt; <span class="comment"># do something with the `body`</span></div><div class="line">  &#123;<span class="symbol">:error</span>, reason&#125; -&gt; <span class="comment"># handle the error caused by `reason`</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>但是，如果你期望文件就在那里，带叹号版本更加有用，因为它抛出有意义的错误。避免这样写：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="symbol">:ok</span>, body&#125; = File.read(file)</div></pre></td></tr></table></figure>
-<p>因为，一旦有错误，File.read/1 将返回 {:error, reason} 而且模式匹配将失败。你将仍然得到你想要的结果（一个抛出的错误），但是消息却是关于没有匹配上的模式（因此，错误实际上是什么就显得很神秘）。</p>
-<p>因此，如果你不想处理错误结果，就优先使用 File.read!/1 。</p>
-<h1 id="Path模块"><a href="#Path模块" class="headerlink" title="Path模块"></a><span id="part-three">Path模块</span></h1><p>File模块里的绝大多数函数都期望用路径做入参。最常见的是，这些路径将是普通二进制数据。Path模块提供处理这样路径的工具：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; Path.join(<span class="string">"foo"</span>, <span class="string">"bar"</span>)</div><div class="line"><span class="string">"foo/bar"</span></div><div class="line">iex&gt; Path.expand(<span class="string">"~/hello"</span>)</div><div class="line"><span class="string">"/Users/jose/hello"</span></div></pre></td></tr></table></figure>
-<p>使用Path模块的函数，而不是直接操纵字符串是首选，因为Path模块透明地处理不同的操作系统之间的差异。最后，记住当在Windows执行文件操作的时候，Elixir将自动将斜线（/）转成反斜线（\）。</p>
-<p>到此，我们已经讲完了Elixir提供的处理IO和与文件系统交互的主要模块。下面的部分，我们将讨论关于IO的一些高级话题。这些部分不是写Elixir代码所必需的，因此可以略过它们，不过它们对VM里IO系统是如何实现的以及其他特性提供了一个好的概貌。</p>
-<h1 id="进程和组领导"><a href="#进程和组领导" class="headerlink" title="进程和组领导"></a><span id="part-four">进程和组领导</span></h1><p>你可能已经注意到 File.open/2 返回一个元组 {:ok, pid} ：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, file&#125; = File.open <span class="string">"hello"</span>, [<span class="symbol">:write</span>]</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.47.0&gt;&#125;</span></div></pre></td></tr></table></figure>
-<p>之所以是如此，是因为IO模块实际上是和进程打交道（参见<a href="http://elixir-lang.org/getting-started/processes.html" target="_blank" rel="external">11章</a>）。当你写 IO.write(pid, binary) 的时候，IO模块将发送一个消息给被pid标识的进程，消息里同时带着期望的操作。让我们看看如果我们用我们自己的进程会发生什么：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; pid = spawn <span class="keyword">fn</span> -&gt;</div><div class="line">...&gt;  receive <span class="symbol">do:</span> (msg -&gt; IO.inspect msg)</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="comment">#PID&lt;0.57.0&gt;</span></div><div class="line">iex&gt; IO.write(pid, <span class="string">"hello"</span>)</div><div class="line">&#123;<span class="symbol">:io_request</span>, <span class="comment">#PID&lt;0.41.0&gt;, #Reference&lt;0.0.8.91&gt;,</span></div><div class="line"> &#123;<span class="symbol">:put_chars</span>, <span class="symbol">:unicode</span>, <span class="string">"hello"</span>&#125;&#125;</div><div class="line">** (ErlangError) erlang <span class="symbol">error:</span> <span class="symbol">:terminated</span></div></pre></td></tr></table></figure>
-<p>上述例子中，在 IO.write/2 后，我们可以看到IO模块发送的请求（四元素元组）被打印出来。紧跟其后，我们看到了失败，因为IO模块所期望的结果我们没有支持。</p>
-<p><a href="https://hexdocs.pm/elixir/StringIO.html" target="_blank" rel="external">StringIO</a>模块提供了基于字符串之上的IO设备消息的实现：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, pid&#125; = StringIO.open(<span class="string">"hello"</span>)</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.43.0&gt;&#125;</span></div><div class="line">iex&gt; IO.read(pid, <span class="number">2</span>)</div><div class="line"><span class="string">"he"</span></div></pre></td></tr></table></figure>
-<p>通过用进程模型化IO设备，Erlang虚拟机允许同一个网络里的不同节点互访文件进程来在不同节点间读写文件。在所有IO设备中，有一个对所有进程都很特别，就是：<strong>组领导</strong>。</p>
-<p>当你写数据给 :stdio 的时候，你实际上是发消息给组领导，由它写数据给标注输出文件描述符：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; IO.puts <span class="symbol">:stdio</span>, <span class="string">"hello"</span></div><div class="line">hello</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; IO.puts Process.group_leader, <span class="string">"hello"</span></div><div class="line">hello</div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
-<p>每个进程都可以配置组领导，组领导在不同的情况下使用。例如，当在一个远程终端上执行代码，它保证远程节点上的消息被重定向并打印在触发请求的终端上。</p>
-<h1 id="iodata和chardata"><a href="#iodata和chardata" class="headerlink" title="iodata和chardata"></a><span id="part-five">iodata和chardata</span></h1><p>在上面所有的例子里，当写数据到文件的时候，我们使用二进制数据。在“二进制数据、字符串和字符列表”那一章，我们提到字符串是怎样由二进制数据构成而字符列表unicode代码点的列表。</p>
-<p>IO模块和File模块里的函数也允许列表作为入参。不仅如此，它们也运行混合列表，列表里包含整数和二进制数据：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; IO.puts <span class="string">'hello world'</span></div><div class="line">hello world</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; IO.puts [<span class="string">'hello'</span>, ?\s, <span class="string">"world"</span>]</div><div class="line">hello world</div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
-<p>然而，在IO操作中使用列表需要一些注意。一个列表可能表示一串二进制数据或者一串字符，而到底使用哪一个依赖于IO设备的编码。如果一个文件没有指定编码方式打开，它被期望是原始模式，则IO模块里以 bin* 开头的函数就必须被使用。这些函数期望一个 iodata 作为入参，也就是，它们期望一个表示字节和二进制数据的整数列表被传入。</p>
-<p>另一方面，:stdio 和以 :utf8 编码打开的文件将用其余的IO模块中的函数处理。这些函数期望一个 char_data 作为入参，也就是，一个字符或者字符串列表。</p>
-<p>虽然这是一个微妙的区别，你只需要担心这些细节，如果你打算传递列表给这些函数。二进制数据已经由底层字节表示，因此它们的表示总是“原始”的。</p>
-<p>到此我们结束了IO设备和IO相关功能之旅。我们已经学了四个Elixir模块：<a href="https://hexdocs.pm/elixir/IO.html" target="_blank" rel="external">IO</a>、<a href="https://hexdocs.pm/elixir/File.html" target="_blank" rel="external">File</a>、<a href="https://hexdocs.pm/elixir/Path.html" target="_blank" rel="external">Path</a>和<a href="https://hexdocs.pm/elixir/StringIO.html" target="_blank" rel="external">StringIO</a>，也学了Erlang虚拟机如何用进程来处理底层IO机制以及如何使用 chardata  和 iodata 来进行IO操作。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/io-and-the-file-system.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/io-and-the-file-system.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;IO模块&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;File模块&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;Path模块&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;进程和组领导&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;iodata和chardata&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;本章是对输入/输出机制和文件系统相关的任务以及相关模块，比如：&lt;a href=&quot;https://hexdocs.pm/elixir/IO.html&quot;&gt;IO&lt;/a&gt;、&lt;a href=&quot;https://hexdocs.pm/elixir/File.html&quot;&gt;File&lt;/a&gt;和&lt;a href=&quot;https://hexdocs.pm/elixir/Path.html&quot;&gt;Path&lt;/a&gt;的快速介绍。&lt;/p&gt;
-&lt;p&gt;我们原本计划这章在本系列教程中更早地出现。然而，我们注意到 IO 系统提供一个非常好的机会来阐明Elixir和VM的一些哲学和奇特之处。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-      <category term="io" scheme="http://szpzs.oschina.io/categories/Elixir/io/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-      <category term="io" scheme="http://szpzs.oschina.io/tags/io/"/>
-    
-      <category term="file system" scheme="http://szpzs.oschina.io/tags/file-system/"/>
-    
-      <category term="Path" scheme="http://szpzs.oschina.io/tags/Path/"/>
-    
-      <category term="StringIO" scheme="http://szpzs.oschina.io/tags/StringIO/"/>
-    
-      <category term="group leader" scheme="http://szpzs.oschina.io/tags/group-leader/"/>
-    
-      <category term="iodata" scheme="http://szpzs.oschina.io/tags/iodata/"/>
-    
-      <category term="chardata" scheme="http://szpzs.oschina.io/tags/chardata/"/>
     
   </entry>
   
