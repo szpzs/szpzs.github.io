@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-02-25T08:23:46.000Z</updated>
+  <updated>2017-02-25T23:10:52.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,115 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Mix 和 OTP－宏</title>
+    <link href="http://szpzs.oschina.io/2017/02/26/elixir-getting-started-meta-macros/"/>
+    <id>http://szpzs.oschina.io/2017/02/26/elixir-getting-started-meta-macros/</id>
+    <published>2017-02-25T23:08:59.000Z</published>
+    <updated>2017-02-25T23:10:52.000Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">前言</a></li>
+<li><a href="#part-two">我们第一个宏</a></li>
+<li><a href="#part-three">宏的卫生</a></li>
+<li><a href="#part-four">环境</a></li>
+<li><a href="#part-five">私有宏</a></li>
+<li><a href="#part-six">负责任地写宏</a></li>
+</ol>
+<a id="more"></a>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><span id="part-one">前言</span></h1><p>即使Elixir尽最大努力为宏提供一个安全的环境，但是用宏写干净的代码的主要责任落在开发者身上。宏比普通Elixir函数更难写，并且当它们不是必需的时候，使用它们被认为是一种坏的风格。所以要负责人地写宏。</p>
+<p>Elixir已经通过使用它的数据结构和函数以一种简单和可读的方式提供了一种机制来写你每天的代码。宏只能作为最后的手段使用。记住，明确的优于暗示的。清晰代码优于简洁代码。</p>
+<h1 id="我们第一个宏"><a href="#我们第一个宏" class="headerlink" title="我们第一个宏"></a><span id="part-two">我们第一个宏</span></h1><p>在Elixir里，宏通过 defmacro/2 定义。</p>
+<blockquote>
+<p>在本章，我们将使用文件来替代在IEx里运行代码样例。这是因为代码样例将跨多行而在IEx里输入它们将适得其反。你应该把代码样例保存在macros.exs文件里，用 elixir macros.exs 或 iex macros.exs 运行。</p>
+</blockquote>
+<p>为了更好地理解宏是如何工作的，让我们创建一个新模块分别用宏和函数来实现 unless ，也即 if 的相反功能：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Unless</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">fun_unless</span></span>(clause, <span class="symbol">do:</span> expression) <span class="keyword">do</span></div><div class="line">    if(!clause, <span class="symbol">do:</span> expression)</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">defmacro</span> <span class="title">macro_unless</span></span>(clause, <span class="symbol">do:</span> expression) <span class="keyword">do</span></div><div class="line">    <span class="keyword">quote</span> <span class="keyword">do</span></div><div class="line">      if(!unquote(clause), <span class="symbol">do:</span> unquote(expression))</div><div class="line">    <span class="keyword">end</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>函数接收入参然后传递给 if 。但是，如我们在<a href="http://elixir-lang.org/getting-started/meta/quote-and-unquote.html" target="_blank" rel="external">前一章</a>所学，宏将接收引用表达式然后注入到引用，最后返回另一个引用表达式。</p>
+<p>让我们用上面的模块来启动iex：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ iex macros.exs</div></pre></td></tr></table></figure>
+<p>然后试一试那些定义：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; require Unless</div><div class="line">iex&gt; Unless.macro_unless <span class="keyword">true</span>, <span class="symbol">do:</span> IO.puts <span class="string">"this should never be printed"</span></div><div class="line"><span class="keyword">nil</span></div><div class="line">iex&gt; Unless.fun_unless <span class="keyword">true</span>, <span class="symbol">do:</span> IO.puts <span class="string">"this should never be printed"</span></div><div class="line"><span class="string">"this should never be printed"</span></div><div class="line"><span class="keyword">nil</span></div></pre></td></tr></table></figure>
+<p>注意，在我们的宏实现了，句子没有被打印，而在我们的函数实现里，句子被打印了。那是因为传递给函数调用的入参在函数被调用前执行了。然而，宏不执行它们的入参。相反，它们接收入参作为引用表达式，然后转换为其他引用表达式。在本例子中，我们重写了 unless 宏，使得其实际上是一个 if 。</p>
+<p>也就是说，当如下调用：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Unless.macro_unless <span class="keyword">true</span>, <span class="symbol">do:</span> IO.puts <span class="string">"this should never be printed"</span></div></pre></td></tr></table></figure>
+<p>则我们的 macro_unless ，接收到如下所示内容：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">macro_unless(<span class="keyword">true</span>, [<span class="symbol">do:</span> &#123;&#123;<span class="symbol">:</span>., [], [&#123;<span class="symbol">:__aliases__</span>, [<span class="symbol">alias:</span> <span class="keyword">false</span>], [<span class="symbol">:IO</span>]&#125;, <span class="symbol">:puts</span>]&#125;, [], [<span class="string">"this should never be printed"</span>]&#125;])</div></pre></td></tr></table></figure>
+<p>然后它返回一个引用表达式：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="symbol">:if</span>, [],</div><div class="line"> [&#123;<span class="symbol">:</span>!, [], [<span class="keyword">true</span>]&#125;,</div><div class="line">  [<span class="symbol">do:</span> &#123;&#123;<span class="symbol">:</span>., [],</div><div class="line">     [&#123;<span class="symbol">:__aliases__</span>,</div><div class="line">       [], [<span class="symbol">:IO</span>]&#125;,</div><div class="line">      <span class="symbol">:puts</span>]&#125;, [], [<span class="string">"this should never be printed"</span>]&#125;]]&#125;</div></pre></td></tr></table></figure>
+<p>我们可以用 Macro.expand_once/2 确认这个例子：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; expr = <span class="keyword">quote</span> <span class="symbol">do:</span> Unless.macro_unless(<span class="keyword">true</span>, <span class="symbol">do:</span> IO.puts <span class="string">"this should never be printed"</span>)</div><div class="line">iex&gt; res  = Macro.expand_once(expr, __ENV_<span class="number">_</span>)</div><div class="line">iex&gt; IO.puts Macro.to_string(res)</div><div class="line">if(!<span class="keyword">true</span>) <span class="keyword">do</span></div><div class="line">  IO.puts(<span class="string">"this should never be printed"</span>)</div><div class="line"><span class="keyword">end</span></div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
+<p>Macro.expand_once/2 接收一个引用表达式然后依据当前环境扩展它。在本例子里，它扩展/调用 Unless.macro<em>unless/2 宏并且返回它的结果。我们然后继续转换返回的引用表达式为一个字符串并且打印它（我们将在这章后面讨论 \</em>_ENV__ ）。</p>
+<p>这就是宏的所有内容。他们是关于接受引用表达式，并转化成其他东西。实际上，在Elixir里的 unless/2 就是用宏来实现的：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">defmacro</span> <span class="title">unless</span></span>(clause, <span class="symbol">do:</span> expression) <span class="keyword">do</span></div><div class="line">  <span class="keyword">quote</span> <span class="keyword">do</span></div><div class="line">    if(!unquote(clause), <span class="symbol">do:</span> unquote(expression))</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>向 unless/2, defmacro/2, def/2, defprotocol/2 这样的结构，和在本教程中被使用的许多其他结构都是用纯Elixir实现的，经常是实现为一个宏。这意味着，用于构建语言的结构可以被开发人员用来将语言扩展到他们正在工作的领域。</p>
+<p>我们可以定义一些函数和我们想要的宏，包括那些覆盖由Elixir提供的内置的定义。唯一的例外是Elixir的特殊形式，不用Elixir实现的，因此无法重写，<a href="https://hexdocs.pm/elixir/Kernel.SpecialForms.html#summary" target="_blank" rel="external">特殊形式的所有列表在Kernel.SpecialForms 里</a>。</p>
+<h1 id="宏的卫生"><a href="#宏的卫生" class="headerlink" title="宏的卫生"></a><span id="part-three">宏的卫生</span></h1><p>Elixir宏有晚解决。它保证引用内定义的变量不会和宏展开的上下文里定义的变量冲突。例如：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Hygiene</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">defmacro</span> <span class="title">no_interference</span></span> <span class="keyword">do</span></div><div class="line">    <span class="keyword">quote</span> <span class="symbol">do:</span> a = <span class="number">1</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">HygieneTest</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">go</span></span> <span class="keyword">do</span></div><div class="line">    require Hygiene</div><div class="line">    a = <span class="number">13</span></div><div class="line">    Hygiene.no_interference</div><div class="line">    a</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">HygieneTest.go</div><div class="line"><span class="comment"># =&gt; 13</span></div></pre></td></tr></table></figure>
+<p>上述例子里，即使宏注入了 a = 1 ，它不会影响go函数里定义的变量 a。如果宏想明确地影响上下文，它可以用 var! ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Hygiene</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">defmacro</span> <span class="title">interference</span></span> <span class="keyword">do</span></div><div class="line">    <span class="keyword">quote</span> <span class="symbol">do:</span> var!(a) = <span class="number">1</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">HygieneTest</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">go</span></span> <span class="keyword">do</span></div><div class="line">    require Hygiene</div><div class="line">    a = <span class="number">13</span></div><div class="line">    Hygiene.interference</div><div class="line">    a</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">HygieneTest.go</div><div class="line"><span class="comment"># =&gt; 1</span></div></pre></td></tr></table></figure>
+<p>变量的卫生能运作只能是因为Elixir用上下文标注变量。例如，在一个模块的第三行定义的变量x将被表示成：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="symbol">:x</span>, [<span class="symbol">line:</span> <span class="number">3</span>], <span class="keyword">nil</span>&#125;</div></pre></td></tr></table></figure>
+<p>但是，一个引用变量被表示成：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Sample</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">quoted</span></span> <span class="keyword">do</span></div><div class="line">    <span class="keyword">quote</span> <span class="symbol">do:</span> x</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">Sample.quoted <span class="comment">#=&gt; &#123;:x, [line: 3], Sample&#125;</span></div></pre></td></tr></table></figure>
+<p>注意，在引用变量里的第三个元素是原子 Sample ，而不是 nil ，这说明这个变量来自 Sample 模块。因此，Elixir认为这两个变量来自不同的模块和上下文，因此相应地分别处理它们。</p>
+<p>Elixir为导入和别名也提供相似的机制。这保证了宏如它所在模块指定那样表现，而不会与它将被展开的所在模块发生冲突。Hygiene 可以在通过用像 var!/2 和 alias!/2 这样的宏特定的环境下被绕过，但是使用它们的时候必须要小心，因为它们直接修改用户环境。</p>
+<p>有时候变量名字可以动态创建。在这种情况下，macro.var/2可以用来定义新的变量：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Sample</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">defmacro</span> <span class="title">initialize_to_char_count</span></span>(variables) <span class="keyword">do</span></div><div class="line">    Enum.map variables, <span class="keyword">fn</span>(name) -&gt;</div><div class="line">      var = Macro.var(name, <span class="keyword">nil</span>)</div><div class="line">      length = name |&gt; Atom.to_string |&gt; String.length</div><div class="line">      <span class="keyword">quote</span> <span class="keyword">do</span></div><div class="line">        unquote(var) = unquote(length)</div><div class="line">      <span class="keyword">end</span></div><div class="line">    <span class="keyword">end</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">run</span></span> <span class="keyword">do</span></div><div class="line">    initialize_to_char_count [<span class="symbol">:red</span>, <span class="symbol">:green</span>, <span class="symbol">:yellow</span>]</div><div class="line">    [red, green, yellow]</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">&gt; Sample.run <span class="comment">#=&gt; [3, 5, 6]</span></div></pre></td></tr></table></figure>
+<p>注意 Macro.var/2 的第二个入参。这是正在使用的上下文，将决定在下一节描述的卫生。</p>
+<h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a><span id="part-three">环境</span></h1><p>在本章稍早前调用 Macro.expand<em>once/2 的时候，我们使用特别的形式 \</em>_ENV__。</p>
+<p>__ENV__ 返回 Macro.Env 结构的一个实例，它含有有关编译环境的有用信息，包括当前模块、文件和行，所有在当前范围定义的变量，以及导入和需求等等：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">iex&gt; __ENV_<span class="number">_</span>.<span class="keyword">module</span></div><div class="line"><span class="keyword">nil</span></div><div class="line">iex&gt; __ENV_<span class="number">_</span>.file</div><div class="line"><span class="string">"iex"</span></div><div class="line">iex&gt; __ENV_<span class="number">_</span>.requires</div><div class="line">[IEx.Helpers, Kernel, Kernel.Typespec]</div><div class="line">iex&gt; require Integer</div><div class="line"><span class="keyword">nil</span></div><div class="line">iex&gt; __ENV_<span class="number">_</span>.requires</div><div class="line">[IEx.Helpers, Integer, Kernel, Kernel.Typespec]</div></pre></td></tr></table></figure>
+<p>Macro 模块里的许多函数期望有一个环境。你可以在 <a href="https://hexdocs.pm/elixir/Macro.html" target="_blank" rel="external">Macro 模块文档</a>里读到跟多有关这些函数的内容，也可以在 <a href="https://hexdocs.pm/elixir/Macro.Env.html" target="_blank" rel="external">Macro.Env 文档</a>里学到更多有关编译环境的知识。</p>
+<h1 id="私有宏"><a href="#私有宏" class="headerlink" title="私有宏"></a><span id="part-three">私有宏</span></h1><p>Elixir用 defmacrop 也支持私有宏。像私有函数，这样的宏只能在定义它们的模块里有效，也只能在编译时有效。</p>
+<p>宏在使用之前定义是很重要的。在调用之前不定义宏会在运行时引发错误，因为宏不会被扩展，将被转换为函数调用：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">Sample</span></span> <span class="keyword">do</span></div><div class="line">...&gt;  <span class="function"><span class="keyword">def</span> <span class="title">four</span></span>, <span class="symbol">do:</span> two + two</div><div class="line">...&gt;  defmacrop two, <span class="symbol">do:</span> <span class="number">2</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line">** (CompileError) <span class="symbol">iex:</span><span class="number">2</span>: function two/<span class="number">0</span> undefined</div></pre></td></tr></table></figure>
+<h1 id="负责任地写宏"><a href="#负责任地写宏" class="headerlink" title="负责任地写宏"></a><span id="part-three">负责任地写宏</span></h1><p>宏是一个功能强大的结构并且Elixir提供了许多机制来确保他们被负责任地使用。</p>
+<ul>
+<li>宏是卫生的：默认情况下，宏中定义的变量不会影响用户代码。此外，函数调用和在宏观背景下可用的别名是不会泄漏到用户上下文。</li>
+<li>宏是有词法范围的：在全局中注入代码或宏是不可能的。为了使用宏，你需要明确地需要或导入定义宏的模块。</li>
+<li>宏是明确的：不明确调用宏是不可能运行宏的。例如，一些语言允许开发人员完全重写后台的功能，通常是通过解析变换或通过一些反射机制。在Elixir里，必须在编译时在调用者里明确地调用宏。</li>
+<li>宏语言是清晰的：许多语言提供引用和非引用的语法快捷方式。在Elixir，为了清楚地划定一个宏的定义和引用表达式的界限，我们喜欢有明确的说明。</li>
+</ul>
+<p>即使有了这样的保证，开发者在负责编写宏时也扮演了重要角色。如果你有信心需要采用宏，请记住宏不是你的API。保持你的宏定义短，包括它们的引用内容。例如，不要像下面这样写宏：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">MyModule</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">defmacro</span> <span class="title">my_macro</span></span>(a, b, c) <span class="keyword">do</span></div><div class="line">    <span class="keyword">quote</span> <span class="keyword">do</span></div><div class="line">      do_this(unquote(a))</div><div class="line">      ...</div><div class="line">      do_that(unquote(b))</div><div class="line">      ...</div><div class="line">      and_that(unquote(c))</div><div class="line">    <span class="keyword">end</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>而是像下面这样写：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">MyModule</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">defmacro</span> <span class="title">my_macro</span></span>(a, b, c) <span class="keyword">do</span></div><div class="line">    <span class="keyword">quote</span> <span class="keyword">do</span></div><div class="line">      <span class="comment"># Keep what you need to do here to a minimum</span></div><div class="line">      <span class="comment"># and move everything else to a function</span></div><div class="line">      do_this_that_and_that(unquote(a), unquote(b), unquote(c))</div><div class="line">    <span class="keyword">end</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">do_this_that_and_that</span></span>(a, b, c) <span class="keyword">do</span></div><div class="line">    do_this(a)</div><div class="line">    ...</div><div class="line">    do_that(b)</div><div class="line">    ...</div><div class="line">    and_that(c)</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>这使你的代码更清晰，更容易测试和维，并且你可以直接调用和测试do_this_that_and_that / 3。它还有助于你为开发人员设计不想依赖宏的实际的API。</p>
+<p>有了这些教程，我们完成了对宏的介绍。下一章讨论DSL，显示我们如何可以混合宏和模块属性来诠释和扩展模块和函数。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/meta/macros.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/meta/macros.html</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;我们第一个宏&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;宏的卫生&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;环境&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;私有宏&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;#part-six&quot;&gt;负责任地写宏&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="meta-programming" scheme="http://szpzs.oschina.io/categories/Elixir/meta-programming/"/>
+    
+      <category term="macro" scheme="http://szpzs.oschina.io/categories/Elixir/meta-programming/macro/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="meta-programming" scheme="http://szpzs.oschina.io/tags/meta-programming/"/>
+    
+      <category term="macro" scheme="http://szpzs.oschina.io/tags/macro/"/>
+    
+  </entry>
   
   <entry>
     <title>Mix 和 OTP－Quote 和 Unquote</title>
@@ -1974,116 +2083,6 @@
       <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
     
       <category term="module-attribute" scheme="http://szpzs.oschina.io/tags/module-attribute/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Elixir入门教程－alias、require、和import</title>
-    <link href="http://szpzs.oschina.io/2017/02/08/elixir-getting-started-alias-require-and-import/"/>
-    <id>http://szpzs.oschina.io/2017/02/08/elixir-getting-started-alias-require-and-import/</id>
-    <published>2017-02-08T07:33:12.000Z</published>
-    <updated>2017-02-08T07:49:52.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">alias</a></li>
-<li><a href="#part-two">require</a></li>
-<li><a href="#part-three">import</a></li>
-<li><a href="#part-four">use</a></li>
-<li><a href="#part-five">理解alias</a></li>
-<li><a href="#part-six">模块嵌套</a></li>
-<li><a href="#part-seven">多重 alias/import/require/use</a></li>
-</ol>
-<p>为了便于软件重用，Elixir提供了三个指令（alias、require和import）外加一个叫做use的宏。如下所示：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 别名一个模块则它可以被叫做Bar而不是Foo.Bar</span></div><div class="line"><span class="keyword">alias</span> Foo.Bar, <span class="symbol">as:</span> Bar</div><div class="line"></div><div class="line"><span class="comment"># 确认这个模块是编译好的并且可用的（常常使用于宏）</span></div><div class="line">require Foo</div><div class="line"></div><div class="line"><span class="comment"># 从Foo导入函数，所以它们被调用可以不需要 Foo. 这个前缀</span></div><div class="line">import Foo</div><div class="line"></div><div class="line"><span class="comment"># 调用Foo里作为一个扩展点定义的代码。</span></div><div class="line"><span class="keyword">use</span> Foo</div></pre></td></tr></table></figure>
-<p>我们现在将详细地探讨它们。记住前三个被叫做指令因为它们有作用范围，而use是一个常见的扩展点。</p>
-<a id="more"></a>
-<h1 id="alias"><a href="#alias" class="headerlink" title="alias"></a><span id="part-one">alias</span></h1><p>alias允许你给任何给定的模块设置别名。</p>
-<p>假设一个模块使用 Math.List 里实现的一个特殊列表。alias 指令允许在模块定义里只使用List来指代Math.List：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Stats</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">alias</span> Math.List, <span class="symbol">as:</span> List</div><div class="line">  <span class="comment"># 在模块的后续的定义里，List将展开为Math.List。</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>原来的List依然可以通过完全限定名Elixir.List在模块Stats里访问。</p>
-<blockquote>
-<p>注意：定义在Elixir里所有的模块定义在Elixir命名空间里。但是，为了方便，当引用它们的时候你可以省略“Elixir.”。</p>
-</blockquote>
-<p>别名常被用来定义快捷方式。实际上，调用 alias 而不用 :as 选项，则自动将别名设置为模块名的最后一部分，例如：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">alias</span> Math.List</div></pre></td></tr></table></figure>
-<p>和如下的代码是一样的效果：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">alias</span> Math.List, <span class="symbol">as:</span> List</div></pre></td></tr></table></figure>
-<p>注意：alias 是有作用范围的，它允许你在特定的函数里设置别名：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">plus</span></span>(a, b) <span class="keyword">do</span></div><div class="line">    <span class="keyword">alias</span> Math.List</div><div class="line">    <span class="comment"># ...</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">minus</span></span>(a, b) <span class="keyword">do</span></div><div class="line">    <span class="comment"># ...</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>上面的例子里，因为我们在 plus/2 里调用 alias ，别名将只在 plus/2 里有效，minus/2 将一点也不受影响。</p>
-<h1 id="require"><a href="#require" class="headerlink" title="require"></a><span id="part-two">require</span></h1><p>Elixir提供宏作为元编程（写代码来生成代码）的一种机制。</p>
-<p>宏是一段代码，它在代码编译的时候被执行和展开。这意味着，为了使用宏，我们需要保证在编译期间它的模块和实现是可用的。这可以用 require 指令来完成：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; Integer.is_odd(<span class="number">3</span>)</div><div class="line">** (UndefinedFunctionError) function Integer.is_odd/<span class="number">1</span> is undefined <span class="keyword">or</span> private. However there is a macro with the same name <span class="keyword">and</span> arity. Be sure to require Integer if you intend to invoke this macro</div><div class="line">iex&gt; require Integer</div><div class="line">Integer</div><div class="line">iex&gt; Integer.is_odd(<span class="number">3</span>)</div><div class="line"><span class="keyword">true</span></div></pre></td></tr></table></figure>
-<p>在Elixir里，Integer.is_odd/1 被定义成为一个宏，所以它可以被用来作为一个卫语句。也就是说，为了调用 Integer.is_odd/1 ，我们首先需要 require Integer模块。</p>
-<p>总而言之，一个模块在使用前是不需要被 require 的，除非是我们想要使得模块里的宏可用。尝试调用一个没有被装载的宏将引起一个错误。注意，像 alias 指令，require 也是有作用范围的。我们将在后面的章节更深入地讨论宏。</p>
-<h1 id="import"><a href="#import" class="headerlink" title="import"></a><span id="part-three">import</span></h1><p>在任何时候我们想不用完全限定名称而方便地访问其他模块的函数或宏，我们就用 import 。例如，如果我们想用 List 里的 duplicate/2 几次，我们可以 import 它：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; import List, <span class="symbol">only:</span> [<span class="symbol">duplicate:</span> <span class="number">2</span>]</div><div class="line">List</div><div class="line">iex&gt; duplicate <span class="symbol">:ok</span>, <span class="number">3</span></div><div class="line">[<span class="symbol">:ok</span>, <span class="symbol">:ok</span>, <span class="symbol">:ok</span>]</div></pre></td></tr></table></figure>
-<p>在这个例子里，我们仅从List里导入函数duplicate（只有两个入参）。虽然 :only 是可选的，但是为了避免将给定模块的所有函数都导入到命名空间里，这个用法是被推荐使用的。:except 也可以作为选项被设置，它的作用是为了导入一个模块里 <em>除了</em> 一些函数外其他所有函数。</p>
-<p>import 也支持把 :macros 和 :functions 给 :only 选项。例如，导入模块的所有宏，可以这么写：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">import Integer, <span class="symbol">only:</span> <span class="symbol">:macros</span></div></pre></td></tr></table></figure>
-<p>或者导入模块的所有函数，你可以这么写：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">import Integer, <span class="symbol">only:</span> <span class="symbol">:functions</span></div></pre></td></tr></table></figure>
-<p>注意：import也是有作用范围的。这意味着我们可以在函数定义里导入特定的宏和函数：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">some_function</span></span> <span class="keyword">do</span></div><div class="line">    import List, <span class="symbol">only:</span> [<span class="symbol">duplicate:</span> <span class="number">2</span>]</div><div class="line">    duplicate(<span class="symbol">:ok</span>, <span class="number">10</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>上述例子，被导入的 List.duplicate/2 只在特定的函数里才可见。duplicate/2 在这个模块（就这个问题而言，在任何其他模块）里的任何其他函数都不可用。</p>
-<p>注意：<em>import</em> 一个模块自动就 <em>require</em> 它了</p>
-<h1 id="use"><a href="#use" class="headerlink" title="use"></a><span id="part-four">use</span></h1><p>虽然不是指令，use却是与require紧密相关的一个宏，它允许你在当前上下文里使用一个模块。这个 use 宏常常被开发者用来把外部功能带入当前作用范围，经常是模块。</p>
-<p>例如，为了用 ExUnit 框架写测试，开发者应该使用 ExUnit.Case 模块：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">AssertionTest</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> ExUnit.Case, <span class="symbol">async:</span> <span class="keyword">true</span></div><div class="line"></div><div class="line">  test <span class="string">"always pass"</span> <span class="keyword">do</span></div><div class="line">    assert <span class="keyword">true</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>背后的原理是，use require 给定的模块然后在它上面调用 __using/1__ 回调函数来允许这个模块注入一些代码到当前上下文。通常来说，如下的模块：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Example</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Feature, <span class="symbol">option:</span> <span class="symbol">:value</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>被编译成如下样子：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Example</span></span> <span class="keyword">do</span></div><div class="line">  require Feature</div><div class="line">  Feature.__using_<span class="number">_</span>(<span class="symbol">option:</span> <span class="symbol">:value</span>)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<h1 id="理解alias"><a href="#理解alias" class="headerlink" title="理解alias"></a><span id="part-five">理解alias</span></h1><p>到此，你可能想知道：Elixir的别名到底是什么？它是如何表示的？</p>
-<p>Elixir里的一个别名是一个大写开头的标识符（像String，Keyword，等等），在编译的时候它被转换成一个原子。例如，String 这个别名默认情况下被转换为 :”Elixir.String” ：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; is_atom(String)</div><div class="line"><span class="keyword">true</span></div><div class="line">iex&gt; to_string(String)</div><div class="line"><span class="string">"Elixir.String"</span></div><div class="line">iex&gt; <span class="symbol">:<span class="string">"Elixir.String"</span></span> == String</div><div class="line"><span class="keyword">true</span></div></pre></td></tr></table></figure>
-<p>通过用 alias/2 指令，我们改变了别名所要转换成的原子。</p>
-<p>别名转换为原子是因为在Erlang虚拟机里（也是Elixir里）模块总是用原子来表示。例如，如下就是我们用来调用Erlang模块的机制：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:lists</span>.flatten([<span class="number">1</span>, [<span class="number">2</span>], <span class="number">3</span>])</div><div class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
-<h1 id="模块嵌套"><a href="#模块嵌套" class="headerlink" title="模块嵌套"></a><span id="part-six">模块嵌套</span></h1><p>现在我们已经讨论了别名，我们可以讨论嵌套和它在Elixir里是如何运作的。考虑一下如下例子：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Foo</span></span> <span class="keyword">do</span></div><div class="line">  <span class="class"><span class="keyword">defmodule</span> <span class="title">Bar</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>上面的例子将定义两个模块：Foo 和 Foo.Bar 。第二个模块可以在Foo里以Bar来访问只要它们在相同的作用范围里。上面的代码和下面的代码完全一样：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Elixir</span></span>.Foo <span class="keyword">do</span></div><div class="line">  <span class="class"><span class="keyword">defmodule</span> <span class="title">Elixir</span></span>.Foo.Bar <span class="keyword">do</span></div><div class="line">  <span class="keyword">end</span></div><div class="line">  <span class="keyword">alias</span> Elixir.Foo.Bar, <span class="symbol">as:</span> Bar</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>如果，以后，Bar 模块被移到Foo模块定义的外面，它必须用完全限定名称（Foo.Bar）引用或者一个别名必须用前面讨论过的alias指令来设置。</p>
-<p>注意：在Elixir里，你不必在定义Foo.Bar模块前必须要定义Foo模块，因为Elixir转换所有模块名字为原子。你可以定义任意嵌套的模块而不需要定义链上的任何模块（比如，定义Foo.Bar.Baz而没有先定义Foo或Foo.Bar）。</p>
-<p>正如我们将在后面章节看到的，别名在宏里也扮演了一个至关重要的角色，来保证宏的整洁。</p>
-<h1 id="多重-alias-import-require-use"><a href="#多重-alias-import-require-use" class="headerlink" title="多重 alias/import/require/use"></a><span id="part-seven">多重 alias/import/require/use</span></h1><p>从Elixir v1.2开始，一次 alias、 import 或 require 多个模块是可能的。当我们开始嵌套模块这是特别有用的，当构建Elixir的应用程序时这是很常见的。例如，假设你有一个应用，所有模块都嵌套在MyApp下，你可以如下面例子一样一次性为MyApp.Foo，MyApp.Bar 和 MyApp.Baz指定别名：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">alias</span> MyApp.&#123;Foo, Bar, Baz&#125;</div></pre></td></tr></table></figure>
-<p>我们已经完成了我们的Elixir模块之旅。最后一个主题是模块属性。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/alias-require-and-import.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/alias-require-and-import.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;alias&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;require&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;import&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;use&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;理解alias&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-six&quot;&gt;模块嵌套&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-seven&quot;&gt;多重 alias/import/require/use&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;为了便于软件重用，Elixir提供了三个指令（alias、require和import）外加一个叫做use的宏。如下所示：&lt;/p&gt;
-&lt;figure class=&quot;highlight elixir&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 别名一个模块则它可以被叫做Bar而不是Foo.Bar&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;alias&lt;/span&gt; Foo.Bar, &lt;span class=&quot;symbol&quot;&gt;as:&lt;/span&gt; Bar&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 确认这个模块是编译好的并且可用的（常常使用于宏）&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;require Foo&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 从Foo导入函数，所以它们被调用可以不需要 Foo. 这个前缀&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;import Foo&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;# 调用Foo里作为一个扩展点定义的代码。&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;use&lt;/span&gt; Foo&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;我们现在将详细地探讨它们。记住前三个被叫做指令因为它们有作用范围，而use是一个常见的扩展点。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-      <category term="alias require import" scheme="http://szpzs.oschina.io/categories/Elixir/alias-require-import/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-      <category term="alias" scheme="http://szpzs.oschina.io/tags/alias/"/>
-    
-      <category term="require" scheme="http://szpzs.oschina.io/tags/require/"/>
-    
-      <category term="import" scheme="http://szpzs.oschina.io/tags/import/"/>
     
   </entry>
   
