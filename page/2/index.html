@@ -283,6 +283,149 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/17/elixir-getting-started-mix-otp-agent/" itemprop="url">
+                  Mix 和 OTP－Agent
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-17T20:54:47+08:00" content="2017-02-17">
+              2017-02-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/Agent/" itemprop="url" rel="index">
+                    <span itemprop="name">Agent</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/02/17/elixir-getting-started-mix-otp-agent/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/17/elixir-getting-started-mix-otp-agent/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ol>
+<li><a href="#part-one">状态的麻烦</a></li>
+<li><a href="#part-two">Agents</a></li>
+<li><a href="#part-three">用ExUnit回调函数设置测试</a></li>
+<li><a href="#part-four">其他Agent动作</a></li>
+<li><a href="#part-five">Agent的Client/Server</a></li>
+</ol>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">第一章</a>，或者查看本教程的章节索引。</p>
+<p>在本章，我们将创建一个名为 KV.Bucket 的模块。这个模块将以某种方式存储我们的键值对实体，并允许其他进程读取和修改它们。</p>
+<p>如果你跳过了入门教程或已经读过了很长时间，你应该重新读一下<a href="http://elixir-lang.org/getting-started/processes.html">进程</a>这一章。我们将用它作为起始点。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/17/elixir-getting-started-mix-otp-agent/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/" itemprop="url">
                   Mix 和 OTP－Mix简介
                 </a>
@@ -1538,151 +1681,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/09/elixir-getting-started-module-attributes/" itemprop="url">
-                  Elixir入门教程－模块属性
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-09T20:45:15+08:00" content="2017-02-09">
-              2017-02-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/" itemprop="url" rel="index">
-                    <span itemprop="name">Elixir</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/module-attribute/" itemprop="url" rel="index">
-                    <span itemprop="name">module-attribute</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/02/09/elixir-getting-started-module-attributes/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/09/elixir-getting-started-module-attributes/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <ol>
-<li><a href="#part-one">作为注释</a></li>
-<li><a href="#part-two">作为常量</a></li>
-<li><a href="#part-three">作为临时存储</a></li>
-</ol>
-<p>在Elixir里，模块属性服务于三个目标：</p>
-<ul>
-<li>它们常常用一些信息来注释模块被用户或Erlang虚拟机使用。</li>
-<li>它们用作常量。</li>
-<li>它们被用于编译期间临时模块存储。</li>
-</ul>
-<p>让我们一个一个地来仔细看看这三个方面。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/09/elixir-getting-started-module-attributes/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1728,7 +1726,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">133</span>
+              <span class="site-state-item-count">134</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1736,7 +1734,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">84</span>
+                <span class="site-state-item-count">85</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1745,7 +1743,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">189</span>
+                <span class="site-state-item-count">190</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
