@@ -4,7 +4,7 @@
   
     
     <entry>
-      <title><![CDATA[Mix 和 OTP－领域特定语言]]></title>
+      <title><![CDATA[Elixir中的元编程－领域特定语言]]></title>
       <url>http://szpzs.oschina.io/2017/02/27/elixir-getting-started-meta-domain-specific-languages/</url>
       <content type="html"><![CDATA[<ol>
 <li><a href="#part-one">前言</a></li>
@@ -48,7 +48,7 @@
     </entry>
     
     <entry>
-      <title><![CDATA[Mix 和 OTP－宏]]></title>
+      <title><![CDATA[Elixir中的元编程－宏]]></title>
       <url>http://szpzs.oschina.io/2017/02/26/elixir-getting-started-meta-macros/</url>
       <content type="html"><![CDATA[<ol>
 <li><a href="#part-one">前言</a></li>
@@ -126,7 +126,7 @@
     </entry>
     
     <entry>
-      <title><![CDATA[Mix 和 OTP－Quote 和 Unquote]]></title>
+      <title><![CDATA[Elixir中的元编程－Quote 和 Unquote]]></title>
       <url>http://szpzs.oschina.io/2017/02/25/elixir-getting-started-meta-quote-and-unquote/</url>
       <content type="html"><![CDATA[<ol>
 <li><a href="#part-one">Quoting</a></li>
