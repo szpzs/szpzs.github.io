@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-03-10T05:52:16.000Z</updated>
+  <updated>2017-03-13T06:24:00.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,49 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elixir的多态性</title>
+    <link href="http://szpzs.oschina.io/2017/03/13/polymorphism-in-elixir/"/>
+    <id>http://szpzs.oschina.io/2017/03/13/polymorphism-in-elixir/</id>
+    <published>2017-03-13T06:17:46.000Z</published>
+    <updated>2017-03-13T06:24:00.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>多态性是向不同类型的实体提供单一接口。本质上，它允许不同的数据类型响应相同的函数。因此，相同的函数为不同的数据类型完成相同的行为。Elixir语言有‘协议’和简洁的方式实现多态性。</p>
+<a id="more"></a>
+<p>让我们实现一个基本的协议，它将开氏和华氏温度转换为摄氏温度。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Kelvin</span></span> <span class="keyword">do</span></div><div class="line">  defstruct <span class="symbol">name:</span> <span class="string">"Kelvin"</span>, <span class="symbol">symbol:</span> <span class="string">"K"</span>, <span class="symbol">degree:</span> <span class="number">0</span></div><div class="line"><span class="keyword">end</span></div><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Fahrenheit</span></span> <span class="keyword">do</span></div><div class="line">  defstruct <span class="symbol">name:</span> <span class="string">"Fahrenheit"</span>, <span class="symbol">symbol:</span> <span class="string">"°F"</span>, <span class="symbol">degree:</span> <span class="number">0</span></div><div class="line"><span class="keyword">end</span></div><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Celsius</span></span> <span class="keyword">do</span></div><div class="line">  defstruct <span class="symbol">name:</span> <span class="string">"Celsius"</span>, <span class="symbol">symbol:</span> <span class="string">"°C"</span>, <span class="symbol">degree:</span> <span class="number">0</span></div><div class="line"><span class="keyword">end</span></div><div class="line"><span class="class"><span class="keyword">defprotocol</span> <span class="title">Temperature</span></span> <span class="keyword">do</span></div><div class="line">  <span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">  Convert Kelvin and Fahrenheit to Celsius degree</div><div class="line">  "<span class="string">""</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">to_celsius</span></span>(degree)</div><div class="line"><span class="keyword">end</span></div><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Temperature</span></span>, <span class="symbol">for:</span> Kelvin <span class="keyword">do</span></div><div class="line">  <span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">  Deduct 273.15</div><div class="line">  "<span class="string">""</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">to_celsius</span></span>(kelvin) <span class="keyword">do</span></div><div class="line">    celsius_degree = kelvin.degree - <span class="number">273.15</span></div><div class="line">    %Celsius&#123;<span class="symbol">degree:</span> celsius_degree&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Temperature</span></span>, <span class="symbol">for:</span> Fahrenheit <span class="keyword">do</span></div><div class="line">  <span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">  Deduct 32, then multiply by 5, then divide by 9</div><div class="line">  "<span class="string">""</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">to_celsius</span></span>(fahrenheit) <span class="keyword">do</span></div><div class="line">    celsius_degree = (fahrenheit.degree - <span class="number">32</span>) * <span class="number">5</span> / <span class="number">9</span></div><div class="line">    %Celsius&#123;<span class="symbol">degree:</span> celsius_degree&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>现在，我们实现了开氏和华氏温度的转换。</p>
+<p>让我们尝试一些转换：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; fahrenheit = %Fahrenheit&#123;<span class="symbol">degree:</span> <span class="number">45</span>&#125;</div><div class="line">%Fahrenheit&#123;<span class="symbol">degree:</span> <span class="number">45</span>, <span class="symbol">name:</span> <span class="string">"Fahrenheit"</span>, <span class="symbol">symbol:</span> <span class="string">"°F"</span>&#125;</div><div class="line">iex&gt; celsius = Temperature.to_celsius(fahrenheit)</div><div class="line">%Celsius&#123;<span class="symbol">degree:</span> <span class="number">7.22</span>, <span class="symbol">name:</span> <span class="string">"Celsius"</span>, <span class="symbol">symbol:</span> <span class="string">"°C"</span>&#125;</div><div class="line"></div><div class="line">iex&gt; kelvin = %Kelvin&#123;<span class="symbol">degree:</span> <span class="number">300</span>&#125;</div><div class="line">%Kelvin&#123;<span class="symbol">degree:</span> <span class="number">300</span>, <span class="symbol">name:</span> <span class="string">"Kelvin"</span>, <span class="symbol">symbol:</span> <span class="string">"K"</span>&#125;</div><div class="line">iex&gt; celsius = Temperature.to_celsius(kelvin)</div><div class="line">%Celsius&#123;<span class="symbol">degree:</span> <span class="number">26.85</span>, <span class="symbol">name:</span> <span class="string">"Celsius"</span>, <span class="symbol">symbol:</span> <span class="string">"°C"</span>&#125;</div></pre></td></tr></table></figure>
+<p>让我们试着转换没有实现to_celsius函数的任何其他数据类型：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; Temperature.to_celsius(%&#123;degree: 12&#125;)</div><div class="line">** (Protocol.UndefinedError) protocol Temperature not implemented for %&#123;degree: 12&#125;</div><div class="line">    iex:11: Temperature.impl_for!/1</div><div class="line">    iex:15: Temperature.to_celsius/1</div></pre></td></tr></table></figure>
+<p>如果你想要转换所有数据类型，你可以为<strong>Any</strong>这个数据类型定义一个实现。最后，如果你有时间，请阅读 <a href="https://github.com/elixir-lang/elixir/blob/master/lib/elixir/lib/enum.ex#L3096" target="_blank" rel="external"><strong>Enum</strong></a> 和 <a href="https://github.com/elixir-lang/elixir/blob/master/lib/elixir/lib/string/chars.ex#L3" target="_blank" rel="external"><strong>String.Char</strong></a> 的源码，它们是Elixir核心代码里多态性的好例子。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/@mustafaturan/polymorphism-in-elixir-cd0c765b6929#.d09i4bf56" target="_blank" rel="external">https://medium.com/@mustafaturan/polymorphism-in-elixir-cd0c765b6929#.d09i4bf56</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;多态性是向不同类型的实体提供单一接口。本质上，它允许不同的数据类型响应相同的函数。因此，相同的函数为不同的数据类型完成相同的行为。Elixir语言有‘协议’和简洁的方式实现多态性。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
+    
+      <category term="polymorphism" scheme="http://szpzs.oschina.io/categories/Elixir/polymorphism/"/>
+    
+      <category term="protocol" scheme="http://szpzs.oschina.io/categories/Elixir/polymorphism/protocol/"/>
+    
+    
+      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
+    
+      <category term="protocol" scheme="http://szpzs.oschina.io/tags/protocol/"/>
+    
+      <category term="polymorphism" scheme="http://szpzs.oschina.io/tags/polymorphism/"/>
+    
+  </entry>
   
   <entry>
     <title>减少固定大小缓冲区的最大延迟</title>
@@ -1957,116 +2000,6 @@
       <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
     
       <category term="comprehension" scheme="http://szpzs.oschina.io/tags/comprehension/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Elixir入门教程－协议</title>
-    <link href="http://szpzs.oschina.io/2017/02/10/elixir-getting-started-protocols/"/>
-    <id>http://szpzs.oschina.io/2017/02/10/elixir-getting-started-protocols/</id>
-    <published>2017-02-10T13:36:51.000Z</published>
-    <updated>2017-02-10T13:38:31.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">协议和结构体</a></li>
-<li><a href="#part-two">实现Any</a><br> 2.1. <a href="#part-two-one">派生</a><br> 2.3. <a href="#part-two-two">回退到Any</a></li>
-<li><a href="#part-three">内建协议</a></li>
-<li><a href="#part-four">协议整合</a></li>
-</ol>
-<p>协议是Elixir里实现多态的一种机制。在一个协议上派发消息给任意数据类型是可行的，只要这个数据类型实现了这个协议。让我们看一个例子。</p>
-<p>在Elixir里，我们有两个动作来检查在一个数据结构里有多少个元素：length 和 size。length 意味着信息必需是被计算的。例如：length(list)需要遍历整个列表来计算它的长度。而另一方面，tuple_size(tuple) 和 byte_size(binary) 不依赖于元组和二进制数据的大小，因为在数据结构里大小的信息已经被预先计算了。</p>
-<p>虽然我们已经有Elixir内建的获取大小的指定类型函数（比如tuple_size/1），我们还是想实现一个通用的 Size 协议，然后所有数据结构只要它的大小是预先计算的，都可以实现这个协议。</p>
-<a id="more"></a>
-<p>协议的定义看起来像下面这样：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defprotocol</span> <span class="title">Size</span></span> <span class="keyword">do</span></div><div class="line">  <span class="variable">@doc</span> <span class="string">"Calculates the size (and not the length!) of a data structure"</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(data)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>Size协议期望有一个接受一个入参（我们想要知道大小的数据结构）叫做size的函数被实现。我们现在可以为一些数据结构实现这个协议，这些数据结构应该有一个合适的实现：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> BitString <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(string), <span class="symbol">do:</span> byte_size(string)</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> Map <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(map), <span class="symbol">do:</span> map_size(map)</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> Tuple <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(tuple), <span class="symbol">do:</span> tuple_size(tuple)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>我们没有为列表实现Size协议，因为列表没有预先计算好的“大小”信息，并且列表的长度必须要被计算出来（用 length/1）。</p>
-<p>现在我们有了协议定义和实现，我们可以开始使用它：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; Size.size(<span class="string">"foo"</span>)</div><div class="line"><span class="number">3</span></div><div class="line">iex&gt; Size.size(&#123;<span class="symbol">:ok</span>, <span class="string">"hello"</span>&#125;)</div><div class="line"><span class="number">2</span></div><div class="line">iex&gt; Size.size(%&#123;<span class="symbol">label:</span> <span class="string">"some label"</span>&#125;)</div><div class="line"><span class="number">1</span></div></pre></td></tr></table></figure>
-<p>传入一个没有实现协议的数据类型将会引起一个错误：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Size.size([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</div><div class="line">** (Protocol.UndefinedError) protocol Size <span class="keyword">not</span> implemented <span class="keyword">for</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</div></pre></td></tr></table></figure>
-<p>为所有Elixir数据类型实现协议是可能的：</p>
-<ul>
-<li>Atom</li>
-<li>BitString</li>
-<li>Float</li>
-<li>Function</li>
-<li>Integer</li>
-<li>List</li>
-<li>Map</li>
-<li>PID</li>
-<li>Port</li>
-<li>Reference</li>
-<li>Tuple</li>
-</ul>
-<h1 id="协议和结构体"><a href="#协议和结构体" class="headerlink" title="协议和结构体"></a><span id="part-one">协议和结构体</span></h1><p>Elixir的可扩展性的能力来自当协议和结构一起使用时。</p>
-<p>在上一章，我们已经学到，虽然结构体底层是映射，但是它没有和映射共享协议实现。例如，<a href="https://hexdocs.pm/elixir/MapSet.html" target="_blank" rel="external">MapSet</a> （基于映射的集合）被实现为结构体。让我们尝试应用Size协议于MapSet上：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; Size.size(%&#123;&#125;)</div><div class="line"><span class="number">0</span></div><div class="line">iex&gt; set = %MapSet&#123;&#125; = MapSet.new</div><div class="line"><span class="comment">#MapSet&lt;[]&gt;</span></div><div class="line">iex&gt; Size.size(set)</div><div class="line">** (Protocol.UndefinedError) protocol Size <span class="keyword">not</span> implemented <span class="keyword">for</span> <span class="comment">#MapSet&lt;[]&gt;</span></div></pre></td></tr></table></figure>
-<p>结构体没有和映射共享协议实现，而是需要它自己的协议实现。因为MapSet有它自己的预先计算大小并且可以通过MapSet.size/1访问，我们可以为它定义一个Size协议的实现：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> MapSet <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(set), <span class="symbol">do:</span> MapSet.size(set)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>如果需要，你可以拿出你自己结构大小的语义。你不仅可以用结构体来构建更健壮的数据类型，比如像队列，而且可以为这个数据类型实现所有相关的协议，比如 Enumerable 和 可能的 Size。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">User</span></span> <span class="keyword">do</span></div><div class="line">  defstruct [<span class="symbol">:name</span>, <span class="symbol">:age</span>]</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> User <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(_user), <span class="symbol">do:</span> <span class="number">2</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<h1 id="实现Any"><a href="#实现Any" class="headerlink" title="实现Any"></a><span id="part-two">实现Any</span></h1><p>手工为所有类型实现协议可能很快就变得重复和单调乏味。在这种情况下，Elixir提供了两种选择：我们可以明确地为我们的类型派生协议的实现或自动为所有类型实现协议。在这两种情况下，我们需要为Any实现协议。</p>
-<h2 id="派生"><a href="#派生" class="headerlink" title="派生"></a><span id="part-two-one">派生</span></h2><p>Elixir允许我们基于Any的实现派生一个协议实现。让我们先实现Any：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> Any <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(<span class="number">_</span>), <span class="symbol">do:</span> <span class="number">0</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>上述的实现可以说是不合理的。例如，说一个PID或一个整数的大小为零。</p>
-<p>然而，我们应该很好地处理这个Any的实现。为了使用这个实现，我们应该需要告诉我们的结构体明确地派生于这个Size协议：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">OtherUser</span></span> <span class="keyword">do</span></div><div class="line">  <span class="variable">@derive</span> [Size]</div><div class="line">  defstruct [<span class="symbol">:name</span>, <span class="symbol">:age</span>]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>当派生的时候，Elixir将基于为Any提供的实现为OtherUser实现Size协议。</p>
-<h2 id="回退到Any"><a href="#回退到Any" class="headerlink" title="回退到Any"></a><span id="part-two-two">回退到Any</span></h2><p>当找不到实现的时候，对于 @derive 的另外一个选择就是明确地告诉协议退回到Any。这可以在协议定义里通过设置@fallback_to_any为true来实现：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defprotocol</span> <span class="title">Size</span></span> <span class="keyword">do</span></div><div class="line">  <span class="variable">@fallback_to_any</span> <span class="keyword">true</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(data)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>正如我们在前一节所说，为Any所做的Size实现不能应用到所有数据类型。这就是为什么@fallback_to_any是一个可选项的原因之一。对于大多数协议来说，当没有实现的时候抛出一个错误是正确的行为。也就是说，假设像上一节一样我们已经实现了Any：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defimpl</span> <span class="title">Size</span></span>, <span class="symbol">for:</span> Any <span class="keyword">do</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>(<span class="number">_</span>), <span class="symbol">do:</span> <span class="number">0</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>那么现在所有数据类型（包括结构体），如果它没有实现Size协议，则被认为大小为0。</p>
-<p>派生和回退到Any哪一个技术最好，这要依赖于使用场景。但是，Elixir开发者喜欢明确的而不是推断的。你可以看到许多库倾向于 @derive 方法。</p>
-<h1 id="内建协议"><a href="#内建协议" class="headerlink" title="内建协议"></a><span id="part-three">内建协议</span></h1><p>Elixir内建了一些协议。前面的章节里，我们讨论过的Enum模块，它提供了许多函数处理任意数据结构，这个模块就实现了 Enumerable 协议：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; Enum.map [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], <span class="keyword">fn</span>(x) -&gt; x * <span class="number">2</span> <span class="keyword">end</span></div><div class="line">[<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>]</div><div class="line">iex&gt; Enum.reduce <span class="number">1</span>..<span class="number">3</span>, <span class="number">0</span>, <span class="keyword">fn</span>(x, acc) -&gt; x + acc <span class="keyword">end</span></div><div class="line"><span class="number">6</span></div></pre></td></tr></table></figure>
-<p>另一个有用的例子是String.Chars协议，它指明如何用字符转换一个数据结构为一个字符串。它通过to_string函数暴露出来：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; to_string <span class="symbol">:hello</span></div><div class="line"><span class="string">"hello"</span></div></pre></td></tr></table></figure>
-<p>注意到Elixir字符串插入是调用to_string函数：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="string">"age: <span class="subst">#&#123;<span class="number">25</span>&#125;</span>"</span></div><div class="line"><span class="string">"age: 25"</span></div></pre></td></tr></table></figure>
-<p>上面的例子可以正常运行是因为数字数据类型实现了String.Chars协议。如果传递一个元组，则会导致一个错误：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; tuple = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</div><div class="line">&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</div><div class="line">iex&gt; <span class="string">"tuple: <span class="subst">#&#123;tuple&#125;</span>"</span></div><div class="line">** (Protocol.UndefinedError) protocol String.Chars <span class="keyword">not</span> implemented <span class="keyword">for</span> &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</div></pre></td></tr></table></figure>
-<p>当需要“打印”一个更复杂的数据结构的时候，我们可以用基于Inspect协议的inspect函数：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="string">"tuple: <span class="subst">#&#123;inspect tuple&#125;</span>"</span></div><div class="line"><span class="string">"tuple: &#123;1, 2, 3&#125;"</span></div></pre></td></tr></table></figure>
-<p>Inspect协议被用来转换任何数据结构为一个易于阅读的文本。像IEx这样的工具就是用它来打印的：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</div><div class="line">&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</div><div class="line">iex&gt; %User&#123;&#125;</div><div class="line">%User&#123;<span class="symbol">name:</span> <span class="string">"john"</span>, <span class="symbol">age:</span> <span class="number">27</span>&#125;</div></pre></td></tr></table></figure>
-<p>记住，按照惯例，每当被检查的价值以#开头，它是代表这是非有Elixir的语法的数据结构。这意味着inspect协议是不可逆的，因为以这种方式信息可能会丢失：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; inspect &amp;(&amp;<span class="number">1</span>+<span class="number">2</span>)</div><div class="line"><span class="string">"#Function&lt;6.71889879/1 in :erl_eval.expr/5&gt;"</span></div></pre></td></tr></table></figure>
-<p>Elixir还有其他协议，不过本文讲最常用的这几个。</p>
-<h1 id="协议整合"><a href="#协议整合" class="headerlink" title="协议整合"></a><span id="part-four">协议整合</span></h1><p>当处理Elixir项目的时候，使用Mix构建工具，你可以看到如下的输出：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Consolidated String.Chars</div><div class="line">Consolidated Collectable</div><div class="line">Consolidated List.Chars</div><div class="line">Consolidated IEx.Info</div><div class="line">Consolidated Enumerable</div><div class="line">Consolidated Inspect</div></pre></td></tr></table></figure>
-<p>这些是Elixir自带的所有协议并且它们被整合。因为一个协议可以派发消息到任何数据类型，如果对于给定的类型的实现存在，则协议一定检查每一个调用。这可能非常消耗资源。</p>
-<p>但是，在我们的项目使用像Mix这样的工具被编译后，我们知道所有被定义的模块，包括协议和他们的实现。用这个方法，协议可以被合并到一个非常简单快速的派发模块。</p>
-<p>从Elixir v1.2开始，对于所有项目，协议合并都自动发生。我们将在<strong>Mix和OTP指引</strong>里构建我们的项目。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/protocols.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/protocols.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;协议和结构体&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;实现Any&lt;/a&gt;&lt;br&gt; 2.1. &lt;a href=&quot;#part-two-one&quot;&gt;派生&lt;/a&gt;&lt;br&gt; 2.3. &lt;a href=&quot;#part-two-two&quot;&gt;回退到Any&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;内建协议&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;协议整合&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;协议是Elixir里实现多态的一种机制。在一个协议上派发消息给任意数据类型是可行的，只要这个数据类型实现了这个协议。让我们看一个例子。&lt;/p&gt;
-&lt;p&gt;在Elixir里，我们有两个动作来检查在一个数据结构里有多少个元素：length 和 size。length 意味着信息必需是被计算的。例如：length(list)需要遍历整个列表来计算它的长度。而另一方面，tuple_size(tuple) 和 byte_size(binary) 不依赖于元组和二进制数据的大小，因为在数据结构里大小的信息已经被预先计算了。&lt;/p&gt;
-&lt;p&gt;虽然我们已经有Elixir内建的获取大小的指定类型函数（比如tuple_size/1），我们还是想实现一个通用的 Size 协议，然后所有数据结构只要它的大小是预先计算的，都可以实现这个协议。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-      <category term="protocol" scheme="http://szpzs.oschina.io/categories/Elixir/protocol/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-      <category term="protocol" scheme="http://szpzs.oschina.io/tags/protocol/"/>
     
   </entry>
   
