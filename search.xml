@@ -8,7 +8,7 @@
       <url>http://szpzs.oschina.io/2017/03/16/how-to-evaluate-a-string-of-code-in-erlang-at-runtime/</url>
       <content type="html"><![CDATA[<p>Erlang有一种能力，在运行时读取一个代表一行代码的字符然后执行这行代码。</p>
 <p>它可以解析这个字符串，执行它，然后返回结果。</p>
-<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
+<ol>
 <li><a href="#part-one">求值简单的表达式</a></li>
 <li><a href="#part-two">安全注意事项</a><br> 2.1. <a href="#part-two-one">SQL注入攻击是什么？(请耐心看看)</a><br> 2.2 <a href="#part-two-two">与Erlang有关的安全问题是什么？！</a></li>
 <li><a href="#part-three">拦截本地函数调用</a></li>
