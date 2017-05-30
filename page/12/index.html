@@ -283,6 +283,139 @@
             
               
                 
+                <a class="post-title-link" href="/2016/09/17/erlang-thursday-filelib-is-file-1/" itemprop="url">
+                  Erlang Thursday – filelib:is_file/1
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-17T16:35:45+08:00" content="2016-09-17">
+              2016-09-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/filelib/" itemprop="url" rel="index">
+                    <span itemprop="name">filelib</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/filelib.html#is_file-1" target="_blank" rel="external">filelib:is_file/1</a>.</p>
+<p>filelib:is_file/1 入参是一个表示文件名的字符串，它根据这个文件名所指的是否是文件或目录而返回true或者false。</p>
+<p>这个函数在你正在需要从一个配置文件读取内容并且在尝试处理前确认这个文件或目录是否存在的时候有用，以便你可以在退出前得到一个友好的错误信息而不仅是引起一个系统错误。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">filelib:is_file(<span class="string">"foo"</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(<span class="string">"junk"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"tmp"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"tempmp"</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(<span class="string">"temp"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"/usr/local/bin"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"/usr/local/var"</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">"/usr/local/vars"</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(<span class="string">"."</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file(<span class="string">".."</span>).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>filelib:is_file/1 的入参也可以是一个原子，或者甚至也可以是一个嵌套的列表来表示一个文件名。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">filelib:is_file(foo).</div><div class="line"><span class="comment">% false</span></div><div class="line">filelib:is_file(junk).</div><div class="line"><span class="comment">% true</span></div><div class="line">filelib:is_file([<span class="string">"/usr"</span>, ['/local', '/bin']]).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-filelib-is_file-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-filelib-is_file-1/</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/09/17/erlang-thursday-calendar-iso-week-number-1/" itemprop="url">
                   Erlang Thursday – calendar:iso_week_number/1
                 </a>
@@ -1425,134 +1558,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/" itemprop="url">
-                  Erlang Thursday – calendar:local_time_to_universal_time_dst/1
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-17T14:38:49+08:00" content="2016-09-17">
-              2016-09-17
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/calendar/" itemprop="url" rel="index">
-                    <span itemprop="name">calendar</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>（译者注：本文里的例子结果在中国时区是不同的）</p>
-<p>为了纪念本周末的时间变化，今天的 Erlang Thursday 要讲的函数是  <a href="http://www.erlang.org/doc/man/calendar.html#local_time_to_universal_time_dst-1">calendar:local_time_to_universal_time_dst/1</a>.</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/17/erlang-thursday-calendar-local-time-to-universal-time-dst-1/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1598,7 +1603,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">137</span>
+              <span class="site-state-item-count">138</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1606,7 +1611,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">90</span>
+                <span class="site-state-item-count">92</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1615,7 +1620,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">196</span>
+                <span class="site-state-item-count">198</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

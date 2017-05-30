@@ -283,6 +283,137 @@
             
               
                 
+                <a class="post-title-link" href="/2016/09/15/erlang-thursday-lists-partition-2/" itemprop="url">
+                  Erlang Thursday - lists:partition/2
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-15T21:32:57+08:00" content="2016-09-15">
+              2016-09-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/lists/" itemprop="url" rel="index">
+                    <span itemprop="name">lists</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/lists.html#partition-2" target="_blank" rel="external">lists:partition/2</a>.</p>
+<p>lists:partition/2 接收两个入参，第一个入参是一个断言函数，它将被调用对列表里的每个元素进行处理然后返回一个布尔值。第二个入参是一个将被分隔的列表。</p>
+<p>lists:parition/2 返回一个两元素的元组，这个元组的第一个元素是一个列表，这个列表的元素是断言函数返回真值所对应的元素组成；元组第二个元素也是一个列表，它是断言函数返回false所对应的元素组成。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">lists:partition(<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">2</span> == <span class="number">1</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% &#123;[1,3,5,7],[2,4,6]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span>(X) -&gt; X <span class="keyword">rem</span> <span class="number">3</span> == <span class="number">0</span> <span class="keyword">end</span>, [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]).</div><div class="line"><span class="comment">% &#123;[3,6],[1,2,4,5,7]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [a, <span class="number">1</span>, [b, c], 'B', <span class="keyword">fun</span> lists:sum/<span class="number">1</span>]).</div><div class="line"><span class="comment">% &#123;[a,'B'],[1,[b,c],#Fun&lt;lists.sum.1&gt;]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, [a, <span class="number">1</span>, &#123;b, [z]&#125;, 'B', <span class="keyword">fun</span> lists:sum/<span class="number">1</span>]).</div><div class="line"><span class="comment">% &#123;[a,'B'],[1,&#123;b,[z]&#125;,#Fun&lt;lists.sum.1&gt;]&#125;</span></div><div class="line">lists:partition(<span class="keyword">fun</span> erlang:is_atom/<span class="number">1</span>, []).</div><div class="line"><span class="comment">% &#123;[],[]&#125;</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-lists-partition-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-lists-partition-2/</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/09/15/erlang-thursday-lists-zip-2/" itemprop="url">
                   Erlang Thursday - lists:zip/2
                 </a>
@@ -1201,7 +1332,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">137</span>
+              <span class="site-state-item-count">138</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1209,7 +1340,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">90</span>
+                <span class="site-state-item-count">92</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1218,7 +1349,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">196</span>
+                <span class="site-state-item-count">198</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

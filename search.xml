@@ -4,6 +4,61 @@
   
     
     <entry>
+      <title><![CDATA[Mnesia表分片]]></title>
+      <url>http://szpzs.oschina.io/2017/05/30/Mnesia-Table-Fragmentation-erlangcentral/</url>
+      <content type="html"><![CDATA[<ol>
+<li><a href="#part-one">概述</a></li>
+<li><a href="#part-two">要求</a></li>
+<li><a href="#part-three">分片表的样例</a></li>
+<li><a href="#part-four">启动一个Erlang节点</a></li>
+<li><a href="#part-five">用20个表创建分片表</a></li>
+<li><a href="#part-six">数据操作</a></li>
+<li><a href="#part-seven">添加记录</a></li>
+<li><a href="#part-eight">选择有限的记录</a></li>
+<li><a href="#part-nine">分片表的列表</a></li>
+</ol>
+<a id="more"></a>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a><span id="part-one">概述</span></h1><p>本文描述如何创建Mnesia分片表以及如何使用它们。</p>
+<h1 id="要求"><a href="#要求" class="headerlink" title="要求"></a><span id="part-two">要求</span></h1><p>假如我必须做一个图书索引应用程序。我有一张表用来记录所有可用的图书馆书籍。表的记录结构如下节所述。因为数据量巨大，所以我想把这个表在一个单独的Erlang节点里分片。如果你想分布式处理这个分片的表，你可以参考<a href="http://erlangcentral.org/wiki/index.php?title=Distributing_a_Mnesia_schema" target="_blank" rel="external">这篇文章</a>来分布式处理Mnesia的表。与表分片的其他相关工作都保持不变。</p>
+<h1 id="分片表的样例"><a href="#分片表的样例" class="headerlink" title="分片表的样例"></a><span id="part-three">分片表的样例</span></h1><p>我需要这张表是disk_copies模式。其他模式也以相同的方式操作。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-record</span><span class="params">(book_info, &#123;isbn, name, author, keywords, category, description&#125;)</span>.</div></pre></td></tr></table></figure>
+<h1 id="启动一个Erlang节点"><a href="#启动一个Erlang节点" class="headerlink" title="启动一个Erlang节点"></a><span id="part-four">启动一个Erlang节点</span></h1><p>我们的例子节点foo@example默认的磁盘存储路径被设置为在当前路径下的Mnesia.foo@example目录。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -sname foo</div></pre></td></tr></table></figure>
+<p>这个路径可以在启动一个Erlang节点的时候通过用 -mnesia dir ‘“/path/of/your/preference”‘ ‘ 启动参数来改写。</p>
+<p>让我们创建一个基于磁盘的schema，</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mnesia:create_schema([node()]).</div></pre></td></tr></table></figure>
+<h1 id="用20个表创建分片表"><a href="#用20个表创建分片表" class="headerlink" title="用20个表创建分片表"></a><span id="part-five">用20个表创建分片表</span></h1><p>在本例中，所有20个分片在相同的Erlang/Mnesia节点里。另外这些分片是disc_copies类型。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mnesia:create_table(book_info,</div><div class="line">   [&#123;frag_properties, [&#123;node_pool, [node()]&#125;, &#123;n_fragments, <span class="number">20</span>&#125;, &#123;n_disc_copies, <span class="number">1</span>&#125;]&#125;,</div><div class="line">   &#123;index, [name, keywords, category]&#125;,</div><div class="line">   &#123;attributes, record_info(fields, book_info)&#125;]),</div></pre></td></tr></table></figure>
+<h1 id="数据操作"><a href="#数据操作" class="headerlink" title="数据操作"></a><span id="part-six">数据操作</span></h1><p>为了能够访问在一个分片表的记录，Mnesia必须确定该真实记录属于那个分片。这通过mnesia_frag模块来做到，这个模块实现了mnesia_access回调行为。mnesia_frag封装标准Mnesia操作函数到其函数里，并将其作为参数传递给mnesia:activity/4。</p>
+<h1 id="添加记录"><a href="#添加记录" class="headerlink" title="添加记录"></a><span id="part-seven">添加记录</span></h1><p>创建一个调用mnesia:write/3的函数。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">AddFun = <span class="keyword">fun</span>() -&gt;</div><div class="line">           mnesia:write(book_info, Record, write)</div><div class="line">          <span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>现在如下所示在mnesia:activity/4里调用这个函数：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ok = mnesia:activity(transaction, AddFun, [], mnesia_frag).</div></pre></td></tr></table></figure>
+<p>注意，我已将活动访问上下文用作“事务”。事务可以确保操作要么全部成功要么全部失败（即保证操作的原子性）。我可以使用如下几个访问上下文：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;transaction, Retries&#125;</div><div class="line">sync_transaction</div><div class="line">&#123;sync_transaction, Retries&#125;</div><div class="line">async_dirty</div><div class="line">sync_dirty</div><div class="line">ets</div></pre></td></tr></table></figure>
+<p>例如，你想用脏模式做以上的操作，你可以这么写：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ok = mnesia:activity(async_dirty, AddFun, [], mnesia_frag).</div></pre></td></tr></table></figure>
+<p>你可以参考mnesia:activity/4文档来获得更多信息。</p>
+<h1 id="选择有限的记录"><a href="#选择有限的记录" class="headerlink" title="选择有限的记录"></a><span id="part-eight">选择有限的记录</span></h1><p>做为一个例子，让我们选择作者是steve的10条记录。记住10不是硬性限制。用mnesia:select/4函数创建一个函数：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">MatchHead = #book_info&#123;author = <span class="string">"steve"</span>, _ = '_'&#125;,</div><div class="line">Guard = [],</div><div class="line">Result = ['$_'],</div><div class="line">MatchSpec = [&#123;MatchHead, Guard, Result&#125;],</div><div class="line">SelFun = <span class="keyword">fun</span>() -&gt;</div><div class="line">          mnesia:select(book_info, MatchSpec, <span class="number">10</span>, read)</div><div class="line">         <span class="keyword">end</span>,</div></pre></td></tr></table></figure>
+<p>现在如下所示在mnesia:activity/4里调用这个函数：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Result = mnesia:activity(transaction, SelFun, [], mnesia_frag).</div></pre></td></tr></table></figure>
+<p>Result的结果类型是：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Result -&gt; '$end_of_table' | &#123;[Objects], Cont&#125; | transaction abort</div></pre></td></tr></table></figure>
+<p>在一个分片的表里，如果上述Result结果是{[Objects], Cont}，并且返回的对象数量少于我们期望的（10个），那么你需要递归地用Cont（continuation）来调用mnesia:select/1，直到你得到期望数量的结果或者’$end_of_table’。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">SelFun2 = <span class="keyword">fun</span>() -&gt;</div><div class="line">             mnesia:select(Cont)</div><div class="line">           <span class="keyword">end</span>,</div><div class="line">Result2 = mnesia:activity(transaction, SelFun2, [], mnesia_frag).</div></pre></td></tr></table></figure>
+<p>Result2的结果类型是：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Result2 -&gt; '$end_of_table' | &#123;[Objects], Cont&#125; | transaction abort</div></pre></td></tr></table></figure>
+<h1 id="分片表的列表"><a href="#分片表的列表" class="headerlink" title="分片表的列表"></a><span id="part-nine">分片表的列表</span></h1><p>要获取分片表的列表，调用mnesia:table_info/2，并加上 frag_names 选项：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mnesia:activity(async_dirty, mnesia:table_info/<span class="number">2</span>, [store, frag_names], mnesia_frag).</div></pre></td></tr></table></figure>
+<p>本教程到此结束！现在你知道如何写一个基本的Mnesia分片表程序了。</p>
+<blockquote>
+<p><em>原文链接：</em>  [<a href="http://www2.erlangcentral.org/wiki/?title=Mnesia_Table_Fragmentation" target="_blank" rel="external">http://www2.erlangcentral.org/wiki/?title=Mnesia_Table_Fragmentation</a>]</p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[如何在运行时求值Erlang的代码字符串]]></title>
       <url>http://szpzs.oschina.io/2017/03/16/how-to-evaluate-a-string-of-code-in-erlang-at-runtime/</url>
       <content type="html"><![CDATA[<p>Erlang有一种能力，在运行时读取一个代表一行代码的字符然后执行这行代码。</p>
