@@ -4,6 +4,47 @@
   
     
     <entry>
+      <title><![CDATA[为什么我经常从头开始实现某些功能]]></title>
+      <url>http://szpzs.oschina.io/2017/06/14/why-i-often-implement-things-from-scratch/</url>
+      <content type="html"><![CDATA[<p>从前有一个Erlang程序员，他需要一个FTP服务器，运行在一个私有网络上的一个主机上。实际上，他不需要一个FTP服务器，他只需要在中央服务器和他的客户端机器之间传输文件，但是他认为他需要一个FTP服务器来完成这个操作。</p>
+<a id="more"></a>
+<p>他在网上搜索了FTP服务器，确实找到了几个。他们当然是免费的，因为即使他工作的组织有很多钱，但是购买这样一种产品的行政程序是相当可观的。这个项目还必须有合适的许可证形式，这样法律部门才会高兴。</p>
+<p>他下载了几个这样的服务器，其中一些是无法编译的，即使它们确实编译了，它们也必须正确配置才能运行，这并不容易。</p>
+<p>突然，我们的程序员有了一种想法：他可能可以自己编写一个FTP服务器，而自己编写FTP服务器可能比查找和安装其他人编写的FTP服务器要快。</p>
+<p>他问自己：“我想做什么呢?”。</p>
+<p>“将远程目录的文件列出来，在本地和远程机器之间拷贝文件等等。”</p>
+<p>然后他想起他正在做的项目使用了分布式Erlang。</p>
+<p>他想：“这一定很容易”。他是对的。</p>
+<p>然后…在服务器机器上，他输入了如下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&gt;<span class="variable">$erl</span> -name server -cookie ASDRTFERT</div><div class="line">1&gt; node().</div><div class="line"><span class="string">'server@host1.somenet.com'</span></div></pre></td></tr></table></figure>
+<p>然后他在另一台机器上输入如下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&gt;<span class="variable">$erl</span> -name client1 -cookie ASDRTFERT</div><div class="line">1&gt; node().</div><div class="line"><span class="string">'client1@host23.somenet.com'</span></div></pre></td></tr></table></figure>
+<p>现在他已经启动了两个Erlang节点。分布式Erlang的优点是你可以轻松地在任何节点上运行代码，因此要检查他是否能够从客户机节点访问服务器节点，程序员就会输入如下命令：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="number">2</span>&gt; rpc:call(server@host1.somenet.com',</div><div class="line">erlang, node, []).</div><div class="line">'server@host1.somenet.com'</div></pre></td></tr></table></figure>
+<p>如果命令在第一台机器上发出，那将会发生什么。我们可以自己尝试一下。现在我们的程序员知道他可以就像在本地机器上一样调用远程机器上的任何功能。</p>
+<p>例子如下：</p>
+<p>如果本地命令是：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&gt; file:get_cwd()</div></pre></td></tr></table></figure>
+<p>在服务器上执行这个命令时，他只需要调用：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&gt; rpc:call(server@host1.somenet.com',file, get_cwd, []).</div></pre></td></tr></table></figure>
+<p>那么列出远程机器的文件，他输入如下命令即可：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; rpc:call(server@host1.somenet.com',</div><div class="line">     file, list_dir, [<span class="string">"."</span>]).</div><div class="line">&#123;ok, [<span class="string">"Makefile"</span>,</div><div class="line">  <span class="string">"readme"</span>,</div><div class="line"> ....</div></pre></td></tr></table></figure>
+<p>然后他决定把远程机器的Makefile文件拷贝到他本地机器上，因此他写了如下命令：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="number">2</span>&gt; &#123;ok, Bin&#125; = rpc:call(server@host1.smenet.com',</div><div class="line">                file, read_file, [<span class="string">"Makefile"</span>]).</div><div class="line">&lt;&lt;<span class="string">".SUFFIXES: .erl .beam .yrl"</span> .....&gt;&gt;</div><div class="line"><span class="number">3</span>&gt; file:write_file(<span class="string">"Makefile"</span>, [Bin]).</div><div class="line">ok</div></pre></td></tr></table></figure>
+<p>此时，所有在shell中键入的内容变得冗长乏味，因此他启动了emacs并编写了如下代码：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(myftp)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([get_file/<span class="number">1</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">get_file</span><span class="params">(F)</span> -&gt;</span></div><div class="line">&#123;ok, B&#125; = rpc:call(server@host1.smenet.com',</div><div class="line">                  file, read_file, [F]),</div><div class="line">file:write_file(F ++ <span class="string">".copy"</span>, [B]).</div></pre></td></tr></table></figure>
+<p>然后他编译并测试他的程序：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">4</span>&gt; c(myftp).</div><div class="line">&#123;ok,myftp&#125;</div><div class="line"><span class="number">5</span>&gt; myftp:get_file(<span class="string">"Makefile"</span>).</div><div class="line">ok</div></pre></td></tr></table></figure>
+<p>就这么简单，他搞定了。</p>
+<h2 id="小小的总结"><a href="#小小的总结" class="headerlink" title="小小的总结"></a>小小的总结</h2><p>如果你有合适的工具，那么在从头开始实现一些东西比很麻烦地下载编译和安装别人写的东西更快。</p>
+<p>这是一个真实的故事，只不过我刚刚写了这段代码。编写此代码和博客的时间与在我的机器上找到并安装一个FTP服务器差不多。</p>
+<blockquote>
+<p><em>原文链接：</em>  [<a href="http://armstrongonsoftware.blogspot.com/2006/09/why-i-often-implement-things-from.html" target="_blank" rel="external">http://armstrongonsoftware.blogspot.com/2006/09/why-i-often-implement-things-from.html</a>]</p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Mnesia表分片]]></title>
       <url>http://szpzs.oschina.io/2017/05/30/Mnesia-Table-Fragmentation-erlangcentral/</url>
       <content type="html"><![CDATA[<ol>
