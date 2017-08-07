@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-08-01T13:02:46.000Z</updated>
+  <updated>2017-08-07T07:55:32.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://szpzs.oschina.io/2017/08/01/joy-of-erlang/"/>
     <id>http://szpzs.oschina.io/2017/08/01/joy-of-erlang/</id>
     <published>2017-08-01T12:58:22.000Z</published>
-    <updated>2017-08-01T13:02:46.000Z</updated>
+    <updated>2017-08-07T07:55:32.000Z</updated>
     
     <content type="html"><![CDATA[<p>在电影&lt;&lt;阿凡达&gt;&gt;里，有一条超级大的翼龙，它叫做魅影，男主角为了赢得蓝色族人的信任必须学会骑魅影。一般来说，魅影不喜欢被骑，但如果你和它打一架，而且把它制服，然后把你的蓝马尾辫连接到魅影的尾巴上，你就能拥有它的生命。这就像拥有一辆你能控制的飞车，在与强敌作战时，你可以很方便地用你的思想控制它，给未来的同事留下深刻印象。但是学会骑魅影是很危险的，很少有人能成功。</p>
 <p>我喜欢把Erlang编程语言看作是一条魅影。大多数人都害怕Erlang。关于其能力的传说比比皆是。为了掌握它，你必须与它战斗，征服它，并(最后)把你的思想与它联系起来。但假设你能活下来，你就可以控制世界上最先进的服务器平台，让它做事情的时候通常无需再思考。现在让我来告诉你：驾驭魅影是很有趣的。</p>
@@ -47,7 +47,7 @@
 <p>如果两个入参相同，则函数返回true；否则，函数返回false。</p>
 <p>小心！在这个函数里子句的顺序很重要。如果像下面这样写，则是错误的：</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">equals</span><span class="params">(A, B)</span> -&gt;</span> <span class="literal">false</span>; <span class="comment">% 错</span></div><div class="line"><span class="function"><span class="title">equals</span><span class="params">(A, A)</span> -&gt;</span> <span class="literal">true</span>.</div></pre></td></tr></table></figure>
-<p>为什么会错呢？Erlang首先尝试匹配第一个子句。但是如果两个入参相同，第一个子句依然匹配，A和B被简单地绑定为相等的值。第二个子句永远不会被执行到。在形参列表里用不同名字到变量并不是说一定要给它们绑定不相等到值。</p>
+<p>为什么会错呢？Erlang首先尝试匹配第一个子句。但是如果两个入参相同，第一个子句依然匹配，A和B被简单地绑定为相等的值。第二个子句永远不会被执行到。在形参列表里用不同名字到变量并不是说一定要给它们绑定不相等的值。</p>
 <p>我们现在已经准备好实现更多的布尔逻辑。如下是 and 的实现：</p>
 <figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">% 与: 如果两个入参是true则是true, 否则是false</span></div><div class="line"><span class="function"><span class="title">and</span><span class="params">(true, true)</span> -&gt;</span> <span class="literal">true</span>;</div><div class="line"><span class="function"><span class="title">and</span><span class="params">(false, true)</span> -&gt;</span> <span class="literal">false</span>;</div><div class="line"><span class="function"><span class="title">and</span><span class="params">(true, false)</span> -&gt;</span> <span class="literal">false</span>;</div><div class="line"><span class="function"><span class="title">and</span><span class="params">(false, false)</span> -&gt;</span> <span class="literal">false</span>.</div></pre></td></tr></table></figure>
 <p>你可能认为所有这些真值表子句太啰嗦。它们的确是很啰嗦。我们可以用一个特别的匿名变量来将后面三个子句缩减到一个子句：</p>
