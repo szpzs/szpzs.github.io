@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-08-07T07:55:32.000Z</updated>
+  <updated>2017-09-21T06:03:04.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,132 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>简说MQTT--第二部分：MQTT是如何运作的？</title>
+    <link href="http://szpzs.oschina.io/2017/09/21/mqtt-in-a-nutshell-2/"/>
+    <id>http://szpzs.oschina.io/2017/09/21/mqtt-in-a-nutshell-2/</id>
+    <published>2017-09-21T05:58:34.000Z</published>
+    <updated>2017-09-21T06:03:04.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>与传统的客户端/服务器协议不同，MQTT不是端到端的。MQTT是一种发布订阅消息交换协议。另外，与消息队列不同，MQTT不维护任何队列。它使用主题来路由消息。</p>
+<p>这次我们将向你展示MQTT是如何运作的。</p>
+<a id="more"></a>
+<h1 id="发布订阅模式"><a href="#发布订阅模式" class="headerlink" title="发布订阅模式"></a>发布订阅模式</h1><p>MQTT是一种发布订阅消息交换协议，它的含义是：</p>
+<ol>
+<li>通信系统中有发布者和订阅者。发布者发布消息而订阅者接收消息。我们把发布者和订阅者统称为客户端。客户端可以同时是发布者和订阅者。</li>
+<li>在系统中有另外一个角色，它接收发布者的消息并且将消息派发给订阅者。我们一般称这个角色为消息Broker。</li>
+</ol>
+<h1 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h1><p>在MQTT中，另一个重要的概念是主题，每一条消息都有一个主题，它决定了消息将被谁接收。主题是MQTT的路由机制。</p>
+<p>举个例子，如果一个天气预报服务正在更新各个城市的温度数据。这个服务并不知道谁将接收哪个城市的温度数据，它只是用主题来标识这些数据，比如，“temperature/newyork” 或 “temperature/frankfurt”，并且将它们发送给Broker。那些对城市天气有兴趣的人可以在Broker上订阅一个或多个这样的主题。一旦一条消息到达Broker，它就会检查消息里的主题，并且将消息派发给相应的订阅者。</p>
+<p>主题由一个或多个层级组成，层级之间被斜杠（/）分隔。有时主题和分类和目录相似。</p>
+<p>主题中的通配符(“#” 和 “+”)使得订阅者更易于一次订阅多个主题。“+”表示一个单独的层级，而“#”表示多个层级。多数情况下，你可以按你的意愿自由地命名主题，但是有一个列外：以“$”开头的主题是保留给系统使用的。</p>
+<p>MQTT天然支持一对多（广播）的消息传递：一个发布者用一个主题发布一条消息到Broker，Broker派发这条消息给所有订阅这个主题的客户端。</p>
+<h1 id="消息"><a href="#消息" class="headerlink" title="消息"></a>消息</h1><p>一条消息就是我们想要在通信系统中与其他方交换的信息。交换消息是MQTT的目的。MQTT用控制数据包来传输消息和维护链接。</p>
+<p>一个MQTT数据包包括一个固定的头部，一个可选的可变头部以及一个可选的有效负载数据部分：</p>
+<ul>
+<li>固定头部出现在所有MQTT控制包中。它包括包的类型、各种标志以及包的剩余长度。</li>
+<li>可变头部出现在一些MQTT控制包中。它的内容根据包的类型不同而不同。</li>
+<li>有效负载数据出现在一些MQTT控制包中。它是包的最后一部分。业务相关的数据都在这部分中。</li>
+</ul>
+<p>如你所猜测的一样，最小的MQTT包只有2字节。</p>
+<h1 id="通信"><a href="#通信" class="headerlink" title="通信"></a>通信</h1><p>现在我们已经有了通信中的各种角色、路由消息的方式以及约定的消息格式，我们可以用这些基本元素来构建一个通信系统。</p>
+<p>如下图所示，想象一下，我们在一所医院里：</p>
+<p><img alt="MQTT communication, an example" src="/images/mqtt-communication.png" style="border: 0;"></p>
+<p>住院病人的重要统计数据由可穿戴设备收集并发送到中心服务器，然后发送给相关人员（或设备）。</p>
+<p>一个传感器，这里我们以温度计为例，测量患者的体温并将这个温度数据设置主题：“传感器/ 1 /温度话题”后发布到MQTT Broker。很明显，这个传感器的角色就是发布者。关心这个病人的任何数据的人（比如他的医生）可以订阅“sensor/1/#”这个主题；任何需要收集所有病人体温数据的人或设备可以订阅主题： “sensor/+/temperature”；只关心这个病人的体温的人可以精确地订阅主题：“sensor/1/temperature”，而不需要任何通配符。</p>
+<h1 id="MQTT的特殊特点"><a href="#MQTT的特殊特点" class="headerlink" title="MQTT的特殊特点"></a>MQTT的特殊特点</h1><h2 id="QOS"><a href="#QOS" class="headerlink" title="QOS"></a>QOS</h2><p>MQTT实现了简单但是有效的3级服务质量系统：</p>
+<ul>
+<li>0：最多一次</li>
+<li>1：最少一次</li>
+<li>2：仅有一次</li>
+</ul>
+<h2 id="保留的消息"><a href="#保留的消息" class="headerlink" title="保留的消息"></a>保留的消息</h2><p>如果MQTT消息的保留标志被设置了，则消息可以被Broker保留。当一个客户端链接到Broker并订阅了一个主题，而Broker有这个主题的一条保留的消息，客户端将立刻收到这条消息。每一个主题最多只有一条保留的消息。</p>
+<h2 id="遗愿消息"><a href="#遗愿消息" class="headerlink" title="遗愿消息"></a>遗愿消息</h2><p>MQTT经常被用于不可靠的网络环境。客户端可能没有正常关闭链接（DISCONNECT消息没有发送出去）的情况下丢失链接。在这种情况下，遗愿消息可以做客户端应该做的事情。</p>
+<p>每个客户端当它链接到Broker的时候可以设置一条遗愿消息。遗愿消息和其他消息一样，它也有服务质量级别、保留属性以及主题。这条消息被存储在Broker上，当Broker检测到客户端丢失了链接，Broker把这条遗愿消息发送给所有订阅了遗愿消息的主题的所有在线客户端。如果客户端发送一个“DISCONNECT”包给Broker后断开链接，那么它的遗愿消息被丢弃。</p>
+<h1 id="MQTT数据包"><a href="#MQTT数据包" class="headerlink" title="MQTT数据包"></a>MQTT数据包</h1><p>MQTT定义了14种消息类型。它们被用于创建链接、断开链接、发布消息、订阅主题、维护链接或保证服务质量。</p>
+<p>消息类型如下表所示：</p>
+<p><img alt="MQTT communication, an example" src="/images/mqtt-packet-type.png" style="border: 0;"></p>
+<p>在本系列的下一篇文章中，我们将演示如何创建一个简单的MQTT应用并解释有关协议和数据包格式。</p>
+<p>待续……</p>
+<blockquote>
+<p>*原文链接<a href="https://medium.com/@emqtt/mqtt-in-a-nutshell-4e8dd6ef57c0" target="_blank" rel="external">https://medium.com/@emqtt/mqtt-in-a-nutshell-4e8dd6ef57c0</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;与传统的客户端/服务器协议不同，MQTT不是端到端的。MQTT是一种发布订阅消息交换协议。另外，与消息队列不同，MQTT不维护任何队列。它使用主题来路由消息。&lt;/p&gt;
+&lt;p&gt;这次我们将向你展示MQTT是如何运作的。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="MQTT" scheme="http://szpzs.oschina.io/categories/MQTT/"/>
+    
+    
+      <category term="MQTT" scheme="http://szpzs.oschina.io/tags/MQTT/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>简说MQTT--第一部分：MQTT是啥？</title>
+    <link href="http://szpzs.oschina.io/2017/09/21/mqtt-in-a-nutshell-1/"/>
+    <id>http://szpzs.oschina.io/2017/09/21/mqtt-in-a-nutshell-1/</id>
+    <published>2017-09-21T05:39:41.000Z</published>
+    <updated>2017-09-21T05:57:01.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>MQTT是什么？这个问题的最贴切的答案是我在网站mqtt.org看到的：</p>
+<blockquote>
+<p>“MQTT是机器对机器(M2M)/物联网的链接协议。”</p>
+</blockquote>
+<p>它解释得十分清楚，MQTT是M2M和物联网（IoT）连接协议。要理解MQTT，我们需要首先去了解M2M或物联网。</p>
+<a id="more"></a>
+<h1 id="M2M和物联网"><a href="#M2M和物联网" class="headerlink" title="M2M和物联网"></a>M2M和物联网</h1><p>许多人已经在用物联网了，他们中有些人只是没有意识到。最近我去拜访我的一位朋友。他对他的新智能烤箱很兴奋，迫不及待地想告诉我他的烤箱是多么聪明：食谱下载到智能手机，然后通过WiFi发送到烤箱；可以通过智能手机的应用程序远程调控烘烤；当食物烤好了，烤箱就发出通知给智能手机。嗯，他已经进入物联网时代了。</p>
+<p>物联网的基本概念并不新，它是设备之间的联网，让设备自己收集和交换数据。有时这种数据交换甚至在没有人工干预（机器对机器的连接）的情况下发生。各种设备通过网络彼此集成。现在，这种集成的规模可以是巨大的，它能够提高效率、精度和经济效益，减少人为干预。</p>
+<p>在物联网的世界里，几乎所有的东西（包括人）都可以连接起来。事物互联有可能带来新的好处，我们要做的是利用我们的好奇心和想象力来释放这种潜力。高德纳说，到2020，将有超过260亿个连接设备。计算机，手机，平板电脑，台灯，咖啡机，汽车，光传感器，运动探测器，生物芯片，飞机和任何你能想象的东西。有人建议把“物”当做“硬件、软件、数据和服务不可分割的混合物”。</p>
+<h1 id="为什么是MQTT"><a href="#为什么是MQTT" class="headerlink" title="为什么是MQTT"></a>为什么是MQTT</h1><p>物联网的一个关键要素是，“事物”具有连接的能力。他们需要一种大家都能理解的通用语言，一种连接协议。多年来，世界上已经有很多连接协议，像HTTP这样的协议被数以百万计的应用程序所使用。为什么不是只有一个广泛使用的协议？为什么MQTT是物联网的协议？</p>
+<p>“什么事物都可以连接，也将被连接”。想想这样的场景：早上5点半，你的智能手机告诉客厅的暖气调节器调节室内温度，以适应日常活动。5点50，你的智能手机告诉咖啡机开始煮咖啡。当你在6点被你的智能手机叫醒，万事都准备妥当，甚至你喜欢的美剧已经被下载到你的平板电脑里了。当你享受宁静的早晨时，你可能会注意到一件事：所有连接的设备都是如此不同，而它们却一起工作得很好。</p>
+<p>我们刚刚讨论的这个物联网场景，我们叫它做智能家居。我们来构建一个智慧城市或者甚至构建一个智慧世界如何？在这个世界里，一个超级计算机可以和一个芯片上的系统交换数据。例如，医疗中心监控病人植入的芯片，并向病人的医生发出警报。当任何设备被允许接入并且设备在地理上广泛分布时，应该使用什么样的通信协议呢？</p>
+<p>它必须是一个轻量级的协议，占用的代码量很小，对于这个协议来说，非常有限的网络带宽就足够了。MQTT就是这种协议。</p>
+<blockquote>
+<p>“MQTT是一个客户端服务器的发布/订阅消息传输协议。它轻量、开放、简单，且设计为易于实现。这些特性使得它非常适合在许多情况下使用，包括受限的环境，例如用于机器对机器的通信（M2M）和物联网环境，在其中只需要占用少量的代码和/或网络带宽。”<br> – – 引用自MQTT规范</p>
+</blockquote>
+<h1 id="关于MQTT的历史"><a href="#关于MQTT的历史" class="headerlink" title="关于MQTT的历史"></a>关于MQTT的历史</h1><p>MQTT是MQ Telemetry Transport的缩写。它首先是Andy Stanford-Clark 和 Arlen Nipper在1999年发明的。他们当时在做一个管道的监控和数据采集系统（Telemetry这个词就来自这里），需要实时在卫星链路和拨号线路上传输数据，以连接远程管道。基于这些有限的资源，他们开始考虑做一个新的<strong>发布和订阅协议</strong>，就是MQTT协议。</p>
+<blockquote>
+<p>MQTT按下面5个目标来设计的：<br>它必须能简单地被实现；<br>它必须有数据传输的服务质量；<br>它必须轻量和带宽高效；<br>它必须可传输任意数据；<br>以及它必须可保持会话。</p>
+</blockquote>
+<p>今天，这五个目标依然被支持，它们本质上和物联网的需求是相等的。</p>
+<p>IBM在2010年正式免费发布MQTT3.1，OASIS在2014年标准化了这个协议。写本文的时候，MQTT的版本是3.1.1。MQTT下一个版本是5.0，一个MQTT5.0的工作草稿正在被公示。</p>
+<h1 id="MQTT-v-s-XMPP"><a href="#MQTT-v-s-XMPP" class="headerlink" title="MQTT v.s. XMPP"></a>MQTT v.s. XMPP</h1><p>将MQTT和其他协议进行比较可以使得我们更易于理解为什么MQTT适合物联网，在此我们将它和XMPP进行比较，XMPP是上世纪90年代后期诞生的消息协议。</p>
+<ol>
+<li>XMPP发明于1999年。它是eXtensible Messaging and Presence Protocol的缩写。</li>
+<li>MQTT使用固定大小，即一个字节的头部，以及两个字节的KeepAlive包。它的包小，而且易于编解码。而XMPP用XML封装，它的包大并且交互复杂。</li>
+<li>MQTT使用主题来路由消息，它比基于JID的点对点路由的XMPP更灵活。</li>
+<li>MQTT不定义有效载荷数据的格式，因此它很容易携带不同的更高层协议的数据。而XMPP用XML来格式化有效载荷数据，它必须用Base64格式封装二进制数据。</li>
+<li>MQTT支持消息确认和QoS机制，这些XMPP都没有，因此MQTT更加可靠。</li>
+</ol>
+<p>待续……</p>
+<blockquote>
+<p>*原文链接<a href="https://medium.com/@emqtt/mqtt-in-a-nutshell-cc24370920c2" target="_blank" rel="external">https://medium.com/@emqtt/mqtt-in-a-nutshell-cc24370920c2</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;MQTT是什么？这个问题的最贴切的答案是我在网站mqtt.org看到的：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“MQTT是机器对机器(M2M)/物联网的链接协议。”&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;它解释得十分清楚，MQTT是M2M和物联网（IoT）连接协议。要理解MQTT，我们需要首先去了解M2M或物联网。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="MQTT" scheme="http://szpzs.oschina.io/categories/MQTT/"/>
+    
+    
+      <category term="MQTT" scheme="http://szpzs.oschina.io/tags/MQTT/"/>
+    
+  </entry>
   
   <entry>
     <title>Erlang的乐趣犹如驾驭魅影</title>
@@ -1887,147 +2013,6 @@
       <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
     
       <category term="Mix" scheme="http://szpzs.oschina.io/tags/Mix/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Elixir入门教程－下一步</title>
-    <link href="http://szpzs.oschina.io/2017/02/15/elixir-getting-started-where-to-go-next/"/>
-    <id>http://szpzs.oschina.io/2017/02/15/elixir-getting-started-where-to-go-next/</id>
-    <published>2017-02-15T06:01:27.000Z</published>
-    <updated>2017-02-15T06:13:04.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">构建你的第一个Elixir项目</a></li>
-<li><a href="#part-two">元编程</a></li>
-<li><a href="#part-three">社区和其他资源</a></li>
-<li><a href="#part-four">关于Erlang</a></li>
-</ol>
-<p>渴望学更多吗？请继续阅读！</p>
-<a id="more"></a>
-<h1 id="构建你的第一个Elixir项目"><a href="#构建你的第一个Elixir项目" class="headerlink" title="构建你的第一个Elixir项目"></a><span id="part-one">构建你的第一个Elixir项目</span></h1><p>为了开始你的第一个项目，Elixir提供了一个构建工具，叫做Mix。你可以按如下所示开始你的新项目：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mix new path/to/new/project</div></pre></td></tr></table></figure>
-<p>我们已经写了一个教程，涵盖了如何构建一个Elixir应用，包括它自己的监督树、配置、测试等等。这个应用是一个分布式键值存储，我们把键值对放入容器中，并且把这些容器跨多节点分布：</p>
-<ul>
-<li><a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix and OTP</a></li>
-</ul>
-<h1 id="元编程"><a href="#元编程" class="headerlink" title="元编程"></a><span id="part-two">元编程</span></h1><p>Elixir是一种可扩展和非常定制化的编程语言，这归功于它的元编程支持。Elixir中绝大多数元编程是通过宏来做的，宏在一些场景下非常有用，特别是写领域特定语言。我们已经写了一个简短教程来解释宏背后的基本机制，展示如何写宏，以及如何用宏来创建领域特定语言。</p>
-<ul>
-<li><a href="http://elixir-lang.org/getting-started/meta/quote-and-unquote.html" target="_blank" rel="external">Elixir中的元编程</a></li>
-</ul>
-<h1 id="社区和其他资源"><a href="#社区和其他资源" class="headerlink" title="社区和其他资源"></a><span id="part-three">社区和其他资源</span></h1><p>我们有一个<a href="http://elixir-lang.org/learning.html" target="_blank" rel="external">学习区</a>，在里面我们推荐一些书籍、视频和其他资源，都是关于学习Elixir和浏览它的生态系统的。除此之外，社区也提供了大量Elixir资源，比如，会议的演讲、开源项目以及其他学习Elixir的资源。</p>
-<p>别忘了你也可以从Github上获取<a href="https://github.com/elixir-lang/elixir" target="_blank" rel="external">Elixir它自己的源代码</a>，Elixir绝大多数代码是用Elixir写的（主要在lib目录里），或者<a href="http://elixir-lang.org/docs.html" target="_blank" rel="external">浏览Elixir的官方文档</a>。</p>
-<h1 id="关于Erlang"><a href="#关于Erlang" class="headerlink" title="关于Erlang"></a><span id="part-four">关于Erlang</span></h1><p>Elixir运行在Erlang虚拟机之上，而作为一个名Elixir开发者，他迟早会想要与已存在的Erlang库进行交互。在线上有大量的资源，包括Erlang的基础知识和Erlang的更高级特性：</p>
-<ul>
-<li><a href="http://elixir-lang.org/crash-course.html" target="_blank" rel="external">Erlang语法：速成课程</a>提供了一个Erlang语法的简洁介绍。每一段代码都伴随着等效的Elixir代码。这是一个好机会，对于你来说不仅可以熟悉Erlang语法，也可以复习你在本教程学到的一些知识。</li>
-<li>Erlang的官方网站有一个简短的<a href="http://www.erlang.org/course/concurrent_programming.html" target="_blank" rel="external">教程</a>，它用图来简单地描述了Erlang并发编程的基础知识。</li>
-<li><a href="http://learnyousomeerlang.com/" target="_blank" rel="external">《Learn You Some Erlang for Great Good!》</a>是一本非常棒的介绍Erlang的设计原则、标准库、最佳实践以及其他知识的书籍。一旦你已经阅读了上面提及的速成课程，你就可以安全地略过这本书介绍语法的前面几章。当你读到 <a href="http://learnyousomeerlang.com/the-hitchhikers-guide-to-concurrency" target="_blank" rel="external">并发指南</a> 这一章的时候，才是真正有趣的开始。</li>
-</ul>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/where-to-go-next.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/where-to-go-next.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;构建你的第一个Elixir项目&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;元编程&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;社区和其他资源&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;关于Erlang&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;渴望学更多吗？请继续阅读！&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Elixir入门教程－Erlang的库</title>
-    <link href="http://szpzs.oschina.io/2017/02/14/elixir-getting-started-erlang-libraries/"/>
-    <id>http://szpzs.oschina.io/2017/02/14/elixir-getting-started-erlang-libraries/</id>
-    <published>2017-02-13T22:18:33.000Z</published>
-    <updated>2017-02-13T22:22:34.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">binary模块</a></li>
-<li><a href="#part-two">格式化文本输出</a></li>
-<li><a href="#part-three">crypto模块</a></li>
-<li><a href="#part-four">digraph模块</a></li>
-<li><a href="#part-five">ETS</a></li>
-<li><a href="#part-six">math模块</a></li>
-<li><a href="#part-seven">queue模块</a></li>
-<li><a href="#part-eight">rand模块</a></li>
-<li><a href="#part-nine">zip和zlib模块</a></li>
-</ol>
-<p>Elixir提供了非常棒的与Erlang的库交互的能力。实际上，Elixir不鼓励简单地封装Erlang的库，而是提倡直接与Erlang代码交互。本文我们将介绍一些最常见和有用的而在Elixir里找不到的Erlang功能。</p>
-<p>当你逐渐熟悉了Elixir，你可能想要探索Erlang的<a href="http://erlang.org/doc/apps/stdlib/index.html" target="_blank" rel="external">STDLIB指引手册</a>来获得更多细节。</p>
-<a id="more"></a>
-<h1 id="binary模块"><a href="#binary模块" class="headerlink" title="binary模块"></a><span id="part-one">binary模块</span></h1><p>Elixir内建的String模块处理用UTF-8编码的二进制数据。当你要处理不一定要用UTF-8编码的二进制数据的时候，<a href="http://erlang.org/doc/man/binary.html" target="_blank" rel="external">binary模块</a>就有用。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; String.to_charlist <span class="string">"Ø"</span></div><div class="line">[<span class="number">216</span>]</div><div class="line">iex&gt; <span class="symbol">:binary</span>.bin_to_list <span class="string">"Ø"</span></div><div class="line">[<span class="number">195</span>, <span class="number">152</span>]</div></pre></td></tr></table></figure>
-<p>上面的例子展示了区别；String模块返回Unicode代码点，而 :binary 处理原始数据的字节。</p>
-<h1 id="格式化文本输出"><a href="#格式化文本输出" class="headerlink" title="格式化文本输出"></a><span id="part-two">格式化文本输出</span></h1><p>Elixir没有包含与C语言和其他语言里的printf函数相似的函数。幸运地是，Erlang标准库函数 :io.format/2 和 :io_lib.format/2 可以被用作这样的功能。第一个函数格式化数据输出到终端，而第二个函数格式化数据为一个iolist。格式化说明符不同于printf，<a href="http://erlang.org/doc/man/io.html#format-1" target="_blank" rel="external">细节请参阅Erlang官方文档</a>。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:io</span>.format(<span class="string">"Pi is approximately given by:~10.3f~n"</span>, [<span class="symbol">:math</span>.pi])</div><div class="line">Pi is approximately given <span class="symbol">by:</span>     <span class="number">3.142</span></div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; to_string <span class="symbol">:io_lib</span>.format(<span class="string">"Pi is approximately given by:~10.3f~n"</span>, [<span class="symbol">:math</span>.pi])</div><div class="line"><span class="string">"Pi is approximately given by:     3.142\n"</span></div></pre></td></tr></table></figure>
-<p>另外要注意Erlang的格式化函数需要特别注意Unicode的处理。</p>
-<h1 id="crypto模块"><a href="#crypto模块" class="headerlink" title="crypto模块"></a><span id="part-three">crypto模块</span></h1><p>crypto模块包含哈希函数、数字签名、加解密等等函数。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Base.encode16(<span class="symbol">:crypto</span>.hash(<span class="symbol">:sha256</span>, <span class="string">"Elixir"</span>))</div><div class="line"><span class="string">"3315715A7A3AD57428298676C5AE465DADA38D951BDFAC9348A8A31E9C7401CB"</span></div></pre></td></tr></table></figure>
-<p>:crypto模块不是Erlang标准库的一部分，但是它包含在Erlang发行版里。这意味着，任何时候你要使用 :crypto 的时候，就要把它加入你的项目应用列表里。要这么做的话，编辑你的 mix.exs 文件包含它：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">application</span></span> <span class="keyword">do</span></div><div class="line">  [<span class="symbol">extra_applications:</span> [<span class="symbol">:crypto</span>]]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<h1 id="digraph模块"><a href="#digraph模块" class="headerlink" title="digraph模块"></a><span id="part-four">digraph模块</span></h1><p><a href="http://erlang.org/doc/man/digraph.html" target="_blank" rel="external">digraph模块</a>（还有<a href="http://erlang.org/doc/man/digraph_utils.html" target="_blank" rel="external">digraph工具</a>）包含了处理用点和边构建的有向图的函数。在构建了图后，模块里的算法将帮助找到图里的两个节点间的最短路径或回环路径。</p>
-<p>给定三个节点，找到从第一个到最后一个节点的最短路径。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; digraph = <span class="symbol">:digraph</span>.new()</div><div class="line">iex&gt; coords = [&#123;<span class="number">0</span>.<span class="number">0</span>, <span class="number">0</span>.<span class="number">0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0</span>.<span class="number">0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">1.0</span>&#125;]</div><div class="line">iex&gt; [v<span class="number">0</span>, v1, v2] = (<span class="keyword">for</span> c &lt;- coords, <span class="symbol">do:</span> <span class="symbol">:digraph</span>.add_vertex(digraph, c))</div><div class="line">iex&gt; <span class="symbol">:digraph</span>.add_edge(digraph, v<span class="number">0</span>, v1)</div><div class="line">iex&gt; <span class="symbol">:digraph</span>.add_edge(digraph, v1, v2)</div><div class="line">iex&gt; <span class="symbol">:digraph</span>.get_short_path(digraph, v<span class="number">0</span>, v2)</div><div class="line">[&#123;<span class="number">0</span>.<span class="number">0</span>, <span class="number">0</span>.<span class="number">0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">0</span>.<span class="number">0</span>&#125;, &#123;<span class="number">1.0</span>, <span class="number">1.0</span>&#125;]</div></pre></td></tr></table></figure>
-<p>注意：:digraph里的函数在内部修改了图的结构，这是可能的，因为它们被实现为ETS表。下面我们来看看ETS。</p>
-<h1 id="ETS"><a href="#ETS" class="headerlink" title="ETS"></a><span id="part-five">ETS</span></h1><p><a href="http://erlang.org/doc/man/ets.html" target="_blank" rel="external">ets</a> 和 <a href="http://erlang.org/doc/man/dets.html" target="_blank" rel="external">dets</a> 模块分别处理内存或硬盘的大数据结构存储。</p>
-<p>ETS让你创建一个包含元组的表。默认情况下，ETS表是被保护的，就是说只有拥有者进程可以写这个表，而其他任何进程可以读这个表。ETS有一些功能被用来当做简单数据库、KV存储或者缓存机制。</p>
-<p>ets模块的函数将修改表的状态作为副作用。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">iex&gt; table = <span class="symbol">:ets</span>.new(<span class="symbol">:ets_test</span>, [])</div><div class="line"><span class="comment"># Store as tuples with &#123;name, population&#125;</span></div><div class="line">iex&gt; <span class="symbol">:ets</span>.insert(table, &#123;<span class="string">"China"</span>, <span class="number">1_374_000_000</span>&#125;)</div><div class="line">iex&gt; <span class="symbol">:ets</span>.insert(table, &#123;<span class="string">"India"</span>, <span class="number">1_284_000_000</span>&#125;)</div><div class="line">iex&gt; <span class="symbol">:ets</span>.insert(table, &#123;<span class="string">"USA"</span>, <span class="number">322_000_000</span>&#125;)</div><div class="line">iex&gt; <span class="symbol">:ets</span>.i(table)</div><div class="line">&lt;<span class="number">1</span>   &gt; &#123;&lt;&lt;<span class="string">"India"</span>&gt;&gt;,<span class="number">1284000000</span>&#125;</div><div class="line">&lt;<span class="number">2</span>   &gt; &#123;&lt;&lt;<span class="string">"USA"</span>&gt;&gt;,<span class="number">322000000</span>&#125;</div><div class="line">&lt;<span class="number">3</span>   &gt; &#123;&lt;&lt;<span class="string">"China"</span>&gt;&gt;,<span class="number">1374000000</span>&#125;</div></pre></td></tr></table></figure>
-<h1 id="math模块"><a href="#math模块" class="headerlink" title="math模块"></a><span id="part-six">math模块</span></h1><p><a href="http://erlang.org/doc/man/math.html" target="_blank" rel="external">math模块</a>包含常用的数学运算，覆盖三角函数、指数函数、对数函数。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; angle_45_deg = <span class="symbol">:math</span>.pi() * <span class="number">45.0</span> / <span class="number">180.0</span></div><div class="line">iex&gt; <span class="symbol">:math</span>.sin(angle_45_deg)</div><div class="line"><span class="number">0</span>.<span class="number">7071067811865475</span></div><div class="line">iex&gt; <span class="symbol">:math</span>.exp(<span class="number">55.0</span>)</div><div class="line"><span class="number">7.694785265142018</span>e23</div><div class="line">iex&gt; <span class="symbol">:math</span>.log(<span class="number">7.694785265142018</span>e23)</div><div class="line"><span class="number">55.0</span></div></pre></td></tr></table></figure>
-<h1 id="queue模块"><a href="#queue模块" class="headerlink" title="queue模块"></a><span id="part-seven">queue模块</span></h1><p><a href="http://erlang.org/doc/man/queue.html" target="_blank" rel="external">queue是一个数据结构</a>，它高效地实现了（双端）FIFO（先进先出）队列。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">iex&gt; q = <span class="symbol">:queue</span>.new</div><div class="line">iex&gt; q = <span class="symbol">:queue</span>.<span class="keyword">in</span>(<span class="string">"A"</span>, q)</div><div class="line">iex&gt; q = <span class="symbol">:queue</span>.<span class="keyword">in</span>(<span class="string">"B"</span>, q)</div><div class="line">iex&gt; &#123;value, q&#125; = <span class="symbol">:queue</span>.out(q)</div><div class="line">iex&gt; value</div><div class="line">&#123;<span class="symbol">:value</span>, <span class="string">"A"</span>&#125;</div><div class="line">iex&gt; &#123;value, q&#125; = <span class="symbol">:queue</span>.out(q)</div><div class="line">iex&gt; value</div><div class="line">&#123;<span class="symbol">:value</span>, <span class="string">"B"</span>&#125;</div><div class="line">iex&gt; &#123;value, q&#125; = <span class="symbol">:queue</span>.out(q)</div><div class="line">iex&gt; value</div><div class="line"><span class="symbol">:empty</span></div></pre></td></tr></table></figure>
-<h1 id="rand模块"><a href="#rand模块" class="headerlink" title="rand模块"></a><span id="part-eight">rand模块</span></h1><p><a href="http://erlang.org/doc/man/rand.html" target="_blank" rel="external">rand</a>有返回随机数和设置随机种子的函数。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:rand</span>.uniform()</div><div class="line"><span class="number">0</span>.<span class="number">8175669086010815</span></div><div class="line">iex&gt; <span class="number">_</span> = <span class="symbol">:rand</span>.seed(<span class="symbol">:exs1024</span>, &#123;<span class="number">123</span>, <span class="number">123534</span>, <span class="number">345345</span>&#125;)</div><div class="line">iex&gt; <span class="symbol">:rand</span>.uniform()</div><div class="line"><span class="number">0</span>.<span class="number">5820506340260994</span></div><div class="line">iex&gt; <span class="symbol">:rand</span>.uniform(<span class="number">6</span>)</div><div class="line"><span class="number">6</span></div></pre></td></tr></table></figure>
-<h1 id="zip和zlib模块"><a href="#zip和zlib模块" class="headerlink" title="zip和zlib模块"></a><span id="part-nine">zip和zlib模块</span></h1><p>zip模块让你从硬盘或内存读写ZIP文件，也提取文件的信息。</p>
-<p>下面的代码统计ZIP文件里的文件个数：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:zip</span>.foldl(<span class="keyword">fn</span> <span class="number">_</span>, <span class="number">_</span>, <span class="number">_</span>, acc -&gt; acc + <span class="number">1</span> <span class="keyword">end</span>, <span class="number">0</span>, <span class="symbol">:binary</span>.bin_to_list(<span class="string">"file.zip"</span>))</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="number">633</span>&#125;</div></pre></td></tr></table></figure>
-<p>zlib模块用zlib格式，就如gzip命令里找到的格式，来处理压缩数据：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">iex&gt; song = <span class="string">"</span></div><div class="line">...&gt; Mary had a little lamb,</div><div class="line">...&gt; His fleece was white as snow,</div><div class="line">...&gt; And everywhere that Mary went,</div><div class="line">...&gt; The lamb was sure to go."</div><div class="line">iex&gt; compressed = <span class="symbol">:zlib</span>.compress(song)</div><div class="line">iex&gt; byte_size song</div><div class="line"><span class="number">110</span></div><div class="line">iex&gt; byte_size compressed</div><div class="line"><span class="number">99</span></div><div class="line">iex&gt; <span class="symbol">:zlib</span>.uncompress(compressed)</div><div class="line"><span class="string">"\nMary had a little lamb,\nHis fleece was white as snow,\nAnd everywhere that Mary went,\nThe lamb was sure to go."</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/erlang-libraries.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/erlang-libraries.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;binary模块&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;格式化文本输出&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;crypto模块&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;digraph模块&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;ETS&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-six&quot;&gt;math模块&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-seven&quot;&gt;queue模块&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-eight&quot;&gt;rand模块&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-nine&quot;&gt;zip和zlib模块&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;Elixir提供了非常棒的与Erlang的库交互的能力。实际上，Elixir不鼓励简单地封装Erlang的库，而是提倡直接与Erlang代码交互。本文我们将介绍一些最常见和有用的而在Elixir里找不到的Erlang功能。&lt;/p&gt;
-&lt;p&gt;当你逐渐熟悉了Elixir，你可能想要探索Erlang的&lt;a href=&quot;http://erlang.org/doc/apps/stdlib/index.html&quot;&gt;STDLIB指引手册&lt;/a&gt;来获得更多细节。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-      <category term="Erlang&#39;s libraries" scheme="http://szpzs.oschina.io/categories/Elixir/Erlang-s-libraries/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-      <category term="Erlang&#39;s libraries" scheme="http://szpzs.oschina.io/tags/Erlang-s-libraries/"/>
     
   </entry>
   

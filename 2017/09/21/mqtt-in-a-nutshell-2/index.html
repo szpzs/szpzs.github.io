@@ -1,0 +1,879 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MQTT," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="与传统的客户端/服务器协议不同，MQTT不是端到端的。MQTT是一种发布订阅消息交换协议。另外，与消息队列不同，MQTT不维护任何队列。它使用主题来路由消息。
+这次我们将向你展示MQTT是如何运作的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简说MQTT--第二部分：MQTT是如何运作的？">
+<meta property="og:url" content="http://szpzs.oschina.io/2017/09/21/mqtt-in-a-nutshell-2/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="与传统的客户端/服务器协议不同，MQTT不是端到端的。MQTT是一种发布订阅消息交换协议。另外，与消息队列不同，MQTT不维护任何队列。它使用主题来路由消息。
+这次我们将向你展示MQTT是如何运作的。">
+<meta property="og:image" content="http://szpzs.oschina.io/images/mqtt-communication.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/mqtt-packet-type.png">
+<meta property="og:updated_time" content="2017-09-21T06:03:04.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="简说MQTT--第二部分：MQTT是如何运作的？">
+<meta name="twitter:description" content="与传统的客户端/服务器协议不同，MQTT不是端到端的。MQTT是一种发布订阅消息交换协议。另外，与消息队列不同，MQTT不维护任何队列。它使用主题来路由消息。
+这次我们将向你展示MQTT是如何运作的。">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/mqtt-communication.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2017/09/21/mqtt-in-a-nutshell-2/"/>
+
+  <title> 简说MQTT--第二部分：MQTT是如何运作的？ | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                简说MQTT--第二部分：MQTT是如何运作的？
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-09-21T13:58:34+08:00" content="2017-09-21">
+              2017-09-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/MQTT/" itemprop="url" rel="index">
+                    <span itemprop="name">MQTT</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>与传统的客户端/服务器协议不同，MQTT不是端到端的。MQTT是一种发布订阅消息交换协议。另外，与消息队列不同，MQTT不维护任何队列。它使用主题来路由消息。</p>
+<p>这次我们将向你展示MQTT是如何运作的。</p>
+<a id="more"></a>
+<h1 id="发布订阅模式"><a href="#发布订阅模式" class="headerlink" title="发布订阅模式"></a>发布订阅模式</h1><p>MQTT是一种发布订阅消息交换协议，它的含义是：</p>
+<ol>
+<li>通信系统中有发布者和订阅者。发布者发布消息而订阅者接收消息。我们把发布者和订阅者统称为客户端。客户端可以同时是发布者和订阅者。</li>
+<li>在系统中有另外一个角色，它接收发布者的消息并且将消息派发给订阅者。我们一般称这个角色为消息Broker。</li>
+</ol>
+<h1 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h1><p>在MQTT中，另一个重要的概念是主题，每一条消息都有一个主题，它决定了消息将被谁接收。主题是MQTT的路由机制。</p>
+<p>举个例子，如果一个天气预报服务正在更新各个城市的温度数据。这个服务并不知道谁将接收哪个城市的温度数据，它只是用主题来标识这些数据，比如，“temperature/newyork” 或 “temperature/frankfurt”，并且将它们发送给Broker。那些对城市天气有兴趣的人可以在Broker上订阅一个或多个这样的主题。一旦一条消息到达Broker，它就会检查消息里的主题，并且将消息派发给相应的订阅者。</p>
+<p>主题由一个或多个层级组成，层级之间被斜杠（/）分隔。有时主题和分类和目录相似。</p>
+<p>主题中的通配符(“#” 和 “+”)使得订阅者更易于一次订阅多个主题。“+”表示一个单独的层级，而“#”表示多个层级。多数情况下，你可以按你的意愿自由地命名主题，但是有一个列外：以“$”开头的主题是保留给系统使用的。</p>
+<p>MQTT天然支持一对多（广播）的消息传递：一个发布者用一个主题发布一条消息到Broker，Broker派发这条消息给所有订阅这个主题的客户端。</p>
+<h1 id="消息"><a href="#消息" class="headerlink" title="消息"></a>消息</h1><p>一条消息就是我们想要在通信系统中与其他方交换的信息。交换消息是MQTT的目的。MQTT用控制数据包来传输消息和维护链接。</p>
+<p>一个MQTT数据包包括一个固定的头部，一个可选的可变头部以及一个可选的有效负载数据部分：</p>
+<ul>
+<li>固定头部出现在所有MQTT控制包中。它包括包的类型、各种标志以及包的剩余长度。</li>
+<li>可变头部出现在一些MQTT控制包中。它的内容根据包的类型不同而不同。</li>
+<li>有效负载数据出现在一些MQTT控制包中。它是包的最后一部分。业务相关的数据都在这部分中。</li>
+</ul>
+<p>如你所猜测的一样，最小的MQTT包只有2字节。</p>
+<h1 id="通信"><a href="#通信" class="headerlink" title="通信"></a>通信</h1><p>现在我们已经有了通信中的各种角色、路由消息的方式以及约定的消息格式，我们可以用这些基本元素来构建一个通信系统。</p>
+<p>如下图所示，想象一下，我们在一所医院里：</p>
+<p><img alt="MQTT communication, an example" src="/images/mqtt-communication.png" style="border: 0;"></p>
+<p>住院病人的重要统计数据由可穿戴设备收集并发送到中心服务器，然后发送给相关人员（或设备）。</p>
+<p>一个传感器，这里我们以温度计为例，测量患者的体温并将这个温度数据设置主题：“传感器/ 1 /温度话题”后发布到MQTT Broker。很明显，这个传感器的角色就是发布者。关心这个病人的任何数据的人（比如他的医生）可以订阅“sensor/1/#”这个主题；任何需要收集所有病人体温数据的人或设备可以订阅主题： “sensor/+/temperature”；只关心这个病人的体温的人可以精确地订阅主题：“sensor/1/temperature”，而不需要任何通配符。</p>
+<h1 id="MQTT的特殊特点"><a href="#MQTT的特殊特点" class="headerlink" title="MQTT的特殊特点"></a>MQTT的特殊特点</h1><h2 id="QOS"><a href="#QOS" class="headerlink" title="QOS"></a>QOS</h2><p>MQTT实现了简单但是有效的3级服务质量系统：</p>
+<ul>
+<li>0：最多一次</li>
+<li>1：最少一次</li>
+<li>2：仅有一次</li>
+</ul>
+<h2 id="保留的消息"><a href="#保留的消息" class="headerlink" title="保留的消息"></a>保留的消息</h2><p>如果MQTT消息的保留标志被设置了，则消息可以被Broker保留。当一个客户端链接到Broker并订阅了一个主题，而Broker有这个主题的一条保留的消息，客户端将立刻收到这条消息。每一个主题最多只有一条保留的消息。</p>
+<h2 id="遗愿消息"><a href="#遗愿消息" class="headerlink" title="遗愿消息"></a>遗愿消息</h2><p>MQTT经常被用于不可靠的网络环境。客户端可能没有正常关闭链接（DISCONNECT消息没有发送出去）的情况下丢失链接。在这种情况下，遗愿消息可以做客户端应该做的事情。</p>
+<p>每个客户端当它链接到Broker的时候可以设置一条遗愿消息。遗愿消息和其他消息一样，它也有服务质量级别、保留属性以及主题。这条消息被存储在Broker上，当Broker检测到客户端丢失了链接，Broker把这条遗愿消息发送给所有订阅了遗愿消息的主题的所有在线客户端。如果客户端发送一个“DISCONNECT”包给Broker后断开链接，那么它的遗愿消息被丢弃。</p>
+<h1 id="MQTT数据包"><a href="#MQTT数据包" class="headerlink" title="MQTT数据包"></a>MQTT数据包</h1><p>MQTT定义了14种消息类型。它们被用于创建链接、断开链接、发布消息、订阅主题、维护链接或保证服务质量。</p>
+<p>消息类型如下表所示：</p>
+<p><img alt="MQTT communication, an example" src="/images/mqtt-packet-type.png" style="border: 0;"></p>
+<p>在本系列的下一篇文章中，我们将演示如何创建一个简单的MQTT应用并解释有关协议和数据包格式。</p>
+<p>待续……</p>
+<blockquote>
+<p>*原文链接<a href="https://medium.com/@emqtt/mqtt-in-a-nutshell-4e8dd6ef57c0" target="_blank" rel="external">https://medium.com/@emqtt/mqtt-in-a-nutshell-4e8dd6ef57c0</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MQTT/" rel="tag">#MQTT</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/21/mqtt-in-a-nutshell-1/" rel="next" title="简说MQTT--第一部分：MQTT是啥？">
+                <i class="fa fa-chevron-left"></i> 简说MQTT--第一部分：MQTT是啥？
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时宜自勉，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">142</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">94</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">201</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#发布订阅模式"><span class="nav-number">1.</span> <span class="nav-text">发布订阅模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#主题"><span class="nav-number">2.</span> <span class="nav-text">主题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息"><span class="nav-number">3.</span> <span class="nav-text">消息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#通信"><span class="nav-number">4.</span> <span class="nav-text">通信</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MQTT的特殊特点"><span class="nav-number">5.</span> <span class="nav-text">MQTT的特殊特点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#QOS"><span class="nav-number">5.1.</span> <span class="nav-text">QOS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#保留的消息"><span class="nav-number">5.2.</span> <span class="nav-text">保留的消息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#遗愿消息"><span class="nav-number">5.3.</span> <span class="nav-text">遗愿消息</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MQTT数据包"><span class="nav-number">6.</span> <span class="nav-text">MQTT数据包</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
