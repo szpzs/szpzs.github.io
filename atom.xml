@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-09-21T06:03:04.000Z</updated>
+  <updated>2017-11-22T08:54:09.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,73 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>关于变量绑定的棘手问题</title>
+    <link href="http://szpzs.oschina.io/2017/11/22/tricky-question/"/>
+    <id>http://szpzs.oschina.io/2017/11/22/tricky-question/</id>
+    <published>2017-11-22T08:41:00.000Z</published>
+    <updated>2017-11-22T08:54:09.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>在我的工作中，我有个任务是为Erlang程序员应聘者设计一套选择题考卷，我决定包含一个关于变量绑定的棘手问题。在加入这个问题之前，我决定自己先尝试一下（你懂的……我这是为了预防万一）并且我发现了一些可能让你第一眼看到觉得很惊讶的事情，尽管这在事后是很明显的。</p>
+<a id="more"></a>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><p>不用说，这个问题最后没有列入考试，所以不要指望从这篇文章中得到一个简单的答案。这个问题是：</p>
+<blockquote>
+<p>假设一开始没有任何变量被绑定，那么下面的表达式计算结束后，哪些变量被绑定了？</p>
+</blockquote>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">A = <span class="number">1</span>,</div><div class="line">B = <span class="keyword">case</span> rand:uniform() <span class="keyword">of</span></div><div class="line">      C <span class="keyword">when</span> C &lt; <span class="number">0.5</span> -&gt; C;</div><div class="line">      D <span class="keyword">when</span> D &gt;= <span class="number">0.5</span> -&gt; <span class="number">1</span> - D</div><div class="line">    <span class="keyword">end</span>,</div><div class="line">A + B.</div></pre></td></tr></table></figure>
+<blockquote>
+<p>选项：</p>
+<ol>
+<li>没有</li>
+<li>A 和 B</li>
+<li>A、B、C 和 D</li>
+<li>不可能确切地知道</li>
+</ol>
+</blockquote>
+<p>请不要先往下阅读，而是停在这里！你自己先思考答案是什么？而且不能启动一个Erlang shell来测试这条表达式。切接不要偷看下面的内容！</p>
+<h1 id="答案"><a href="#答案" class="headerlink" title="答案"></a>答案</h1><p>让我们先剔除那些显而易见的选项。</p>
+<p>答案不可能是选项1，因为我们在表达式里明确地绑定了一个变量。选项1唯一能被选上的条件是表达式发生错误。毫无疑问，这不可能发生。</p>
+<p>选项3也不正确，因为代码执行路径有两个分支，其中一个不会绑定C变量，另一个不会绑定D变量。</p>
+<p>在我看来，答案是选项2。我认为，C 和 D只是case表达式里的临时变量。</p>
+<p>但是，情况并非如此。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; A = <span class="number">1</span>,</div><div class="line"><span class="number">1</span>&gt; B = <span class="keyword">case</span> rand:uniform() <span class="keyword">of</span></div><div class="line"><span class="number">1</span>&gt;       C <span class="keyword">when</span> C &lt; <span class="number">0.5</span> -&gt; C;</div><div class="line"><span class="number">1</span>&gt;       D <span class="keyword">when</span> D &gt;= <span class="number">0.5</span> -&gt; <span class="number">1</span> - D</div><div class="line"><span class="number">1</span>&gt;     <span class="keyword">end</span>,</div><div class="line"><span class="number">1</span>&gt; A + B.</div><div class="line"><span class="number">1.063499807059608</span></div><div class="line"><span class="number">2</span>&gt; b().</div><div class="line">A = <span class="number">1</span></div><div class="line">B = <span class="number">0.063499807059608</span></div><div class="line">C = <span class="number">0.063499807059608</span></div><div class="line">ok</div><div class="line"><span class="number">3</span>&gt; f().</div><div class="line">ok</div><div class="line"><span class="number">4</span>&gt; e(<span class="number">1</span>).</div><div class="line"><span class="number">1.3765011035828076</span></div><div class="line"><span class="number">5</span>&gt; b().</div><div class="line">A = <span class="number">1</span></div><div class="line">B = <span class="number">0.37650110358280764</span></div><div class="line">C = <span class="number">0.37650110358280764</span></div><div class="line">ok</div><div class="line"><span class="number">6</span>&gt; f().</div><div class="line">ok</div><div class="line"><span class="number">7</span>&gt; e(<span class="number">1</span>).</div><div class="line"><span class="number">1.0869922372383418</span></div><div class="line"><span class="number">8</span>&gt; b().</div><div class="line">A = <span class="number">1</span></div><div class="line">B = <span class="number">0.08699223723834182</span></div><div class="line">D = <span class="number">0.9130077627616582</span></div><div class="line">ok</div><div class="line"><span class="number">9</span>&gt;</div></pre></td></tr></table></figure>
+<p>如你所见，有时候C被绑定，有时候却是D被绑定，这依赖于case语句所执行的分支，即使被执行的case语句分支的表达式不需要这些变量，也会发生这样的情况：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="number">10</span>&gt; <span class="keyword">case</span> rand:uniform() <span class="keyword">of</span></div><div class="line"><span class="number">10</span>&gt;   C <span class="keyword">when</span> C &lt; <span class="number">0.5</span> -&gt; low;</div><div class="line"><span class="number">10</span>&gt;   D <span class="keyword">when</span> D &gt;= <span class="number">0.5</span> -&gt; high</div><div class="line"><span class="number">10</span>&gt; <span class="keyword">end</span>.</div><div class="line">low</div><div class="line"><span class="number">11</span>&gt; b().</div><div class="line">C = <span class="number">0.3006547812129776</span></div><div class="line">ok</div><div class="line"><span class="number">12</span>&gt; f(), e(<span class="number">10</span>), b().</div><div class="line">C = <span class="number">0.12584026085863464</span></div><div class="line">ok</div><div class="line"><span class="number">13</span>&gt; f(), e(<span class="number">10</span>), b().</div><div class="line">D = <span class="number">0.9295007071083405</span></div><div class="line">ok</div><div class="line"><span class="number">14</span>&gt;</div></pre></td></tr></table></figure>
+<h1 id="到底是为什么呢？"><a href="#到底是为什么呢？" class="headerlink" title="到底是为什么呢？"></a>到底是为什么呢？</h1><p>正如我之前说过的，这个问题可能令人惊讶，但事实上，它是非常明显的，而且有据可查。case语句分支的头部匹配变量是完全有效的，它可以像下面这样使用：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">B = <span class="keyword">case</span> rand:uniform() <span class="keyword">of</span></div><div class="line">      C <span class="keyword">when</span> C &lt; <span class="number">0.5</span> -&gt; low;</div><div class="line">      C <span class="keyword">when</span> C &gt;= <span class="number">0.5</span> -&gt; high</div><div class="line">    <span class="keyword">end</span>,</div><div class="line">&#123;B, C&#125;.</div></pre></td></tr></table></figure>
+<p>这是一种非常复杂的编码方式，我根本不推荐这样做，你甚至可以把它弄得更糟糕：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">case</span> rand:uniform() <span class="keyword">of</span></div><div class="line">  C <span class="keyword">when</span> C &lt; <span class="number">0.5</span> -&gt; B = low;</div><div class="line">  C <span class="keyword">when</span> C &gt;= <span class="number">0.5</span> -&gt; B = high</div><div class="line"><span class="keyword">end</span>,</div><div class="line">&#123;B, C&#125;.</div></pre></td></tr></table></figure>
+<p>但是，除了代码的样式和可维护性问题之外，这段代码是完全有效的，这意味着在case表达式的被计算之后，在case子句中（包括在头部和身体中）被绑定的变量都是绑定的。我知道有更学术的方式来表达这个问题，比如用像闭包或作用域等词汇，但是我将把这个解释权留给像iraunkortasuna这样的大牛们，他们比我能干的多。</p>
+<p>考虑到这一点，在我们最初的例子中，无论是C还是D（但不是两者）都是在对整个表达式的计算之后绑定的，这是合理的。但是，你想知道，这样的代码是非常不安全的……难道Erlang不应该警告我吗？Erlang不应该阻止我写出这样一个非确定性的东西吗？</p>
+<p>当然，Erlang会帮我们的！不过不是Erlang的shell，而是Erlang的编译器，它会对这类代码进行告警，而且它非常聪明。如下面的例子：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(x)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([bad/<span class="number">1</span>])</span>.</div><div class="line"><span class="function"><span class="title">bad</span><span class="params">(A)</span> -&gt;</span></div><div class="line">  B = <span class="keyword">case</span> rand:uniform() <span class="keyword">of</span></div><div class="line">        C <span class="keyword">when</span> C &lt; <span class="number">0.5</span> -&gt; C;</div><div class="line">        D <span class="keyword">when</span> D &gt;= <span class="number">0.5</span> -&gt; <span class="number">1</span> - D</div><div class="line">      <span class="keyword">end</span>,</div><div class="line">  A + B.</div></pre></td></tr></table></figure>
+<p>这是我们的原始代码，在这种情况下，即使C或D在case语句之后是未绑定的，因为它们没有被使用，编译器什么也不说。</p>
+<p>现在我们看看另一个版本的代码：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(x)</span>.</div><div class="line"><span class="keyword">-export</span><span class="params">([bad/<span class="number">1</span>])</span>.</div><div class="line"><span class="function"><span class="title">bad</span><span class="params">(A)</span> -&gt;</span></div><div class="line">  B = <span class="keyword">case</span> rand:uniform() <span class="keyword">of</span></div><div class="line">        C <span class="keyword">when</span> C &lt; <span class="number">0.5</span> -&gt; C;</div><div class="line">        D <span class="keyword">when</span> D &gt;= <span class="number">0.5</span> -&gt; <span class="number">1</span> - D</div><div class="line">      <span class="keyword">end</span>,</div><div class="line">  A + B - C.</div></pre></td></tr></table></figure>
+<p>在这个例子里，编译器将不会编译这个模块，相反，它会报告如下错误：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">x.erl:<span class="number">8</span>: variable 'C' unsafe in '<span class="keyword">case</span>' (line <span class="number">4</span>)</div></pre></td></tr></table></figure>
+<p>我们可以对上述错误消息的可用性和可读性进行深入的讨论，但是这个模块不能编译的事实毫无疑问对Erlang开发者是有帮助的。</p>
+<p><strong>小贴士：</strong>如果在编译Erlang模块时看到类似这样的错误，请注意警告：8（其中使用了不安全变量）和4（变量可能绑定的地方）中的两个行号。</p>
+<blockquote>
+<p>*原文链接<a href="https://medium.com/erlang-battleground/tricky-question-25a956298b9d" target="_blank" rel="external">https://medium.com/erlang-battleground/tricky-question-25a956298b9d</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在我的工作中，我有个任务是为Erlang程序员应聘者设计一套选择题考卷，我决定包含一个关于变量绑定的棘手问题。在加入这个问题之前，我决定自己先尝试一下（你懂的……我这是为了预防万一）并且我发现了一些可能让你第一眼看到觉得很惊讶的事情，尽管这在事后是很明显的。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
+    
+      <category term="variable binding" scheme="http://szpzs.oschina.io/tags/variable-binding/"/>
+    
+  </entry>
   
   <entry>
     <title>简说MQTT--第二部分：MQTT是如何运作的？</title>
@@ -1872,147 +1939,6 @@
       <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
     
       <category term="Agent" scheme="http://szpzs.oschina.io/tags/Agent/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Mix 和 OTP－Mix简介</title>
-    <link href="http://szpzs.oschina.io/2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/"/>
-    <id>http://szpzs.oschina.io/2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/</id>
-    <published>2017-02-16T07:54:20.000Z</published>
-    <updated>2017-02-16T08:09:38.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">我们第一个项目</a></li>
-<li><a href="#part-two">项目编译</a></li>
-<li><a href="#part-three">运行测试</a></li>
-<li><a href="#part-four">环境</a></li>
-<li><a href="#part-five">探索</a></li>
-</ol>
-<p>在本教程里，我们将学习如何构建一个完整的Elixir应用，该应用有自己的监督树、配置、测试等等。</p>
-<p>这个应用是一个分布式键值对存储。我们将组织键值对到容器中，然后跨多节点分布这些容器。我们也将构建一个简单的客户端来让我们连接到那些节点中的任何一个，并且像如下所示发送请求：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">CREATE shopping</div><div class="line">OK</div><div class="line"></div><div class="line">PUT shopping milk 1</div><div class="line">OK</div><div class="line"></div><div class="line">PUT shopping eggs 3</div><div class="line">OK</div><div class="line"></div><div class="line">GET shopping milk</div><div class="line">1</div><div class="line">OK</div><div class="line"></div><div class="line">DELETE shopping eggs</div><div class="line">OK</div></pre></td></tr></table></figure>
-<p>为了构建我们的键值对应用，我们将使用三个主要工具：</p>
-<ul>
-<li>OTP（开放电信平台）是一个Erlang自带的库的集合。Erlang开发者用OTP来构建健壮、容错的应用。在本章中我们将探讨OTP和Elixir整合有多少方面，包括监督树、事件管理器等等；</li>
-<li>Mix是一个Elixir自带的构建工具，它为创建、编译、测试你的应用、管理应用的依赖等等提供任务；</li>
-<li>ExUnit是一个Elixir自带的基于单元测试的框架。</li>
-</ul>
-<p>在本章里，我们将用Mix创建我们的第一个项目，然后逐步探索OTP、Mix和ExUnit里的不同特性。</p>
-<blockquote>
-<p>注意：本教程需要Elixir v1.2.0 或者更高版本。你可以用 elixir –version 来检查你的Elixir版本并且如果需要的话，你可以按 <a href="http://elixir-lang.org/getting-started/introduction.html" target="_blank" rel="external">Elixir入门教程第一章里</a> 描述的步骤安装一个最新的版本。</p>
-<p>如果你对本教程有任何疑问或改进建议请到诸如 <a href="https://elixirforum.com/" target="_blank" rel="external">Elixir论坛</a> 或 <a href="https://github.com/elixir-lang/elixir-lang.github.com/issues" target="_blank" rel="external">问题跟踪</a> 告诉我们。你的建议对我们的教程真的很重要。</p>
-<p>最后，本教程的代码在这个<a href="https://github.com/josevalim/kv_umbrella" target="_blank" rel="external">仓库</a>里，你可以把它当做参考。</p>
-</blockquote>
-<a id="more"></a>
-<h1 id="我们第一个项目"><a href="#我们第一个项目" class="headerlink" title="我们第一个项目"></a><span id="part-one">我们第一个项目</span></h1><p>当你安装Elixir的时候，除了得到 elixir、elixirc 和 iex 这些可执行文件，你也得到一个叫做Mix的可执行Elixir脚本。</p>
-<p>让我们从命令行通过调用 mix new 创建我们的第一个项目。我们将传递项目名字作为这个命令的参数（在这个例子里项目名字是kv），并且告诉Mix我们的主模块应该是全部大写的KV，而不是默认的Kv：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mix new kv --module KV</div></pre></td></tr></table></figure>
-<p>Mix将创建一个名为kv的目录，并在这个目录里创建一些文件：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">* creating README.md</div><div class="line">* creating .gitignore</div><div class="line">* creating mix.exs</div><div class="line">* creating config</div><div class="line">* creating config/config.exs</div><div class="line">* creating lib</div><div class="line">* creating lib/kv.ex</div><div class="line">* creating <span class="built_in">test</span></div><div class="line">* creating <span class="built_in">test</span>/test_helper.exs</div><div class="line">* creating <span class="built_in">test</span>/kv_test.exs</div></pre></td></tr></table></figure>
-<p>让我们简单地看一下那些被创建的文件：</p>
-<blockquote>
-<p>注意：Mix是一个Elixir可执行文件。这就是说要运行mix，你需要在你的路径里有Elixir可执行文件。如果没有，你可以通过传递这个脚本作为Elixir的参数来运行它：</p>
-<pre><code>$ bin/elixir bin/mix new kv --module KV
-</code></pre><p>注意：你也可以通过 -S 选项用Elixir执行你路径里的任何脚本：</p>
-<pre><code>$ bin/elixir -S mix new kv --module KV
-</code></pre><p>当使用 -S 的时候，Elixir在你的路径里找到脚本并执行它。</p>
-</blockquote>
-<h1 id="项目编译"><a href="#项目编译" class="headerlink" title="项目编译"></a><span id="part-two">项目编译</span></h1><p>在我们新项目的目录（kv）里一个名为mix.exs被创建出来，它的主要职责是配置我们的项目。让我们来看看它（注释被删除）:</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span>.Mixfile <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Mix.Project</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">project</span></span> <span class="keyword">do</span></div><div class="line">    [<span class="symbol">app:</span> <span class="symbol">:kv</span>,</div><div class="line">     <span class="symbol">version:</span> <span class="string">"0.1.0"</span>,</div><div class="line">     <span class="symbol">elixir:</span> <span class="string">"~&gt; 1.3"</span>,</div><div class="line">     <span class="symbol">build_embedded:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">     <span class="symbol">start_permanent:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">     <span class="symbol">deps:</span> deps()]</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">application</span></span> <span class="keyword">do</span></div><div class="line">    [<span class="symbol">extra_applications:</span> [<span class="symbol">:logger</span>]]</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">defp</span> <span class="title">deps</span></span> <span class="keyword">do</span></div><div class="line">    []</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>我们的mix.exs定义了两个公共函数：project和application。project返回项目的配置，比如，项目名字和版本；application被用来生成一个应用文件。</p>
-<p>还有一个名字为 deps 的私有函数，它被project函数调用，它定义我们项目的依赖。定义 deps 作为一个独立函数不是必需的，但是它有助于我们项目配置的整洁。</p>
-<p>Mix也用一个简单模块定义来创建了文件 lib/kv.ex ：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span> <span class="keyword">do</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>这样的结构已经足够编译我们的项目：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> kv</div><div class="line">$ mix compile</div></pre></td></tr></table></figure>
-<p>将输出：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Compiling 1 file (.ex)</div><div class="line">Generated kv app</div></pre></td></tr></table></figure>
-<p>lib/kv.ex文件被编译，一个名为 kv.app 的应用清单被创建，并且<a href="http://elixir-lang.org/getting-started/protocols.html#protocol-consolidation" target="_blank" rel="external">如入门教程里所描述的一样，所有协议被整合</a>。所有编译产出物用 mix.exs文件里的选项被置于 _build 目录里，。</p>
-<p>一旦项目被编译，你就可以如下所示在项目里启动一个iex会话：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ iex -S mix</div></pre></td></tr></table></figure>
-<h1 id="运行测试"><a href="#运行测试" class="headerlink" title="运行测试"></a><span id="part-three">运行测试</span></h1><p>Mix也创建合适的结构来运行我们的项目测试。Mix项目通常遵循这样的习惯，就是lib目录里的每一个文件，在test目录里都有对应的一个文件，文件名格式为：&lt;filename&gt;_test.exs 。正因为这个缘故，我们已经可以找到一个 test/kv_test.exs 文件对应于我们的 lib/kv.ex 文件。它当前还没有做太多功能：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KVTest</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> ExUnit.Case</div><div class="line">  doctest KV</div><div class="line"></div><div class="line">  test <span class="string">"the truth"</span> <span class="keyword">do</span></div><div class="line">    assert <span class="number">1</span> + <span class="number">1</span> == <span class="number">2</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>重要的是要注意两点：</p>
-<ol>
-<li>测试文件是Elixir脚本文件（.exs）。这样很方便，因为我们不需要在运行它们前编译它们。</li>
-<li>我们定义一个名为 KVTest 的测试模块，用 <a href="https://hexdocs.pm/ex_unit/ExUnit.Case.html" target="_blank" rel="external">ExUnit.Case</a> 来注入测试API，并且用 test/2 宏定义一个简单的测试用例。</li>
-</ol>
-<p>Mix也创建了一个名为 test/test_helper.exs 的文件，它负责设置测试框架：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ExUnit.start()</div></pre></td></tr></table></figure>
-<p>每一次我们运行我们的测试前，这个文件将被Mix自动 require 。我们可以用 mix test 来运行测试：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">Compiled lib/kv.ex</div><div class="line">Generated kv app</div><div class="line">[...]</div><div class="line">.</div><div class="line"></div><div class="line">Finished <span class="keyword">in</span> 0.04 seconds (0.04s on load, 0.00s on tests)</div><div class="line">1 <span class="built_in">test</span>, 0 failures</div><div class="line"></div><div class="line">Randomized with seed 540224</div></pre></td></tr></table></figure>
-<p>注意：通过运行 mix test ，Mix再一次编译源文件并且创建应用文件。这是因为Mix支持多环境，这个我们将在下一节讨论。</p>
-<p>而且，你可以看到ExUnit为一个成功的测试用例打印一个点号，而且也自动地随机化测试。让我们故意让测试失败，看看会发生什么。</p>
-<p>如下一样修改 test/kv_test.exs 里的断言：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">assert <span class="number">1</span> + <span class="number">1</span> == <span class="number">3</span></div></pre></td></tr></table></figure>
-<p>现在我们再次运行 mix test （注意，这次没有编译）：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">  1) <span class="built_in">test</span> the truth (KVTest)</div><div class="line">     <span class="built_in">test</span>/kv_test.exs:5</div><div class="line">     Assertion with == failed</div><div class="line">     code: 1 + 1 == 3</div><div class="line">     lhs:  2</div><div class="line">     rhs:  3</div><div class="line">     stacktrace:</div><div class="line">       <span class="built_in">test</span>/kv_test.exs:6</div><div class="line"></div><div class="line">Finished <span class="keyword">in</span> 0.05 seconds (0.05s on load, 0.00s on tests)</div><div class="line">1 <span class="built_in">test</span>, 1 failure</div></pre></td></tr></table></figure>
-<p>对于每个失败，Mix打印详细的报告，包含测试用例的名字，失败的代码，以及 == 运算符左边的值（lhs）和右边的值（rhs）。</p>
-<p>失败的第二行，正好在测试用例名字下面，这是测试被定义的位置。如果你拷贝测试位置这行（包括文件和行数）然后加在Mix test 后面，Mix将装载和运行这个指定的测试：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mix <span class="built_in">test</span> <span class="built_in">test</span>/kv_test.exs:5</div></pre></td></tr></table></figure>
-<p>该快捷方式当我们建立我们的项目时将是非常有用的，让我们仅仅运行一个特定的测试来快速迭代。</p>
-<p>最后，堆栈跟踪涉及失败本身，它给出有关测试和失败在源文件生成的位置信息。</p>
-<h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a><span id="part-four">环境</span></h1><p>Mix支持“环境”这个概念。它们允许开发者为特定的场景定制编译和其他选项。默认情况下，Mix理解三种环境：</p>
-<ul>
-<li>:dev - 这是Mix任务（像 compile）默认运行的</li>
-<li>:test - 被 mix test 使用</li>
-<li>:prod - 你将在生成环境运行你的项目时使用它</li>
-</ul>
-<p>环境仅运用到当前的项目。正如稍后我们将看到的，任何你添加到你的项目的依赖将默认运行在 :prod 环境。</p>
-<p>定制化每一个环境可以通过在你的mix.exs文件里访问<a href="https://hexdocs.pm/mix/Mix.html#env/1" target="_blank" rel="external">Mix.env函数</a>来做到，这个函数以一个原子方式返回当前环境。我们已经在 :build_embedded 和 :start_permanent 选项里这么使用了：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">project</span></span> <span class="keyword">do</span></div><div class="line">  [...,</div><div class="line">   <span class="symbol">build_embedded:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">   <span class="symbol">start_permanent:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">   ...]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>当你编译你的源码的时候，Elixir把编译的生成物放置到 _build 目录里。然而，在许多场合为了避免不必要的拷贝，Elixir将创建文件系统链接，从 _build 到实际源文件。当 :build_embedded 选项为 true 时，它将禁止这个行为，因为它的目的是在 _build 目录里提供运行你的应用的所需要的一切。</p>
-<p>相似地，当 :start_permanent 选项为 true 时，它以 permanent  模式启动你的应用，意思是，当你的应用的监督树结束了，Erlang虚拟机也崩溃。注意：我们不想在开发和测试的时候用这种方式，因为为了解决问题而保持Erlang虚拟机实例运行在那样的环境是有用的。</p>
-<p>Mix默认使用 :dev 环境，除了 test 任务默认使用 :test 环境。环境可以通过环境变量 MIX_ENV 修改：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ MIX_ENV=prod mix compile</div></pre></td></tr></table></figure>
-<p>或在Windows下这样做：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&gt; <span class="built_in">set</span> <span class="string">"MIX_ENV=prod"</span> &amp;&amp; mix compile</div></pre></td></tr></table></figure>
-<h1 id="探索"><a href="#探索" class="headerlink" title="探索"></a><span id="part-five">探索</span></h1><p>Mix的知识还有很多，我们将在构建我们的项目中继续探索它。<a href="https://hexdocs.pm/mix/" target="_blank" rel="external">Mix官方文档里有它的总览</a>。</p>
-<p>记住，你可以一直调用 help 任务列出所有可用的任务：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mix <span class="built_in">help</span></div></pre></td></tr></table></figure>
-<p>调用 mix help TASK 你可以得到指定任务的更多信息。</p>
-<p>接下来让我们写一些代码！</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;我们第一个项目&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;项目编译&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;运行测试&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;环境&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;探索&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;在本教程里，我们将学习如何构建一个完整的Elixir应用，该应用有自己的监督树、配置、测试等等。&lt;/p&gt;
-&lt;p&gt;这个应用是一个分布式键值对存储。我们将组织键值对到容器中，然后跨多节点分布这些容器。我们也将构建一个简单的客户端来让我们连接到那些节点中的任何一个，并且像如下所示发送请求：&lt;/p&gt;
-&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;12&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;13&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;14&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;15&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;CREATE shopping&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;OK&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;PUT shopping milk 1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;OK&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;PUT shopping eggs 3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;OK&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;GET shopping milk&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;OK&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;DELETE shopping eggs&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;OK&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;为了构建我们的键值对应用，我们将使用三个主要工具：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;OTP（开放电信平台）是一个Erlang自带的库的集合。Erlang开发者用OTP来构建健壮、容错的应用。在本章中我们将探讨OTP和Elixir整合有多少方面，包括监督树、事件管理器等等；&lt;/li&gt;
-&lt;li&gt;Mix是一个Elixir自带的构建工具，它为创建、编译、测试你的应用、管理应用的依赖等等提供任务；&lt;/li&gt;
-&lt;li&gt;ExUnit是一个Elixir自带的基于单元测试的框架。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;在本章里，我们将用Mix创建我们的第一个项目，然后逐步探索OTP、Mix和ExUnit里的不同特性。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;注意：本教程需要Elixir v1.2.0 或者更高版本。你可以用 elixir –version 来检查你的Elixir版本并且如果需要的话，你可以按 &lt;a href=&quot;http://elixir-lang.org/getting-started/introduction.html&quot;&gt;Elixir入门教程第一章里&lt;/a&gt; 描述的步骤安装一个最新的版本。&lt;/p&gt;
-&lt;p&gt;如果你对本教程有任何疑问或改进建议请到诸如 &lt;a href=&quot;https://elixirforum.com/&quot;&gt;Elixir论坛&lt;/a&gt; 或 &lt;a href=&quot;https://github.com/elixir-lang/elixir-lang.github.com/issues&quot;&gt;问题跟踪&lt;/a&gt; 告诉我们。你的建议对我们的教程真的很重要。&lt;/p&gt;
-&lt;p&gt;最后，本教程的代码在这个&lt;a href=&quot;https://github.com/josevalim/kv_umbrella&quot;&gt;仓库&lt;/a&gt;里，你可以把它当做参考。&lt;/p&gt;
-&lt;/blockquote&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-      <category term="Mix" scheme="http://szpzs.oschina.io/categories/Elixir/Mix/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-      <category term="Mix" scheme="http://szpzs.oschina.io/tags/Mix/"/>
     
   </entry>
   
