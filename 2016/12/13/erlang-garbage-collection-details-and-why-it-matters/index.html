@@ -88,14 +88,14 @@
 
 <meta name="description" content="Erlang尝试解决的一个主要问题就是为实现高水平响应的软实时系统创建一个平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Erlang垃圾回收细节以及它为何重要">
+<meta property="og:title" content="Erlang垃圾回收细节及其重要性">
 <meta property="og:url" content="http://szpzs.oschina.io/2016/12/13/erlang-garbage-collection-details-and-why-it-matters/index.html">
 <meta property="og:site_name" content="Time is all">
 <meta property="og:description" content="Erlang尝试解决的一个主要问题就是为实现高水平响应的软实时系统创建一个平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
 <meta property="og:image" content="http://szpzs.oschina.io/images/erlang-memory-layout.png">
-<meta property="og:updated_time" content="2016-12-13T13:53:14.000Z">
+<meta property="og:updated_time" content="2017-12-11T08:07:00.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Erlang垃圾回收细节以及它为何重要">
+<meta name="twitter:title" content="Erlang垃圾回收细节及其重要性">
 <meta name="twitter:description" content="Erlang尝试解决的一个主要问题就是为实现高水平响应的软实时系统创建一个平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
 <meta name="twitter:image" content="http://szpzs.oschina.io/images/erlang-memory-layout.png">
 
@@ -120,7 +120,7 @@
 
   <link rel="canonical" href="http://szpzs.oschina.io/2016/12/13/erlang-garbage-collection-details-and-why-it-matters/"/>
 
-  <title> Erlang垃圾回收细节以及它为何重要 | Time is all </title>
+  <title> Erlang垃圾回收细节及其重要性 | Time is all </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -283,7 +283,7 @@
             
             
               
-                Erlang垃圾回收细节以及它为何重要
+                Erlang垃圾回收细节及其重要性
               
             
           </h1>
@@ -427,8 +427,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/12/11/erlang-scheduler-details/" rel="next" title="Erlang调度器的细节以及它为何重要">
-                <i class="fa fa-chevron-left"></i> Erlang调度器的细节以及它为何重要
+              <a href="/2016/12/11/erlang-scheduler-details/" rel="next" title="Erlang调度器的细节及其重要性">
+                <i class="fa fa-chevron-left"></i> Erlang调度器的细节及其重要性
               </a>
             
           </div>
