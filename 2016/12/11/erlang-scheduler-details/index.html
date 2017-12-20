@@ -95,7 +95,7 @@
 <meta property="og:image" content="http://szpzs.oschina.io/images/scheduling-before-r11b.png">
 <meta property="og:image" content="http://szpzs.oschina.io/images/scheduling-in-r11b-and-r12b.png">
 <meta property="og:image" content="http://szpzs.oschina.io/images/scheduling-after-r13b.png">
-<meta property="og:updated_time" content="2017-12-11T08:21:33.000Z">
+<meta property="og:updated_time" content="2017-12-20T05:59:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang调度器的细节及其重要性">
 <meta name="twitter:description" content="有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《Erlang垃圾回收细节以及它为何重要》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。">
@@ -364,7 +364,7 @@
 <li><a href="https://en.wikipedia.org/wiki/Cooperative_multitasking" target="_blank" rel="external">协作式</a>：一个协作式调度器需要任务协作来进行上下文切换。在这种方式下，调度器简单地让任务周期性地或者空闲地时候自愿地释放控制权，然后启动一个新的任务并且再一次等待它自愿地归还控制权。</li>
 </ul>
 <p>现在的问题是，哪一种调度机制适合软实时系统，也就是这个系统必须在指定的时间内响应。协作式调度系统不能满足软实时系统的要求，因为其运行的任务可能永远也不会返还控制权或者在规定时限后返还控制权。所以软实时系统通常采用抢占式调度。</p>
-<h1 id="Erlang的调度"><a href="#Erlang的调度" class="headerlink" title="Erlang的调度"></a>Erlang的调度</h1><p>Erlang作为一个多任务软实时平台采用的就是抢占式调度。Erlang调度器的职责就是选择一个进程并执行它的代码。它也处理垃圾回收和内存管理。如何选择一个进程来执行是基于每个进程可配置的优先级，并且同一优先级的进程是轮询地被调度的。另外，执行中的进程被抢占的因素是基于自上次该进程被选中执行后一定数量的<strong>规约数</strong>而不管它的优先级如何。规约数是每个进程的一个计数器，一般每调用一次函数，它就加一。当一个进程的计数器达到最大规约数时，就会抢占进程和进行上下文切换。例如，在Erlang/OTP R12B 计数器的最大值是2000规约数。</p>
+<h1 id="Erlang的调度"><a href="#Erlang的调度" class="headerlink" title="Erlang的调度"></a>Erlang的调度</h1><p>Erlang作为一个多任务软实时平台采用的就是抢占式调度。Erlang调度器的职责就是选择一个进程并执行它的代码。它也处理垃圾回收和内存管理。如何选择一个进程来执行是基于每个进程可配置的优先级，并且同一优先级的进程是轮询地被调度的。另外，执行中的进程被抢占的因素是基于自上次该进程被选中执行后一定数量的<strong>规约数</strong>而不管它的优先级如何。规约数是每个进程的一个计数器，一般每调用一次函数，它就加一。当一个进程的计数器达到最大规约数时，调度器就会抢占进程和进行上下文切换。例如，在Erlang/OTP R12B 计数器的最大值是2000规约数。</p>
 <p>Erlang的任务调度有很长的发展历史。它随着时间而改变。这些改变受Erlang的SMP（对称多处理器）特性的改变而被影响。</p>
 <h2 id="R11B之前的调度"><a href="#R11B之前的调度" class="headerlink" title="R11B之前的调度"></a>R11B之前的调度</h2><p>在R11B之前，Eralng还不支持SMP，因此它只有一个调度器运行在操作系统主进程的线程里，并且相应的只有一个<strong>运行队列</strong>。调度器从运行队列选择可运行的Erlang进程和IO任务来执行。</p>
 <p><img src="/images/scheduling-before-r11b.png" style="border:0;"></p>

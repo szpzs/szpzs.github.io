@@ -93,7 +93,7 @@
 <meta property="og:site_name" content="Time is all">
 <meta property="og:description" content="Erlang尝试解决的一个主要问题就是为实现高水平响应的软实时系统创建一个平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
 <meta property="og:image" content="http://szpzs.oschina.io/images/erlang-memory-layout.png">
-<meta property="og:updated_time" content="2017-12-11T08:07:00.000Z">
+<meta property="og:updated_time" content="2017-12-20T05:52:47.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang垃圾回收细节及其重要性">
 <meta name="twitter:description" content="Erlang尝试解决的一个主要问题就是为实现高水平响应的软实时系统创建一个平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
@@ -364,7 +364,7 @@
 <li><strong>堆</strong>：它是一个向上增长的内存区域，它持有进程邮箱的实际消息，像<a href="http://www.erlang.org/doc/man/lists.html" target="_blank" rel="external">列表</a>和<a href="http://www.erlang.org/documentation/doc-5.8/doc/reference_manual/data_types.html" target="_blank" rel="external">元组</a>这样的复合数据，<a href="http://www.erlang.org/doc/man/binary.html" target="_blank" rel="external">二进制数据</a>，大于一个机器字的诸如浮点数对象。大于64字节的二进制数据不保存在进程私有堆里，这样的二进制数据叫做<em>Refc Binary</em>（引用计数二进制），它们存储在一个大<em>共享堆</em>，被那些有指向引用计数二进制数据指针的进程访问。那些指针叫做<em>ProcBin</em>并且存储在进程的私有堆里。</li>
 </ul>
 <h1 id="垃圾回收细节"><a href="#垃圾回收细节" class="headerlink" title="垃圾回收细节"></a>垃圾回收细节</h1><p>为了解释当前默认的Erlang垃圾回收机制，我们可以简单地说，一种是独立运行在每个Erlang进程私有堆内的分代复制垃圾回收，另一种是发生在全局共享堆的引用计数垃圾回收。</p>
-<h2 id="私有堆垃圾回收"><a href="#私有堆垃圾回收" class="headerlink" title="私有堆垃圾回收"></a>私有堆垃圾回收</h2><p>私有堆的垃圾回收是分代的。分代垃圾回收将堆分成两个段：年轻代和老生代。分代的原理是：如果一个对象在一个垃圾回收周期存活下来，那么它短时间成为垃圾的机会就降低了。所以年轻代给新分配的数据使用，老生代给那些已经执行了指定次数的垃圾回收后还依然幸存下来的数据使用。这种分割为两个段的方式有助于垃圾回收减少在还没有变成垃圾的数据上进行不必要的垃圾回收过程。Erlang的垃圾回有两种策略：<em>分代的</em>（轻量级的）和<em>全扫描</em>（重量级的）。分代的垃圾回收只是回收年轻代堆，而全扫描垃圾回收则回收年轻代和老生的堆。现在让我们仔细看看一个新启动的Erlang进程在私有堆里的垃圾回收步骤：</p>
+<h2 id="私有堆垃圾回收"><a href="#私有堆垃圾回收" class="headerlink" title="私有堆垃圾回收"></a>私有堆垃圾回收</h2><p>私有堆的垃圾回收是分代的。分代垃圾回收将堆分成两个段：年轻代和老生代。分代的原理是：如果一个对象在一个垃圾回收周期存活下来，那么它短时间成为垃圾的机会就降低了。所以年轻代给新分配的数据使用，老生代给那些已经执行了指定次数的垃圾回收后还依然幸存下来的数据使用。这种分割为两个段的方式有助于垃圾回收减少在还没有变成垃圾的数据上进行不必要的垃圾回收过程。Erlang的垃圾回有两种策略：<em>分代的</em>（轻量级的）和<em>全扫描</em>（重量级的）。分代的垃圾回收只是回收年轻代堆，而全扫描垃圾回收则回收年轻代和老生代的堆。现在让我们仔细看看一个新启动的Erlang进程在私有堆里的垃圾回收步骤：</p>
 <p><strong>场景1:</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Spawn &gt; No GC &gt; Terminate</div></pre></td></tr></table></figure>
 <p>一个短时存活的进程没有垃圾回收发生，它用的堆没有超过<em>min_heap_size</em>设置的值然后就终止了。在这个场景下，被进程使用的所有内存都被回收。</p>
@@ -373,7 +373,7 @@
 <p>一个新创建的进程，它的数据增长超过<em>min_heap_size</em>设置的值，所以发生了一次全扫描垃圾回收，很明显因为在此之前从来没有发生过垃圾回收，所以就不存在年轻代和老生代两个段。在第一次全扫描垃圾回收后，堆被分割成年轻代和老生代，并且此后垃圾回收策略切换到分代的垃圾回收并且一直维持这种策略直到进程终止。</p>
 <p><strong>场景3:</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Spawn &gt; Fullsweep &gt; Generational &gt; Fullsweep &gt; Generational &gt; ... &gt; Terminate</div></pre></td></tr></table></figure>
-<p>在进程的生命周期里当垃圾回收策略从分代的垃圾回收再次切换到全扫描的垃圾回收的时候，这会有几种不同的情况。第一种情况是在一定数量的分代的垃圾回收发生后。这个一定的数量可以全局设置或者每个进程用<em>fullsweep_after</em>标志设置。每个进程的分代的垃圾回收次数统计和它切换到全扫描到垃圾回收前的分代的垃圾回收次数上限分别是进程的<em>minor_gcs</em>和<em>fullsweep_after</em>属性，同时这两个值可用<em>process_info(PID, garbage_collection)</em>的返回值来获得。第二种情况是分代的垃圾回收不能回收足够的内存的时候。最后一种情况是当<em>garbage_collection(PID)</em>函数被手工调用的时候。在这几种情况后，垃圾回收策略再次从全扫描的垃圾回收切换回分代的垃圾回收并且保持直到上述的情况发生。</p>
+<p>在进程的生命周期里当垃圾回收策略从分代的垃圾回收再次切换到全扫描的垃圾回收的时候，这会有几种不同的情况。第一种情况是在一定数量的分代的垃圾回收发生后。这个一定的数量可以全局设置或者每个进程用<em>fullsweep_after</em>标志设置。每个进程的分代的垃圾回收次数统计和它切换到全扫描的垃圾回收前的分代的垃圾回收次数上限分别是进程的<em>minor_gcs</em>和<em>fullsweep_after</em>属性，同时这两个值可用<em>process_info(PID, garbage_collection)</em>的返回值来获得。第二种情况是分代的垃圾回收不能回收足够的内存的时候。最后一种情况是当<em>garbage_collection(PID)</em>函数被手工调用的时候。在这几种情况后，垃圾回收策略再次从全扫描的垃圾回收切换回分代的垃圾回收并且保持直到上述的情况发生。</p>
 <p><strong>场景4:</strong></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Spawn &gt; Fullsweep &gt; Generational &gt; Fullsweep &gt; Increase Heap &gt; Fullsweep &gt; ... &gt; Terminate</div></pre></td></tr></table></figure>
 <p>在场景3里，如果第二次全扫描垃圾回收不能回收足够的内存，那么堆被增大，而垃圾回收策略再切换回全扫描垃圾回收，像一个新创建的进程一样。所有这四种场景可以反复发生。</p>
@@ -386,7 +386,7 @@
 <p>共享堆很重要，因为它减少了进程间传递大二进制消息的IO开销。另外子二进制数据只是某个二进制数据的指针，所以它的创建是如此快速。但是按一般规律来说，为了更快而使用快捷方式是有代价的，代价就是要以某种方式好好设计你的系统不至于让你陷入到麻烦当中。另外针对引用计数二进制数据泄漏问题有一些著名的架构模式，这些在<a href="http://ferd.ca/" target="_blank" rel="external">Fred Hebert</a>的免费电子书 <a href="http://www.erlang-in-anger.com/" target="_blank" rel="external">Erlang in Anger</a> 里有详细的解释，我想我是没办法解释的比他更好。所以我强烈建议你读一下这本书。</p>
 <h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>即使我们现在正在使用的语言，它像Erlang这样自己管理内存，但是也不能阻止我们去理解它是如何分配和回收内存的。不像<a href="https://golang.org/ref/mem" target="_blank" rel="external">Go语言内存模型文档</a>所建议的：“如果你必须读本文档剩下部分来理解你自己程序的行为，你就是太聪明了。不过别自作聪明。”，我相信我们必须足够聪明才能够使我们的系统更快更安全，有时候它不会发生除非我们更深地钻研挖进去理解它的本质。</p>
 <h1 id="资源"><a href="#资源" class="headerlink" title="资源"></a>资源</h1><ul>
-<li><a href="http://www.erlang.org/faq/academic.html" target="_blank" rel="external">Erlang的学时和历史疑问</a></li>
+<li><a href="http://www.erlang.org/faq/academic.html" target="_blank" rel="external">Erlang的学术和历史问题</a></li>
 <li><a href="http://lampwww.epfl.ch/resources/lamp/teaching/advancedCompiler/2004/slides/ImplementationOfConcurrency_slides.pdf" target="_blank" rel="external">FPL和并发执行</a></li>
 <li><a href="http://user.it.uu.se/~jesperw/publications/Wilhelmsson_lic.pdf" target="_blank" rel="external">消息传递并发的有效内存管理</a></li>
 <li><a href="http://labouseur.com/courses/erlang/programming-parallel-with-erlang.pdf" target="_blank" rel="external">用Erlang编程并行世界</a></li>
