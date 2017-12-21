@@ -86,17 +86,17 @@
 
 
 
-<meta name="description" content="Erlang尝试解决的一个主要问题就是为实现高水平响应的软实时系统创建一个平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
+<meta name="description" content="Erlang试图解决的主要问题之一是创建一个具有高度响应能力的软实时系统的实现平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang垃圾回收细节及其重要性">
 <meta property="og:url" content="http://szpzs.oschina.io/2016/12/13/erlang-garbage-collection-details-and-why-it-matters/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="Erlang尝试解决的一个主要问题就是为实现高水平响应的软实时系统创建一个平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
+<meta property="og:description" content="Erlang试图解决的主要问题之一是创建一个具有高度响应能力的软实时系统的实现平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
 <meta property="og:image" content="http://szpzs.oschina.io/images/erlang-memory-layout.png">
-<meta property="og:updated_time" content="2017-12-20T05:52:47.000Z">
+<meta property="og:updated_time" content="2017-12-21T05:09:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang垃圾回收细节及其重要性">
-<meta name="twitter:description" content="Erlang尝试解决的一个主要问题就是为实现高水平响应的软实时系统创建一个平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
+<meta name="twitter:description" content="Erlang试图解决的主要问题之一是创建一个具有高度响应能力的软实时系统的实现平台。这样的系统需要快速的垃圾回收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的不可改变语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。">
 <meta name="twitter:image" content="http://szpzs.oschina.io/images/erlang-memory-layout.png">
 
 
@@ -354,7 +354,7 @@
       
 
       
-        <p>Erlang尝试解决的一个主要问题就是为实现高水平响应的<a href="https://en.wikipedia.org/wiki/Real-time_computing" target="_blank" rel="external">软实时系统</a>创建一个平台。这样的系统需要快速的<a href="https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29" target="_blank" rel="external">垃圾回</a>收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的<a href="https://en.wikipedia.org/wiki/Immutable_object" target="_blank" rel="external">不可改变</a>语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。</p>
+        <p>Erlang试图解决的主要问题之一是创建一个具有高度响应能力的<a href="https://en.wikipedia.org/wiki/Real-time_computing" target="_blank" rel="external">软实时系统</a>的实现平台。这样的系统需要快速的<a href="https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29" target="_blank" rel="external">垃圾回</a>收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的<a href="https://en.wikipedia.org/wiki/Immutable_object" target="_blank" rel="external">不可改变</a>语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。</p>
 <a id="more"></a>
 <h1 id="内存布局"><a href="#内存布局" class="headerlink" title="内存布局"></a>内存布局</h1><p>在我们深入垃圾回收之前，了解Erlang进程的内存布局是很有必要的。Erlang进程的内存布局可以分为三个主要部分：进程控制块，栈和堆。这和Unix的进程布局非常像。</p>
 <p><img src="/images/erlang-memory-layout.png" style="border:0;"></p>
