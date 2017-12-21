@@ -86,19 +86,19 @@
 
 
 
-<meta name="description" content="有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《Erlang垃圾回收细节以及它为何重要》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。">
+<meta name="description" content="有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《Erlang垃圾回收细节及其重要性》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Erlang调度器的细节及其重要性">
 <meta property="og:url" content="http://szpzs.oschina.io/2016/12/11/erlang-scheduler-details/index.html">
 <meta property="og:site_name" content="Time is all">
-<meta property="og:description" content="有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《Erlang垃圾回收细节以及它为何重要》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。">
+<meta property="og:description" content="有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《Erlang垃圾回收细节及其重要性》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。">
 <meta property="og:image" content="http://szpzs.oschina.io/images/scheduling-before-r11b.png">
 <meta property="og:image" content="http://szpzs.oschina.io/images/scheduling-in-r11b-and-r12b.png">
 <meta property="og:image" content="http://szpzs.oschina.io/images/scheduling-after-r13b.png">
-<meta property="og:updated_time" content="2017-12-20T05:59:01.000Z">
+<meta property="og:updated_time" content="2017-12-21T00:34:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang调度器的细节及其重要性">
-<meta name="twitter:description" content="有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《Erlang垃圾回收细节以及它为何重要》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。">
+<meta name="twitter:description" content="有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《Erlang垃圾回收细节及其重要性》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。">
 <meta name="twitter:image" content="http://szpzs.oschina.io/images/scheduling-before-r11b.png">
 
 
@@ -356,7 +356,7 @@
       
 
       
-        <p>有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《<a href="https://hamidreza-s.github.io/erlang%20garbage%20collection%20memory%20layout%20soft%20realtime/2015/08/24/erlang-garbage-collection-details-and-why-it-matters.html" target="_blank" rel="external">Erlang垃圾回收细节以及它为何重要</a>》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。</p>
+        <p>有一些基本的特性使得Erlang成为一个软实时平台。其中之一是它的垃圾回收机制，我已经在我上一篇文章《<a href="https://hamidreza-s.github.io/erlang%20garbage%20collection%20memory%20layout%20soft%20realtime/2015/08/24/erlang-garbage-collection-details-and-why-it-matters.html" target="_blank" rel="external">Erlang垃圾回收细节及其重要性</a>》里谈到了这点。另一个特性就是它的调度机制，这个特性值得我们好好研究一下。本文我将解释它的历史、现状，以及控制和监督API。</p>
 <a id="more"></a>
 <h1 id="什么是调度"><a href="#什么是调度" class="headerlink" title="什么是调度"></a>什么是调度</h1><p>通常来说，调度就是一种分派工作给工作者的机制。所谓的工作可能是一个算数运算、字符串处理或者数据抽取，而工作者是一些资源，比如像<a href="https://en.wikipedia.org/wiki/Green_threads" target="_blank" rel="external">Green Thread</a>这样虚拟的资源或者像<a href="https://en.wikipedia.org/wiki/Thread_%28computing%29" target="_blank" rel="external">Native Thread</a>这样的物理资源。调度器以一种方式执行调度活动，最大限度地提高吞吐量和公平性，最大限度地降低响应时间和延时。调度是像操作系统和虚拟机这样的多任务系统的重要组成部分，它被分为两种类型：</p>
 <ul>
