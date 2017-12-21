@@ -3561,7 +3561,7 @@
     <entry>
       <title><![CDATA[Erlang垃圾回收细节及其重要性]]></title>
       <url>http://szpzs.oschina.io/2016/12/13/erlang-garbage-collection-details-and-why-it-matters/</url>
-      <content type="html"><![CDATA[<p>Erlang试图解决的主要问题之一是创建一个具有高度响应能力的<a href="https://en.wikipedia.org/wiki/Real-time_computing" target="_blank" rel="external">软实时系统</a>的实现平台。这样的系统需要快速的<a href="https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29" target="_blank" rel="external">垃圾回</a>收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的<a href="https://en.wikipedia.org/wiki/Immutable_object" target="_blank" rel="external">不可改变</a>语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。</p>
+      <content type="html"><![CDATA[<p>Erlang试图解决的主要问题之一是创建一个可以实现具有高度响应能力的<a href="https://en.wikipedia.org/wiki/Real-time_computing" target="_blank" rel="external">软实时系统</a>的平台。这样的系统需要快速的<a href="https://en.wikipedia.org/wiki/Garbage_collection_%28computer_science%29" target="_blank" rel="external">垃圾回</a>收策略，这样就不会阻止系统以及时的方式进行响应。另外当我们认为Erlang是一门无破坏性修改特性的<a href="https://en.wikipedia.org/wiki/Immutable_object" target="_blank" rel="external">不可改变</a>语言的时候，垃圾回收变得更重要，因为这样的语言有更高产生垃圾的几率。</p>
 <a id="more"></a>
 <h1 id="内存布局"><a href="#内存布局" class="headerlink" title="内存布局"></a>内存布局</h1><p>在我们深入垃圾回收之前，了解Erlang进程的内存布局是很有必要的。Erlang进程的内存布局可以分为三个主要部分：进程控制块，栈和堆。这和Unix的进程布局非常像。</p>
 <p><img src="/images/erlang-memory-layout.png" style="border:0;"></p>
