@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-11-22T08:54:09.000Z</updated>
+  <updated>2017-12-22T06:33:20.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,48 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>简说MQTT--第三部分：会话、服务质量和保留消息</title>
+    <link href="http://szpzs.oschina.io/2017/12/22/mqtt-in-a-nutshell-3/"/>
+    <id>http://szpzs.oschina.io/2017/12/22/mqtt-in-a-nutshell-3/</id>
+    <published>2017-12-22T06:28:00.000Z</published>
+    <updated>2017-12-22T06:33:20.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>有时候，我们希望MQTT代理会在客户端断开连接时存储客户端的订阅和队列消息，并在客户端稍后重新联机的时候将这些消息传递给它。在MQTT的世界中，存在保留消息，QoS级别和清除会话等技术，这些都对客户端存储消息有所影响。 我们将在这篇短文中讨论它们。</p>
+<a id="more"></a>
+<h1 id="清除会话"><a href="#清除会话" class="headerlink" title="清除会话"></a>清除会话</h1><p>您可以选择通过指定CONNECT数据包中的“clean_session”标志来告诉代理是否应该在连接时为您存储会话信息。</p>
+<p>如果一条客户端链接仅仅是发布消息，它不会关心代理是否记得它。但是，如果客户端连接到代理是为了订阅消息，则通过将CONNECT数据包中的“clean_session”位设置为0来使连接“持久化”，这样是便利的或必要的。如果这么设置的话，这个客户端的订阅信息和未传送给它的消息将被代理存储下来。</p>
+<p>要将clean_session设置为false，必须使用客户端ID。</p>
+<p>当处于连接状态的时候，想修改“clean_session”设置是不可能的。要想修改它，你需要用新的设置来重连代理。</p>
+<h1 id="服务质量"><a href="#服务质量" class="headerlink" title="服务质量"></a>服务质量</h1><p>不是所有“持久化”的连接上的消息都将被存储。QoS级别也会对其产生影响。</p>
+<p>MQTT协议只保证具有QoS 1或QoS 2级别的消息确实传送给订阅者。对于那些QoS 0级别的消息，MQTT尝试发送它们一次，但是不保证一定送达。遵循这个原则，当用户断开连接时，即使这个连接是“持久化”的，也只有QoS 1和QoS 2级别的消息被存储。</p>
+<p>值得注意的是，MQTT并不使用端到端的QoS，这意味着这些消息只有在用QoS != 0 发布并且用QoS != 0 订阅的情况下才被存储。</p>
+<h1 id="保留消息"><a href="#保留消息" class="headerlink" title="保留消息"></a>保留消息</h1><p>如果您发布的MQTT消息的’retain’位设置为1，则它可以被保留在代理上，当订阅者连接到代理后，保留的消息会传递给它。</p>
+<p>这是一个有用的特性，只有“保留”这个词有时令人困惑。它不保留相同主题的所有消息。 对于每个主题，只保留上次发布的消息，而较早的消息则由其后续消息替换掉。此外，’retain’标志设置为0的消息不会替换相同主题的保留消息，只有保留的消息替换保留的消息。</p>
+<p>一个使用保留消息的场景：</p>
+<p>一个传感器测量一个房间的温度并且每个小时将数据更新到系统中。如果温度数据用保留消息的方式发布到系统中，则无论什么时候，客户端连接到代理的时候只收到一份有用的数据，它不需要等待它不需要等待一段很长时间来等待新的数据发布，并且它也不会遭受大量无用而且过期数据的冲击。</p>
+<blockquote>
+<p>注意：保留的消息不属于任何会话。不管“clean_session”标志如何设置，保留消息都被保留。此外，它在会话结束时也被保留。</p>
+</blockquote>
+<p>&nbsp;</p>
+<blockquote>
+<p>*原文链接<a href="https://medium.com/@emqtt/mqtt-in-a-nutshell-2040b244aa4b" target="_blank" rel="external">https://medium.com/@emqtt/mqtt-in-a-nutshell-2040b244aa4b</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;有时候，我们希望MQTT代理会在客户端断开连接时存储客户端的订阅和队列消息，并在客户端稍后重新联机的时候将这些消息传递给它。在MQTT的世界中，存在保留消息，QoS级别和清除会话等技术，这些都对客户端存储消息有所影响。 我们将在这篇短文中讨论它们。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="MQTT" scheme="http://szpzs.oschina.io/categories/MQTT/"/>
+    
+    
+      <category term="MQTT" scheme="http://szpzs.oschina.io/tags/MQTT/"/>
+    
+  </entry>
   
   <entry>
     <title>关于变量绑定的棘手问题</title>
@@ -1846,99 +1888,6 @@
       <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
     
       <category term="GenServer" scheme="http://szpzs.oschina.io/tags/GenServer/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Mix 和 OTP－Agent</title>
-    <link href="http://szpzs.oschina.io/2017/02/17/elixir-getting-started-mix-otp-agent/"/>
-    <id>http://szpzs.oschina.io/2017/02/17/elixir-getting-started-mix-otp-agent/</id>
-    <published>2017-02-17T12:54:47.000Z</published>
-    <updated>2017-02-20T05:50:45.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">状态的麻烦</a></li>
-<li><a href="#part-two">Agents</a></li>
-<li><a href="#part-three">用ExUnit回调函数设置测试</a></li>
-<li><a href="#part-four">其他Agent动作</a></li>
-<li><a href="#part-five">Agent的Client/Server</a></li>
-</ol>
-<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">第一章</a>，或者查看本教程的章节索引。</p>
-<p>在本章，我们将创建一个名为 KV.Bucket 的模块。这个模块将以某种方式存储我们的键值对实体，并允许其他进程读取和修改它们。</p>
-<p>如果你跳过了入门教程或已经读过了很长时间，你应该重新读一下<a href="http://elixir-lang.org/getting-started/processes.html" target="_blank" rel="external">进程</a>这一章。我们将用它作为起始点。</p>
-<a id="more"></a>
-<h1 id="状态的麻烦"><a href="#状态的麻烦" class="headerlink" title="状态的麻烦"></a><span id="part-one">状态的麻烦</span></h1><p>Elixir是一门不可修改的语言，也就是说默认情况下是没有任何东西是共享的。如果我们想要提供状态，在状态里我们创建“桶”，从其他地方可以放置和读取“桶”里的数据，我们在Elixir有两种主要的选择：</p>
-<ul>
-<li>进程</li>
-<li><a href="http://www.erlang.org/doc/man/ets.html" target="_blank" rel="external">ETS（Erlang Term Storage）</a></li>
-</ul>
-<p>我们已经谈论过进程，而ETS是个新事物，我们将在本教程的后面讨论它。当需要使用进程的时候，我们几乎没有自己亲自处理它的，反而是使用Elixir和OTP里可用的进程抽象：</p>
-<ul>
-<li><a href="https://hexdocs.pm/elixir/Agent.html" target="_blank" rel="external">Agent</a> - 对状态的简单封装</li>
-<li><a href="https://hexdocs.pm/elixir/GenServer.html" target="_blank" rel="external">GenServer</a> - “通用服务器”（进程），它封装状态，提供同步和异步调用，支持代码重载等等。</li>
-<li><a href="https://hexdocs.pm/elixir/GenEvent.html" target="_blank" rel="external">GenEvent</a> - “通用事件”管理器，它允许发布事件给多个处理者。</li>
-<li><a href="https://hexdocs.pm/elixir/Task.html" target="_blank" rel="external">Task</a> - 计算的异步单元，它允许创建一个进程并且在稍后获取它的结果。</li>
-</ul>
-<p>我们将在本教程里探讨这些抽象中的大多数。我们要记住：它们都是基于进程之上的实现，使用了Erlang虚拟机提供的基本特性，比如：send、receive、spawn和link。</p>
-<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a><span id="part-two">Agents</span></h1><p><a href="https://hexdocs.pm/elixir/Agent.html" target="_blank" rel="external">Agent</a>是状态的简单封装。如果你想要从一个进程的所有所得是保持状态，那么agent非常合适。让我们在项目里启动一个iex会话：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ iex -S mix</div></pre></td></tr></table></figure>
-<p>并且玩一下agent：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, agent&#125; = Agent.start_link <span class="keyword">fn</span> -&gt; [] <span class="keyword">end</span></div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.57.0&gt;&#125;</span></div><div class="line">iex&gt; Agent.update(agent, <span class="keyword">fn</span> list -&gt; [<span class="string">"eggs"</span> | list] <span class="keyword">end</span>)</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; Agent.get(agent, <span class="keyword">fn</span> list -&gt; list <span class="keyword">end</span>)</div><div class="line">[<span class="string">"eggs"</span>]</div><div class="line">iex&gt; Agent.stop(agent)</div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
-<p>我们用一个空列表作为初识状态来启动一个agent。我们修改agent的状态，增加我们新的元素到列表头部。<a href="https://hexdocs.pm/elixir/Agent.html#update/3" target="_blank" rel="external">Agent.update/3</a> 的第二个入参是一个函数，这个函数将agent的当前状态作为输入并返回它期望的新状态。最后，我们获取整个列表。<a href="https://hexdocs.pm/elixir/Agent.html#get/3" target="_blank" rel="external">Agent.get/3</a> 的第二个入参是一个函数，这个函数把状态当做输入，然后返回 <a href="https://hexdocs.pm/elixir/Agent.html#get/3" target="_blank" rel="external">Agent.get/3</a> 将返回的值。一旦我们用完agent，我们可以调用 <a href="Agent.stop/3">Agent.stop/3</a> 来终止agent进程。</p>
-<p>让我们用agent来实现我们的 KV.Bucket 。不过在开始实现之前，让我们首先写一些测试用例。创建一个文件 test/kv/bucket_test.exs （记住后缀是 .exs），内容如下：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span>.BucketTest <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> ExUnit.Case, <span class="symbol">async:</span> <span class="keyword">true</span></div><div class="line"></div><div class="line">  test <span class="string">"stores values by key"</span> <span class="keyword">do</span></div><div class="line">    &#123;<span class="symbol">:ok</span>, bucket&#125; = KV.Bucket.start_link</div><div class="line">    assert KV.Bucket.get(bucket, <span class="string">"milk"</span>) == <span class="keyword">nil</span></div><div class="line"></div><div class="line">    KV.Bucket.put(bucket, <span class="string">"milk"</span>, <span class="number">3</span>)</div><div class="line">    assert KV.Bucket.get(bucket, <span class="string">"milk"</span>) == <span class="number">3</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>我们第一个测试用例启动一个新的 KV.Bucket 并且在其上执行一些 get/2 和 put/3 操作，断言结果。我们不需要明确地停止agent因为它被链接到测试进程，一旦测试结束agent自动地结束。这将一直有效除非这个进程被命名。</p>
-<p>也请注意：async: true 选项被传给 ExUnit.Case 。这个选项通过使用我们机器的多核使得这个测试用例和其他 :async 测试用例平行地运行。这对加速我们的测试套件非常有用。但是， :async 必需在不依赖或修改任何全局值的情况下才能被设置。例如，如果测试需要写文件系统、注册进程或访问数据库，那么就保持它为同步的（删除 :async 选项）以避免测试之间的竞争条件。</p>
-<p>不管异步与否，我们新的测试将明显会失败，因为被测试的模块里任何一个功能都没有实现。</p>
-<p>为了修复失败的测试，让我们创建一个文件： lib/kv/bucket.ex ，它的内容如下所示。在看下面内容前，你自己尝试一下用agent实现 KV.Bucket 模块。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span>.Bucket <span class="keyword">do</span></div><div class="line">  <span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">  Starts a new bucket.</div><div class="line">  "<span class="string">""</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start_link</span></span> <span class="keyword">do</span></div><div class="line">    Agent.start_link(<span class="keyword">fn</span> -&gt; %&#123;&#125; <span class="keyword">end</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">  Gets a value from the `bucket` by `key`.</div><div class="line">  "<span class="string">""</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">get</span></span>(bucket, key) <span class="keyword">do</span></div><div class="line">    Agent.get(bucket, &amp;Map.get(&amp;<span class="number">1</span>, key))</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">  Puts the `value` for the given `key` in the `bucket`.</div><div class="line">  "<span class="string">""</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">put</span></span>(bucket, key, value) <span class="keyword">do</span></div><div class="line">    Agent.update(bucket, &amp;Map.put(&amp;<span class="number">1</span>, key, value))</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>我们用一个映射来保存我们的键和值。捕获运算符，&amp; ，在<a href="http://elixir-lang.org/getting-started/modules-and-functions.html#function-capturing" target="_blank" rel="external">入门教程</a>里有介绍。</p>
-<p>现在 KV.Bucket 模块已经被定义，我们的测试应该pass！你可以运行 mix test 来尝试一下。</p>
-<h1 id="用ExUnit回调函数设置测试"><a href="#用ExUnit回调函数设置测试" class="headerlink" title="用ExUnit回调函数设置测试"></a><span id="part-three">用ExUnit回调函数设置测试</span></h1><p>在继续往 KV.Bucket 添加更多功能之前，我们来讨论一下 ExUnit 的回调函数。正如你所期望的，所有KV.Bucket的测试用例在设置和测试后停止期间将需要一个启动的bucket。幸运的是，ExUnit支持回调函数来允许我们来跳过这样的重复任务。</p>
-<p>让我们用回调函数来重新写测试用例：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span>.BucketTest <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> ExUnit.Case, <span class="symbol">async:</span> <span class="keyword">true</span></div><div class="line"></div><div class="line">  setup <span class="keyword">do</span></div><div class="line">    &#123;<span class="symbol">:ok</span>, bucket&#125; = KV.Bucket.start_link</div><div class="line">    &#123;<span class="symbol">:ok</span>, <span class="symbol">bucket:</span> bucket&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  test <span class="string">"stores values by key"</span>, %&#123;<span class="symbol">bucket:</span> bucket&#125; <span class="keyword">do</span></div><div class="line">    assert KV.Bucket.get(bucket, <span class="string">"milk"</span>) == <span class="keyword">nil</span></div><div class="line"></div><div class="line">    KV.Bucket.put(bucket, <span class="string">"milk"</span>, <span class="number">3</span>)</div><div class="line">    assert KV.Bucket.get(bucket, <span class="string">"milk"</span>) == <span class="number">3</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>我们首先在 setup/1 宏的帮助下定义了一个设置回调。在每次测试之前，在与测试本身相同的过程中运行setup/1 回调。</p>
-<p>注意我们需要一种机制从回调传递 bucket 的pid给测试用例。我们使用测试上下文来做这种机制。当我们从回调返回 {:ok, bucket: bucket} ，ExUnit将元组的第二个元素（一个字典）合并到测试上下文。测试上下文是一个映射，我们可以在测试定义匹配它，在代码块里访问这些值：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">test <span class="string">"stores values by key"</span>, %&#123;<span class="symbol">bucket:</span> bucket&#125; <span class="keyword">do</span></div><div class="line">  <span class="comment"># `bucket` 正是从setup传递过来的bucket</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>你可以在<a href="https://hexdocs.pm/ex_unit/ExUnit.Case.html" target="_blank" rel="external">ExUnit.Case模块文档</a>里读到更多关于ExUnit用例的内容，在<a href="https://hexdocs.pm/ex_unit/ExUnit.Callbacks.html" target="_blank" rel="external">ExUnit.Callbacks文档</a>里读到更多回调的内容。</p>
-<h1 id="其他Agent动作"><a href="#其他Agent动作" class="headerlink" title="其他Agent动作"></a><span id="part-four">其他Agent动作</span></h1><p>除了获取一个值和修改agent状态，agent允许我们通过 Agent.get_and_update/2 在一个函数调用里获取一个值并且修改agent状态。让我们实现KV.Bucket.delete/2函数，它从bucket删除一个键并返回它的当前值：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">Deletes `key` from `bucket`.</div><div class="line"></div><div class="line">Returns the current value of `key`, if `key` exists.</div><div class="line">"<span class="string">""</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span></span>(bucket, key) <span class="keyword">do</span></div><div class="line">  Agent.get_and_update(bucket, &amp;Map.pop(&amp;<span class="number">1</span>, key))</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>现在轮到你写一个上面代码的测试用例！另外，要阅读一下<a href="https://hexdocs.pm/elixir/Agent.html" target="_blank" rel="external">Agent模块的文档</a>学习更多内容。</p>
-<h1 id="Agent的Client-Server"><a href="#Agent的Client-Server" class="headerlink" title="Agent的Client/Server"></a><span id="part-five">Agent的Client/Server</span></h1><p>在我们转到下一章内容前，让我们讨论一下agent里的客户端/服务端的概念。让我们展开我们刚刚实现的delete/2函数：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span></span>(bucket, key) <span class="keyword">do</span></div><div class="line">  Agent.get_and_update(bucket, <span class="keyword">fn</span> dict-&gt;</div><div class="line">    Map.pop(dict, key)</div><div class="line">  <span class="keyword">end</span>)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>在函数内我们传递给agent的所有内容都发生在agent进程中。在这个场景里，因为agent进程是接收和相应我们消息的，那么我们说agent进程是服务器。函数外不的所有事情发生在客户端。</p>
-<p>这个区分很重要。如果有耗时的动作要做，你必须要考虑是在服务端还是在客户端执行这些操作更好。例如：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span></span>(bucket, key) <span class="keyword">do</span></div><div class="line">  Process.sleep(<span class="number">1000</span>) <span class="comment"># puts client to sleep</span></div><div class="line">  Agent.get_and_update(bucket, <span class="keyword">fn</span> dict -&gt;</div><div class="line">    Process.sleep(<span class="number">1000</span>) <span class="comment"># puts server to sleep</span></div><div class="line">    Map.pop(dict, key)</div><div class="line">  <span class="keyword">end</span>)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>当一个长时间的动作在服务器上执行，则所有对这个特定服务器的其他请求将一直等待到这个动作完成才能得到处理，这可能导致一些客户端超时。</p>
-<p>在下一章，我们将探讨GenServers，它的客户机和服务器之间的隔离变得更加明显。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/mix-otp/agent.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/mix-otp/agent.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;状态的麻烦&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;Agents&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;用ExUnit回调函数设置测试&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;其他Agent动作&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;Agent的Client/Server&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;本章是&lt;a href=&quot;http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html&quot;&gt;Mix和OTP教程&lt;/a&gt;的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的&lt;a href=&quot;http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html&quot;&gt;第一章&lt;/a&gt;，或者查看本教程的章节索引。&lt;/p&gt;
-&lt;p&gt;在本章，我们将创建一个名为 KV.Bucket 的模块。这个模块将以某种方式存储我们的键值对实体，并允许其他进程读取和修改它们。&lt;/p&gt;
-&lt;p&gt;如果你跳过了入门教程或已经读过了很长时间，你应该重新读一下&lt;a href=&quot;http://elixir-lang.org/getting-started/processes.html&quot;&gt;进程&lt;/a&gt;这一章。我们将用它作为起始点。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-      <category term="Agent" scheme="http://szpzs.oschina.io/categories/Elixir/Agent/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-      <category term="Agent" scheme="http://szpzs.oschina.io/tags/Agent/"/>
     
   </entry>
   

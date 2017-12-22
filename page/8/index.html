@@ -283,6 +283,138 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/22/erlang-and-elixir-distribution-without-epmd/" itemprop="url">
+                  Erlang(和Elixir)无epmd之分布式
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-22T10:50:54+08:00" content="2016-11-22">
+              2016-11-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/distribution/" itemprop="url" rel="index">
+                    <span itemprop="name">distribution</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>当你部署一个分布式Erlang应用的时候，你最可能必须要回答的问题是：“哪些端口需要在防火墙里打开？”。除非进行配置，否则答案就是：</p>
+<ul>
+<li>epmd（Erlang端口映射守护进程）端口4369，</li>
+<li>Erlang节点自己的端口，一个不可预知的大数字端口。</li>
+</ul>
+<p>这个答案通常都不能简单地应用到防火墙的规则。通常的解决方法是用环境变量 inet_dist_listen_min 和 inet_dist_listen_max （官方的<a href="http://erlang.org/doc/man/kernel_app.html">kernel文档</a>里有描述）来限制分布式端口在一个小范围或者甚至是一个单独的端口。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/11/22/erlang-and-elixir-distribution-without-epmd/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/09/28/erlang-quick-install/" itemprop="url">
                   Erlang快速安装
                 </a>
@@ -1451,146 +1583,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/20/erlang-thursday-more-ets-data-matching-and-querying/" itemprop="url">
-                  Erlang Thursday – 更多的ETS数据匹配和查询
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-20T21:54:22+08:00" content="2016-09-20">
-              2016-09-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/ETS/" itemprop="url" rel="index">
-                    <span itemprop="name">ETS</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/ETS/match/" itemprop="url" rel="index">
-                    <span itemprop="name">match</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>今天的Erlang Thursday我们继续上周开始的从ETS获取数据研究。</p>
-<p>我们已经有一个模块 markov_words ，本周我们将添加一个函数 markov_words:create_word_triples/1 。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/20/erlang-thursday-more-ets-data-matching-and-querying/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1636,7 +1628,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">143</span>
+              <span class="site-state-item-count">144</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
