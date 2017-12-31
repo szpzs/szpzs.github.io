@@ -4,6 +4,14 @@
   
     
     <entry>
+      <title><![CDATA[勉励自己]]></title>
+      <url>http://szpzs.oschina.io/2017/12/31/2018-encourage-myself/</url>
+      <content type="html"><![CDATA[<p><img src="/images/encourage-myself.jpg" style="border:0;"></p>
+<h1 align="center">世界上任何书籍都不能带给你好运，</h1><br><h1 align="center">但是它们能让你悄悄成为你自己。</h1><br><h1 align="center">我继续和时间做朋友。</h1>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[简说MQTT--第三部分：会话、服务质量和保留消息]]></title>
       <url>http://szpzs.oschina.io/2017/12/22/mqtt-in-a-nutshell-3/</url>
       <content type="html"><![CDATA[<p>有时候，我们希望MQTT代理会在客户端断开连接时存储客户端的订阅和队列消息，并在客户端稍后重新联机的时候将这些消息传递给它。在MQTT的世界中，存在保留消息，QoS级别和清除会话等技术，这些都对客户端存储消息有所影响。 我们将在这篇短文中讨论它们。</p>

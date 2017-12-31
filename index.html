@@ -283,6 +283,101 @@
             
               
                 
+                <a class="post-title-link" href="/2017/12/31/2018-encourage-myself/" itemprop="url">
+                  勉励自己
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-12-31T17:37:52+08:00" content="2017-12-31">
+              2017-12-31
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="/images/encourage-myself.jpg" style="border:0;"></p>
+<h1 align="center">世界上任何书籍都不能带给你好运，</h1><br><h1 align="center">但是它们能让你悄悄成为你自己。</h1><br><h1 align="center">我继续和时间做朋友。</h1>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/12/22/mqtt-in-a-nutshell-3/" itemprop="url">
                   简说MQTT--第三部分：会话、服务质量和保留消息
                 </a>
@@ -1383,146 +1478,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/03/10/reducing-maximum-latency/" itemprop="url">
-                  减少固定大小缓冲区的最大延迟
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-10T11:10:28+08:00" content="2017-03-10">
-              2017-03-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/" itemprop="url" rel="index">
-                    <span itemprop="name">Elixir</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/GC/" itemprop="url" rel="index">
-                    <span itemprop="name">GC</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/GC/maximum-latency/" itemprop="url" rel="index">
-                    <span itemprop="name">maximum latency</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>最近我在<a href="https://pusher.com/">Pusher</a>的博客读到两篇很棒的文章：<a href="https://blog.pusher.com/latency-working-set-ghc-gc-pick-two/">低延迟、大的工作集和GHC的垃圾收集器：三选二</a> 和 <a href="https://blog.pusher.com/golangs-real-time-gc-in-theory-and-practice/">Golang的实时GC的理论与实践</a> 。这两篇文章讲的是Pusher的工程师如何重新实现他们的消息总线的故事。第一篇是发生在Haskell里。在性能测试期间，他们发现在99%那个范围内有一些高延迟。在他们分析代码后，他们能够证明这些延时的尖峰是由GHC的 stop-the-world 垃圾收集器，再加上一个大的工作集（内存中的对象的数目）所造成的。该开发团队随后尝试了GO，得到好得多的结果，这得益于GO的并发垃圾收集器。</p>
-<p>我强烈推荐这两篇文章。Pusher的测试是一个很棒的基准测试例子，因为它专注于解决一个真正的挑战，并且基于该项技术是否合适本工作来评估此技术。这是我喜欢的那种评估方式。我发现做一个简单的关键功能的实现非常有用，然后看看它在所需的负荷下的表现，而不是通过一些浅层的模拟基准测试来比较不同的技术，例如在环里传递令牌，或让一个Web服务器返回“200 OK”。这个方法应该能提供“我能用Y有效地解决X吗？”问题的答案。当我第一次评估Erlang的时候，我采用的就是这种方法。10 倍的预期负载模拟真实系统的12个小时测试让我相信这项技术比我所需要的绰绰有余。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/10/reducing-maximum-latency/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1568,7 +1523,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">144</span>
+              <span class="site-state-item-count">145</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1585,7 +1540,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">202</span>
+                <span class="site-state-item-count">204</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
