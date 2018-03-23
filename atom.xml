@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2017-12-31T09:43:39.000Z</updated>
+  <updated>2018-03-23T08:16:45.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,108 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Erlang的调度器如何绑定到CPU</title>
+    <link href="http://szpzs.oschina.io/2018/03/23/erlang-scheduler-binding-cpu/"/>
+    <id>http://szpzs.oschina.io/2018/03/23/erlang-scheduler-binding-cpu/</id>
+    <published>2018-03-23T05:37:31.000Z</published>
+    <updated>2018-03-23T08:16:45.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="调度器绑定CPU"><a href="#调度器绑定CPU" class="headerlink" title="调度器绑定CPU"></a>调度器绑定CPU</h2><p>在启动Erlang虚拟机的时候可以通过参数来设置它的调度器以什么方式绑定CPU。这个参数是 +sbt，也可以用另一个参数 +stbt。它们的使用方法是：</p>
+<p>+sbt 绑定类型</p>
+<p>例如：</p>
+<p>erl +sbt db</p>
+<p>这两个参数的差异表现在对如下错误的处理方式上：</p>
+<ul>
+<li>某些不支持绑定CPU功能的平台上尝试绑定调度器到CPU</li>
+<li>没有可用的CPU拓扑。运行时系统无法自动侦测到CPU拓扑，并且我们也没有设置自定义的CPU拓扑。</li>
+</ul>
+<p>当发生上述两种情况的时候，如果使用的是 +sbt 参数，则运行时系统会打印错误消息并拒绝启动；而如果使用的是 +stbt 参数，则运行时系统会忽略错误，并且用调度器不绑定CPU的方式启动。</p>
+<a id="more"></a>
+<p>当前有效的绑定类型如下：<br>u、ns、ts、ps、s、nnts、nnps、tnnps、db。</p>
+<p>下面对上述有效类型进行说明。我的机器CPU信息如下：</p>
+<p>有两个NUMA节点，每个节点有一个物理处理器，两个物理处理器为：p1和p2，每个物理处理器有4个核，每个核有两个线程。p1上的线程标识符为：第一个核{0,8}，第二个核{1,9}，第三个核{2,10}，第四个核{3,11}；p2上的线程标识符为：第一个核{4,12}，第二个核{5,13}，第三个核{6,14}，第四个核{7,15}。</p>
+<p>u：是 unbound 的首字母。调度器不绑定在某个CPU线程上，而是由操作系统决定调度器在那个CPU线程上执行以及什么时候迁移到别的cpu线程上。这是Erlang虚拟机的默认行为。</p>
+<p>ns：代表 no_spread。标识符相近的调度器尽可能地绑定在相近的CPU线程上。调度器绑定到cpu线程的顺序是：{0,8,1,9,2,10,3,11,4,12,5,13,6,14,7,15}。</p>
+<p>ts：代表 thread_spread。低标识符的调度器先绑定所有CPU核的第一个线程，然后再绑定所有CPU核的第二个线程，以此类推。调度器绑定到cpu线程的顺序是：{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}。</p>
+<p>ps：代表 processor_spread。和ts方式一样，只是会跨物理处理器核间隔地绑定。调度器绑定到cpu线程的顺序是：{0,4,1,5,2,6,3,7,8,12,9,13,10,14,11,15}。</p>
+<p>s：代表 spread。调度器尽可能地绑定到cpu线程上。与ns方式相似。调度器绑定到cpu线程的顺序是：{0,8,1,9,2,10,3,11,4,12,5,13,6,14,7,15}。</p>
+<p>nnts：代表 no_node_thread_spread。与thread_spread方式相似。但是，如果有多个NUMA节点存在，则调度器会先把一个NUMA节点内的cpu线程全部绑定完，然后再去绑定下一个NUMA节点内的cpu线程。调度器绑定到cpu线程的顺序是：{0,1,2,3,8,9,10,11,4,5,6,7,12,13,14,15}。</p>
+<p>nnps：代表 no_node_processor_spread。与processor_spread方式相似。但是，如果有多个NUMA节点存在，则调度器会先把一个NUMA节点内的cpu线程全部绑定完，然后再去绑定下一个NUMA节点内的cpu线程。调度器绑定到cpu线程的顺序是：{0,1,2,3,8,9,10,11,4,5,6,7,12,13,14,15}。</p>
+<p>tnnps：代表 thread_no_node_processor_spread。是thread_spread和no_node_processor_spread方式的组合。调度器将在NUMA节点间顺序绑定cpu线程，但是会先在一个NUMA节点内的cpu核的同类线程都绑定完了再到下一个NUMA节点。调度器绑定到cpu线程的顺序是：{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}。</p>
+<p>db：代表 default_bind。是调度器绑定cpu的默认方式。目前就是thread_no_node_processor_spread方式。将来可能会改变为别的方式。调度器绑定到cpu线程的顺序是：{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}。</p>
+<h2 id="自定义CPU拓扑"><a href="#自定义CPU拓扑" class="headerlink" title="自定义CPU拓扑"></a>自定义CPU拓扑</h2><p>自定义CPU拓扑会覆盖任何自动监测到的CPU拓扑。将调度器绑定到逻辑处理器时会使用自定义的CPU拓扑。</p>
+<p>自定义CPU拓扑的格式定义：</p>
+<ul>
+<li>&lt;Id&gt; = integer(); when 0 =&lt; &lt;Id&gt; =&lt; 65535</li>
+<li>&lt;IdRange&gt; = &lt;Id&gt;-&lt;Id&gt;</li>
+<li>&lt;IdOrIdRange&gt; = &lt;Id&gt; | &lt;IdRange&gt;</li>
+<li>&lt;IdList&gt; = &lt;IdOrIdRange&gt;,&lt;IdOrIdRange&gt; | &lt;IdOrIdRange&gt;</li>
+<li>&lt;LogicalIds&gt; = L&lt;IdList&gt;</li>
+<li>&lt;ThreadIds&gt; = T&lt;IdList&gt; | t&lt;IdList&gt;</li>
+<li>&lt;CoreIds&gt; = C&lt;IdList&gt; | c&lt;IdList&gt;</li>
+<li>&lt;ProcessorIds&gt; = P&lt;IdList&gt; | p&lt;IdList&gt;</li>
+<li>&lt;NodeIds&gt; = N&lt;IdList&gt; | n&lt;IdList&gt;</li>
+<li>&lt;IdDefs&gt; = &lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;ProcessorIds&gt;&lt;NodeIds&gt; | &lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;NodeIds&gt;&lt;ProcessorIds&gt;<ul>
+<li>&lt;LogicalIds&gt;必须是一个标识符列表。</li>
+<li>除&lt;LogicalIds&gt;之外至少还有一个其他的标识符类型也必须有一个标识符列表。</li>
+<li>所有标识符列表必须产生相同数量的标识符。</li>
+</ul>
+</li>
+<li>CpuTopology = &lt;IdDefs&gt;:&lt;IdDefs&gt; | &lt;IdDefs&gt;</li>
+<li>&lt;IdRange&gt;可以递增也可以递减</li>
+</ul>
+<p>大写字母表示真实标识符，小写字母表示仅用于描述拓扑的伪标识符。作为实际标识符传递的标识符可能被运行时系统用于访问特定硬件，如果它们不正确，行为是未定义的。由于在没有真实的逻辑CPU标识符的情况下定义CPU拓扑没有意义，所以不接受假的逻辑CPU标识符。线程，核心，处理器和节点标识符可以省略。如果省略，线程ID默认为t0，核心ID默认为c0，处理器ID默认为p0，节点ID将为未定义。每个逻辑处理器必须属于一个且只有一个NUMA节点，或者没有逻辑处理器必须属于任何NUMA节点。NUMA节点标识符是系统范围的。 也就是说，系统上的每个NUMA节点都必须具有唯一的标识符。处理器标识符也是系统范围的。 核心标识符是处理器范围的。 线程标识符是核心范围。标识符类型的顺序意味着CPU拓扑的层次结构。</p>
+<p>标识符类型的顺序：</p>
+<ul>
+<li>&lt;LogicalId&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;ProcessorIds&gt;&lt;NodeIds&gt;</li>
+<li>&lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;NodeIds&gt;&lt;ProcessorIds&gt;</li>
+</ul>
+<p>只要每个逻辑处理器属于一个且只有一个NUMA节点，则CPU拓扑可由NUMA节点外部处理器和NUMA节点内部处理器一起组成。</p>
+<h2 id="linux-的CPU信息查询和NUMA工具"><a href="#linux-的CPU信息查询和NUMA工具" class="headerlink" title="linux 的CPU信息查询和NUMA工具"></a>linux 的CPU信息查询和NUMA工具</h2><ul>
+<li>lscpu<ul>
+<li>显示CPU架构信息</li>
+</ul>
+</li>
+<li>mpstat -P ALL<ul>
+<li>显示各个CPU负载情况</li>
+</ul>
+</li>
+<li>numactl –hardware<ul>
+<li>显示各个NUMA节点的内存以及distance情况</li>
+</ul>
+</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;调度器绑定CPU&quot;&gt;&lt;a href=&quot;#调度器绑定CPU&quot; class=&quot;headerlink&quot; title=&quot;调度器绑定CPU&quot;&gt;&lt;/a&gt;调度器绑定CPU&lt;/h2&gt;&lt;p&gt;在启动Erlang虚拟机的时候可以通过参数来设置它的调度器以什么方式绑定CPU。这个参数是 +sbt，也可以用另一个参数 +stbt。它们的使用方法是：&lt;/p&gt;
+&lt;p&gt;+sbt 绑定类型&lt;/p&gt;
+&lt;p&gt;例如：&lt;/p&gt;
+&lt;p&gt;erl +sbt db&lt;/p&gt;
+&lt;p&gt;这两个参数的差异表现在对如下错误的处理方式上：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;某些不支持绑定CPU功能的平台上尝试绑定调度器到CPU&lt;/li&gt;
+&lt;li&gt;没有可用的CPU拓扑。运行时系统无法自动侦测到CPU拓扑，并且我们也没有设置自定义的CPU拓扑。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;当发生上述两种情况的时候，如果使用的是 +sbt 参数，则运行时系统会打印错误消息并拒绝启动；而如果使用的是 +stbt 参数，则运行时系统会忽略错误，并且用调度器不绑定CPU的方式启动。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
+    
+      <category term="scheduler" scheme="http://szpzs.oschina.io/categories/Erlang/scheduler/"/>
+    
+    
+      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
+    
+      <category term="sbt" scheme="http://szpzs.oschina.io/tags/sbt/"/>
+    
+      <category term="cpu" scheme="http://szpzs.oschina.io/tags/cpu/"/>
+    
+  </entry>
   
   <entry>
     <title>勉励自己</title>
@@ -1645,169 +1747,6 @@
       <category term="ETS" scheme="http://szpzs.oschina.io/tags/ETS/"/>
     
       <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Mix 和 OTP－监督者和应用</title>
-    <link href="http://szpzs.oschina.io/2017/02/19/elixir-getting-started-mix-otp-supervisor-and-application/"/>
-    <id>http://szpzs.oschina.io/2017/02/19/elixir-getting-started-mix-otp-supervisor-and-application/</id>
-    <published>2017-02-19T11:02:53.000Z</published>
-    <updated>2017-02-20T05:50:15.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">我们第一个监督者</a></li>
-<li><a href="#part-two">理解应用</a><br> 2.1. <a href="#part-two-one">启动应用</a><br> 2.2. <a href="#part-two-two">应用的回调函数</a><br> 2.3. <a href="#part-two-three">项目或者应用？</a></li>
-<li><a href="#part-three">简单的一对一监督者</a></li>
-<li><a href="#part-four">监督树</a></li>
-<li><a href="#part-five">Observer</a></li>
-<li><a href="#part-six">测试里的共享状态</a></li>
-</ol>
-<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html" target="_blank" rel="external">第一章</a>，或者查看本教程的章节索引。</p>
-<p>到目前为止，我们的应用有一个registry，它可以监测数十个而不是数百个bucket。虽然我们认为我们的当前的实现是非常棒的，但是没有软件是没有bug的，失败一定会发生。</p>
-<p>当失败发生时，你的第一反应可能是：“让我们补救这些失败”。但是在Elixir中，我们避免挽救异常的防御型编程习惯，这在其他语言中常常见到。相反，我们说“让它崩溃”。如果有bug导致我们的registry崩溃，我们没有什么可担心的，因为我们将设置一个监督者，它会重启一个新的registry。</p>
-<p>在本章，我们将学习监督者和应用。我们不止创建一个监督者，而是创建两个监督者，并使用它们来监督我们的进程。</p>
-<a id="more"></a>
-<h1 id="我们第一个监督者"><a href="#我们第一个监督者" class="headerlink" title="我们第一个监督者"></a><span id="part-one">我们第一个监督者</span></h1><p>创建一个监督者和创建一个GenServer没有太大的不同。我们将在文件 lib/kv/supervisor.ex 里定义一个名为 KV.Supervisor 的模块，它将使用 Supervisor 行为：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span>.Supervisor <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Supervisor</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start_link</span></span> <span class="keyword">do</span></div><div class="line">    Supervisor.start_link(__MODULE_<span class="number">_</span>, <span class="symbol">:ok</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">init</span></span>(<span class="symbol">:ok</span>) <span class="keyword">do</span></div><div class="line">    children = [</div><div class="line">      worker(KV.Registry, [KV.Registry])</div><div class="line">    ]</div><div class="line"></div><div class="line">    supervise(children, <span class="symbol">strategy:</span> <span class="symbol">:one_for_one</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>我们的监督者目前只有一个孩子：registry。如下格式的一个工作者：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">worker(KV.Registry, [KV.Registry])</div></pre></td></tr></table></figure>
-<p>将用下面的调用启动一个进程：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">KV.Registry.start_link(KV.Registry)</div></pre></td></tr></table></figure>
-<p>我们传递给start_link的入参是这个进程的名字。给在监督树下的进程命名是通用的做法，这样使得其他进程不需要知道它们的pid就可以通过名字来访问它们。这是有用的，因为一个被监督的进程可能崩溃，这样的话，当监督者重启它时，它的pid将改变。通过使用一个名字，我们可以保证新的被重启的进程将注册到同样的名字下，而不用一定获取最新的pid。注意，用定义它的相同的模块的名字来注册进程也是通用的做法，这使得在调试或监测一个运行的系统时更方便直接。</p>
-<p>最后，我们用孩子列表和策略 :one_for_one 作为入参调用 supervise/2 。</p>
-<p>监督策略规定，当一个孩子进程发生崩溃的时候会发生什么。:one_for_one 的意思是，如果一个孩子进程死了，只有它一个将被重启。因为我们只有一个孩子进程，所有这些就是我们所需的。Supervisor行为支持许多不同的策略，我们将在本章中讨论它们。</p>
-<p>因为现在KV.Registry.start_link/1期望有一个入参，我们需要改变我们的实现来接收这样的入参。打开 lib/kv/registry.ex 并替换 start_link/0 的实现如下：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="variable">@doc</span> <span class="string">""</span><span class="string">"</span></div><div class="line">Starts the registry with the given `name`.</div><div class="line">"<span class="string">""</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">start_link</span></span>(name) <span class="keyword">do</span></div><div class="line">  GenServer.start_link(__MODULE_<span class="number">_</span>, <span class="symbol">:ok</span>, <span class="symbol">name:</span> name)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>我们也需要修改我们的测试用例，当启动一个registry的时候给它一个名字。用下面的内容替换 test/kv/registry_test.exs 里的setup回调函数：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">setup context <span class="keyword">do</span></div><div class="line">  &#123;<span class="symbol">:ok</span>, registry&#125; = KV.Registry.start_link(context.test)</div><div class="line">  &#123;<span class="symbol">:ok</span>, <span class="symbol">registry:</span> registry&#125;</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>setup/2也可以接收测试上下文，和test/3相似。除了我们在设置块中添加的任何值外，上下文还包含一些默认键，例如：:case， :test，:file 和 :line。我们用当前运行的测试的相同名字作为快捷方式来启动一个registry。</p>
-<p>现在我们的测试通过，我们可以带我们的监督者兜兜风。如果我们在我们的项目目录里用 iex -S mix 启动一个控制台，我们可以手工启动一个监督者：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; KV.Supervisor.start_link</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.66.0&gt;&#125;</span></div><div class="line">iex&gt; KV.Registry.create(KV.Registry, <span class="string">"shopping"</span>)</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; KV.Registry.lookup(KV.Registry, <span class="string">"shopping"</span>)</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.70.0&gt;&#125;</span></div></pre></td></tr></table></figure>
-<p>当我们启动监督者，registry工作者自动被启动，允许我们创建bucket而不需要手工去启动它。</p>
-<p>在实践中，我们很少手动启动应用的监督者。相反，它被作为应用的回调的一部分启动。</p>
-<h1 id="理解应用"><a href="#理解应用" class="headerlink" title="理解应用"></a><span id="part-two">理解应用</span></h1><p>在这整个时间里我们一直在一个应用里工作。每次我们修改完一个文件并运行 mix compile ，我们会看到在编译输出里有一个 Generated kv app 的消息。</p>
-<p>我们可以找到这个被创建的 .app 文件，它在 _build/dev/lib/kv/ebin/kv.app 。让我们看看它的内容：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;application,kv,</div><div class="line">             [&#123;registered,[]&#125;,</div><div class="line">              &#123;description,<span class="string">"kv"</span>&#125;,</div><div class="line">              &#123;applications,[kernel,stdlib,elixir,logger]&#125;,</div><div class="line">              &#123;vsn,<span class="string">"0.0.1"</span>&#125;,</div><div class="line">              &#123;modules,[<span class="string">'Elixir.KV'</span>,<span class="string">'Elixir.KV.Bucket'</span>,</div><div class="line">                        <span class="string">'Elixir.KV.Registry'</span>,<span class="string">'Elixir.KV.Supervisor'</span>]&#125;]&#125;.</div></pre></td></tr></table></figure>
-<p>这个文件包含Erlang数据（用Erlang语法写的）。即使我们不熟悉Erlang，也很容易猜出这个文件有我们应用的定义。它包含我们应用的版本，由它定义的所有模块，以及我们依赖的应用的列表，比如：Erlang的kernel、elixir它自己和在mix.exs文件里的应用列表里指定的logger。</p>
-<p>每次我们增加一个新的模块到我们的应用都要手工修改这个文件将会是非常麻烦的。这就是为什么Mix帮我们生成并维护它的原因。</p>
-<p>我们也可以通过在我们mix.exs项目文件里自定义 application/0 的返回值来配置被创建的 .app 文件。我们马上将做我们第一个自定义的应用。</p>
-<h2 id="启动应用"><a href="#启动应用" class="headerlink" title="启动应用"></a><span id="part-two-one">启动应用</span></h2><p>当我们定义了一个应用规格说明文件：.app 文件，我们就能把应用当做一个整体来启动和停止。目前我们不需要关注这个文件是因为有两个原因：</p>
-<ol>
-<li>Mix自动为我们启动我们当前的应用。</li>
-<li>即使Mix没有启动我们的应用程序，我们的应用程序还没有做任何事情当它启动的时候。</li>
-</ol>
-<p>不管怎样，让我们看看Mix如何为我们启动应用。让我们用 iex -S mix 启动一个项目的控制台并且进行如下操作：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Application.start(<span class="symbol">:kv</span>)</div><div class="line">&#123;<span class="symbol">:error</span>, &#123;<span class="symbol">:already_started</span>, <span class="symbol">:kv</span>&#125;&#125;</div></pre></td></tr></table></figure>
-<p>哇！它已经启动了。Mix通常启动在我们项目的 mix.exs 文件所定义的整个应用层级的应用；如果这些应用依赖其他应用，它也会同样地为这些所依赖的应用做相同的事情。</p>
-<p>我们可以传递一个选项给Mix要求它不要启动我们的应用。让我们运行 iex -S mix run --no-start 来试试：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Application.start(<span class="symbol">:kv</span>)</div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
-<p>我们可以停止我们的 :kv 应用和 :logger应用，:logger应用是由Elixir默认启动的：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; Application.stop(<span class="symbol">:kv</span>)</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; Application.stop(<span class="symbol">:logger</span>)</div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
-<p>然后让我们再次启动我们的应用：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Application.start(<span class="symbol">:kv</span>)</div><div class="line">&#123;<span class="symbol">:error</span>, &#123;<span class="symbol">:not_started</span>, <span class="symbol">:logger</span>&#125;&#125;</div></pre></td></tr></table></figure>
-<p>现在我们得到了一个错误因为 :kv 应用依赖的 :logger 应用没有启动。我们需要按正确顺序手工启动每一个应用或如下所示调用 Application.ensure_all_started ：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Application.ensure_all_started(<span class="symbol">:kv</span>)</div><div class="line">&#123;<span class="symbol">:ok</span>, [<span class="symbol">:logger</span>, <span class="symbol">:kv</span>]&#125;</div></pre></td></tr></table></figure>
-<p>没有什么真正值得兴奋的，不过它展现了我们如何能控制我们的应用。</p>
-<blockquote>
-<p>当你运行 iex -S mix 的时候，它相当于运行 iex -S mix run 。所以当你启动IEx无论何时你需要传递更多选项给Mix，一定运行 iex -S mix run ，然后传递任何选项给run命令接收。你可以在你的shell里运行mix help run找到更多关于run的信息。</p>
-</blockquote>
-<h2 id="应用的回调函数"><a href="#应用的回调函数" class="headerlink" title="应用的回调函数"></a><span id="part-two-two">应用的回调函数</span></h2><p>既然我们花了所有时间来谈论应用如何启动和停止，则必定有方法在应用启动的时候做一些有用的事情。而事实上，有！</p>
-<p>我们可以指定一个应用的回调函数。这个函数将在应用启动的时候被调用。这个函数必须返回格式为 {:ok, pid} 的结果，pid是监督者进程的进程标识符。</p>
-<p>我们可以用两个步骤来设置应用的回调函数。首先，打开 mix.exs 文件，然后，按如下所示改变 def application ：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">application</span></span> <span class="keyword">do</span></div><div class="line">  [<span class="symbol">extra_applications:</span> [<span class="symbol">:logger</span>],</div><div class="line">   <span class="symbol">mod:</span> &#123;KV, []&#125;]</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>:mod 选项指定了“应用回调模块”，它后面的参数将在应用启动的时候被传递。应用回调模块可以是任何实现了 <a href="https://hexdocs.pm/elixir/Application.html" target="_blank" rel="external">Application</a> 行为的模块。</p>
-<p>现在我们已经指定了 KV 作为模块回调，我们需要修改定义在 lib/kv.ex 的 KV 模块：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Application</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start</span></span>(_type, _args) <span class="keyword">do</span></div><div class="line">    KV.Supervisor.start_link</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>当我们 use Application 时，我们需要定义一些函数，和当我们使用 Supervisor 或 GenServer 时相似。这次我们只是需要定义一个 start/2 函数。如果我们想在应用结束时指定自定义的行为，我们可以定义一个 stop/1 函数。</p>
-<p>让我们再次用 iex -S mix 来启动我们项目的控制台。我们将看到一个名为 KV.Registry 的进程已经在运行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; KV.Registry.create(KV.Registry, &quot;shopping&quot;)</div><div class="line">:ok</div><div class="line">iex&gt; KV.Registry.lookup(KV.Registry, &quot;shopping&quot;)</div><div class="line">&#123;:ok, #PID&lt;0.88.0&gt;&#125;</div></pre></td></tr></table></figure>
-<p>我们如何知道它是正常运行的？毕竟，我们创建了一个bucket然后查询它；当然，它应该正常运行，对吗？好的，记得 KV.Registry.create/2 使用 GenServer.cast/2 ，因此将返回 :ok ，而不管消息是否找到它的目标。在这个时候，我们不知道监督者和服务器是否起来了，以及bucket是否被创建了。但是， KV.Registry.lookup/2 使用 GenServer.call/3 ，而且将阻塞并等待从服务器返回的结果。我的确得到了正确的响应，所以我们知道所有事情都起来并运行着。</p>
-<p>做一个实验，尝试用 GenServer.call/3 替代来重新实现 KV.Registry.create/2 ，并且短暂地使得应用回调不可用。在控制台再次运行上面的代码，你会立即看到创建步骤失败。</p>
-<p>记得在继续教程前恢复代码。</p>
-<h2 id="项目或者应用？"><a href="#项目或者应用？" class="headerlink" title="项目或者应用？"></a><span id="part-two-three">项目或者应用？</span></h2><p>Mix区分项目和应用。基于我们的mix.exs文件内容，我们可以说我们有一个Mix项目，它定义了一个 :kv 应用。正如我们将在后面章节所看到的，有的项目没有定义任何应用。</p>
-<p>当我们说“项目”的时候，你应该考虑Mix。Mix是一种工具，它管理你的项目。它知道如何编译你的项目，测试你的项目等等。它也知道如何编译和启动与你的项目相关的应用程序。</p>
-<p>当我们谈论应用的时候，我们谈论的是OTP。应用程序是由运行时作为一个整体来启动和停止的实体。你可以从<a href="https://hexdocs.pm/elixir/Application.html" target="_blank" rel="external">Application的官方文档</a>里学到更多关于应用的内容，也可以通过运行 mix help compile.app 来学到更多在 def application 里被支持的选项。</p>
-<h1 id="简单的一对一监督者"><a href="#简单的一对一监督者" class="headerlink" title="简单的一对一监督者"></a><span id="part-three">简单的一对一监督者</span></h1><p>我们现在已经成功地定义了我们的监督者，它作为我们应用生命周期的一部分被自动地启动（和结束）。</p>
-<p>然而我们记得在 handle_cast/2 回调函数里，我们的 KV.Registry 同时链接和监测着bucket进程：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="symbol">:ok</span>, pid&#125; = KV.Bucket.start_link</div><div class="line">ref = Process.monitor(pid)</div></pre></td></tr></table></figure>
-<p>链接是双向的，这暗示着bucket的崩溃会导致registry的崩溃。虽然我们现在有监督者，它保证registry将被恢复并运行，但是崩溃registry意味着我们丢失所有bucket名字与它们相应进程的关联数据。</p>
-<p>换句话说，我们希望registy继续运行，即使一个bucket溃。让我们写一个新的registry测试：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">test <span class="string">"removes bucket on crash"</span>, %&#123;<span class="symbol">registry:</span> registry&#125; <span class="keyword">do</span></div><div class="line">  KV.Registry.create(registry, <span class="string">"shopping"</span>)</div><div class="line">  &#123;<span class="symbol">:ok</span>, bucket&#125; = KV.Registry.lookup(registry, <span class="string">"shopping"</span>)</div><div class="line"></div><div class="line">  <span class="comment"># 用非正常原因停止bucket</span></div><div class="line">  Process.exit(bucket, <span class="symbol">:shutdown</span>)</div><div class="line"></div><div class="line">  <span class="comment"># 等待一直到bucket死亡</span></div><div class="line">  ref = Process.monitor(bucket)</div><div class="line">  assert_receive &#123;<span class="symbol">:DOWN</span>, ^ref, <span class="number">_</span>, <span class="number">_</span>, <span class="number">_</span>&#125;</div><div class="line"></div><div class="line">  assert KV.Registry.lookup(registry, <span class="string">"shopping"</span>) == <span class="symbol">:error</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>这个测试用例和“removes bucket on exit”测试用例相似，不同点是我们有点苛刻地发送 :shutdown 作为退出原因替代 :normal 。和 Agent.stop/1 相反，Process.exit/2 是一个异步操作，因此我们不能简单地在发送退出信号后立即调用 KV.Registry.lookup/2 来查询，因为那时还无法保证bucket已死。为解决这个问题，我们在测试期间也监测bucket，一旦我们确认它死掉了，我们才查询registry，这样就避免了条件竞争。</p>
-<p>因为bucket被链接到registry，而registry被链接到测试进程，那么杀掉bucket导致registry崩溃，从而导致测试进程也崩溃：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">1) <span class="built_in">test</span> removes bucket on crash (KV.RegistryTest)</div><div class="line">   <span class="built_in">test</span>/kv/registry_test.exs:52</div><div class="line">   ** (EXIT from <span class="comment">#PID&lt;0.94.0&gt;) shutdown</span></div></pre></td></tr></table></figure>
-<p>这个问题有一个解决办法，提供一个调用 Agent.start/1 的 KV.Bucket.start/0  ，然后在registry里使用它，删除bucket和registry之间的链接。但是，这是一个坏主意，因为这么修改了后，bucket将不会和任何一个进程链接。这就意味着，如果有人停止 :kv 应用，所有的bucket因为无法被访问而继续存活。不仅如此，如果一个进程是不可被访问的，它们就更难被监测。</p>
-<p>我们将通过定义一个新的创建和监督所有bucket的监督者来解决这个问题。有一个监督者策略，叫做 :simple_one_for_one ，它特别适合这样的场景：它允许我们指定一个工作者模板并监督许多基于这个模板的子进程。使用这个策略，没有一个工作者在监督者初始化的时候被启动，而每次通过调用 start_child/2 启动一个新的工作者。</p>
-<p>让我们在 lib/kv/bucket/supervisor.ex 文件里定义我们的 KV.Bucket.Supervisor ，内容如下：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">KV</span></span>.Bucket.Supervisor <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Supervisor</div><div class="line"></div><div class="line">  <span class="comment"># 一个存储监督者名字的简单模块属性</span></div><div class="line">  <span class="variable">@name</span> KV.Bucket.Supervisor</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start_link</span></span> <span class="keyword">do</span></div><div class="line">    Supervisor.start_link(__MODULE_<span class="number">_</span>, <span class="symbol">:ok</span>, <span class="symbol">name:</span> <span class="variable">@name</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start_bucket</span></span> <span class="keyword">do</span></div><div class="line">    Supervisor.start_child(<span class="variable">@name</span>, [])</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">init</span></span>(<span class="symbol">:ok</span>) <span class="keyword">do</span></div><div class="line">    children = [</div><div class="line">      worker(KV.Bucket, [], <span class="symbol">restart:</span> <span class="symbol">:temporary</span>)</div><div class="line">    ]</div><div class="line"></div><div class="line">    supervise(children, <span class="symbol">strategy:</span> <span class="symbol">:simple_one_for_one</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>和第一个监督者相比这个监督者有三处改变。</p>
-<p>首先，我们决定给这个监督者一个本地名字 KV.Bucket.Supervisor 。我们也定义了一个 start_bucket/0 函数，它将启动一个bucket作为叫做 KV.Bucket.Supervisor 监督者的子进程。我们将在registry里直接调用 start_bucket/0 来替换对 KV.Bucket.start_link 的调用。</p>
-<p>最后，在 init/1 回调函数里，我们标注工作者是 :temporary 。这意味着，如果一个bucket死了，它不会被重启。这是因为我们只是想用监督者作为一种聚集bucket的机制。</p>
-<p>运行 iex -S mix  ，我们来试试我们新的监督者：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, <span class="number">_</span>&#125; = KV.Bucket.Supervisor.start_link</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.70.0&gt;&#125;</span></div><div class="line">iex&gt; &#123;<span class="symbol">:ok</span>, bucket&#125; = KV.Bucket.Supervisor.start_bucket</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.72.0&gt;&#125;</span></div><div class="line">iex&gt; KV.Bucket.put(bucket, <span class="string">"eggs"</span>, <span class="number">3</span>)</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; KV.Bucket.get(bucket, <span class="string">"eggs"</span>)</div><div class="line"><span class="number">3</span></div></pre></td></tr></table></figure>
-<p>让我们修改registry，用KV.Bucket.Supervisor 来重写bucket如何被重启：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_cast</span></span>(&#123;<span class="symbol">:create</span>, name&#125;, &#123;names, refs&#125;) <span class="keyword">do</span></div><div class="line">  if Map.has_key?(names, name) <span class="keyword">do</span></div><div class="line">    &#123;<span class="symbol">:noreply</span>, &#123;names, refs&#125;&#125;</div><div class="line">  else</div><div class="line">    &#123;<span class="symbol">:ok</span>, pid&#125; = KV.Bucket.Supervisor.start_bucket</div><div class="line">    ref = Process.monitor(pid)</div><div class="line">    refs = Map.put(refs, ref, name)</div><div class="line">    names = Map.put(names, name, pid)</div><div class="line">    &#123;<span class="symbol">:noreply</span>, &#123;names, refs&#125;&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>一旦我们按上述所示进行了修改，我们的测试用例将失败，因为没有bucket监督者。让我们来自动启动bucket监督者作为我们主监督树的一部分来替代每次测试都直接地启动bucket监督者。</p>
-<h1 id="监督树"><a href="#监督树" class="headerlink" title="监督树"></a><span id="part-four">监督树</span></h1><p>为了在我们的应用里使用bucket监督者，我们需要把它加进 KV.Supervisor 的子进程了。注意：我们开始有监督其他监督者的监督者，形成所谓的“监督树”。</p>
-<p>打开 lib/kv/supervisor.ex ，按如下所示修改 init/1 ：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">init</span></span>(<span class="symbol">:ok</span>) <span class="keyword">do</span></div><div class="line">  children = [</div><div class="line">    worker(KV.Registry, [KV.Registry]),</div><div class="line">    supervisor(KV.Bucket.Supervisor, [])</div><div class="line">  ]</div><div class="line"></div><div class="line">  supervise(children, <span class="symbol">strategy:</span> <span class="symbol">:one_for_one</span>)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>这次我们增加一个监督者作为一个子进程，没有用参数来启动它。重新运行测试套件，现在所有测试用例都将通过。</p>
-<p>因为我们增加了更多的子进程给监督者，所以评估 :one_for_one 监督策略是否依然正确也很重要。有一个瑕疵马上显现出来，就是 KV.Registry 工作者进程和 KV.Bucket.Supervisor 监督者进程之间的关系。如果 KV.Registry 死了，所有链接 KV.Bucket 名字到 KV.Bucket 进程的信息丢失，而且因此 KV.Bucket.Supervisor 也必须死，否则，它管理的 KV.Bucket 进程将成为孤儿。</p>
-<p>根据这一观察，我们应该考虑转移到另一个监督策略。另外两个候选者是：:one_for_all 和 :rest_for_one 。一个监督者使用 :one_for_all 策略，则无论何时它任何一个子进程死亡，它将杀掉和重启它所有的子进程。乍一看，这似乎适合我们的使用情况，但它似乎也有点霸道，因为如果 KV.Bucket.Supervisor 死了，KV.Registry 是完全能够清理它自己的。在这种情况下，:rest_for_one 策略就派上用场了：当一个进程崩溃了，监督者将只是杀掉和重启在崩溃子进程后启动的子进程。让我们重写我们的监督树，用这个策略来替代原来的策略：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">init</span></span>(<span class="symbol">:ok</span>) <span class="keyword">do</span></div><div class="line">  children = [</div><div class="line">    worker(KV.Registry, [KV.Registry]),</div><div class="line">    supervisor(KV.Bucket.Supervisor, [])</div><div class="line">  ]</div><div class="line"></div><div class="line">  supervise(children, <span class="symbol">strategy:</span> <span class="symbol">:rest_for_one</span>)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>现在，如果 KV.Registry 工作者崩溃，则 KV.Registry 和 KV.Supervisor 的“剩余”子进程（即 KV.Bucket.Supervisor ）将被重启。但是，如果 KV.Bucket.Supervisor 崩溃了，KV.Registry 将不会被重启，因为它先于 KV.Bucket.Supervisor 启动。</p>
-<p>还有其他的策略和其他的选项可以给 worker/2，supervisor/2 和 supervise/2 函数，所以不要忘了仔细阅读 <a href="https://hexdocs.pm/elixir/Supervisor.html" target="_blank" rel="external">Supervisor</a> 和 <a href="https://hexdocs.pm/elixir/Supervisor.Spec.html" target="_blank" rel="external">Supervisor.Spec</a> 模块的文档。</p>
-<p>为了帮助开发者记住如何使用 Supervisor 和它方便的函数，<a href="http://benjamintan.io/" target="_blank" rel="external">Benjamin Tan Wei Hao</a> 已经创建了 <a href="https://raw.githubusercontent.com/benjamintanweihao/elixir-cheatsheets/master/Supervisor_CheatSheet.pdf" target="_blank" rel="external">Supervisor备忘录</a> 。</p>
-<p>在我们转到下一章前还剩下两个话题。</p>
-<h1 id="Observer"><a href="#Observer" class="headerlink" title="Observer"></a><span id="part-five">Observer</span></h1><p>现在我们已经定义了我们的监督树，这是一个很好的机会介绍Erlang自带的Observer工具。用 iex -S mix 启动你的应用，然后在里面输入如下内容：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="symbol">:observer</span>.start</div></pre></td></tr></table></figure>
-<p>一个包含我们系统的所有各类信息的图形界面弹出来，信息包括从总的统计到负载图，也有所有运行的进程和应用的列表。</p>
-<p>在应用标签卡里，你将看到你的系统里的所有当前运行的应用以及它们的监督树。你可以选择 kv 应用来进一步浏览它：</p>
-<p><img src="/images/getting-started-mix-otp-supervisor-and-application-kv-observer.png" style="border:0;"></p>
-<p>不仅如此，当你在终端创建一个新的bucket的时候，你将在Observer里看到被新创建的进程在监督树里展示出来。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; KV.Registry.create KV.Registry, <span class="string">"shopping"</span></div><div class="line"><span class="symbol">:ok</span></div></pre></td></tr></table></figure>
-<p>我们将留给你进一步探索Observer提供了什么。记住，你可以双击监督树里的任何进程来获取这个进程的更多信息，也可以右击一个进程来发送“一个杀死信号”，这是一个完美的方式来模拟失败并看看你的监督者是否如预期地响应。</p>
-<p>在一天结束之际，像Observer这样的工具是你想要总是在监督树内启动进程，即使他们是暂时的，以确保它们总是可以到达和监测的主要原因之一。</p>
-<h1 id="测试里的共享状态"><a href="#测试里的共享状态" class="headerlink" title="测试里的共享状态"></a><span id="part-six">测试里的共享状态</span></h1><p>到目前为止，我们已经为每一个测试用例启动一个registry来确保它们是被隔离的：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">setup context <span class="keyword">do</span></div><div class="line">  &#123;<span class="symbol">:ok</span>, registry&#125; = KV.Registry.start_link(context.test)</div><div class="line">  &#123;<span class="symbol">:ok</span>, <span class="symbol">registry:</span> registry&#125;</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>既然我们现在已经改变了我们的registry来使用 KV.Bucket.Supervisor ，它被全局注册，我们的测试现在依靠这个共享、全局的监督者，尽管每个测试用例都有自己的registry。问题是：我们应该这样做吗？</p>
-<p>这取决于只要我们只依赖于这个状态的非共享部分，就可以依赖共享的全局状态。例如，每次我们用给定的名字注册一个进程，我们就是正在对应于一个共享了名字的registry来注册一个进程。然而，只要我们通过使用像 context.test 这样的结构来保证这个名字对于每一个测试用例都是特定的，我们就不会在测试用例之间有并发或者数据依赖的问题。</p>
-<p>类似的推理应适用于我们的bucket监督者。虽然在共享的bucket监督者上多个registry可能启动bucket，但是那些bucket和registry是彼此隔离的。如果我们使用像 Supervisor.count_children(KV.Bucket.Supervisor) 这样的函数，我们只会遇到并发问题；Supervisor.count_children(KV.Bucket.Supervisor) 这样的函数从所有registry统计所有的bucket数量，当测试用例并发地运行的时候，潜在获得不同结果的问题。</p>
-<p>因为我们目前只依赖bucket监督者的非共享部分，因此在我们的测试套件里我们不需要担心并发问题。万一它成为一个问题，我们可以每一个测试用例启动一个监督者并且把它作为入参传递给registry的start_link函数。</p>
-<p>现在，我们的应用得到适当的监督和测试，让我们看看如何可以加快速度。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/mix-otp/supervisor-and-application.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/mix-otp/supervisor-and-application.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;我们第一个监督者&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;理解应用&lt;/a&gt;&lt;br&gt; 2.1. &lt;a href=&quot;#part-two-one&quot;&gt;启动应用&lt;/a&gt;&lt;br&gt; 2.2. &lt;a href=&quot;#part-two-two&quot;&gt;应用的回调函数&lt;/a&gt;&lt;br&gt; 2.3. &lt;a href=&quot;#part-two-three&quot;&gt;项目或者应用？&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;简单的一对一监督者&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;监督树&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;Observer&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-six&quot;&gt;测试里的共享状态&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;本章是&lt;a href=&quot;http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html&quot;&gt;Mix和OTP教程&lt;/a&gt;的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的&lt;a href=&quot;http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html&quot;&gt;第一章&lt;/a&gt;，或者查看本教程的章节索引。&lt;/p&gt;
-&lt;p&gt;到目前为止，我们的应用有一个registry，它可以监测数十个而不是数百个bucket。虽然我们认为我们的当前的实现是非常棒的，但是没有软件是没有bug的，失败一定会发生。&lt;/p&gt;
-&lt;p&gt;当失败发生时，你的第一反应可能是：“让我们补救这些失败”。但是在Elixir中，我们避免挽救异常的防御型编程习惯，这在其他语言中常常见到。相反，我们说“让它崩溃”。如果有bug导致我们的registry崩溃，我们没有什么可担心的，因为我们将设置一个监督者，它会重启一个新的registry。&lt;/p&gt;
-&lt;p&gt;在本章，我们将学习监督者和应用。我们不止创建一个监督者，而是创建两个监督者，并使用它们来监督我们的进程。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-      <category term="Supervisor Application" scheme="http://szpzs.oschina.io/categories/Elixir/Supervisor-Application/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-      <category term="Supervisor" scheme="http://szpzs.oschina.io/tags/Supervisor/"/>
-    
-      <category term="Application" scheme="http://szpzs.oschina.io/tags/Application/"/>
     
   </entry>
   

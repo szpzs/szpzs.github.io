@@ -283,6 +283,144 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/19/elixir-getting-started-mix-otp-supervisor-and-application/" itemprop="url">
+                  Mix 和 OTP－监督者和应用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-19T19:02:53+08:00" content="2017-02-19">
+              2017-02-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/Supervisor-Application/" itemprop="url" rel="index">
+                    <span itemprop="name">Supervisor Application</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ol>
+<li><a href="#part-one">我们第一个监督者</a></li>
+<li><a href="#part-two">理解应用</a><br> 2.1. <a href="#part-two-one">启动应用</a><br> 2.2. <a href="#part-two-two">应用的回调函数</a><br> 2.3. <a href="#part-two-three">项目或者应用？</a></li>
+<li><a href="#part-three">简单的一对一监督者</a></li>
+<li><a href="#part-four">监督树</a></li>
+<li><a href="#part-five">Observer</a></li>
+<li><a href="#part-six">测试里的共享状态</a></li>
+</ol>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">第一章</a>，或者查看本教程的章节索引。</p>
+<p>到目前为止，我们的应用有一个registry，它可以监测数十个而不是数百个bucket。虽然我们认为我们的当前的实现是非常棒的，但是没有软件是没有bug的，失败一定会发生。</p>
+<p>当失败发生时，你的第一反应可能是：“让我们补救这些失败”。但是在Elixir中，我们避免挽救异常的防御型编程习惯，这在其他语言中常常见到。相反，我们说“让它崩溃”。如果有bug导致我们的registry崩溃，我们没有什么可担心的，因为我们将设置一个监督者，它会重启一个新的registry。</p>
+<p>在本章，我们将学习监督者和应用。我们不止创建一个监督者，而是创建两个监督者，并使用它们来监督我们的进程。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/19/elixir-getting-started-mix-otp-supervisor-and-application/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/18/elixir-getting-started-mix-otp-genserver/" itemprop="url">
                   Mix 和 OTP－GenServer
                 </a>
@@ -1484,141 +1622,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/10/elixir-getting-started-protocols/" itemprop="url">
-                  Elixir入门教程－协议
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-10T21:36:51+08:00" content="2017-02-10">
-              2017-02-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/" itemprop="url" rel="index">
-                    <span itemprop="name">Elixir</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/protocol/" itemprop="url" rel="index">
-                    <span itemprop="name">protocol</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <ol>
-<li><a href="#part-one">协议和结构体</a></li>
-<li><a href="#part-two">实现Any</a><br> 2.1. <a href="#part-two-one">派生</a><br> 2.3. <a href="#part-two-two">回退到Any</a></li>
-<li><a href="#part-three">内建协议</a></li>
-<li><a href="#part-four">协议整合</a></li>
-</ol>
-<p>协议是Elixir里实现多态的一种机制。在一个协议上派发消息给任意数据类型是可行的，只要这个数据类型实现了这个协议。让我们看一个例子。</p>
-<p>在Elixir里，我们有两个动作来检查在一个数据结构里有多少个元素：length 和 size。length 意味着信息必需是被计算的。例如：length(list)需要遍历整个列表来计算它的长度。而另一方面，tuple_size(tuple) 和 byte_size(binary) 不依赖于元组和二进制数据的大小，因为在数据结构里大小的信息已经被预先计算了。</p>
-<p>虽然我们已经有Elixir内建的获取大小的指定类型函数（比如tuple_size/1），我们还是想实现一个通用的 Size 协议，然后所有数据结构只要它的大小是预先计算的，都可以实现这个协议。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/10/elixir-getting-started-protocols/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1664,7 +1667,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">145</span>
+              <span class="site-state-item-count">146</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1672,7 +1675,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">94</span>
+                <span class="site-state-item-count">95</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1681,7 +1684,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">204</span>
+                <span class="site-state-item-count">206</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -1787,7 +1790,7 @@
         <div class="copyright" >
   
   &copy;  2016 - 
-  <span itemprop="copyrightYear">2017</span>
+  <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

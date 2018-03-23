@@ -4,6 +4,77 @@
   
     
     <entry>
+      <title><![CDATA[Erlang的调度器如何绑定到CPU]]></title>
+      <url>http://szpzs.oschina.io/2018/03/23/erlang-scheduler-binding-cpu/</url>
+      <content type="html"><![CDATA[<h2 id="调度器绑定CPU"><a href="#调度器绑定CPU" class="headerlink" title="调度器绑定CPU"></a>调度器绑定CPU</h2><p>在启动Erlang虚拟机的时候可以通过参数来设置它的调度器以什么方式绑定CPU。这个参数是 +sbt，也可以用另一个参数 +stbt。它们的使用方法是：</p>
+<p>+sbt 绑定类型</p>
+<p>例如：</p>
+<p>erl +sbt db</p>
+<p>这两个参数的差异表现在对如下错误的处理方式上：</p>
+<ul>
+<li>某些不支持绑定CPU功能的平台上尝试绑定调度器到CPU</li>
+<li>没有可用的CPU拓扑。运行时系统无法自动侦测到CPU拓扑，并且我们也没有设置自定义的CPU拓扑。</li>
+</ul>
+<p>当发生上述两种情况的时候，如果使用的是 +sbt 参数，则运行时系统会打印错误消息并拒绝启动；而如果使用的是 +stbt 参数，则运行时系统会忽略错误，并且用调度器不绑定CPU的方式启动。</p>
+<a id="more"></a>
+<p>当前有效的绑定类型如下：<br>u、ns、ts、ps、s、nnts、nnps、tnnps、db。</p>
+<p>下面对上述有效类型进行说明。我的机器CPU信息如下：</p>
+<p>有两个NUMA节点，每个节点有一个物理处理器，两个物理处理器为：p1和p2，每个物理处理器有4个核，每个核有两个线程。p1上的线程标识符为：第一个核{0,8}，第二个核{1,9}，第三个核{2,10}，第四个核{3,11}；p2上的线程标识符为：第一个核{4,12}，第二个核{5,13}，第三个核{6,14}，第四个核{7,15}。</p>
+<p>u：是 unbound 的首字母。调度器不绑定在某个CPU线程上，而是由操作系统决定调度器在那个CPU线程上执行以及什么时候迁移到别的cpu线程上。这是Erlang虚拟机的默认行为。</p>
+<p>ns：代表 no_spread。标识符相近的调度器尽可能地绑定在相近的CPU线程上。调度器绑定到cpu线程的顺序是：{0,8,1,9,2,10,3,11,4,12,5,13,6,14,7,15}。</p>
+<p>ts：代表 thread_spread。低标识符的调度器先绑定所有CPU核的第一个线程，然后再绑定所有CPU核的第二个线程，以此类推。调度器绑定到cpu线程的顺序是：{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}。</p>
+<p>ps：代表 processor_spread。和ts方式一样，只是会跨物理处理器核间隔地绑定。调度器绑定到cpu线程的顺序是：{0,4,1,5,2,6,3,7,8,12,9,13,10,14,11,15}。</p>
+<p>s：代表 spread。调度器尽可能地绑定到cpu线程上。与ns方式相似。调度器绑定到cpu线程的顺序是：{0,8,1,9,2,10,3,11,4,12,5,13,6,14,7,15}。</p>
+<p>nnts：代表 no_node_thread_spread。与thread_spread方式相似。但是，如果有多个NUMA节点存在，则调度器会先把一个NUMA节点内的cpu线程全部绑定完，然后再去绑定下一个NUMA节点内的cpu线程。调度器绑定到cpu线程的顺序是：{0,1,2,3,8,9,10,11,4,5,6,7,12,13,14,15}。</p>
+<p>nnps：代表 no_node_processor_spread。与processor_spread方式相似。但是，如果有多个NUMA节点存在，则调度器会先把一个NUMA节点内的cpu线程全部绑定完，然后再去绑定下一个NUMA节点内的cpu线程。调度器绑定到cpu线程的顺序是：{0,1,2,3,8,9,10,11,4,5,6,7,12,13,14,15}。</p>
+<p>tnnps：代表 thread_no_node_processor_spread。是thread_spread和no_node_processor_spread方式的组合。调度器将在NUMA节点间顺序绑定cpu线程，但是会先在一个NUMA节点内的cpu核的同类线程都绑定完了再到下一个NUMA节点。调度器绑定到cpu线程的顺序是：{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}。</p>
+<p>db：代表 default_bind。是调度器绑定cpu的默认方式。目前就是thread_no_node_processor_spread方式。将来可能会改变为别的方式。调度器绑定到cpu线程的顺序是：{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}。</p>
+<h2 id="自定义CPU拓扑"><a href="#自定义CPU拓扑" class="headerlink" title="自定义CPU拓扑"></a>自定义CPU拓扑</h2><p>自定义CPU拓扑会覆盖任何自动监测到的CPU拓扑。将调度器绑定到逻辑处理器时会使用自定义的CPU拓扑。</p>
+<p>自定义CPU拓扑的格式定义：</p>
+<ul>
+<li>&lt;Id&gt; = integer(); when 0 =&lt; &lt;Id&gt; =&lt; 65535</li>
+<li>&lt;IdRange&gt; = &lt;Id&gt;-&lt;Id&gt;</li>
+<li>&lt;IdOrIdRange&gt; = &lt;Id&gt; | &lt;IdRange&gt;</li>
+<li>&lt;IdList&gt; = &lt;IdOrIdRange&gt;,&lt;IdOrIdRange&gt; | &lt;IdOrIdRange&gt;</li>
+<li>&lt;LogicalIds&gt; = L&lt;IdList&gt;</li>
+<li>&lt;ThreadIds&gt; = T&lt;IdList&gt; | t&lt;IdList&gt;</li>
+<li>&lt;CoreIds&gt; = C&lt;IdList&gt; | c&lt;IdList&gt;</li>
+<li>&lt;ProcessorIds&gt; = P&lt;IdList&gt; | p&lt;IdList&gt;</li>
+<li>&lt;NodeIds&gt; = N&lt;IdList&gt; | n&lt;IdList&gt;</li>
+<li>&lt;IdDefs&gt; = &lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;ProcessorIds&gt;&lt;NodeIds&gt; | &lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;NodeIds&gt;&lt;ProcessorIds&gt;<ul>
+<li>&lt;LogicalIds&gt;必须是一个标识符列表。</li>
+<li>除&lt;LogicalIds&gt;之外至少还有一个其他的标识符类型也必须有一个标识符列表。</li>
+<li>所有标识符列表必须产生相同数量的标识符。</li>
+</ul>
+</li>
+<li>CpuTopology = &lt;IdDefs&gt;:&lt;IdDefs&gt; | &lt;IdDefs&gt;</li>
+<li>&lt;IdRange&gt;可以递增也可以递减</li>
+</ul>
+<p>大写字母表示真实标识符，小写字母表示仅用于描述拓扑的伪标识符。作为实际标识符传递的标识符可能被运行时系统用于访问特定硬件，如果它们不正确，行为是未定义的。由于在没有真实的逻辑CPU标识符的情况下定义CPU拓扑没有意义，所以不接受假的逻辑CPU标识符。线程，核心，处理器和节点标识符可以省略。如果省略，线程ID默认为t0，核心ID默认为c0，处理器ID默认为p0，节点ID将为未定义。每个逻辑处理器必须属于一个且只有一个NUMA节点，或者没有逻辑处理器必须属于任何NUMA节点。NUMA节点标识符是系统范围的。 也就是说，系统上的每个NUMA节点都必须具有唯一的标识符。处理器标识符也是系统范围的。 核心标识符是处理器范围的。 线程标识符是核心范围。标识符类型的顺序意味着CPU拓扑的层次结构。</p>
+<p>标识符类型的顺序：</p>
+<ul>
+<li>&lt;LogicalId&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;ProcessorIds&gt;&lt;NodeIds&gt;</li>
+<li>&lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;NodeIds&gt;&lt;ProcessorIds&gt;</li>
+</ul>
+<p>只要每个逻辑处理器属于一个且只有一个NUMA节点，则CPU拓扑可由NUMA节点外部处理器和NUMA节点内部处理器一起组成。</p>
+<h2 id="linux-的CPU信息查询和NUMA工具"><a href="#linux-的CPU信息查询和NUMA工具" class="headerlink" title="linux 的CPU信息查询和NUMA工具"></a>linux 的CPU信息查询和NUMA工具</h2><ul>
+<li>lscpu<ul>
+<li>显示CPU架构信息</li>
+</ul>
+</li>
+<li>mpstat -P ALL<ul>
+<li>显示各个CPU负载情况</li>
+</ul>
+</li>
+<li>numactl –hardware<ul>
+<li>显示各个NUMA节点的内存以及distance情况</li>
+</ul>
+</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[勉励自己]]></title>
       <url>http://szpzs.oschina.io/2017/12/31/2018-encourage-myself/</url>
       <content type="html"><![CDATA[<p><img src="/images/encourage-myself.jpg" style="border:0;"></p>
