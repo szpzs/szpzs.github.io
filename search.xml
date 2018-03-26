@@ -4,6 +4,29 @@
   
     
     <entry>
+      <title><![CDATA[Erlang里的文件包含]]></title>
+      <url>http://szpzs.oschina.io/2018/03/26/erlang-file-inclusion/</url>
+      <content type="html"><![CDATA[<p>Erlang中包含文件的语法有两个：</p>
+<ul>
+<li>-include(File).</li>
+<li>-include_lib(File).</li>
+</ul>
+<p>它们其实是预编译指令。其中File是一个字符串，表示被包含文件的文件名相对路径或绝对路径。</p>
+<p>在Erlang中，一般需要被公用的记录和宏定义都放在被包含文件里，文件名后缀名为.hrl。</p>
+<p>File可以使用操作系统的环境变量作为路径开头部分。比如：<br>-include(“\$PROJ_ROOT/my_records.hrl”).<br>Erlang将使用os:getenv(PROJ_ROOT)来获得操作系统的环境变量PROJ_ROOT的值，并替换”\$PROJ_ROOT/my_records.hrl”中的\$PROJ_ROOT。</p>
+<p>如果File是绝对路径，则Erlang就按绝对路径来查找文件。如果File不是绝对路径，则Erlang按如下顺序来查找文件：</p>
+<ul>
+<li>当前工作目录</li>
+<li>编译后的模块所在目录</li>
+<li>通过include选项给出的目录</li>
+</ul>
+<p>include_lib不指定绝对路径。路径的第一部分被Erlang虚拟机认为是一个应用的名字。例如：</p>
+<p>-include_lib(“kernel/include/file.hrl”).</p>
+<p>Erlang使用code:lib_dir(kernel)来获得kernel应用的绝对路径，然后替换”kernel/include/file.hrl”里的kernel，最后得到绝对路径。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Erlang的调度器如何绑定到CPU]]></title>
       <url>http://szpzs.oschina.io/2018/03/23/erlang-scheduler-binding-cpu/</url>
       <content type="html"><![CDATA[<h2 id="调度器绑定CPU"><a href="#调度器绑定CPU" class="headerlink" title="调度器绑定CPU"></a>调度器绑定CPU</h2><p>在启动Erlang虚拟机的时候可以通过参数来设置它的调度器以什么方式绑定CPU。这个参数是 +sbt，也可以用另一个参数 +stbt。它们的使用方法是：</p>
