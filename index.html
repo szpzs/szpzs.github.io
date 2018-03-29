@@ -283,6 +283,134 @@
             
               
                 
+                <a class="post-title-link" href="/2018/03/29/erlang-macro/" itemprop="url">
+                  Erlang的宏
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-03-29T09:57:49+08:00" content="2018-03-29">
+              2018-03-29
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/macro/" itemprop="url" rel="index">
+                    <span itemprop="name">macro</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>Erlang的宏的定义语法如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-define</span><span class="params">(Const, Replacement)</span>.</div><div class="line"><span class="keyword">-define</span><span class="params">(Func(Var1,...,VarN)</span>, Replacement).</div></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/03/29/erlang-macro/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/03/26/erlang-file-inclusion/" itemprop="url">
                   Erlang里的文件包含
                 </a>
@@ -501,7 +629,7 @@
           <h2 id="调度器绑定CPU"><a href="#调度器绑定CPU" class="headerlink" title="调度器绑定CPU"></a>调度器绑定CPU</h2><p>在启动Erlang虚拟机的时候可以通过参数来设置它的调度器以什么方式绑定CPU。这个参数是 +sbt，也可以用另一个参数 +stbt。它们的使用方法是：</p>
 <p>+sbt 绑定类型</p>
 <p>例如：</p>
-<p>erl +sbt db</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl +sbt db</div></pre></td></tr></table></figure>
 <p>这两个参数的差异表现在对如下错误的处理方式上：</p>
 <ul>
 <li>某些不支持绑定CPU功能的平台上尝试绑定调度器到CPU</li>
@@ -1344,143 +1472,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/05/30/Mnesia-Table-Fragmentation-erlangcentral/" itemprop="url">
-                  Mnesia表分片
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-05-30T10:53:27+08:00" content="2017-05-30">
-              2017-05-30
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Mnesia/" itemprop="url" rel="index">
-                    <span itemprop="name">Mnesia</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Mnesia/Fragmentation/" itemprop="url" rel="index">
-                    <span itemprop="name">Fragmentation</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <ol>
-<li><a href="#part-one">概述</a></li>
-<li><a href="#part-two">要求</a></li>
-<li><a href="#part-three">分片表的样例</a></li>
-<li><a href="#part-four">启动一个Erlang节点</a></li>
-<li><a href="#part-five">用20个表创建分片表</a></li>
-<li><a href="#part-six">数据操作</a></li>
-<li><a href="#part-seven">添加记录</a></li>
-<li><a href="#part-eight">选择有限的记录</a></li>
-<li><a href="#part-nine">分片表的列表</a></li>
-</ol>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/05/30/Mnesia-Table-Fragmentation-erlangcentral/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1526,7 +1517,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">147</span>
+              <span class="site-state-item-count">148</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1534,7 +1525,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">96</span>
+                <span class="site-state-item-count">97</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>

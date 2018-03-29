@@ -4,6 +4,46 @@
   
     
     <entry>
+      <title><![CDATA[Erlang的宏]]></title>
+      <url>http://szpzs.oschina.io/2018/03/29/erlang-macro/</url>
+      <content type="html"><![CDATA[<p>Erlang的宏的定义语法如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-define</span><span class="params">(Const, Replacement)</span>.</div><div class="line"><span class="keyword">-define</span><span class="params">(Func(Var1,...,VarN)</span>, Replacement).</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>宏定义可以放在模块的属性和函数声明之间的任何地方，但是，宏使用前必须被定义。如果一个宏被几个模块使用，则建议将该宏的定义放置在一个包含文件里。</p>
+<p>宏的使用语法如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">?Const</div><div class="line">?Func(Arg1,...,ArgN)</div></pre></td></tr></table></figure>
+<p>宏在编译期间被展开替换，如下代码：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-define</span><span class="params">(TIMEOUT, <span class="number">200</span>)</span>.</div><div class="line">...</div><div class="line"><span class="function"><span class="title">call</span><span class="params">(Request)</span> -&gt;</span></div><div class="line">    server:call(refserver, Request, ?TIMEOUT).</div></pre></td></tr></table></figure>
+<p>编译期间被替换为：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">call</span><span class="params">(Request)</span> -&gt;</span></div><div class="line">    server:call(refserver, Request, <span class="number">200</span>).</div></pre></td></tr></table></figure>
+<p>有参数的宏在编译期间，其参数被实参替换，代码如下所示：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-define</span><span class="params">(MACRO1(X, Y)</span>, &#123;a, X, b, Y&#125;).</div><div class="line">...</div><div class="line"><span class="function"><span class="title">bar</span><span class="params">(X)</span> -&gt;</span></div><div class="line">    ?MACRO1(a, b),</div><div class="line">    ?MACRO1(X, <span class="number">123</span>)</div></pre></td></tr></table></figure>
+<p>编译期间被替换为：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">bar</span><span class="params">(X)</span> -&gt;</span></div><div class="line">    &#123;a,a,b,b&#125;,</div><div class="line">    &#123;a,X,b,<span class="number">123</span>&#125;.</div></pre></td></tr></table></figure>
+<p>如果想看宏展开的效果，可以在编译模块的时候使用 ‘P’ 选项：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">compile:file(File, \['P'\]).</div></pre></td></tr></table></figure>
+<p>这将产生宏展开后的文件：File.P 。</p>
+<p>Erlang预定义了一些宏：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">?MODULE  <span class="comment">%%当前模块的名字</span></div><div class="line"></div><div class="line">?MODULE_STRING  <span class="comment">%%当前模块的名字的字符串</span></div><div class="line"></div><div class="line">?FILE  <span class="comment">%%当前模块的文件名</span></div><div class="line"></div><div class="line">?LINE  <span class="comment">%%当前行号</span></div><div class="line"></div><div class="line">?MACHINE  <span class="comment">%%虚拟机的名字，固定为'BEAM'</span></div></pre></td></tr></table></figure>
+<p>除了预定义宏之外，宏是可以重载的。重载宏有多个定义，每个定义具有不同数量的参数。参数化宏在使用的时候，即使没有型参，也要加上括号。如果有型参数，则实参个数必须与型参一致。</p>
+<p>宏可以应用于条件编译。如下指令：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-undef</span><span class="params">(Macro)</span>. <span class="comment">%%取消宏Macro的定义。</span></div><div class="line"></div><div class="line"><span class="keyword">-ifdef</span><span class="params">(Macro)</span>. <span class="comment">%%如果宏Macro定义了，则编译其下面的语句。</span></div><div class="line"></div><div class="line"><span class="keyword">-ifndef</span><span class="params">(Macro)</span>. <span class="comment">%%如果宏Macro没有定义了，则编译其下面的语句。</span></div><div class="line"></div><div class="line"><span class="keyword">-else</span>. <span class="comment">%%这个指令只允许出现在 ifdef 或 ifndef 的后面。仅当它前面的ifdef 或 ifndef 为false时，它下面的语句才被编译。</span></div><div class="line"></div><div class="line"><span class="keyword">-endif</span>. <span class="comment">%%指示指令 ifdef  或  ifndef  的结束。</span></div></pre></td></tr></table></figure>
+<p><strong>注意：</strong>上述指令不能出现在函数当中。</p>
+<p>例子如下：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(m)</span>.</div><div class="line">...</div><div class="line"></div><div class="line"><span class="keyword">-ifdef</span><span class="params">(debug)</span>.</div><div class="line"><span class="keyword">-define</span><span class="params">(LOG(X)</span>, io:format<span class="params">(<span class="string">"&#123;~p,~p&#125;: ~p~n"</span>, \[?MODULE,?LINE,X\])</span>).</div><div class="line"><span class="keyword">-else</span>.</div><div class="line"><span class="keyword">-define</span><span class="params">(LOG(X)</span>, true).</div><div class="line"><span class="keyword">-endif</span>.</div><div class="line"></div><div class="line">...</div></pre></td></tr></table></figure>
+<p>如果想要LOG(X)宏真正输出内容，则在编译的时候要加上 debug 宏：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment">% erlc -Ddebug m.erl</span></div></pre></td></tr></table></figure>
+<p>或<br><figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>&gt; c(m, &#123;d, debug&#125;).</div><div class="line">&#123;ok,m&#125;</div></pre></td></tr></table></figure></p>
+<p>这样?LOG(Arg)就会展开为对 io:format/2 的调用。</p>
+<p>如果Arg是宏的参数，那么??Arg将展开为包含这个参数的字符串。这个和C语言中宏参数字符串化类似：#arg</p>
+<p>例如：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-define</span><span class="params">(TESTCALL(Call)</span>, io:format<span class="params">(<span class="string">"Call ~s: ~w~n"</span>, \[??Call, Call\])</span>).</div><div class="line"></div><div class="line">?TESTCALL(myfunction(<span class="number">1</span>,<span class="number">2</span>)),</div><div class="line">?TESTCALL(you:function(<span class="number">2</span>,<span class="number">1</span>)).</div></pre></td></tr></table></figure>
+<p>它的结果是：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">io:format(<span class="string">"Call ~s: ~w~n"</span>,\[<span class="string">"myfunction ( 1 , 2 )"</span>,myfunction(<span class="number">1</span>,<span class="number">2</span>)\]),</div><div class="line">io:format(<span class="string">"Call ~s: ~w~n"</span>,\[<span class="string">"you : function ( 2 , 1 )"</span>,you:function(<span class="number">2</span>,<span class="number">1</span>)\]).</div></pre></td></tr></table></figure>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Erlang里的文件包含]]></title>
       <url>http://szpzs.oschina.io/2018/03/26/erlang-file-inclusion/</url>
       <content type="html"><![CDATA[<p>Erlang中包含文件的语法有两个：</p>
@@ -32,7 +72,7 @@
       <content type="html"><![CDATA[<h2 id="调度器绑定CPU"><a href="#调度器绑定CPU" class="headerlink" title="调度器绑定CPU"></a>调度器绑定CPU</h2><p>在启动Erlang虚拟机的时候可以通过参数来设置它的调度器以什么方式绑定CPU。这个参数是 +sbt，也可以用另一个参数 +stbt。它们的使用方法是：</p>
 <p>+sbt 绑定类型</p>
 <p>例如：</p>
-<p>erl +sbt db</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl +sbt db</div></pre></td></tr></table></figure>
 <p>这两个参数的差异表现在对如下错误的处理方式上：</p>
 <ul>
 <li>某些不支持绑定CPU功能的平台上尝试绑定调度器到CPU</li>
