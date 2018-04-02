@@ -293,6 +293,135 @@
             
               
                 
+                <a class="post-title-link" href="/2018/04/02/better-control-flow-using-the-with-macro/" itemprop="url">
+                  使用“with”宏更好地控制执行流程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-04-02T13:46:11+08:00" content="2018-04-02">
+              2018-04-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/macro/" itemprop="url" rel="index">
+                    <span itemprop="name">macro</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>从Elixir1.2开始就可以用with宏来写出更有表现力的流程控制语句。与需要深度嵌套的 case 和 if/else 语句不同，你可以只使用一个 with 语句来表达一样的逻辑，而且方式上更加优雅可读性也更好。下面我将探索如何利用它们来改进你的代码。</p>
+<h1 id="with-的基础"><a href="#with-的基础" class="headerlink" title="with 的基础"></a>with 的基础</h1><p>with 后跟一个句子列表，这些句子将按顺序执行。如果所有句子的结果都是正常，那么 do 后面的语句将被执行。当其中一个句子的结果有问题，则 do 后面的句子就不执行，而且相关错误值将返回给调用者。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">iex&gt; with &#123;int, <span class="number">_</span>&#125; &lt;- Integer.parse(<span class="string">"10"</span>) <span class="keyword">do</span></div><div class="line">...&gt;   <span class="number">10</span> * int</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="number">100</span></div><div class="line"></div><div class="line">iex&gt; with &#123;int, <span class="number">_</span>&#125; &lt;- Integer.parse(<span class="string">"foo"</span>) <span class="keyword">do</span></div><div class="line">...&gt;   <span class="number">10</span> * int</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="symbol">:error</span></div><div class="line"></div><div class="line">iex&gt; with &#123;int, <span class="number">_</span>&#125; &lt;- Integer.parse(<span class="string">"9"</span>),</div><div class="line">...&gt;      <span class="keyword">true</span> &lt;- Integer.is_even(int) <span class="keyword">do</span></div><div class="line">...&gt;   <span class="number">10</span> * int</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="keyword">false</span></div></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/04/02/better-control-flow-using-the-with-macro/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/03/29/erlang-macro/" itemprop="url">
                   Erlang的宏
                 </a>
@@ -1355,133 +1484,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/14/why-i-often-implement-things-from-scratch/" itemprop="url">
-                  为什么我经常从头开始实现某些功能
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-06-14T10:28:00+08:00" content="2017-06-14">
-              2017-06-14
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/rpc/" itemprop="url" rel="index">
-                    <span itemprop="name">rpc</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>从前有一个Erlang程序员，他需要一个FTP服务器，运行在一个私有网络上的一个主机上。实际上，他不需要一个FTP服务器，他只需要在中央服务器和他的客户端机器之间传输文件，但是他认为他需要一个FTP服务器来完成这个操作。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/06/14/why-i-often-implement-things-from-scratch/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1527,7 +1529,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">148</span>
+              <span class="site-state-item-count">149</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1535,7 +1537,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">97</span>
+                <span class="site-state-item-count">98</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
