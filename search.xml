@@ -4,6 +4,59 @@
   
     
     <entry>
+      <title><![CDATA[Spring Boot是什么？]]></title>
+      <url>http://szpzs.oschina.io/2018/05/18/spring-boot-what-is-spring-boot/</url>
+      <content type="html"><![CDATA[<p>这将是更侧重于介绍Spring Boot的短文，我们将讨论“什么是Spring Boot”？ 以及Spring Boot如何帮助构建基于Java的企业应用程序。</p>
+<a id="more"></a>
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>作为一名Java开发人员，我们很可能已经直接或间接地在工作中使用基于Spring Framework的应用程序。<strong>Spring</strong>有许多方法来配置它的行为，它提供三种方式进行配置，基于XML的配置或基于注解的配置，以及基于Java的配置，而基于Java的配置正在成为新的Spring应用程序的事实标准。尽管这些选项看起来非常好，但大型企业应用程序涉及数百个模块和复杂的业务规则，但这些配置可能会变得非常复杂。 以下是大型应用程序可以带来的一些复杂情况。</p>
+<ul>
+<li>每个模块有它自己的配置</li>
+<li>每个模块有它自己的依赖（第三方依赖）</li>
+<li>升级应用（例如从Spring 4.x 升级到Spring 5.x）将会很复杂，因为我们需要确认所有的依赖都正确地升级</li>
+<li>如果一些依赖不能正常工作，试图找出根本原因是一个大型应用程序非常复杂和具有挑战性。</li>
+</ul>
+<p>以上所有问题或多或少都与确保我们拥有一切，然后开发团队才能开始处理实际任务有关。 现在让我们来谈谈另一个情况，我们用它来处理任何基于Spring的应用程序。假设我们要创建一个基于Web的应用程序，下面是我们大多数人常用的常用步骤：</p>
+<ul>
+<li>使用我们选择的Maven或IDE创建一个Web应用程序。</li>
+<li>复制标准的Web应用程序配置（Spring MVC应用程序的web.xml配置）。</li>
+<li>根据我们的要求调整以上配置。</li>
+<li>配置Spring MVC标准bean，如ViewResolver，MessageSource等。</li>
+<li>配置要用于我们的应用程序的数据库属性。</li>
+<li>建立数据库层并确保底层数据库连接已经就位，然后才能开始使用它（EntityManagerFactory，TransactionManager等）</li>
+</ul>
+<p>上面的列表可以根据我们的应用程序的类型显着增长。</p>
+<h2 id="1-Spring-Boot是什么？"><a href="#1-Spring-Boot是什么？" class="headerlink" title="1. Spring Boot是什么？"></a>1. Spring Boot是什么？</h2><p>以上所有步骤对我们来说都很重要，但是它们给开发团队增加了很多开销，而不是专注于解决实际的业务问题，最初的时间将被消耗在确保一切都就位后才开始实际的工作。我们可以将Spring Boot视为可以自动完成这些初始任务的工具。Spring Boot对我们所使用的Spring平台有自己的视角，并确保团队可以快速开始解决实际业务问题，而不是花时间在初始配置和设置上。</p>
+<p>Spring Boot提供以下开箱即用的功能：</p>
+<ol>
+<li>它通过采用自己的视角简化了Spring依赖关系（我们将会更详细地讨论它）。</li>
+<li>Spring Boot提供了一组预先配置的技术/框架来减少容易出错的配置，因此我们作为开发人员专注于构建业务逻辑而不是考虑项目设置。</li>
+<li>你真的不需要为你的项目配置那些大的XML配置。</li>
+<li>直接内嵌Tomcat、Jetty 或 Undertow。</li>
+<li>提供预定义的Maven POM来简化您的配置。</li>
+</ol>
+<p>使用Spring Boot，可以轻松管理和处理介绍部分突出显示的问题。在升级过程中，我们不需要手动搜索兼容的jar包，Spring Bug将确保我们的应用程序升级到正确的版本（这称为麻烦最小化开发应用程序）。</p>
+<p>让我们来看看我们的Web应用程序的一个示例pom.xml，以了解Spring Boot例子程序的配置。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.javadevjournal.demo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>sample web application<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.7.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>rWeb Maven Webapp<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://maven.apache.org<span class="tag">&lt;/<span class="name">url</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-hateoas<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-devtools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>请看\<packaging\>标签，Spring Boot可以灵活地将我们的应用程序作为jar包来运行，而不是强迫我们将war作为所需的打包类型。</packaging\></p>
+<h2 id="2-更好的依赖管理"><a href="#2-更好的依赖管理" class="headerlink" title="2. 更好的依赖管理"></a>2. 更好的依赖管理</h2><p>只要仔细检查配置，你不会找到所有这些Spring依赖项的条目（如web MVC，核心，AOP，ORM，验证API等等），你可能已经注意到类似的条目spring-boot-starter- *，这是Spring Boot依赖管理过程。 我们在我们的pom.xml中添加了spring-boot-starter-web，Spring Boot将拉取所有为Spring MVC应用程序必需的依赖（不再需要手动配置）。</p>
+<h2 id="3-自动配置"><a href="#3-自动配置" class="headerlink" title="3.自动配置"></a>3.自动配置</h2><p>自动配置是Spring Boot的另一个有趣功能，这就是为什么Spring Boot团队认为它有意思的地方。以下是Spring Boot为你做的一些工作：</p>
+<ol>
+<li>它将添加所有依赖，如第2点中所述。</li>
+<li>自动配置表明Spring Boot具有一些合理的默认设置，即基于配置的Spring Boot将猜测应用程序的类型，并提供运行应用程序所需的默认实现，以防我们未在应用程序中定义这些应用程序。 如果你定义了这些，Spring Boot将确保这些默认值将被取消，并让你的自定义配置将负责应用程序。</li>
+<li>为了更清晰的理解，假设你已经为JPA定义了依赖，并且没有定义任何数据库配置，Spring Boot会自动为我们创建所需的配置。</li>
+</ol>
+<p>请阅读这篇<a href="https://www.javadevjournal.com/spring/spring-boot-starters/" target="_blank" rel="external">文章</a>以更加深入地理解<strong>Spring boot的自动配置</strong></p>
+<h2 id="3-Servlet容器"><a href="#3-Servlet容器" class="headerlink" title="3. Servlet容器"></a>3. Servlet容器</h2><p>每当我们做出那些小的改变，并且需要将你的应用程序部署到应用服务器来测试我们的改变时，你是否记得在Servlet容器（Tomcat等）上部署它们的过程？Spring Boot提供对嵌入式Servlet容器的支持，我们不再需要在应用服务器上部署我们的应用程序（这可以使用标准main方法轻松运行），同时我们可以使用http://\<host>:\<port>在浏览器上访问我们的应用程序。</port></host></p>
+<p>我们的pom.xml中的Spring-boot-starter-web配置条目将为我们的Web应用程序提供嵌入式servlet容器，Apache Tomcat是Spring Boot提供的默认servlet容器，然而，Spring boot也提供了使用其他servlet容器的方法（我们所要做的就是将相应的 starter 添加到pom.xml中）。</p>
+<p>请阅读我们的文章<a href="https://www.javadevjournal.com/spring/introduction-to-spring-boot/" target="_blank" rel="external">使用Spring Boot构建应用程序</a>来开始使用Spring Boot构建你的应用程序。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>在这篇文章中，我们了解了Spring Boot，我们介绍了什么是Spring Boot？ Spring Boot有什么好处？ 我们讨论了Spring Boot的不同特性。 Spring Boot内部为我们做了很多事情，这对我们来说似乎很神奇。 在本系列文章中，我们将揭开Spring Boot的所有内部细节。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.javadevjournal.com/spring-boot/what-is-spring-boot/" target="_blank" rel="external">https://www.javadevjournal.com/spring-boot/what-is-spring-boot/</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Rust的内存安全革命]]></title>
       <url>http://szpzs.oschina.io/2018/04/28/rust-memory-safety-revolution/</url>
       <content type="html"><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>Rust是一种年轻的编程语言，为程序代码带来了新的质量。 你可能听说过它是快速的、安全的或容易实现并发的。 本文集中介绍Rust最重要的核心特性：内存管理。 该核心特性是Rust的主要创新之一，它的许多独特的特点是基于这种核心特性的。</p>

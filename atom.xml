@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2018-04-28T09:09:11.000Z</updated>
+  <updated>2018-05-18T06:28:46.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,79 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Spring Boot是什么？</title>
+    <link href="http://szpzs.oschina.io/2018/05/18/spring-boot-what-is-spring-boot/"/>
+    <id>http://szpzs.oschina.io/2018/05/18/spring-boot-what-is-spring-boot/</id>
+    <published>2018-05-18T06:24:59.000Z</published>
+    <updated>2018-05-18T06:28:46.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>这将是更侧重于介绍Spring Boot的短文，我们将讨论“什么是Spring Boot”？ 以及Spring Boot如何帮助构建基于Java的企业应用程序。</p>
+<a id="more"></a>
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>作为一名Java开发人员，我们很可能已经直接或间接地在工作中使用基于Spring Framework的应用程序。<strong>Spring</strong>有许多方法来配置它的行为，它提供三种方式进行配置，基于XML的配置或基于注解的配置，以及基于Java的配置，而基于Java的配置正在成为新的Spring应用程序的事实标准。尽管这些选项看起来非常好，但大型企业应用程序涉及数百个模块和复杂的业务规则，但这些配置可能会变得非常复杂。 以下是大型应用程序可以带来的一些复杂情况。</p>
+<ul>
+<li>每个模块有它自己的配置</li>
+<li>每个模块有它自己的依赖（第三方依赖）</li>
+<li>升级应用（例如从Spring 4.x 升级到Spring 5.x）将会很复杂，因为我们需要确认所有的依赖都正确地升级</li>
+<li>如果一些依赖不能正常工作，试图找出根本原因是一个大型应用程序非常复杂和具有挑战性。</li>
+</ul>
+<p>以上所有问题或多或少都与确保我们拥有一切，然后开发团队才能开始处理实际任务有关。 现在让我们来谈谈另一个情况，我们用它来处理任何基于Spring的应用程序。假设我们要创建一个基于Web的应用程序，下面是我们大多数人常用的常用步骤：</p>
+<ul>
+<li>使用我们选择的Maven或IDE创建一个Web应用程序。</li>
+<li>复制标准的Web应用程序配置（Spring MVC应用程序的web.xml配置）。</li>
+<li>根据我们的要求调整以上配置。</li>
+<li>配置Spring MVC标准bean，如ViewResolver，MessageSource等。</li>
+<li>配置要用于我们的应用程序的数据库属性。</li>
+<li>建立数据库层并确保底层数据库连接已经就位，然后才能开始使用它（EntityManagerFactory，TransactionManager等）</li>
+</ul>
+<p>上面的列表可以根据我们的应用程序的类型显着增长。</p>
+<h2 id="1-Spring-Boot是什么？"><a href="#1-Spring-Boot是什么？" class="headerlink" title="1. Spring Boot是什么？"></a>1. Spring Boot是什么？</h2><p>以上所有步骤对我们来说都很重要，但是它们给开发团队增加了很多开销，而不是专注于解决实际的业务问题，最初的时间将被消耗在确保一切都就位后才开始实际的工作。我们可以将Spring Boot视为可以自动完成这些初始任务的工具。Spring Boot对我们所使用的Spring平台有自己的视角，并确保团队可以快速开始解决实际业务问题，而不是花时间在初始配置和设置上。</p>
+<p>Spring Boot提供以下开箱即用的功能：</p>
+<ol>
+<li>它通过采用自己的视角简化了Spring依赖关系（我们将会更详细地讨论它）。</li>
+<li>Spring Boot提供了一组预先配置的技术/框架来减少容易出错的配置，因此我们作为开发人员专注于构建业务逻辑而不是考虑项目设置。</li>
+<li>你真的不需要为你的项目配置那些大的XML配置。</li>
+<li>直接内嵌Tomcat、Jetty 或 Undertow。</li>
+<li>提供预定义的Maven POM来简化您的配置。</li>
+</ol>
+<p>使用Spring Boot，可以轻松管理和处理介绍部分突出显示的问题。在升级过程中，我们不需要手动搜索兼容的jar包，Spring Bug将确保我们的应用程序升级到正确的版本（这称为麻烦最小化开发应用程序）。</p>
+<p>让我们来看看我们的Web应用程序的一个示例pom.xml，以了解Spring Boot例子程序的配置。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span> <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.javadevjournal.demo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>sample web application<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.7.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>rWeb Maven Webapp<span class="tag">&lt;/<span class="name">name</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://maven.apache.org<span class="tag">&lt;/<span class="name">url</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-hateoas<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-devtools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>请看\<packaging\>标签，Spring Boot可以灵活地将我们的应用程序作为jar包来运行，而不是强迫我们将war作为所需的打包类型。</packaging\></p>
+<h2 id="2-更好的依赖管理"><a href="#2-更好的依赖管理" class="headerlink" title="2. 更好的依赖管理"></a>2. 更好的依赖管理</h2><p>只要仔细检查配置，你不会找到所有这些Spring依赖项的条目（如web MVC，核心，AOP，ORM，验证API等等），你可能已经注意到类似的条目spring-boot-starter- *，这是Spring Boot依赖管理过程。 我们在我们的pom.xml中添加了spring-boot-starter-web，Spring Boot将拉取所有为Spring MVC应用程序必需的依赖（不再需要手动配置）。</p>
+<h2 id="3-自动配置"><a href="#3-自动配置" class="headerlink" title="3.自动配置"></a>3.自动配置</h2><p>自动配置是Spring Boot的另一个有趣功能，这就是为什么Spring Boot团队认为它有意思的地方。以下是Spring Boot为你做的一些工作：</p>
+<ol>
+<li>它将添加所有依赖，如第2点中所述。</li>
+<li>自动配置表明Spring Boot具有一些合理的默认设置，即基于配置的Spring Boot将猜测应用程序的类型，并提供运行应用程序所需的默认实现，以防我们未在应用程序中定义这些应用程序。 如果你定义了这些，Spring Boot将确保这些默认值将被取消，并让你的自定义配置将负责应用程序。</li>
+<li>为了更清晰的理解，假设你已经为JPA定义了依赖，并且没有定义任何数据库配置，Spring Boot会自动为我们创建所需的配置。</li>
+</ol>
+<p>请阅读这篇<a href="https://www.javadevjournal.com/spring/spring-boot-starters/" target="_blank" rel="external">文章</a>以更加深入地理解<strong>Spring boot的自动配置</strong></p>
+<h2 id="3-Servlet容器"><a href="#3-Servlet容器" class="headerlink" title="3. Servlet容器"></a>3. Servlet容器</h2><p>每当我们做出那些小的改变，并且需要将你的应用程序部署到应用服务器来测试我们的改变时，你是否记得在Servlet容器（Tomcat等）上部署它们的过程？Spring Boot提供对嵌入式Servlet容器的支持，我们不再需要在应用服务器上部署我们的应用程序（这可以使用标准main方法轻松运行），同时我们可以使用http://\<host>:\<port>在浏览器上访问我们的应用程序。</port></host></p>
+<p>我们的pom.xml中的Spring-boot-starter-web配置条目将为我们的Web应用程序提供嵌入式servlet容器，Apache Tomcat是Spring Boot提供的默认servlet容器，然而，Spring boot也提供了使用其他servlet容器的方法（我们所要做的就是将相应的 starter 添加到pom.xml中）。</p>
+<p>请阅读我们的文章<a href="https://www.javadevjournal.com/spring/introduction-to-spring-boot/" target="_blank" rel="external">使用Spring Boot构建应用程序</a>来开始使用Spring Boot构建你的应用程序。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>在这篇文章中，我们了解了Spring Boot，我们介绍了什么是Spring Boot？ Spring Boot有什么好处？ 我们讨论了Spring Boot的不同特性。 Spring Boot内部为我们做了很多事情，这对我们来说似乎很神奇。 在本系列文章中，我们将揭开Spring Boot的所有内部细节。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.javadevjournal.com/spring-boot/what-is-spring-boot/" target="_blank" rel="external">https://www.javadevjournal.com/spring-boot/what-is-spring-boot/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这将是更侧重于介绍Spring Boot的短文，我们将讨论“什么是Spring Boot”？ 以及Spring Boot如何帮助构建基于Java的企业应用程序。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Spring" scheme="http://szpzs.oschina.io/categories/Spring/"/>
+    
+      <category term="Spring boot" scheme="http://szpzs.oschina.io/categories/Spring/Spring-boot/"/>
+    
+    
+      <category term="Spring boot" scheme="http://szpzs.oschina.io/tags/Spring-boot/"/>
+    
+      <category term="Spring" scheme="http://szpzs.oschina.io/tags/Spring/"/>
+    
+  </entry>
   
   <entry>
     <title>Rust的内存安全革命</title>
@@ -1414,98 +1487,6 @@
       <category term="meta-programming" scheme="http://szpzs.oschina.io/tags/meta-programming/"/>
     
       <category term="macro" scheme="http://szpzs.oschina.io/tags/macro/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Elixir中的元编程－Quote 和 Unquote</title>
-    <link href="http://szpzs.oschina.io/2017/02/25/elixir-getting-started-meta-quote-and-unquote/"/>
-    <id>http://szpzs.oschina.io/2017/02/25/elixir-getting-started-meta-quote-and-unquote/</id>
-    <published>2017-02-25T08:20:29.000Z</published>
-    <updated>2017-02-28T08:22:23.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">Quoting</a></li>
-<li><a href="#part-two">Unquoting</a></li>
-<li><a href="#part-three">Escaping</a></li>
-</ol>
-<p>一个Elixir程序可以由Elixir自己的数据结构表示。在本章里，我们将学习那些数据结构看起来是什么样的，以及如何组成它们。在本章中学习的概念是宏的构建块，我们将在下一章中更深入地研究它。</p>
-<a id="more"></a>
-<h1 id="Quoting"><a href="#Quoting" class="headerlink" title="Quoting"></a><span id="part-one">Quoting</span></h1><p>一个Elixir程序的构建块上一个三元素的元组。例如，一个函数调用 sum(1, 2, 3) 被内部表示为：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;<span class="symbol">:sum</span>, [], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]&#125;</div></pre></td></tr></table></figure>
-<p>你通过使用 quote 宏得到任何表达式的表示：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> sum(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</div><div class="line">&#123;<span class="symbol">:sum</span>, [], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]&#125;</div></pre></td></tr></table></figure>
-<p>第一个元素是函数名，第二个元素是一个包含元数据的关键字列表，第三个元素是参数列表。</p>
-<p>运算符也可以表示为这样的元组：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> <span class="number">1</span> + <span class="number">2</span></div><div class="line">&#123;<span class="symbol">:+</span>, [<span class="symbol">context:</span> Elixir, <span class="symbol">import:</span> Kernel], [<span class="number">1</span>, <span class="number">2</span>]&#125;</div></pre></td></tr></table></figure>
-<p>甚至一个映射被表示为对 %{} 的调用：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> %&#123;<span class="number">1</span> =&gt; <span class="number">2</span>&#125;</div><div class="line">&#123;<span class="symbol">:%</span>&#123;&#125;, [], [&#123;<span class="number">1</span>, <span class="number">2</span>&#125;]&#125;</div></pre></td></tr></table></figure>
-<p>变量也可以用这样的三元素的元组来表示，其最后一个元素不是一个列表而是一个原子：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> x</div><div class="line">&#123;<span class="symbol">:x</span>, [], Elixir&#125;</div></pre></td></tr></table></figure>
-<p>当引用更负责的表达式，我们可以看到代码用这样的元组来表示，这样的元组经常彼此嵌套为一个像一颗树的结构。许多语言叫这样的表示为抽象语法树（AST）。Elixir叫它们为被引用的表达式：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> sum(<span class="number">1</span>, <span class="number">2</span> + <span class="number">3</span>, <span class="number">4</span>)</div><div class="line">&#123;<span class="symbol">:sum</span>, [], [<span class="number">1</span>, &#123;<span class="symbol">:+</span>, [<span class="symbol">context:</span> Elixir, <span class="symbol">import:</span> Kernel], [<span class="number">2</span>, <span class="number">3</span>]&#125;, <span class="number">4</span>]&#125;</div></pre></td></tr></table></figure>
-<p>有时使用引用表达式时，返回代码的文本表示可能是有用的。这可以用 Macro.to_string/1 ：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> sum(<span class="number">1</span>, <span class="number">2</span> + <span class="number">3</span>, <span class="number">4</span>))</div><div class="line"><span class="string">"sum(1, 2 + 3, 4)"</span></div></pre></td></tr></table></figure>
-<p>总的来说，以上元组按以下格式构造：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;atom | tuple, list, list | atom&#125;</div></pre></td></tr></table></figure>
-<ul>
-<li>第一个元素是一个原子或是相同表示格式的另一个元组。</li>
-<li>第二个元素是一个包含元数据，比如数字和上下文，的关键字列表。</li>
-<li>第三个元素是一个函数调用的参数列表或者一个原子。当这个元素是一个原子，则意味着这个元组表示一个变量。</li>
-</ul>
-<p>除了上述定义的元组，有五个Elixir字面量，当被引用的时候，返回的是它们自己（而不是一个元组）。它们是：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">:sum</span>         <span class="comment">#=&gt; 原子</span></div><div class="line"><span class="number">1.0</span>          <span class="comment">#=&gt; 数字</span></div><div class="line">[<span class="number">1</span>, <span class="number">2</span>]       <span class="comment">#=&gt; 列表</span></div><div class="line"><span class="string">"strings"</span>    <span class="comment">#=&gt; 字符串</span></div><div class="line">&#123;key, value&#125; <span class="comment">#=&gt; 两个元素的元组</span></div></pre></td></tr></table></figure>
-<p>大多数Elixir代码有一个它的底层引用表达式的直接翻译。我们建议你尝试不同的代码样例然后看看结果是怎么样的。例如，String.upcase(“foo”) 展开后是什么样子？我们也学到了 if(true, do: :this, else: :that) 和 if true do :this else :that end 是一样的。这个肯定是如何用引用表达式支持的？</p>
-<h1 id="Unquoting"><a href="#Unquoting" class="headerlink" title="Unquoting"></a><span id="part-two">Unquoting</span></h1><p>quote是关于获取一些特指代码块的内部表示。但是，有时候可能必须注入一些其他特指代码块到我们想要获取的表示里。</p>
-<p>例如，你有一个包含数字的变量number，你想要把它注入到一个引用表达式里。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; number = <span class="number">13</span></div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> <span class="number">11</span> + number)</div><div class="line"><span class="string">"11 + number"</span></div></pre></td></tr></table></figure>
-<p>这不是我们想要的，因为number变量的值没有被注入并且number已经被引入表达式。为了注入number变量的值，unquote必须被使用在被引用的描述里：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; number = <span class="number">13</span></div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> <span class="number">11</span> + unquote(number))</div><div class="line"><span class="string">"11 + 13"</span></div></pre></td></tr></table></figure>
-<p>unquote甚至可以被用于注入函数名：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; fun = <span class="symbol">:hello</span></div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> unquote(fun)(<span class="symbol">:world</span>))</div><div class="line"><span class="string">"hello(:world)"</span></div></pre></td></tr></table></figure>
-<p>在一些场景里，可能必须注入许多值在一个列表里。例如，假设你有一个列表 [1, 2, 6] 并且你想把 [3, 4, 5] 注入进去。使用 unquote 不会长生想要的结果：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; inner = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> [<span class="number">1</span>, <span class="number">2</span>, unquote(inner), <span class="number">6</span>])</div><div class="line"><span class="string">"[1, 2, [3, 4, 5], 6]"</span></div></pre></td></tr></table></figure>
-<p>这个时候就要使用 unquote_splicing ：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; inner = [<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</div><div class="line">iex&gt; Macro.to_string(<span class="keyword">quote</span> <span class="symbol">do:</span> [<span class="number">1</span>, <span class="number">2</span>, unquote_splicing(inner), <span class="number">6</span>])</div><div class="line"><span class="string">"[1, 2, 3, 4, 5, 6]"</span></div></pre></td></tr></table></figure>
-<p>当使用宏的时候，Unquoting 非常有用。当写宏的时候，开发者能够接收代码块并且注入它们到其他代码块里，这能被用来转换代码或者写代码，在编译期间生成代码。</p>
-<h1 id="Escaping"><a href="#Escaping" class="headerlink" title="Escaping"></a><span id="part-three">Escaping</span></h1><p>正如我们在本章开始的时候所见，在Elixir里只有一些值是有效引用表达式。例如，一个映射不是一个有效引用表达式。有四个元素的元组也不是。但是，这样的值可以被表达为一个引用表达式：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="keyword">quote</span> <span class="symbol">do:</span> %&#123;<span class="number">1</span> =&gt; <span class="number">2</span>&#125;</div><div class="line">&#123;<span class="symbol">:%</span>&#123;&#125;, [], [&#123;<span class="number">1</span>, <span class="number">2</span>&#125;]&#125;</div></pre></td></tr></table></figure>
-<p>在一些场景下，你可能需要注入这样的值到引用表达式里。为了这么做，我们需要首先用 Macro.escape/1 帮主来转义那些值为引用表达式：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">hello:</span> <span class="symbol">:world</span>&#125;</div><div class="line">iex&gt; Macro.escape(map)</div><div class="line">&#123;<span class="symbol">:%</span>&#123;&#125;, [], [<span class="symbol">hello:</span> <span class="symbol">:world</span>]&#125;</div></pre></td></tr></table></figure>
-<p>宏接收引用表达式并且必须返回引用表达式。然后，有些时候，在宏执行期间，你可能需要使用值并且使得值和将被需求的引用表达式之间有差别。</p>
-<p>换句话说，使得一个普通Elixir值（像一个列表、一个映射、一个进程、一个引用等等）和一个引用表达式之间有差别是很重要的。一些值，比如，整数、原子和字符串，有一个引用表达式等于值的本身。其他值，像映射，需要被明确地转换。最后，像函数和引用这样的值完全不能被转换为引用表达式。</p>
-<p>在 <a href="https://hexdocs.pm/elixir/Kernel.SpecialForms.html" target="_blank" rel="external">Kernel.SpecialForms 模块</a>里，你可以阅读到跟多关于 quote 和 unquote 的内容。Macro.escape/1 和其他与引用表达式相关的函数的文档可以在 <a href="https://hexdocs.pm/elixir/Macro.html" target="_blank" rel="external">Macro 模块</a>里找到。</p>
-<p>在这篇介绍文章里，我们已经为最终写我们的第一个宏奠定了基础，所以让我们开始下一章。</p>
-<blockquote>
-<p><em>原文链接：</em>  <a href="http://elixir-lang.org/getting-started/meta/quote-and-unquote.html" target="_blank" rel="external">http://elixir-lang.org/getting-started/meta/quote-and-unquote.html</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;Quoting&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;Unquoting&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;Escaping&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;一个Elixir程序可以由Elixir自己的数据结构表示。在本章里，我们将学习那些数据结构看起来是什么样的，以及如何组成它们。在本章中学习的概念是宏的构建块，我们将在下一章中更深入地研究它。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/categories/Elixir/"/>
-    
-      <category term="meta-programming" scheme="http://szpzs.oschina.io/categories/Elixir/meta-programming/"/>
-    
-      <category term="quote unquote" scheme="http://szpzs.oschina.io/categories/Elixir/meta-programming/quote-unquote/"/>
-    
-    
-      <category term="Elixir" scheme="http://szpzs.oschina.io/tags/Elixir/"/>
-    
-      <category term="meta-programming" scheme="http://szpzs.oschina.io/tags/meta-programming/"/>
-    
-      <category term="quote" scheme="http://szpzs.oschina.io/tags/quote/"/>
-    
-      <category term="unquote" scheme="http://szpzs.oschina.io/tags/unquote/"/>
     
   </entry>
   
