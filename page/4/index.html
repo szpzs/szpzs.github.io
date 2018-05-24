@@ -293,6 +293,285 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/18/elixir-getting-started-mix-otp-genserver/" itemprop="url">
+                  Mix 和 OTP－GenServer
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-18T12:05:34+08:00" content="2017-02-18">
+              2017-02-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/GenServer/" itemprop="url" rel="index">
+                    <span itemprop="name">GenServer</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ol>
+<li><a href="#part-one">我们第一个GenServer</a></li>
+<li><a href="#part-two">测试一个GenServer</a></li>
+<li><a href="#part-three">监测的必要性</a></li>
+<li><a href="#part-four">call、cast还是info？</a></li>
+<li><a href="#part-five">监测还是链接？</a></li>
+</ol>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">第一章</a>，或者查看本教程的章节索引。</p>
+<p>在<a href="http://elixir-lang.org/getting-started/mix-otp/agent.html">上一章</a>我们用agent来表示我们的bucket（容器）。在第一章中，我们指出了我们要命名每个bucket，这样我们就可以做到以下几点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">CREATE shopping</div><div class="line">OK</div><div class="line"></div><div class="line">PUT shopping milk 1</div><div class="line">OK</div><div class="line"></div><div class="line">GET shopping milk</div><div class="line">1</div><div class="line">OK</div></pre></td></tr></table></figure>
+<p>既然agent是进程，那么每个bucket有一个进程标识符（pid），但是它没有名字。我们已经在进程那一章中了解了的名字注册，你可能会倾向于使用此注册来解决这个问题。例如，我们可以像下面这样来创建一个bucket：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; Agent.start_link(<span class="keyword">fn</span> -&gt; %&#123;&#125; <span class="keyword">end</span>, <span class="symbol">name:</span> <span class="symbol">:shopping</span>)</div><div class="line">&#123;<span class="symbol">:ok</span>, <span class="comment">#PID&lt;0.43.0&gt;&#125;</span></div><div class="line">iex&gt; KV.Bucket.put(<span class="symbol">:shopping</span>, <span class="string">"milk"</span>, <span class="number">1</span>)</div><div class="line"><span class="symbol">:ok</span></div><div class="line">iex&gt; KV.Bucket.get(<span class="symbol">:shopping</span>, <span class="string">"milk"</span>)</div><div class="line"><span class="number">1</span></div></pre></td></tr></table></figure>
+<p>然而，这是一个可怕的想法！在Elixir中进程的名字必须是原子，这意味着我们需要将bucket的名字（通常是从外部客户端接收过来的）转换为原子，而<strong>我们不应该将用户输入转换为原子</strong>。这是因为原子没有垃圾回收。一个原子一旦被创建，它就再也不会被回收。从用户的输入来生成原子将意味着用户可以注入足够多的不同名字来耗尽我们系统的内存！</p>
+<p>在实践中，更可能的是你会耗尽内存也就是使得你的系统崩溃之前达到Erlang虚拟机的原子的最大数量的限制。</p>
+<p>我们不滥用名字注册的功能，反而是创建我们自己的注册进程，它持有一个映射来关联bucket的名字和bucket的进程。</p>
+<p>注册需要保证字典内容总是最新的。例如，一个bucket进程因为bug而崩溃了，注册必须清理字典来避免数据被污染。在Elixir中，我们描述这一点，说注册表需要监视每个bucket。</p>
+<p>我们将使用一个 <a href="https://hexdocs.pm/elixir/GenServer.html">GenServer</a> 来创建一个注册进程，它可以监测bucket进程。GenServer提供工业级强度的功能来构建Elixir和OTP里的服务器。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/18/elixir-getting-started-mix-otp-genserver/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/17/elixir-getting-started-mix-otp-agent/" itemprop="url">
+                  Mix 和 OTP－Agent
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-17T20:54:47+08:00" content="2017-02-17">
+              2017-02-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/Agent/" itemprop="url" rel="index">
+                    <span itemprop="name">Agent</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ol>
+<li><a href="#part-one">状态的麻烦</a></li>
+<li><a href="#part-two">Agents</a></li>
+<li><a href="#part-three">用ExUnit回调函数设置测试</a></li>
+<li><a href="#part-four">其他Agent动作</a></li>
+<li><a href="#part-five">Agent的Client/Server</a></li>
+</ol>
+<p>本章是<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">Mix和OTP教程</a>的一部分，它依赖这个教程的前面章节。要获得更多信息，请阅读本教程的<a href="http://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">第一章</a>，或者查看本教程的章节索引。</p>
+<p>在本章，我们将创建一个名为 KV.Bucket 的模块。这个模块将以某种方式存储我们的键值对实体，并允许其他进程读取和修改它们。</p>
+<p>如果你跳过了入门教程或已经读过了很长时间，你应该重新读一下<a href="http://elixir-lang.org/getting-started/processes.html">进程</a>这一章。我们将用它作为起始点。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/17/elixir-getting-started-mix-otp-agent/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/16/elixir-getting-started-mix-otp-introduction-to-mix/" itemprop="url">
                   Mix 和 OTP－Mix简介
                 </a>
@@ -1350,279 +1629,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/09/elixir-getting-started-structs/" itemprop="url">
-                  Elixir入门教程－结构体
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-09T22:13:18+08:00" content="2017-02-09">
-              2017-02-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/" itemprop="url" rel="index">
-                    <span itemprop="name">Elixir</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/struct/" itemprop="url" rel="index">
-                    <span itemprop="name">struct</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <ol>
-<li><a href="#part-one">定义结构体</a></li>
-<li><a href="#part-two">访问和修改结构体</a></li>
-<li><a href="#part-three">结构体的底层是裸映射</a></li>
-<li><a href="#part-four">默认值和所需的键</a></li>
-</ol>
-<p>在第七章我们学了映射：</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div><div class="line">%&#123;<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div><div class="line">iex&gt; map[<span class="symbol">:a</span>]</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; %&#123;map | <span class="symbol">a:</span> <span class="number">3</span>&#125;</div><div class="line">%&#123;<span class="symbol">a:</span> <span class="number">3</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div></pre></td></tr></table></figure>
-<p>结构体是构建于映射之上的扩展，它提供了编译时检查和默认值。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/09/elixir-getting-started-structs/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/09/elixir-getting-started-module-attributes/" itemprop="url">
-                  Elixir入门教程－模块属性
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-09T20:45:15+08:00" content="2017-02-09">
-              2017-02-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/" itemprop="url" rel="index">
-                    <span itemprop="name">Elixir</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/module-attribute/" itemprop="url" rel="index">
-                    <span itemprop="name">module-attribute</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <ol>
-<li><a href="#part-one">作为注释</a></li>
-<li><a href="#part-two">作为常量</a></li>
-<li><a href="#part-three">作为临时存储</a></li>
-</ol>
-<p>在Elixir里，模块属性服务于三个目标：</p>
-<ul>
-<li>它们常常用一些信息来注释模块被用户或Erlang虚拟机使用。</li>
-<li>它们用作常量。</li>
-<li>它们被用于编译期间临时模块存储。</li>
-</ul>
-<p>让我们一个一个地来仔细看看这三个方面。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/09/elixir-getting-started-module-attributes/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1668,7 +1674,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">153</span>
+              <span class="site-state-item-count">155</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1676,7 +1682,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">102</span>
+                <span class="site-state-item-count">104</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1685,7 +1691,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">214</span>
+                <span class="site-state-item-count">217</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

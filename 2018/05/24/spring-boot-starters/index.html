@@ -1,0 +1,934 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Spring boot,Spring,Spring boot starter," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="在这篇文章中，我们将向你介绍Spring Boot Starters，并将讨论Spring Boot Starters的优点和优势。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Boot Starters简介">
+<meta property="og:url" content="http://szpzs.oschina.io/2018/05/24/spring-boot-starters/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="在这篇文章中，我们将向你介绍Spring Boot Starters，并将讨论Spring Boot Starters的优点和优势。">
+<meta property="og:updated_time" content="2018-05-24T03:02:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring Boot Starters简介">
+<meta name="twitter:description" content="在这篇文章中，我们将向你介绍Spring Boot Starters，并将讨论Spring Boot Starters的优点和优势。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2018/05/24/spring-boot-starters/"/>
+
+  <title> Spring Boot Starters简介 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Spring Boot Starters简介
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-05-24T10:46:53+08:00" content="2018-05-24">
+              2018-05-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Spring/Spring-boot/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring boot</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Spring/Spring-boot/Spring-boot-starter/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring boot starter</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在这篇文章中，我们将向你介绍Spring Boot Starters，并将讨论Spring Boot Starters的优点和优势。</p>
+<a id="more"></a>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>在启动任何项目(无论是小型项目还是企业级应用程序)之前，其中关键的方面之一是依赖管理，手动为小型应用程序执行依赖管理并不是一项困难的工作，但对于复杂的应用程序，手动管理所有项目依赖并不理想，容易出现许多问题以及浪费时间，而这些时间可以用于项目的其他一些重要方面。</p>
+<p>Spring Boot背后的基本原理之一就是解决类似的问题。Spring Boot Starter是一套方便的依赖描述符，可以很容易地包含在任何级别的应用程序中。这些Starters作为Spring相关技术的引导过程，我们 不再需要担心依赖关系，它们将由Spring Boot Starters自动管理。</p>
+<p>Starters包含了许多你需要的依赖项，以使项目快速启动和运行，并且具有一致的、被支持的一组管理传递依赖项。</p>
+<h1 id="1-为什么我们需要Starters？"><a href="#1-为什么我们需要Starters？" class="headerlink" title="1. 为什么我们需要Starters？"></a>1. 为什么我们需要Starters？</h1><p>当我们用Spring Boot开始开发应用时，我们想到的一个基本问题就是为什么我们需要Spring Boot Starters？ 或者这些Starters在我的应用中如何帮助到我？</p>
+<p>如前所述，这些Starters用于引导应用程序，我们需要的只是在应用程序中包括正确的Starters，而Spring Boot将确保所选Starters所需的所有依赖项都在你的classpath中。</p>
+<p>为了更清楚地理解它，我们举一个例子，我们想构建一个简单的Spring Web MVC应用程序，我们需要在开始编写我们的Web应用程序代码之前考虑以下几点。</p>
+<ul>
+<li>正确的Spring MVC依赖</li>
+<li>Web技术所需的依赖（例如，我们想要使用Thymeleaf）</li>
+<li>我们需要确保所有这些依赖是兼容的</li>
+</ul>
+<p>使用Spring Boot Starters来引导我们的Spring MVC Web应用程序非常简单，我们需要在我们的pom.xml中包含spring-boot-starter-web 这个starter：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>以上pom.xml中的条目将确保所有必需的依赖项都应位于classpath中，因此我们都准备好开始开发web应用程序了。</p>
+<p>目前，Spring Boot提供的Starters约有50多个，这还不包括第三方的Starters。有关Starters的更新列表，请参阅<a href="https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-starter" title="Spring Boot Starter" target="_blank" rel="external">Spring Boot Starter</a></p>
+<p>接下来，我将介绍一些常用的Starters。</p>
+<h1 id="2-Web-Starter"><a href="#2-Web-Starter" class="headerlink" title="2. Web Starter"></a>2. Web Starter</h1><p>这是最常用的Spring Boot Starter之一，该Starter将确保创建Spring Web应用程序（包括REST）所需的所有依赖包括在你的calsspath中，它还将添加tomcat-starter作为默认服务器来运行我们的Web应用程序。 要在我们的应用程序中包含Web Starter，请在pom.xml中添加以下条目。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line"> <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line"> <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>现在我们可以创建我们的Spring MVC Controller</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"> <span class="meta">@RestController</span></div><div class="line"> <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SampleController</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/greeting"</span>)</div><div class="line">    <span class="function">String <span class="title">hello</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">"HelloWorld!"</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果你运行应用程序并访问<a href="http://localhost:8080/greeting，你应该能够获得&quot;Hello" target="_blank" rel="external">http://localhost:8080/greeting，你应该能够获得&quot;Hello</a> Word”作为响应。我们使用最少的代码创建了一个REST控制器。</p>
+<h1 id="3-Data-JPA-Starter"><a href="#3-Data-JPA-Starter" class="headerlink" title="3. Data JPA Starter"></a>3. Data JPA Starter</h1><p>大多数应用程序需要一些持久性机制，而JPA是持久性的标准，Spring Boot Starters带有JPA Starters，你不再需要手动配置这些JPA依赖，而是可以通过在应用程序中添加JPA Starter轻松实现。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-jpa<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.h2database<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>h2<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>Spring JPA Starter提供对H2，Derby和Hsqldb的自动支持。让我们看看使用JPA starter创建一个JPA样例应用程序是多么容易。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Entity</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Id</span></div><div class="line">    <span class="meta">@GeneratedValue</span>(strategy = GenerationType.AUTO)</div><div class="line">    <span class="keyword">private</span> Long id;</div><div class="line">    <span class="keyword">private</span> String firstName;</div><div class="line">    <span class="keyword">private</span> String lastName;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="title">User</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">User</span><span class="params">(String firstName, String lastName)</span> </span>&#123;</div><div class="line">        <span class="comment">//this.id = id;</span></div><div class="line">        <span class="keyword">this</span>.firstName = firstName;</div><div class="line">        <span class="keyword">this</span>.lastName = lastName;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Long <span class="title">getId</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> id;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setId</span><span class="params">(Long id)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.id = id;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getFirstName</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> firstName;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFirstName</span><span class="params">(String firstName)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.firstName = firstName;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getLastName</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> lastName;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setLastName</span><span class="params">(String lastName)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.lastName = lastName;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">"User&#123;"</span> +</div><div class="line">                <span class="string">"id="</span> + id +</div><div class="line">                <span class="string">", firstName='"</span> + firstName + <span class="string">'\''</span> +</div><div class="line">                <span class="string">", lastName='"</span> + lastName + <span class="string">'\''</span> +</div><div class="line">                <span class="string">'&#125;'</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如下是我们的UserRepository：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserRepository</span> <span class="keyword">extends</span> <span class="title">CrudRepository</span>&lt;<span class="title">User</span>,<span class="title">Long</span>&gt; </span>&#123;</div><div class="line">    <span class="function">List&lt;User&gt; <span class="title">findUserByLastName</span><span class="params">(String lastName)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>接下来我们可以测试我们的代码了，如下是JUnit代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RunWith</span>(SpringRunner.class)</div><div class="line"><span class="meta">@SpringBootTest</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JpademoApplicationTests</span> </span>&#123;</div><div class="line"></div><div class="line">   <span class="meta">@Autowired</span></div><div class="line">   UserRepository userRepository;</div><div class="line"></div><div class="line">   <span class="meta">@Test</span></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">contextLoads</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">        User user = userRepository.save(<span class="keyword">new</span> User(<span class="string">"Demo"</span>,<span class="string">"User"</span>));</div><div class="line">        User searchUser= userRepository.findOne(user.getId());</div><div class="line"></div><div class="line">        assertNotNull(searchUser);</div><div class="line">        assertEquals(user.getFirstName(),searchUser.getFirstName());</div><div class="line"></div><div class="line">   &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>正如我们在上面的代码中看到的那样，你不再需要指定那些数据库配置或额外的数据库配置，通过添加JPA starter，我们无需配置或编码即可获得许多开箱即用的功能。</p>
+<p>如果需要，你始终可以修改或自定义这些配置。</p>
+<h1 id="4-Mail-Starter"><a href="#4-Mail-Starter" class="headerlink" title="4. Mail Starter"></a>4. Mail Starter</h1><p>从应用程序发送电子邮件是非常常见的任务，现在每个应用程序都需要从系统发送电子邮件。Spring Boot Mail starter提供了一种隐藏所有复杂性的简单方法来处理此功能。</p>
+<p>我们可以通过在应用程序中添加Mail starter来启用电子邮件支持。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-mail<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>我正在使用Mailgun作为我的SMTP服务器，以下是添加到我的application. properties文件中的SMTP详细信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">spring.mail.host=smtp.mailgun.org</div><div class="line">spring.mail.username=postmaster@domain.com</div><div class="line">spring.mail.password=mypassword</div><div class="line">spring.mail.properties.mail.transport.protocol=smtp</div><div class="line">spring.mail.properties.mail.smtp.port=587</div><div class="line">spring.mail.properties.mail.smtp.auth=true</div></pre></td></tr></table></figure>
+<p>我们的EmailService类负责发送邮件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JavaEmailService</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> JavaMailSender mailSender;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">JavaEmailService</span><span class="params">(JavaMailSender mailSender)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.mailSender = mailSender;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span></span>&#123;</div><div class="line">        MimeMessagePreparator messagePreparator = mimeMessage -&gt; &#123;</div><div class="line"></div><div class="line">            MimeMessageHelper helper = <span class="keyword">new</span> MimeMessageHelper(mimeMessage);</div><div class="line">            helper.setFrom(<span class="string">"noreply@javadevjournal.com"</span>);</div><div class="line">            helper.setTo(<span class="string">"xxx@gmail.com"</span>);</div><div class="line">            helper.setSubject(<span class="string">"Sample mail subject"</span>);</div><div class="line">            helper.setText(<span class="string">"Test Email"</span>);</div><div class="line">        &#125;;</div><div class="line"></div><div class="line">        mailSender.send(messagePreparator);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们使用Spring提供的JavaMailSender来发送电子邮件。 JUnit测试代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RunWith</span>(SpringRunner.class)</div><div class="line"><span class="meta">@SpringBootTest</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmailTest</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Autowired</span></div><div class="line">    JavaEmailService javaEmailService;</div><div class="line"></div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span></span>&#123;</div><div class="line"></div><div class="line">        javaEmailService.sendEmail();</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>同样，只需简单的代码和配置即可发送一封简单的电子邮件，Spring Boot Mail Starter确保所有必需的工具已经到位，以快速开始解决实际问题。</p>
+<p>请注意，我们在JavaEmailService bean中使用JavaMailSender - 该bean是由Spring Boot自动创建的。</p>
+<h1 id="5-Test-Starter"><a href="#5-Test-Starter" class="headerlink" title="5. Test Starter"></a>5. Test Starter</h1><p>我们通常使用Junit、Mockito或Spring Test来测试我们的应用程序。我们可以通过添加Spring Boot Test starter轻松地将所有这些库包含在我们的应用程序中。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>Spring Boot会自动找到我们正确的版本用于我们的应用程序测试。 这是一个JUnit示例测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RunWith</span>(SpringRunner.class)</div><div class="line"><span class="meta">@SpringBootTest</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmailTest</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Autowired</span></div><div class="line">    JavaEmailService javaEmailService;</div><div class="line"></div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendEmail</span><span class="params">()</span></span>&#123;</div><div class="line"></div><div class="line">        javaEmailService.sendEmail();</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>除了这些starter之外，下面还有其他常用的Spring Boot Starter</p>
+<ul>
+<li>spring-boot-starter-security</li>
+<li>spring-boot-starter-web-services</li>
+<li>spring-boot-starter-integration</li>
+<li>spring-boot-starter-validation</li>
+<li>spring-boot-starter-actuator</li>
+</ul>
+<p>如前所述，请参阅<a href="https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-starter" title="Spring Boot Starter" target="_blank" rel="external">Spring Boot Starter</a>获取Spring Boot提供的Starter的最新列表。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文提供了一个Spring Boot Starters简介，我们讨论了为什么我们需要这些Starter以及他们如何帮助我们快速引导我们的应用程序。 我们探索了一些最常用的Spring Boot Starter。</p>
+<p>建议阅读：<br><a href="https://www.javadevjournal.com/spring/introduction-to-spring-boot/" title="Building an Application with Spring Boot" target="_blank" rel="external">使用Spring Boot构建应用程序</a></p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.javadevjournal.com/spring/spring-boot-starters/" target="_blank" rel="external">https://www.javadevjournal.com/spring/spring-boot-starters/</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Spring-boot/" rel="tag">#Spring boot</a>
+          
+            <a href="/tags/Spring/" rel="tag">#Spring</a>
+          
+            <a href="/tags/Spring-boot-starter/" rel="tag">#Spring boot starter</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/21/introduction-to-spring-boot/" rel="next" title="使用Spring Boot构建应用程序">
+                <i class="fa fa-chevron-left"></i> 使用Spring Boot构建应用程序
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/24/in-defense-of-gen-event/" rel="prev" title="为gen_event辩护">
+                为gen_event辩护 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时当勉励，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">155</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">104</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">217</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-为什么我们需要Starters？"><span class="nav-number">2.</span> <span class="nav-text">1. 为什么我们需要Starters？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Web-Starter"><span class="nav-number">3.</span> <span class="nav-text">2. Web Starter</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Data-JPA-Starter"><span class="nav-number">4.</span> <span class="nav-text">3. Data JPA Starter</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-Mail-Starter"><span class="nav-number">5.</span> <span class="nav-text">4. Mail Starter</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-Test-Starter"><span class="nav-number">6.</span> <span class="nav-text">5. Test Starter</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
