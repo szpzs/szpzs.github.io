@@ -4,6 +4,44 @@
   
     
     <entry>
+      <title><![CDATA[Erlang私有函数的私有程度如何？]]></title>
+      <url>http://szpzs.oschina.io/2018/05/25/how-private-are-erlang-private-functions/</url>
+      <content type="html"><![CDATA[<p>今天我在推特上看到一条引起我注意的推文：</p>
+<p><img src="/images/erlang-private-function.png" style="border:0;"></p>
+<a id="more"></a>
+<p>出于科学的考虑，Erlang的私有函数是私有的！这与Python中的情况不同，在Python中，<a href="https://stackoverflow.com/questions/70528/why-are-pythons-private-methods-not-actually-private" target="_blank" rel="external">你在各处添加了几个下划线</a>，突然之间，两秒钟前是私有的，现在已经公开了。在Erlang，我们的私有函数在保险箱里安全地呆了25年！没有人可以调用我们声明为私有的函数！或者……有办法吗？</p>
+<p><img src="/images/erlang-private-function2.gif" style="border:0;"></p>
+<center>我会告诉你</center>
+
+<p>事实证明，在Erlang中调用私有函数的方式并不那么简单，即使假设代码已经在启用<a href="http://erlang.org/doc/man/compile.html" target="_blank" rel="external">debug_info</a>的情况下编译。 让我们看看事情是如何运作的。</p>
+<p>我们首先定义一个名为test的模块。 该模块包含两个函数，其中只有一个被导出：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(test)</span>.</div><div class="line"></div><div class="line"><span class="keyword">-export</span><span class="params">([public/<span class="number">0</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">public</span><span class="params">()</span> -&gt;</span></div><div class="line"> i_am_public.</div><div class="line"></div><div class="line"><span class="function"><span class="title">private</span><span class="params">()</span> -&gt;</span></div><div class="line"> i_am_private.</div></pre></td></tr></table></figure>
+<p>让我们编译模块，并确保包含调试信息。 注意在Erlang中如何包含调试信息是相当常见的，因为包括调试器，交叉引用工具和覆盖分析工具在内的许多工具都需要这些信息才能工作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ erlc +debug_info test.erl</div><div class="line">test.erl:8: Warning: <span class="keyword">function</span> private/0 is unused</div></pre></td></tr></table></figure>
+<p>编译器通知我们该私有函数不可访问，这是预期到会有的。 现在让我们打开一个shell并尝试调用这两个函数：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ erl</div><div class="line">Erlang/OTP <span class="number">19</span> [erts-<span class="number">8.3</span>.<span class="number">5.3</span>] [...]</div><div class="line"></div><div class="line">Eshell V8.<span class="number">3.5</span>.<span class="number">3</span>  (abort with ^G)</div><div class="line"><span class="number">1</span>&gt; l(test).</div><div class="line">&#123;module,test&#125;</div><div class="line"><span class="number">2</span>&gt; test:public.</div><div class="line">i_am_public</div><div class="line"><span class="number">3</span>&gt; test:private().</div><div class="line">** exception error: undefined function test:private/<span class="number">0</span></div></pre></td></tr></table></figure>
+<p>我们可以调用公共函数，但不能调用私有函数。没什么新鲜的。现在，让我们定义一个小的匿名函数(我马上将解释它的作用)，并将其绑定到变量Open：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="number">4</span>&gt; Open = <span class="keyword">fun</span>(Module) -&gt;</div><div class="line">    Which = code:which(Module),</div><div class="line">    &#123;ok,&#123;_,[&#123;_,&#123;_,A&#125;&#125;]&#125;&#125; = beam_lib:chunks(Module, [abstract_code]),</div><div class="line">    &#123;ok, Module, Binary&#125; = compile:forms(A, [export_all]),</div><div class="line">    code:load_binary(Module, Which, Binary)</div><div class="line">   <span class="keyword">end</span>.</div><div class="line">#Fun&lt;erl_eval.<span class="number">6.118419387</span>&gt;</div></pre></td></tr></table></figure>
+<p>然后让我们调用Open函数，将test模块作为参数传递给它：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="number">5</span>&gt; Open(test).</div><div class="line">&#123;module, test&#125;</div></pre></td></tr></table></figure>
+<p>现在让我们尝试访问私有函数：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="number">6</span>&gt; test:private().</div><div class="line">i_am_private.</div></pre></td></tr></table></figure>
+<p>保险箱现在大开着。</p>
+<p><img src="/images/erlang-private-function3.gif" style="border:0;"></p>
+<center>我的天哪。</center>
+
+<p>那么，Open函数背后有什么样的黑魔法？ 实际上并不多。 让我们再看一遍：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">fun</span><span class="params">(Module)</span> -&gt;</span></div><div class="line">  Which = code:which(Module),</div><div class="line">  &#123;ok,&#123;_,[&#123;_,&#123;_,A&#125;&#125;]&#125;&#125; = beam_lib:chunks(Module, [abstract_code]),</div><div class="line">  &#123;ok, Module, Binary&#125; = compile:forms(A, [export_all]),</div><div class="line">  code:load_binary(Module, Which, Binary)</div><div class="line"><span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>在向code server请求test模块的绝对文件名路径之后，我们使用强大的beam_lib接口从test模块的beam文件中包含的调试信息中提取抽象语法形式（还记得我们使用debug_info选项编译它吗？)，然后我们从这些语法形式开始重新编译模块，并添加臭名昭著的export_all选项，这将导致导出模块中定义的所有函数。我们重新加载了模块的新版本。</p>
+<p>为了简单起见，在上面的例子中有一些情况是Open函数没有考虑的，但你应该明白它的要点。</p>
+<p>快乐黑客！</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/about-erlang/how-private-are-erlang-private-functions-36382c6abfa4" target="_blank" rel="external">https://medium.com/about-erlang/how-private-are-erlang-private-functions-36382c6abfa4</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[为gen_event辩护]]></title>
       <url>http://szpzs.oschina.io/2018/05/24/in-defense-of-gen-event/</url>
       <content type="html"><![CDATA[<p>gen_event曾一度引起Erlang和Elixir开发人员的不满。他们已经撰写了许多文章，并就gen_event的各种替代办法举行了一次以上的会议。在这篇文章中，我要说明的是，尽管gen_event存在缺陷，但它仍然是一个非常有用的模块。我也认为它的核心设计最终要比许多人认为的灵活得多。</p>
