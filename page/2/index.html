@@ -293,6 +293,147 @@
             
               
                 
+                <a class="post-title-link" href="/2018/03/26/erlang-file-inclusion/" itemprop="url">
+                  Erlang里的文件包含
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-03-26T14:19:38+08:00" content="2018-03-26">
+              2018-03-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/Preprocessor/" itemprop="url" rel="index">
+                    <span itemprop="name">Preprocessor</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Erlang中包含文件的语法有两个：</p>
+<ul>
+<li>-include(File).</li>
+<li>-include_lib(File).</li>
+</ul>
+<p>它们其实是预编译指令。其中File是一个字符串，表示被包含文件的文件名相对路径或绝对路径。</p>
+<p>在Erlang中，一般需要被公用的记录和宏定义都放在被包含文件里，文件名后缀名为.hrl。</p>
+<p>File可以使用操作系统的环境变量作为路径开头部分。比如：<br>-include(“\$PROJ_ROOT/my_records.hrl”).<br>Erlang将使用os:getenv(PROJ_ROOT)来获得操作系统的环境变量PROJ_ROOT的值，并替换”\$PROJ_ROOT/my_records.hrl”中的\$PROJ_ROOT。</p>
+<p>如果File是绝对路径，则Erlang就按绝对路径来查找文件。如果File不是绝对路径，则Erlang按如下顺序来查找文件：</p>
+<ul>
+<li>当前工作目录</li>
+<li>编译后的模块所在目录</li>
+<li>通过include选项给出的目录</li>
+</ul>
+<p>include_lib不指定绝对路径。路径的第一部分被Erlang虚拟机认为是一个应用的名字。例如：</p>
+<p>-include_lib(“kernel/include/file.hrl”).</p>
+<p>Erlang使用code:lib_dir(kernel)来获得kernel应用的绝对路径，然后替换”kernel/include/file.hrl”里的kernel，最后得到绝对路径。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/03/23/erlang-scheduler-binding-cpu/" itemprop="url">
                   Erlang的调度器如何绑定到CPU
                 </a>
@@ -1350,141 +1491,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/03/16/how-to-evaluate-a-string-of-code-in-erlang-at-runtime/" itemprop="url">
-                  如何在运行时求值Erlang的代码字符串
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-16T22:03:09+08:00" content="2017-03-16">
-              2017-03-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/erl-scan-erl-parse-erl-eval/" itemprop="url" rel="index">
-                    <span itemprop="name">erl_scan erl_parse erl_eval</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>Erlang有一种能力，在运行时读取一个代表一行代码的字符然后执行这行代码。</p>
-<p>它可以解析这个字符串，执行它，然后返回结果。</p>
-<ol>
-<li><a href="#part-one">求值简单的表达式</a></li>
-<li><a href="#part-two">安全注意事项</a><br> 2.1. <a href="#part-two-one">SQL注入攻击是什么？(请耐心看看)</a><br> 2.2 <a href="#part-two-two">与Erlang有关的安全问题是什么？！</a></li>
-<li><a href="#part-three">拦截本地函数调用</a></li>
-<li><a href="#part-four">拦截非本地函数调用</a></li>
-<li><a href="#part-five">还有什么？</a></li>
-</ol>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/03/16/how-to-evaluate-a-string-of-code-in-erlang-at-runtime/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1530,7 +1536,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">156</span>
+              <span class="site-state-item-count">157</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1547,7 +1553,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">221</span>
+                <span class="site-state-item-count">222</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
