@@ -293,6 +293,144 @@
             
               
                 
+                <a class="post-title-link" href="/2017/02/03/elixir-getting-started-modules/" itemprop="url">
+                  Elixir入门教程－模块
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-03T22:51:07+08:00" content="2017-02-03">
+              2017-02-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/module/" itemprop="url" rel="index">
+                    <span itemprop="name">module</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ol>
+<li><a href="#part-one">编译</a></li>
+<li><a href="#part-two">脚本模式</a></li>
+<li><a href="#part-three">命名函数</a></li>
+<li><a href="#part-four">函数捕获</a></li>
+<li><a href="#part-five">默认参数</a></li>
+</ol>
+<p>在Elixir里我们将几个函数到模块里。在前面的章节里我们已经使用了许多不用的模块，比如<a href="https://hexdocs.pm/elixir/String.html">String模块</a>：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">iex&gt; String.length(<span class="string">"hello"</span>)</div><div class="line"><span class="number">5</span></div></pre></td></tr></table></figure>
+<p>为了在Elixir里创建我们自己的模块，我们使用 defmodule 模块。我们使用 def 宏来定义模块里的函数。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">iex&gt; <span class="class"><span class="keyword">defmodule</span> <span class="title">Math</span></span> <span class="keyword">do</span></div><div class="line">...&gt;   <span class="function"><span class="keyword">def</span> <span class="title">sum</span></span>(a, b) <span class="keyword">do</span></div><div class="line">...&gt;     a + b</div><div class="line">...&gt;   <span class="keyword">end</span></div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"></div><div class="line">iex&gt; Math.sum(<span class="number">1</span>, <span class="number">2</span>)</div><div class="line"><span class="number">3</span></div></pre></td></tr></table></figure>
+<p>下面几个部分，我们的例子变得更长，在shell里将可能难以输入。现在是时候我们学习如何编译Elixir代码以及如何运行Elixir脚本。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/03/elixir-getting-started-modules/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/02/02/elixir-getting-started-keywords-and-maps/" itemprop="url">
                   Elixir入门教程－Keywords和maps
                 </a>
@@ -1453,134 +1591,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/23/distributed-computing-using-erlang-1/" itemprop="url">
-                  用Erlang进行分布式计算 -- 第一篇
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-01-23T13:30:17+08:00" content="2017-01-23">
-              2017-01-23
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/Distributed-Systems/" itemprop="url" rel="index">
-                    <span itemprop="name">Distributed Systems</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>本文我们将看看Erlang里的分布式系统是如何运作的。</p>
-<p>Erlang是一种函数式语言，其最被大家所熟知的是分布式和并发计算。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/01/23/distributed-computing-using-erlang-1/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1626,7 +1636,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">157</span>
+              <span class="site-state-item-count">158</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1643,7 +1653,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">222</span>
+                <span class="site-state-item-count">223</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

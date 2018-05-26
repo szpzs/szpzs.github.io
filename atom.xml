@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2018-05-25T07:50:51.000Z</updated>
+  <updated>2018-05-26T21:28:48.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,73 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Spring Boot Web应用程序配置</title>
+    <link href="http://szpzs.oschina.io/2018/05/27/spring-boot-web-application-configuration/"/>
+    <id>http://szpzs.oschina.io/2018/05/27/spring-boot-web-application-configuration/</id>
+    <published>2018-05-26T21:18:58.000Z</published>
+    <updated>2018-05-26T21:28:48.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>在这篇短文中，我们将介绍<strong>Spring Boot Web应用程序配置</strong>的一些有趣方面。 我们将介绍一些Web应用程序最常用的配置。</p>
+<a id="more"></a>
+<h1 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1. 介绍"></a>1. 介绍</h1><p>Spring Boot带有智能构建功能，可以轻松创建Web或独立应用程序。Spring Boot可以为我们做很多事情，甚至不需要我们为Web应用程序编写一行代码。本文中，我们只介绍其中几个配置。</p>
+<h1 id="2-HTTP端口"><a href="#2-HTTP端口" class="headerlink" title="2. HTTP端口"></a>2. HTTP端口</h1><p>web应用最常见的一个配置是HTTP端口号，我们可以用下列几种方式轻松地为我们的web应用配置HTTP端口号：</p>
+<ul>
+<li>使用application.properties文件</li>
+<li>通过基于YAML的配置</li>
+<li>以编程方式设置HTTP端口号</li>
+</ul>
+<h2 id="2-1-通过配置来设置HTTP端口"><a href="#2-1-通过配置来设置HTTP端口" class="headerlink" title="2.1 通过配置来设置HTTP端口"></a>2.1 通过配置来设置HTTP端口</h2><p>对于properties文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">server.port=9001</div></pre></td></tr></table></figure>
+<p>对于YAML文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="attr">server:</span></div><div class="line"><span class="attr">        port:</span> <span class="number">8083</span></div></pre></td></tr></table></figure>
+<h2 id="2-2-以编程方式设置HTTP端口号"><a href="#2-2-以编程方式设置HTTP端口号" class="headerlink" title="2.2 以编程方式设置HTTP端口号"></a>2.2 以编程方式设置HTTP端口号</h2><p>我们也可以在Spring Boot中编程设置HTTP端口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomConfiguration</span> <span class="keyword">implements</span> <span class="title">EmbeddedServletContainerCustomizer</span> </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * Customize the specified &#123;<span class="doctag">@link</span> ConfigurableEmbeddedServletContainer&#125;.</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> container the container to customize</div><div class="line">     */</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">customize</span><span class="params">(ConfigurableEmbeddedServletContainer container)</span> </span>&#123;</div><div class="line">        container.setPort(<span class="number">9001</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="3-Context-路径"><a href="#3-Context-路径" class="headerlink" title="3. Context 路径"></a>3. Context 路径</h1><p>Spring Boot Web应用程序的默认上下文路径是“/”，Spring Boot提供了通过配置或以编程方式设置上下文路径的选项。</p>
+<h2 id="3-1-通过配置来设置Context路径"><a href="#3-1-通过配置来设置Context路径" class="headerlink" title="3.1 通过配置来设置Context路径"></a>3.1 通过配置来设置Context路径</h2><p>对于properties文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">server.contextPath=/javadevjournal</div></pre></td></tr></table></figure>
+<p>对于YAML文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="attr">server:</span></div><div class="line"><span class="attr">        contextPath:</span>/javadevjournal</div></pre></td></tr></table></figure>
+<h2 id="3-2-通过编程来设置Context路径"><a href="#3-2-通过编程来设置Context路径" class="headerlink" title="3.2 通过编程来设置Context路径"></a>3.2 通过编程来设置Context路径</h2><p>我们在Spring Boot中也可以通过编程来设置Context路径：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomConfiguration</span> <span class="keyword">implements</span> <span class="title">EmbeddedServletContainerCustomizer</span> </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * Customize the specified &#123;<span class="doctag">@link</span> ConfigurableEmbeddedServletContainer&#125;.</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> container the container to customize</div><div class="line">     */</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">customize</span><span class="params">(ConfigurableEmbeddedServletContainer container)</span> </span>&#123;</div><div class="line">        container.setPort(<span class="number">9001</span>);</div><div class="line">        container.setContextPath(<span class="string">"/javadevjournal"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="4-BasicErrorController"><a href="#4-BasicErrorController" class="headerlink" title="4. BasicErrorController"></a>4. BasicErrorController</h1><p>如果你正在用Spring Boot应用程序，那么你应该熟悉 <strong>While Label Error Page</strong>。 如果我们没有指定自己的自定义bean，Spring Boot会自动注册BasciErrorController bean。 我们可以通过扩展ErrorController来定制这个bean。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Controller</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomErrorController</span> <span class="keyword">implements</span> <span class="title">ErrorController</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String PATH = <span class="string">"/error"</span>;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="meta">@RequestMapping</span>(value = PATH)</div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">error</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">"errorHandling"</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * Returns the path of the error page.</div><div class="line">     *</div><div class="line">     * <span class="doctag">@return</span> the error path</div><div class="line">     */</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getErrorPath</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> PATH;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="5-自定义错误页面"><a href="#5-自定义错误页面" class="headerlink" title="5. 自定义错误页面"></a>5. 自定义错误页面</h1><p>Spring Boot提供了一种基于错误代码使用我们自己的自定义错误页面的方法。 我们需要在/error目录下添加基于错误代码的页面，并且Spring Boot将根据错误代码使用正确的页面。</p>
+<p>我们可以使用静态HTML，也可以使用模板来构建我们的自定义错误页面。 文件的名称应该是确切的状态码或系列通配符。</p>
+<p>我们可以使用类似的结构来组织我们的模板。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">src/</div><div class="line"> +- main/</div><div class="line">          +- java/</div><div class="line">          |      + &lt;source code&gt;</div><div class="line">          +- resources/</div><div class="line">                  +- public/</div><div class="line">                          +- error/</div><div class="line">                           |     +- 404.html</div><div class="line">                           +- &lt;other public assets&gt;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">src/</div><div class="line"> +- main/</div><div class="line">          +- java/</div><div class="line">          |      + &lt;source code&gt;</div><div class="line">          +- resources/</div><div class="line">                  +- public/</div><div class="line">                          +- error/</div><div class="line">                           |     +- 5xx.html</div><div class="line">                           +- &lt;other public assets&gt;</div></pre></td></tr></table></figure>
+<h1 id="6-配置日志"><a href="#6-配置日志" class="headerlink" title="6. 配置日志"></a>6. 配置日志</h1><p>Spring Boot对日志记录没有必要的依赖（通用日志API除外）。 Spring Boot内部使用LoggingSystem，试图根据类路径的内容配置日志。</p>
+<p>我们可以在 <em>application.properties</em> 文件里用 logging.level 这个前缀来设置日志级别从而可以微调Spring Boot应用的日志输出。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">logging.level.org.springframework.web=DEBUG</div><div class="line">logging.level.org.hibernate=ERROR</div></pre></td></tr></table></figure>
+<p>我们可以在Spring Boot应用程序中使用不同的日志框架（Logback，Log4j2）。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>在这篇文章中，我们介绍了<strong>Spring Boot Web应用程序配置</strong>，这是为正确设置Web应用程序或按照你的需要设置所必需的。 有关更多详细信息，你可以随时参阅<a href="https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/" target="_blank" rel="external">Spring Boot文档</a>。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.javadevjournal.com/spring-boot/spring-boot-web-application-configuration/" target="_blank" rel="external">https://www.javadevjournal.com/spring-boot/spring-boot-web-application-configuration/</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在这篇短文中，我们将介绍&lt;strong&gt;Spring Boot Web应用程序配置&lt;/strong&gt;的一些有趣方面。 我们将介绍一些Web应用程序最常用的配置。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Spring" scheme="http://szpzs.oschina.io/categories/Spring/"/>
+    
+      <category term="Spring boot" scheme="http://szpzs.oschina.io/categories/Spring/Spring-boot/"/>
+    
+    
+      <category term="Spring boot" scheme="http://szpzs.oschina.io/tags/Spring-boot/"/>
+    
+      <category term="Spring" scheme="http://szpzs.oschina.io/tags/Spring/"/>
+    
+      <category term="Web" scheme="http://szpzs.oschina.io/tags/Web/"/>
+    
+      <category term="Configuration" scheme="http://szpzs.oschina.io/tags/Configuration/"/>
+    
+  </entry>
   
   <entry>
     <title>使用Spring Boot创建Web应用程序</title>
@@ -1398,91 +1465,6 @@
       <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
     
       <category term="rpc" scheme="http://szpzs.oschina.io/tags/rpc/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Mnesia表分片</title>
-    <link href="http://szpzs.oschina.io/2017/05/30/Mnesia-Table-Fragmentation-erlangcentral/"/>
-    <id>http://szpzs.oschina.io/2017/05/30/Mnesia-Table-Fragmentation-erlangcentral/</id>
-    <published>2017-05-30T02:53:27.000Z</published>
-    <updated>2017-05-30T03:08:45.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li><a href="#part-one">概述</a></li>
-<li><a href="#part-two">要求</a></li>
-<li><a href="#part-three">分片表的样例</a></li>
-<li><a href="#part-four">启动一个Erlang节点</a></li>
-<li><a href="#part-five">用20个表创建分片表</a></li>
-<li><a href="#part-six">数据操作</a></li>
-<li><a href="#part-seven">添加记录</a></li>
-<li><a href="#part-eight">选择有限的记录</a></li>
-<li><a href="#part-nine">分片表的列表</a></li>
-</ol>
-<a id="more"></a>
-<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a><span id="part-one">概述</span></h1><p>本文描述如何创建Mnesia分片表以及如何使用它们。</p>
-<h1 id="要求"><a href="#要求" class="headerlink" title="要求"></a><span id="part-two">要求</span></h1><p>假如我必须做一个图书索引应用程序。我有一张表用来记录所有可用的图书馆书籍。表的记录结构如下节所述。因为数据量巨大，所以我想把这个表在一个单独的Erlang节点里分片。如果你想分布式处理这个分片的表，你可以参考<a href="http://erlangcentral.org/wiki/index.php?title=Distributing_a_Mnesia_schema" target="_blank" rel="external">这篇文章</a>来分布式处理Mnesia的表。与表分片的其他相关工作都保持不变。</p>
-<h1 id="分片表的样例"><a href="#分片表的样例" class="headerlink" title="分片表的样例"></a><span id="part-three">分片表的样例</span></h1><p>我需要这张表是disk_copies模式。其他模式也以相同的方式操作。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-record</span><span class="params">(book_info, &#123;isbn, name, author, keywords, category, description&#125;)</span>.</div></pre></td></tr></table></figure>
-<h1 id="启动一个Erlang节点"><a href="#启动一个Erlang节点" class="headerlink" title="启动一个Erlang节点"></a><span id="part-four">启动一个Erlang节点</span></h1><p>我们的例子节点foo@example默认的磁盘存储路径被设置为在当前路径下的Mnesia.foo@example目录。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl -sname foo</div></pre></td></tr></table></figure>
-<p>这个路径可以在启动一个Erlang节点的时候通过用 -mnesia dir ‘“/path/of/your/preference”‘ ‘ 启动参数来改写。</p>
-<p>让我们创建一个基于磁盘的schema，</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mnesia:create_schema([node()]).</div></pre></td></tr></table></figure>
-<h1 id="用20个表创建分片表"><a href="#用20个表创建分片表" class="headerlink" title="用20个表创建分片表"></a><span id="part-five">用20个表创建分片表</span></h1><p>在本例中，所有20个分片在相同的Erlang/Mnesia节点里。另外这些分片是disc_copies类型。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mnesia:create_table(book_info,</div><div class="line">   [&#123;frag_properties, [&#123;node_pool, [node()]&#125;, &#123;n_fragments, <span class="number">20</span>&#125;, &#123;n_disc_copies, <span class="number">1</span>&#125;]&#125;,</div><div class="line">   &#123;index, [name, keywords, category]&#125;,</div><div class="line">   &#123;attributes, record_info(fields, book_info)&#125;]),</div></pre></td></tr></table></figure>
-<h1 id="数据操作"><a href="#数据操作" class="headerlink" title="数据操作"></a><span id="part-six">数据操作</span></h1><p>为了能够访问在一个分片表的记录，Mnesia必须确定该真实记录属于那个分片。这通过mnesia_frag模块来做到，这个模块实现了mnesia_access回调行为。mnesia_frag封装标准Mnesia操作函数到其函数里，并将其作为参数传递给mnesia:activity/4。</p>
-<h1 id="添加记录"><a href="#添加记录" class="headerlink" title="添加记录"></a><span id="part-seven">添加记录</span></h1><p>创建一个调用mnesia:write/3的函数。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">AddFun = <span class="keyword">fun</span>() -&gt;</div><div class="line">           mnesia:write(book_info, Record, write)</div><div class="line">          <span class="keyword">end</span></div></pre></td></tr></table></figure>
-<p>现在如下所示在mnesia:activity/4里调用这个函数：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ok = mnesia:activity(transaction, AddFun, [], mnesia_frag).</div></pre></td></tr></table></figure>
-<p>注意，我已将活动访问上下文用作“事务”。事务可以确保操作要么全部成功要么全部失败（即保证操作的原子性）。我可以使用如下几个访问上下文：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;transaction, Retries&#125;</div><div class="line">sync_transaction</div><div class="line">&#123;sync_transaction, Retries&#125;</div><div class="line">async_dirty</div><div class="line">sync_dirty</div><div class="line">ets</div></pre></td></tr></table></figure>
-<p>例如，你想用脏模式做以上的操作，你可以这么写：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ok = mnesia:activity(async_dirty, AddFun, [], mnesia_frag).</div></pre></td></tr></table></figure>
-<p>你可以参考mnesia:activity/4文档来获得更多信息。</p>
-<h1 id="选择有限的记录"><a href="#选择有限的记录" class="headerlink" title="选择有限的记录"></a><span id="part-eight">选择有限的记录</span></h1><p>做为一个例子，让我们选择作者是steve的10条记录。记住10不是硬性限制。用mnesia:select/4函数创建一个函数：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">MatchHead = #book_info&#123;author = <span class="string">"steve"</span>, _ = '_'&#125;,</div><div class="line">Guard = [],</div><div class="line">Result = ['$_'],</div><div class="line">MatchSpec = [&#123;MatchHead, Guard, Result&#125;],</div><div class="line">SelFun = <span class="keyword">fun</span>() -&gt;</div><div class="line">          mnesia:select(book_info, MatchSpec, <span class="number">10</span>, read)</div><div class="line">         <span class="keyword">end</span>,</div></pre></td></tr></table></figure>
-<p>现在如下所示在mnesia:activity/4里调用这个函数：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Result = mnesia:activity(transaction, SelFun, [], mnesia_frag).</div></pre></td></tr></table></figure>
-<p>Result的结果类型是：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Result -&gt; '$end_of_table' | &#123;[Objects], Cont&#125; | transaction abort</div></pre></td></tr></table></figure>
-<p>在一个分片的表里，如果上述Result结果是{[Objects], Cont}，并且返回的对象数量少于我们期望的（10个），那么你需要递归地用Cont（continuation）来调用mnesia:select/1，直到你得到期望数量的结果或者’$end_of_table’。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">SelFun2 = <span class="keyword">fun</span>() -&gt;</div><div class="line">             mnesia:select(Cont)</div><div class="line">           <span class="keyword">end</span>,</div><div class="line">Result2 = mnesia:activity(transaction, SelFun2, [], mnesia_frag).</div></pre></td></tr></table></figure>
-<p>Result2的结果类型是：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Result2 -&gt; '$end_of_table' | &#123;[Objects], Cont&#125; | transaction abort</div></pre></td></tr></table></figure>
-<h1 id="分片表的列表"><a href="#分片表的列表" class="headerlink" title="分片表的列表"></a><span id="part-nine">分片表的列表</span></h1><p>要获取分片表的列表，调用mnesia:table_info/2，并加上 frag_names 选项：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mnesia:activity(async_dirty, mnesia:table_info/<span class="number">2</span>, [store, frag_names], mnesia_frag).</div></pre></td></tr></table></figure>
-<p>本教程到此结束！现在你知道如何写一个基本的Mnesia分片表程序了。</p>
-<blockquote>
-<p><em>原文链接：</em>  [<a href="http://www2.erlangcentral.org/wiki/?title=Mnesia_Table_Fragmentation" target="_blank" rel="external">http://www2.erlangcentral.org/wiki/?title=Mnesia_Table_Fragmentation</a>]</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;&lt;a href=&quot;#part-one&quot;&gt;概述&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-two&quot;&gt;要求&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-three&quot;&gt;分片表的样例&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-four&quot;&gt;启动一个Erlang节点&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-five&quot;&gt;用20个表创建分片表&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-six&quot;&gt;数据操作&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-seven&quot;&gt;添加记录&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-eight&quot;&gt;选择有限的记录&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#part-nine&quot;&gt;分片表的列表&lt;/a&gt;&lt;/li&gt;
-&lt;/ol&gt;
-    
-    </summary>
-    
-      <category term="Mnesia" scheme="http://szpzs.oschina.io/categories/Mnesia/"/>
-    
-      <category term="Fragmentation" scheme="http://szpzs.oschina.io/categories/Mnesia/Fragmentation/"/>
-    
-    
-      <category term="Mnesia" scheme="http://szpzs.oschina.io/tags/Mnesia/"/>
-    
-      <category term="Fragmentation" scheme="http://szpzs.oschina.io/tags/Fragmentation/"/>
     
   </entry>
   
