@@ -667,6 +667,10 @@
 <li>&lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;NodeIds&gt;&lt;ProcessorIds&gt;</li>
 </ul>
 <p>只要每个逻辑处理器属于一个且只有一个NUMA节点，则CPU拓扑可由NUMA节点外部处理器和NUMA节点内部处理器一起组成。</p>
+<h2 id="Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数"><a href="#Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数" class="headerlink" title="Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数"></a>Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数</h2><ul>
+<li>erlang:system_info(cpu_topology).</li>
+<li>erlang:system_info(scheduler_bindings).</li>
+</ul>
 <h2 id="linux-的CPU信息查询和NUMA工具"><a href="#linux-的CPU信息查询和NUMA工具" class="headerlink" title="linux 的CPU信息查询和NUMA工具"></a>linux 的CPU信息查询和NUMA工具</h2><ul>
 <li>lscpu<ul>
 <li>显示CPU架构信息</li>

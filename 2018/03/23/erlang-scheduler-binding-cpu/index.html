@@ -106,7 +106,7 @@
 
 某些不支持绑定CPU功能的平台上尝试绑定调度器到CPU
 没有可用的CPU拓扑。运行时系统无法自动侦测到CPU拓扑，并且我们也没">
-<meta property="og:updated_time" content="2018-04-01T10:02:46.000Z">
+<meta property="og:updated_time" content="2018-05-30T08:02:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Erlang的调度器如何绑定到CPU">
 <meta name="twitter:description" content="调度器绑定CPU在启动Erlang虚拟机的时候可以通过参数来设置它的调度器以什么方式绑定CPU。这个参数是 +sbt，也可以用另一个参数 +stbt。它们的使用方法是：
@@ -434,6 +434,10 @@
 <li>&lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;NodeIds&gt;&lt;ProcessorIds&gt;</li>
 </ul>
 <p>只要每个逻辑处理器属于一个且只有一个NUMA节点，则CPU拓扑可由NUMA节点外部处理器和NUMA节点内部处理器一起组成。</p>
+<h2 id="Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数"><a href="#Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数" class="headerlink" title="Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数"></a>Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数</h2><ul>
+<li>erlang:system_info(cpu_topology).</li>
+<li>erlang:system_info(scheduler_bindings).</li>
+</ul>
 <h2 id="linux-的CPU信息查询和NUMA工具"><a href="#linux-的CPU信息查询和NUMA工具" class="headerlink" title="linux 的CPU信息查询和NUMA工具"></a>linux 的CPU信息查询和NUMA工具</h2><ul>
 <li>lscpu<ul>
 <li>显示CPU架构信息</li>
@@ -676,7 +680,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#调度器绑定CPU"><span class="nav-number">1.</span> <span class="nav-text">调度器绑定CPU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义CPU拓扑"><span class="nav-number">2.</span> <span class="nav-text">自定义CPU拓扑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux-的CPU信息查询和NUMA工具"><span class="nav-number">3.</span> <span class="nav-text">linux 的CPU信息查询和NUMA工具</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#调度器绑定CPU"><span class="nav-number">1.</span> <span class="nav-text">调度器绑定CPU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义CPU拓扑"><span class="nav-number">2.</span> <span class="nav-text">自定义CPU拓扑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数"><span class="nav-number">3.</span> <span class="nav-text">Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux-的CPU信息查询和NUMA工具"><span class="nav-number">4.</span> <span class="nav-text">linux 的CPU信息查询和NUMA工具</span></a></li></ol></div>
             
           </div>
         </section>

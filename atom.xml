@@ -904,7 +904,7 @@
     <link href="http://szpzs.oschina.io/2018/03/23/erlang-scheduler-binding-cpu/"/>
     <id>http://szpzs.oschina.io/2018/03/23/erlang-scheduler-binding-cpu/</id>
     <published>2018-03-23T05:37:31.000Z</published>
-    <updated>2018-04-01T10:02:46.000Z</updated>
+    <updated>2018-05-30T08:02:30.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="调度器绑定CPU"><a href="#调度器绑定CPU" class="headerlink" title="调度器绑定CPU"></a>调度器绑定CPU</h2><p>在启动Erlang虚拟机的时候可以通过参数来设置它的调度器以什么方式绑定CPU。这个参数是 +sbt，也可以用另一个参数 +stbt。它们的使用方法是：</p>
 <p>+sbt 绑定类型</p>
@@ -957,6 +957,10 @@
 <li>&lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;NodeIds&gt;&lt;ProcessorIds&gt;</li>
 </ul>
 <p>只要每个逻辑处理器属于一个且只有一个NUMA节点，则CPU拓扑可由NUMA节点外部处理器和NUMA节点内部处理器一起组成。</p>
+<h2 id="Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数"><a href="#Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数" class="headerlink" title="Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数"></a>Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数</h2><ul>
+<li>erlang:system_info(cpu_topology).</li>
+<li>erlang:system_info(scheduler_bindings).</li>
+</ul>
 <h2 id="linux-的CPU信息查询和NUMA工具"><a href="#linux-的CPU信息查询和NUMA工具" class="headerlink" title="linux 的CPU信息查询和NUMA工具"></a>linux 的CPU信息查询和NUMA工具</h2><ul>
 <li>lscpu<ul>
 <li>显示CPU架构信息</li>
