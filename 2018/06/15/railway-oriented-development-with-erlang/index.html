@@ -1,0 +1,909 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,case,nested,nested case,epipe," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="本文提出了另一种可以构建你的程序的方法，它的灵感来自Elixir的管道宏’|&amp;gt;’，此方法就是使用我最近编写的小型epipe库，而不用令人可怕的parse transforms。 Epipe本身的灵感来源于Scott Wlaschin发表的这篇文章。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用铁路的方法简化Erlang的case嵌套问题">
+<meta property="og:url" content="http://szpzs.oschina.io/2018/06/15/railway-oriented-development-with-erlang/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="本文提出了另一种可以构建你的程序的方法，它的灵感来自Elixir的管道宏’|&amp;gt;’，此方法就是使用我最近编写的小型epipe库，而不用令人可怕的parse transforms。 Epipe本身的灵感来源于Scott Wlaschin发表的这篇文章。">
+<meta property="og:image" content="http://szpzs.oschina.io/images/railway-oriented-development-with-erlang-steps.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/railway-oriented-development-with-erlang-cases.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/railway-oriented-development-with-erlang-switch1.jpg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/railway-oriented-development-with-erlang-switch2.jpg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/railway-oriented-development-with-erlang-switch3.jpg">
+<meta property="og:updated_time" content="2018-06-15T07:34:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="用铁路的方法简化Erlang的case嵌套问题">
+<meta name="twitter:description" content="本文提出了另一种可以构建你的程序的方法，它的灵感来自Elixir的管道宏’|&amp;gt;’，此方法就是使用我最近编写的小型epipe库，而不用令人可怕的parse transforms。 Epipe本身的灵感来源于Scott Wlaschin发表的这篇文章。">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/railway-oriented-development-with-erlang-steps.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2018/06/15/railway-oriented-development-with-erlang/"/>
+
+  <title> 用铁路的方法简化Erlang的case嵌套问题 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                用铁路的方法简化Erlang的case嵌套问题
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-06-15T11:13:20+08:00" content="2018-06-15">
+              2018-06-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/case/" itemprop="url" rel="index">
+                    <span itemprop="name">case</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/case/epipe/" itemprop="url" rel="index">
+                    <span itemprop="name">epipe</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文提出了另一种可以构建你的程序的方法，它的灵感来自Elixir的管道宏’|&gt;’，此方法就是使用我最近编写的小型<a href="https://github.com/oltarasenko/epipe" target="_blank" rel="external">epipe</a>库，而不用令人可怕的parse transforms。 Epipe本身的灵感来源于Scott Wlaschin发表的<a href="https://fsharpforfunandprofit.com/rop/" target="_blank" rel="external">这篇文章</a>。</p>
+<a id="more"></a>
+<h2 id="准备开始"><a href="#准备开始" class="headerlink" title="准备开始"></a>准备开始</h2><p>我们来执行一个小实践任务，它将演示这种铁路方式的函数式编程方法。</p>
+<p>考虑一下我们使用Erlang构建POP3电子邮件客户端的情况。 我们的目标是实现与POP服务器建立连接的控制流程。</p>
+<p>下图说明完成此操作所需的步骤：</p>
+<p><img src="/images/railway-oriented-development-with-erlang-steps.png" style="border:0;"></p>
+<p>首先，让我们写一个函数来实现建立连接的功能：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">connect</span><span class="params">(Addr, Port, ConnOptions, User, Password)</span> -&gt;</span></div><div class="line">    &#123;ok, Socket&#125; = ssl:connect(Addr, Port, ConnOptions),</div><div class="line">    ok = receive_greetings(Socket),</div><div class="line">    ok = send_user(Socket, User),</div><div class="line">    ok = send_password(Socket, Password).</div></pre></td></tr></table></figure>
+<p>上述代码非常漂亮，仅仅四行就完成了我们想要的功能。但是等等……上面的实现是非常完美的场景。 显然我们需要添加一些错误处理来应对边界条件的场景 :( 。我的意思是，“可能会出错的地方”？</p>
+<h2 id="增加错误处理"><a href="#增加错误处理" class="headerlink" title="增加错误处理"></a>增加错误处理</h2><p>让我们总结如下图中所有可能的边界情况：</p>
+<p><img src="/images/railway-oriented-development-with-erlang-cases.png" style="border:0;"></p>
+<p>我们增加错误处理的代码，然后看看代码变成什么样子！</p>
+<p>剧透：下面的例子很简单，可以通过将操作分成单独的函数来美化，但是嵌套的case语句是不可避免的。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">connect</span><span class="params">(Addr, Port, ConnOptions, User, Password)</span> -&gt;</span></div><div class="line">    <span class="keyword">case</span> ssl:connect(Addr, Port, ConnOptions) <span class="keyword">of</span></div><div class="line">        &#123;ok, Socket&#125; -&gt;</div><div class="line">            <span class="keyword">case</span> receive_greetings(Socket) <span class="keyword">of</span></div><div class="line">                ok -&gt;</div><div class="line">                    <span class="keyword">case</span> send_user(Socket, User) <span class="keyword">of</span></div><div class="line">                        ok -&gt;</div><div class="line">                            <span class="keyword">case</span> send_password(Socket, Password) <span class="keyword">of</span></div><div class="line">                                ok -&gt; ok;</div><div class="line">                                _Err -&gt; error_logger:error_msg(<span class="string">"Auth error"</span>)</div><div class="line">                            <span class="keyword">end</span>;</div><div class="line">                        _Err -&gt;</div><div class="line">                            error_logger:error_msg(<span class="string">"Unknown user"</span>)</div><div class="line">                    <span class="keyword">end</span>;</div><div class="line">                Err -&gt; error_logger:error_msg(<span class="string">"Could not receive_greetings"</span>)</div><div class="line">            <span class="keyword">end</span>;</div><div class="line">        _Error -&gt; error_logger:error_msg(<span class="string">"Could not connect"</span>)</div><div class="line">    <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>现在我们添加了所有的错误处理代码。但是，代码的大小增加了400 %……可读性也相应降低了！</p>
+<p>也许有一个更清晰的方式来实现这一点？</p>
+<h2 id="用“铁路”的方法来设计更好的错误处理（理论）"><a href="#用“铁路”的方法来设计更好的错误处理（理论）" class="headerlink" title="用“铁路”的方法来设计更好的错误处理（理论）"></a>用“铁路”的方法来设计更好的错误处理（理论）</h2><p><a href="https://fsharpforfunandprofit.com/rop/" target="_blank" rel="external">铁路</a>方法背后的想法是用铁路道岔作为模拟物来分解“每一步”功能块：</p>
+<p><img src="/images/railway-oriented-development-with-erlang-switch1.jpg" style="border:0;"></p>
+<p>这种方法可以翻译为如下的Erlang代码：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">switch_component</span><span class="params">(Input)</span> -&gt;</span></div><div class="line">    <span class="keyword">case</span> some_action() <span class="keyword">of</span></div><div class="line">        &#123;ok, Response&#125; -&gt; &#123;ok, Response&#125;; <span class="comment">% Green track</span></div><div class="line">        Error          -&gt; &#123;error, Error&#125;  <span class="comment">% Red track</span></div><div class="line">    <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<p>一旦为所有需要的操作创建了两种方式( ok / error )切换分支，就可以像在铁路上一样优雅地组合它们:</p>
+<p><img src="/images/railway-oriented-development-with-erlang-switch2.jpg" style="border:0;"></p>
+<p>所以，简单来说，确切的情况是:<br>在成功的情况下，所有功能(“铁路道岔”)都按顺序执行，我们沿着“成功轨道”行进。否则，我们的列车将切换到“错误轨道”，并沿该路线行驶，绕过所有其他步骤:</p>
+<p><img src="/images/railway-oriented-development-with-erlang-switch3.jpg" style="border:0;"></p>
+<h2 id="用“铁路”的方法来设计更好的错误处理"><a href="#用“铁路”的方法来设计更好的错误处理" class="headerlink" title="用“铁路”的方法来设计更好的错误处理"></a>用“铁路”的方法来设计更好的错误处理</h2><p>我们发布了一个很小的<a href="https://github.com/oltarasenko/epipe" target="_blank" rel="external">Erlang库</a>，它简化了Erlang的“铁路道岔”分解方式。那么，考虑上面的例子，让我们来看一下如何使用Epipe实现我们的用例:</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-record</span><span class="params">(connection, &#123;</span></div><div class="line">    socket,</div><div class="line">    user,</div><div class="line">    addr,</div><div class="line">    port,</div><div class="line">    passwd</div><div class="line">&#125;).</div><div class="line"></div><div class="line"><span class="function"><span class="title">connect</span><span class="params">(Addr, Port, User, Password)</span> -&gt;</span></div><div class="line">    Connection = #connection&#123;</div><div class="line">        user = User,</div><div class="line">        passwd = Password,</div><div class="line">        add = Addr,</div><div class="line">        port = Port</div><div class="line">    &#125;,</div><div class="line">    <span class="comment">% 定义要遵循的铁路道岔列表</span></div><div class="line">    ConnectionSteps = [</div><div class="line">        &#123;get_socket, fun get_socket/1&#125;,</div><div class="line">        &#123;recv_greetings, fun recv_greetings/1&#125;,</div><div class="line">        &#123;send_user, fun send_user/1&#125;,</div><div class="line">        &#123;send_passwd, fun send_passwd/1&#125;</div><div class="line">    ],</div><div class="line">    <span class="comment">% 通过道岔运行</span></div><div class="line">    <span class="keyword">case</span> epipe:run(ConnectionSteps, Connection) <span class="keyword">of</span></div><div class="line">        &#123;error, Step, Reason, _State&#125; -&gt;</div><div class="line">            error_logger:error_msg(<span class="string">"Failed to establish connection. Reason: ~p"</span>, [Step]),</div><div class="line">            &#123;error, Reason&#125;;</div><div class="line">        &#123;ok, _Conn&#125; = Success -&gt; Success</div><div class="line">    <span class="keyword">end</span>.</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">% 构建功能块。注意：每一个函数可以返回 &#123;ok, Connection&#125; 或 &#123;error, Reason&#125;</span></div><div class="line"></div><div class="line"><span class="function"><span class="title">get_socket</span><span class="params">(Connection)</span> -&gt;</span></div><div class="line">    <span class="keyword">case</span> ssl:connect(Addr, Port, ExtraOptions) <span class="keyword">of</span></div><div class="line">        &#123;ok, Socket&#125; -&gt; &#123;ok, Connection#connection&#123;socket = Socket&#125;&#125;;</div><div class="line">        Error        -&gt; &#123;error, Error&#125;</div><div class="line">    <span class="keyword">end</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">recv_greetings</span><span class="params">(Connection)</span> -&gt;</span></div><div class="line">    <span class="keyword">case</span> recv(Connection) <span class="keyword">of</span></div><div class="line">        &#123;ok, &lt;&lt;<span class="string">"+OK"</span>, _Rest/binary&gt;&gt;&#125;   -&gt; &#123;ok, Connection&#125;;</div><div class="line">        &#123;ok, &lt;&lt;<span class="string">"-ERR "</span>, Error/binary&gt;&gt;&#125; -&gt; &#123;error, Error&#125;;</div><div class="line">        Err                             -&gt; &#123;error, Err&#125;</div><div class="line">    <span class="keyword">end</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">send_user</span><span class="params">(Connection = #connection&#123;user = User&#125;)</span> -&gt;</span></div><div class="line">    Msg = list_to_binary(User),</div><div class="line">    send(Connection, &lt;&lt;<span class="string">"USER "</span>, Msg/binary&gt;&gt;),</div><div class="line"></div><div class="line">    <span class="keyword">case</span> recv(Connection) <span class="keyword">of</span></div><div class="line">        &#123;ok, &lt;&lt;<span class="string">"+OK"</span>, _Rest/binary&gt;&gt;&#125;   -&gt; &#123;ok, Connection&#125;;</div><div class="line">        &#123;ok, &lt;&lt;<span class="string">"-ERR "</span>, Error/binary&gt;&gt;&#125; -&gt; &#123;error, Error&#125;;</div><div class="line">        Err                             -&gt; &#123;error, Err&#125;</div><div class="line">    <span class="keyword">end</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">send_passwd</span><span class="params">(Connection = #connection&#123;passwd = Passwd&#125;)</span> -&gt;</span></div><div class="line">    Msg = list_to_binary(Passwd),</div><div class="line">    send(Connection, &lt;&lt;<span class="string">"PASS "</span>, Msg/binary&gt;&gt;),</div><div class="line"></div><div class="line">    <span class="keyword">case</span> recv(Connection) <span class="keyword">of</span></div><div class="line">        &#123;ok, &lt;&lt;<span class="string">"+OK"</span>, _Rest/binary&gt;&gt;&#125;   -&gt; &#123;ok, Connection&#125;;</div><div class="line">        &#123;ok, &lt;&lt;<span class="string">"-ERR "</span>, Error/binary&gt;&gt;&#125; -&gt; &#123;error, Error&#125;;</div><div class="line">        Err                             -&gt; &#123;error, Err&#125;</div><div class="line">    <span class="keyword">end</span>.</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>与嵌套的case语句实现相比，最终的代码在代码行方面不会更小，但它确实更具可读性，使得调试和支持变得更加容易。</p>
+<p>如果你希望看到真实的实现案例，请查看使用铁路方法执行的<a href="https://github.com/oltarasenko/erlpop/blob/master/src/epop_client.erl#L38-L115" target="_blank" rel="external">重构例子</a>。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.erlang-solutions.com/blog/railway-oriented-development-with-erlang.html" target="_blank" rel="external">https://www.erlang-solutions.com/blog/railway-oriented-development-with-erlang.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/case/" rel="tag">#case</a>
+          
+            <a href="/tags/nested/" rel="tag">#nested</a>
+          
+            <a href="/tags/nested-case/" rel="tag">#nested case</a>
+          
+            <a href="/tags/epipe/" rel="tag">#epipe</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/27/spring-boot-web-application-configuration/" rel="next" title="Spring Boot Web应用程序配置">
+                <i class="fa fa-chevron-left"></i> Spring Boot Web应用程序配置
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时当勉励，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">159</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">107</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">226</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#准备开始"><span class="nav-number">1.</span> <span class="nav-text">准备开始</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#增加错误处理"><span class="nav-number">2.</span> <span class="nav-text">增加错误处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用“铁路”的方法来设计更好的错误处理（理论）"><span class="nav-number">3.</span> <span class="nav-text">用“铁路”的方法来设计更好的错误处理（理论）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用“铁路”的方法来设计更好的错误处理"><span class="nav-number">4.</span> <span class="nav-text">用“铁路”的方法来设计更好的错误处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
