@@ -1,0 +1,998 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="concurrency,Go,goroutine,channel," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="你很可能或多或少听说过Go。 它越来越受欢迎。 Go快速，简单，并且拥有一个很棒的社区。 并发模型是学习这门语言最令人兴奋的方面之一。 Go的并发原语使创建并发的多线程程序变得简单而有趣。 我将通过插图介绍Go的并发原语，希望能够将这些概念讲清楚以供将来学习。 本文适用于Go的新手，以及想要了解Go的并发原语：go routine 和 channel 的学习者。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="通过插图学习Go的并发">
+<meta property="og:url" content="http://szpzs.oschina.io/2018/06/23/learning-gos-concurrency-through-illustrations/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="你很可能或多或少听说过Go。 它越来越受欢迎。 Go快速，简单，并且拥有一个很棒的社区。 并发模型是学习这门语言最令人兴奋的方面之一。 Go的并发原语使创建并发的多线程程序变得简单而有趣。 我将通过插图介绍Go的并发原语，希望能够将这些概念讲清楚以供将来学习。 本文适用于Go的新手，以及想要了解Go的并发原语：go routine 和 channel 的学习者。">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-1.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-2.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-3.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-4.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-5.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-6.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-7.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-8.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-9.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-10.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-11.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-12.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-13.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-14.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-15.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-16.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-17.jpeg">
+<meta property="og:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-18.jpeg">
+<meta property="og:updated_time" content="2018-06-23T03:41:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="通过插图学习Go的并发">
+<meta name="twitter:description" content="你很可能或多或少听说过Go。 它越来越受欢迎。 Go快速，简单，并且拥有一个很棒的社区。 并发模型是学习这门语言最令人兴奋的方面之一。 Go的并发原语使创建并发的多线程程序变得简单而有趣。 我将通过插图介绍Go的并发原语，希望能够将这些概念讲清楚以供将来学习。 本文适用于Go的新手，以及想要了解Go的并发原语：go routine 和 channel 的学习者。">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/learning-gos-concurrency-through-illustrations-1.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2018/06/23/learning-gos-concurrency-through-illustrations/"/>
+
+  <title> 通过插图学习Go的并发 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                通过插图学习Go的并发
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-06-23T11:12:10+08:00" content="2018-06-23">
+              2018-06-23
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Go/" itemprop="url" rel="index">
+                    <span itemprop="name">Go</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Go/concurrency/" itemprop="url" rel="index">
+                    <span itemprop="name">concurrency</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Go/concurrency/goroutine/" itemprop="url" rel="index">
+                    <span itemprop="name">goroutine</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Go/concurrency/goroutine/channel/" itemprop="url" rel="index">
+                    <span itemprop="name">channel</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>你很可能或多或少听说过Go。 它越来越受欢迎。 Go快速，简单，并且拥有一个很棒的社区。 并发模型是学习这门语言最令人兴奋的方面之一。 Go的并发原语使创建并发的多线程程序变得简单而有趣。 我将通过插图介绍Go的并发原语，希望能够将这些概念讲清楚以供将来学习。 本文适用于Go的新手，以及想要了解Go的并发原语：go routine 和 channel 的学习者。</p>
+<a id="more"></a>
+<h1 id="单线程与多线程程序"><a href="#单线程与多线程程序" class="headerlink" title="单线程与多线程程序"></a>单线程与多线程程序</h1><p>你可能以前编写过多个单线程程序。编程中的一个常见模式是具有执行特定任务的多个函数，但是直到程序的前一部分为下一个函数准备好数据时，才会调用这些函数。</p>
+<p><img src="/images/learning-gos-concurrency-through-illustrations-1.jpeg" style="border:0;"></p>
+<p>这就是我们最初设定的第一个例子，即开采矿石。 本例中的函数执行：寻找矿石、开采矿石和冶炼矿石。 在我们的例子中，矿和矿石被表示为一个字符串数组，每个函数接收并返回一个“已处理的”字符串数组。 对于单线程应用程序，程序设计如下。</p>
+<p><img src="/images/learning-gos-concurrency-through-illustrations-2.jpeg" style="border:0;"></p>
+<p>有3个主要函数。 <code>finder</code>，<code>miner</code> 和 <code>smelter</code>。 在这个版本的程序中，我们的函数在单个线程上运行，一个接一个地运行 -- 而这个单线程（名为Gary的土拨鼠）需要完成所有工作。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line"> theMine := [<span class="number">5</span>]<span class="keyword">string</span>&#123;“rock”, “ore”, “ore”, “rock”, “ore”&#125;</div><div class="line"> foundOre := finder(theMine)</div><div class="line"> minedOre := miner(foundOre)</div><div class="line"> smelter(minedOre)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在每个函数的末尾打印得到的“矿石”数组，我们得到以下输出:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">From Finder: [ore ore ore]</div><div class="line"></div><div class="line">From Miner: [minedOre minedOre minedOre]</div><div class="line"></div><div class="line">From Smelter: [smeltedOre smeltedOre smeltedOre]</div></pre></td></tr></table></figure>
+<p>这种编程方式具有易于设计的优点，但是当你希望利用多线程并执行彼此独立的函数时，会发生什么情况呢？这就是并发编程发挥作用的地方。</p>
+<p><img src="/images/learning-gos-concurrency-through-illustrations-3.jpeg" style="border:0;"></p>
+<p>这种采矿设计效率要高得多。现在多线程( 土拨鼠们 )独立工作；因此，整个过程并不全由Gray这土拨鼠来做。有一个地鼠寻找矿石，有一个土拨鼠在开采矿石，另一个土拨鼠在冶炼矿石——可能所有这些都是同时发生的。</p>
+<p>为了将这种功能引入我们的代码，我们需要两件事：一是创建独立工作的土拨鼠，二是土拨鼠相互通信(发送矿石 )的方式。这就是Go的并发原语: goroutine 和 channel。</p>
+<h1 id="Go-routine"><a href="#Go-routine" class="headerlink" title="Go routine"></a>Go routine</h1><p>Go routine可以被认为是轻量的线程。创建一个go routine只需在调用函数的前面加上 <code>go</code> 这个关键字如此简单。</p>
+<p>举个简单的例子，让我们创建两个寻找矿石的函数，使用<code>go</code>关键字调用它们，并让它们在每次发现矿井中的“矿石”时把他们打印出来。</p>
+<p><img src="/images/learning-gos-concurrency-through-illustrations-4.jpeg" style="border:0;"></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line"> theMine := [<span class="number">5</span>]<span class="keyword">string</span>&#123;“rock”, “ore”, “ore”, “rock”, “ore”&#125;</div><div class="line"> <span class="keyword">go</span> finder1(theMine)</div><div class="line"> <span class="keyword">go</span> finder2(theMine)</div><div class="line"> &lt;-time.After(time.Second * <span class="number">5</span>) <span class="comment">//现在你可以忽略这行代码</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以下是我们程序的输出结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Finder 1 found ore!</div><div class="line">Finder 2 found ore!</div><div class="line">Finder 1 found ore!</div><div class="line">Finder 1 found ore!</div><div class="line">Finder 2 found ore!</div><div class="line">Finder 2 found ore!</div></pre></td></tr></table></figure>
+<p>从上面的输出可以看出，寻找矿石函数同时运行。谁先找到矿石没有真正的顺序，当多次运行时，顺序并不总是一样的。</p>
+<p>这是很大的进步！现在我们有一个简单的方法来建立多线程(多个土拨鼠 )程序，但是当我们需要独立的<code>goroutine</code>来相互通信时会发生什么呢？欢迎来到神奇的<code>channel</code>世界。</p>
+<h1 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h1><p><img src="/images/learning-gos-concurrency-through-illustrations-5.jpeg" style="border:0;"></p>
+<p><code>channel</code>允许<code>goroutine</code>相互通信。你可以将<code>channel</code>视为管道，<code>goroutine</code>可以从管道发送和接收来自其他<code>goroutine</code>的信息。</p>
+<p><img src="/images/learning-gos-concurrency-through-illustrations-6.jpeg" style="border:0;"></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">myFirstChannel := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>)</div></pre></td></tr></table></figure>
+<p><code>goroutine</code>可以在一个<code>channel</code>上发送和接收数据。这是通过使用指向数据方向的箭头( &lt;- )来实现的。</p>
+<p><img src="/images/learning-gos-concurrency-through-illustrations-7.jpeg" style="border:0;"></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">myFirstChannel &lt;- <span class="string">"hello"</span> <span class="comment">// 发送数据</span></div><div class="line">myVariable := &lt;- myFirstChannel <span class="comment">// 接收数据</span></div></pre></td></tr></table></figure>
+<p>现在通过使用一个<code>channel</code>，我们可以让我们的寻找矿石的土拨鼠立即将它们发现的矿石发送给我们的矿石采集土拨鼠，而无需等待发现所有矿石后才将矿石送给矿石采集土拨鼠。</p>
+<p><img src="/images/learning-gos-concurrency-through-illustrations-8.jpeg" style="border:0;"></p>
+<p>我已经更新了示例代码，以便将寻找矿石函数和采矿函数设置为未命名的函数。 如果你从来没有见过<code>lambda</code>函数就先不需要太关注程序的那部分，只要知道每个函数都是用<code>go</code>关键字调用的，所以它们就运行在自己的<code>goroutine</code>里。 重要的是要注意如何使用叫做<code>oreChan</code>的<code>channel</code>来相互传递数据。 别担心，我会在最后解释未命名的函数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line"> theMine := [<span class="number">5</span>]<span class="keyword">string</span>&#123;“ore1”, “ore2”, “ore3”&#125;</div><div class="line"> oreChan := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>)</div><div class="line"></div><div class="line"> <span class="comment">// Finder</span></div><div class="line"> <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(mine [5]<span class="keyword">string</span>)</span></span> &#123;</div><div class="line">  <span class="keyword">for</span> _, item := <span class="keyword">range</span> mine &#123;</div><div class="line">   oreChan &lt;- item <span class="comment">//发送数据</span></div><div class="line">  &#125;</div><div class="line"> &#125;(theMine)</div><div class="line"></div><div class="line"> <span class="comment">// Ore Breaker</span></div><div class="line"> <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">  <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</div><div class="line">   foundOre := &lt;-oreChan <span class="comment">//接收数据</span></div><div class="line">   fmt.Println(“Miner: Received “ + foundOre + “ from finder”)</div><div class="line">  &#125;</div><div class="line"> &#125;()</div><div class="line"> &lt;-time.After(time.Second * <span class="number">5</span>) <span class="comment">// 现在依然可以不用管这行代码</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在下面的输出中，你可以看到我们的矿工通过三次读取叫做“oreChan”的<code>channel</code>，每一次收到一块“矿石”。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Miner: Received ore1 from finder</div><div class="line"></div><div class="line">Miner: Received ore2 from finder</div><div class="line"></div><div class="line">Miner: Received ore3 from finder</div></pre></td></tr></table></figure>
+<p>太好了，现在我们可以在程序中的不同<code>goroutine</code>( 土拨鼠 )之间发送数据了。在我们开始编写带有<code>channel</code>的复杂程序之前，让我们先介绍一些理解<code>channel</code>属性的关键内容。</p>
+<h1 id="Channel的阻塞"><a href="#Channel的阻塞" class="headerlink" title="Channel的阻塞"></a>Channel的阻塞</h1><p>在各种情况下，<code>channel</code>会阻塞<code>goroutine</code>。这就让我们的<code>goroutine</code>在各自独立快乐的道路上同步了一会儿。</p>
+<h2 id="发送端阻塞"><a href="#发送端阻塞" class="headerlink" title="发送端阻塞"></a>发送端阻塞</h2><p><img src="/images/learning-gos-concurrency-through-illustrations-9.jpeg" style="border:0;"></p>
+<p>一旦一个<code>goroutine</code>（土拨鼠）在<code>channel</code>上发送数据，这个发送数据的<code>goroutine</code>就会阻塞，直到另一个<code>goroutine</code>从<code>channel</code>接收到发送的数据。</p>
+<h2 id="接收端阻塞"><a href="#接收端阻塞" class="headerlink" title="接收端阻塞"></a>接收端阻塞</h2><p><img src="/images/learning-gos-concurrency-through-illustrations-10.jpeg" style="border:0;"></p>
+<p>类似于在<code>channel</code>上发送数据之后的阻塞，<code>goroutine</code>可以阻塞在等待从没有任何数据的<code>channel</code>上获取数据。</p>
+<p>一开始阻塞这个概念可能有点让人不好理解，但你可以把它看作是两个<code>goroutine</code>( 土拨鼠 )之间的事务。无论一个土拨鼠是在等钱还是在送钱，它都要等到交易中的另一个伙伴出现。</p>
+<p>现在我们已经了解了<code>goroutine</code>在通过<code>channel</code>进行通信时阻塞的不同方式，让我们讨论两种不同类型的<code>channel</code>：无缓冲<code>channel</code>和缓冲<code>channel</code>。选择你使用的<code>channel</code>类型可以改变程序的行为方式。</p>
+<h2 id="无缓冲channel"><a href="#无缓冲channel" class="headerlink" title="无缓冲channel"></a>无缓冲<code>channel</code></h2><p><img src="/images/learning-gos-concurrency-through-illustrations-11.jpeg" style="border:0;"></p>
+<p>在前面的例子中，我们一直使用无缓冲<code>channel</code>。使它们独一无二的是，一次只有一条数据适合通过<code>channel</code>。</p>
+<h2 id="缓冲channel"><a href="#缓冲channel" class="headerlink" title="缓冲channel"></a>缓冲<code>channel</code></h2><p><img src="/images/learning-gos-concurrency-through-illustrations-12.jpeg" style="border:0;"></p>
+<p>在并发程序中，时序并不总是完美的。 在我们的采矿案例中，我们可能会遇到这样一种情况：我们的寻找矿石土拨鼠可以在采矿土拨鼠处理一块矿石的时间内找到三块矿石。 为了不让寻找矿石的土拨鼠将大部分时间花费在发送矿石给采矿土拨鼠并一直等待它接收处理完成，我们可以使用缓冲<code>channel</code>。 让我们开始做一个容量为3的缓冲<code>channel</code>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">bufferedChan := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>, <span class="number">3</span>)</div></pre></td></tr></table></figure>
+<p>缓冲<code>channel</code>的工作原理与非缓冲<code>channel</code>相似，只是有一点需要注意：我们可以在需要另外的<code>goroutine</code>读取<code>channel</code>之前将多条数据发送到<code>channel</code>。</p>
+<p><img src="/images/learning-gos-concurrency-through-illustrations-13.jpeg" style="border:0;"></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">bufferedChan := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>, <span class="number">3</span>)</div><div class="line"></div><div class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line"> bufferedChan &lt;- <span class="string">"first"</span></div><div class="line"> fmt.Println(<span class="string">"Sent 1st"</span>)</div><div class="line"> bufferedChan &lt;- <span class="string">"second"</span></div><div class="line"> fmt.Println(<span class="string">"Sent 2nd"</span>)</div><div class="line"> bufferedChan &lt;- <span class="string">"third"</span></div><div class="line"> fmt.Println(<span class="string">"Sent 3rd"</span>)</div><div class="line">&#125;()</div><div class="line"></div><div class="line">&lt;-time.After(time.Second * <span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line"> firstRead := &lt;- bufferedChan</div><div class="line"> fmt.Println(<span class="string">"Receiving.."</span>)</div><div class="line"> fmt.Println(firstRead)</div><div class="line"> secondRead := &lt;- bufferedChan</div><div class="line"> fmt.Println(secondRead)</div><div class="line"> thirdRead := &lt;- bufferedChan</div><div class="line"> fmt.Println(thirdRead)</div><div class="line">&#125;()</div></pre></td></tr></table></figure>
+<p>我们两个<code>goroutine</code>之间的打印顺序是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Sent 1st</div><div class="line">Sent 2nd</div><div class="line">Sent 3rd</div><div class="line">Receiving..</div><div class="line">first</div><div class="line">second</div><div class="line">third</div></pre></td></tr></table></figure>
+<p>为了简单起见，我们不会在最终示例程序中使用缓冲<code>channel</code>，但了解并发工具中可用的<code>channel</code>类型很重要。</p>
+<blockquote>
+<p>注意：使用缓冲<code>channel</code>不会阻止发生阻塞。 例如，如果寻矿土拨鼠比采矿土拨鼠快10倍，并且他们通过大小为2的缓冲<code>channel</code>进行通信，则寻矿土拨鼠仍将在程序中多次被阻塞。</p>
+</blockquote>
+<h1 id="把这些概念放在一起"><a href="#把这些概念放在一起" class="headerlink" title="把这些概念放在一起"></a>把这些概念放在一起</h1><p>现在通过<code>goroutine</code>和<code>channel</code>的强大功能，我们可以编写一个程序，使用Go的并发原语充分利用多个线程。</p>
+<p><img src="/images/learning-gos-concurrency-through-illustrations-14.jpeg" style="border:0;"></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">theMine := [<span class="number">5</span>]<span class="keyword">string</span>&#123;<span class="string">"rock"</span>, <span class="string">"ore"</span>, <span class="string">"ore"</span>, <span class="string">"rock"</span>, <span class="string">"ore"</span>&#125;</div><div class="line">oreChannel := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>)</div><div class="line">minedOreChan := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>)</div><div class="line"></div><div class="line"><span class="comment">// Finder</span></div><div class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(mine [5]<span class="keyword">string</span>)</span></span> &#123;</div><div class="line"> <span class="keyword">for</span> _, item := <span class="keyword">range</span> mine &#123;</div><div class="line">  <span class="keyword">if</span> item == <span class="string">"ore"</span> &#123;</div><div class="line">   oreChannel &lt;- item <span class="comment">//发送数据给 oreChannel</span></div><div class="line">  &#125;</div><div class="line"> &#125;</div><div class="line">&#125;(theMine)</div><div class="line"></div><div class="line"><span class="comment">// Ore Breaker</span></div><div class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line"> <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</div><div class="line">  foundOre := &lt;-oreChannel <span class="comment">//从 oreChannel 读取数据</span></div><div class="line">  fmt.Println(<span class="string">"From Finder: "</span>, foundOre)</div><div class="line">  minedOreChan &lt;- <span class="string">"minedOre"</span> <span class="comment">//发送数据给 minedOreChan</span></div><div class="line"> &#125;</div><div class="line">&#125;()</div><div class="line"></div><div class="line"><span class="comment">// Smelter</span></div><div class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line"> <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">3</span>; i++ &#123;</div><div class="line">  minedOre := &lt;-minedOreChan <span class="comment">//从 minedOreChan 读取数据</span></div><div class="line">  fmt.Println(<span class="string">"From Miner: "</span>, minedOre)</div><div class="line">  fmt.Println(<span class="string">"From Smelter: Ore is smelted"</span>)</div><div class="line"> &#125;</div><div class="line">&#125;()</div><div class="line"></div><div class="line">&lt;-time.After(time.Second * <span class="number">5</span>) <span class="comment">// 依然可以忽略这行代码</span></div></pre></td></tr></table></figure>
+<p>上述代码的输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">From Finder:  ore</div><div class="line"></div><div class="line">From Finder:  ore</div><div class="line"></div><div class="line">From Miner:  minedOre</div><div class="line"></div><div class="line">From Smelter: Ore is smelted</div><div class="line"></div><div class="line">From Miner:  minedOre</div><div class="line"></div><div class="line">From Smelter: Ore is smelted</div><div class="line"></div><div class="line">From Finder:  ore</div><div class="line"></div><div class="line">From Miner:  minedOre</div><div class="line"></div><div class="line">From Smelter: Ore is smelted</div></pre></td></tr></table></figure>
+<p>这比我们原来的例子有了很大的改进！现在，我们的每个函数都是独立运行的。而且，每次有一块矿石被加工，它就进入我们采矿线的下一个阶段。</p>
+<p>为了将注意力集中在理解<code>channel</code>和<code>goroutine</code>上，我上面没有提到一些重要的信息——如果你不知道这些信息，在你开始编程时可能会引起一些麻烦。现在你已经了解了<code>goroutine</code>和<code>channel</code>的工作方式，让我们先看一看你应该知道的一些信息，然后再开始使用<code>goroutine</code>和<code>channel</code>进行编程。</p>
+<h1 id="在你出发前，你应该知道"><a href="#在你出发前，你应该知道" class="headerlink" title="在你出发前，你应该知道.."></a>在你出发前，你应该知道..</h1><h2 id="匿名goroutine"><a href="#匿名goroutine" class="headerlink" title="匿名goroutine"></a>匿名<code>goroutine</code></h2><p><img src="/images/learning-gos-concurrency-through-illustrations-15.jpeg" style="border:0;"></p>
+<p>与我们如何用关键字 <code>go</code> 设置一个函数运行在它自己的<code>goroutine</code>里相似，我们可以用如下格式来创建一个匿名函数运行在它自己的<code>goroutine</code>里：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 匿名`goroutine`</span></div><div class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line"> fmt.Println(<span class="string">"I'm running in my own go routine"</span>)</div><div class="line">&#125;()</div></pre></td></tr></table></figure>
+<p>如此一来，如果我们只需要调用一次函数，我们可以将它放在它自己的<code>goroutine</code>中运行，而不用创建正式的函数声明。</p>
+<h2 id="主函数是一个goroutine"><a href="#主函数是一个goroutine" class="headerlink" title="主函数是一个goroutine"></a>主函数是一个<code>goroutine</code></h2><p><img src="/images/learning-gos-concurrency-through-illustrations-16.jpeg" style="border:0;"></p>
+<p>主函数确实在其自己的<code>goroutine</code>中运行！ 更重要的是要知道，一旦主函数返回，它将关闭当前正在运行的其他所有<code>goroutine</code>。 这就是为什么我们在主函数底部有一个定时器 -- 它创建了一个<code>channel</code>，并在5秒后发送了一个值。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;-time.After(time.Second * <span class="number">5</span>) <span class="comment">//5秒后从channel获得一个值</span></div></pre></td></tr></table></figure>
+<p>还记得一个<code>goroutine</code>会如何在一个<code>channel</code>读取数据的时候一直阻塞到有数据发送给了这个<code>channel</code>吗？ 通过添加上面的代码，主函数会阻塞，给我们其他的<code>goroutine</code>5秒额外的时间来运行。</p>
+<p>现在有更好的方法来处理阻塞主函数，直到所有其他的<code>goroutine</code>完成。 通常的做法是创建 <code>done</code> <code>channel</code>，主函数在它上面读取数据从而被阻塞。 一旦你完成你的工作，写入这个<code>channel</code>，程序将结束。</p>
+<p><img src="/images/learning-gos-concurrency-through-illustrations-17.jpeg" style="border:0;"></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line"> doneChan := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>)</div><div class="line"></div><div class="line"> <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">  <span class="comment">// Do some work…</span></div><div class="line">  doneChan &lt;- “I’m all done!”</div><div class="line"> &#125;()</div><div class="line"></div><div class="line"> &lt;-doneChan <span class="comment">// 阻塞到上面的goroutine给这个doenChan写入数据</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="你可以在channel上使用range"><a href="#你可以在channel上使用range" class="headerlink" title="你可以在channel上使用range"></a>你可以在<code>channel</code>上使用<code>range</code></h2><p>在前面的一个例子中，我们让矿工从for循环中经过3次迭代从<code>channel</code>中读取数据。如果我们不知道到底有多少矿石会从发现者那里送过来，会发生什么？好吧，类似于在集合上使用<code>range</code>，你可以在一个<code>channel</code>使用<code>range</code>。</p>
+<p>更新我们以前的矿工函数，我们可以写成这样：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Ore Breaker</span></div><div class="line"> <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">  <span class="keyword">for</span> foundOre := <span class="keyword">range</span> oreChan &#123;</div><div class="line">   fmt.Println(“Miner: Received “ + foundOre + “ from finder”)</div><div class="line">  &#125;</div><div class="line"> &#125;()</div></pre></td></tr></table></figure>
+<p>因为矿工需要读取寻矿者发送给他的所有内容，所以通过在这里的<code>channel</code>使用<code>range</code>可以确保我们收到发送的所有内容。</p>
+<blockquote>
+<p>注意：在一个<code>channel</code>上使用<code>range</code>将被阻塞，直到在<code>channel</code>上发送了另一个数据。在所有需要发送的数据发送完后，停止<code>goroutine</code>被阻塞的唯一方法是用“close(channel)”关闭<code>channel</code></p>
+</blockquote>
+<h2 id="你可以在channel上进行非阻塞读取"><a href="#你可以在channel上进行非阻塞读取" class="headerlink" title="你可以在channel上进行非阻塞读取"></a>你可以在<code>channel</code>上进行非阻塞读取</h2><p>但你不是刚刚告诉我们<code>channel</code>如何阻塞<code>goroutine</code>的吗？！ 确实如此，但有一种技术可以使用Go的select case结构在<code>channel</code>上进行非阻塞式读取。 通过使用下面的结构，如果有某些事情发生，你的<code>goroutine</code>将从<code>channel</code>中读取，或运行默认情况。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">myChan := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">string</span>)</div><div class="line"></div><div class="line"><span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span>&#123;</div><div class="line"> myChan &lt;- “Message!”</div><div class="line">&#125;()</div><div class="line"></div><div class="line"><span class="keyword">select</span> &#123;</div><div class="line"> <span class="keyword">case</span> msg := &lt;- myChan:</div><div class="line">  fmt.Println(msg)</div><div class="line"> <span class="keyword">default</span>:</div><div class="line">  fmt.Println(“No Msg”)</div><div class="line">&#125;</div><div class="line"></div><div class="line">&lt;-time.After(time.Second * <span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="keyword">select</span> &#123;</div><div class="line"> <span class="keyword">case</span> msg := &lt;- myChan:</div><div class="line">  fmt.Println(msg)</div><div class="line"> <span class="keyword">default</span>:</div><div class="line">  fmt.Println(“No Msg”)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>运行后，上述例子的输出如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">No Msg</div><div class="line">Message!</div></pre></td></tr></table></figure>
+<h2 id="你也可以在channel上进行非阻塞发送"><a href="#你也可以在channel上进行非阻塞发送" class="headerlink" title="你也可以在channel上进行非阻塞发送"></a>你也可以在<code>channel</code>上进行非阻塞发送</h2><p>非阻塞发送使用相同的select case结构来执行它们的非阻塞操作，唯一的区别是我们的情况看起来像发送而不是接收。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> &#123;</div><div class="line"> <span class="keyword">case</span> myChan &lt;- “message”:</div><div class="line">  fmt.Println(“sent the message”)</div><div class="line"> <span class="keyword">default</span>:</div><div class="line">  fmt.Println(“no message sent”)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="下一步学习"><a href="#下一步学习" class="headerlink" title="下一步学习"></a>下一步学习</h1><p><img src="/images/learning-gos-concurrency-through-illustrations-18.jpeg" style="border:0;"></p>
+<p>有很多讲座和博客文章涵盖<code>channel</code>和<code>goroutine</code>的更详细内容。 既然你对这些工具的目的和应用有了深刻的理解，那么你应该能够充分利用以下文章和讲座。</p>
+<blockquote>
+<p><a href="https://www.youtube.com/watch?v=f6kdp27TYZs&amp;t=938s" target="_blank" rel="external">Google I/O 2012 — Go Concurrency Patterns</a><br> <a href="https://www.youtube.com/watch?v=cN_DpYBzKso" target="_blank" rel="external">Rob Pike — ‘Concurrency Is Not Parallelism’</a><br><a href="https://www.youtube.com/watch?v=ltqV6pDKZD8&amp;t=1315s" target="_blank" rel="external">GopherCon 2017: Edward Muller — Go Anti-Patterns</a></p>
+</blockquote>
+<p>谢谢你抽出时间来阅读这篇文章。我希望你能够了解<code>goroutine</code>、<code>channel</code>以及它们为编写并发程序带来的好处。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://medium.com/@trevor4e/learning-gos-concurrency-through-illustrations-8c4aff603b3" target="_blank" rel="external">https://medium.com/@trevor4e/learning-gos-concurrency-through-illustrations-8c4aff603b3</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/concurrency/" rel="tag">#concurrency</a>
+          
+            <a href="/tags/Go/" rel="tag">#Go</a>
+          
+            <a href="/tags/goroutine/" rel="tag">#goroutine</a>
+          
+            <a href="/tags/channel/" rel="tag">#channel</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/15/railway-oriented-development-with-erlang/" rel="next" title="用铁路的方法简化Erlang的case嵌套问题">
+                <i class="fa fa-chevron-left"></i> 用铁路的方法简化Erlang的case嵌套问题
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时当勉励，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">160</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">111</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">229</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#单线程与多线程程序"><span class="nav-number">1.</span> <span class="nav-text">单线程与多线程程序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Go-routine"><span class="nav-number">2.</span> <span class="nav-text">Go routine</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Channel"><span class="nav-number">3.</span> <span class="nav-text">Channel</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Channel的阻塞"><span class="nav-number">4.</span> <span class="nav-text">Channel的阻塞</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#发送端阻塞"><span class="nav-number">4.1.</span> <span class="nav-text">发送端阻塞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#接收端阻塞"><span class="nav-number">4.2.</span> <span class="nav-text">接收端阻塞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#无缓冲channel"><span class="nav-number">4.3.</span> <span class="nav-text">无缓冲channel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缓冲channel"><span class="nav-number">4.4.</span> <span class="nav-text">缓冲channel</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#把这些概念放在一起"><span class="nav-number">5.</span> <span class="nav-text">把这些概念放在一起</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#在你出发前，你应该知道"><span class="nav-number">6.</span> <span class="nav-text">在你出发前，你应该知道..</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#匿名goroutine"><span class="nav-number">6.1.</span> <span class="nav-text">匿名goroutine</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主函数是一个goroutine"><span class="nav-number">6.2.</span> <span class="nav-text">主函数是一个goroutine</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#你可以在channel上使用range"><span class="nav-number">6.3.</span> <span class="nav-text">你可以在channel上使用range</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#你可以在channel上进行非阻塞读取"><span class="nav-number">6.4.</span> <span class="nav-text">你可以在channel上进行非阻塞读取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#你也可以在channel上进行非阻塞发送"><span class="nav-number">6.5.</span> <span class="nav-text">你也可以在channel上进行非阻塞发送</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#下一步学习"><span class="nav-number">7.</span> <span class="nav-text">下一步学习</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
