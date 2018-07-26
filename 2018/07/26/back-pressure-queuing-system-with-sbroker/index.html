@@ -1,0 +1,887 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Elixir,back-pressure,sbroker," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="在PSPDFKit，我们使用Elixir构建可靠且高性能的分布式系统。 在这样的系统中，我们经常需要调用外部服务，同时异步消息传递允许客户端进行这些调用而不必等待响应。 无法立即处理的消息将排队并稍后处理，但是当队列过载时会发生什么呢？ 由于我们不希望系统崩溃，因此我们必须使用反压机制，以防止队列无限增长。 此文介绍了如何使用sbroker库将反压机制应用于Elixir应用程序。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何用Sbroker在Elixir中构建一个反压队列系统">
+<meta property="og:url" content="http://szpzs.oschina.io/2018/07/26/back-pressure-queuing-system-with-sbroker/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="在PSPDFKit，我们使用Elixir构建可靠且高性能的分布式系统。 在这样的系统中，我们经常需要调用外部服务，同时异步消息传递允许客户端进行这些调用而不必等待响应。 无法立即处理的消息将排队并稍后处理，但是当队列过载时会发生什么呢？ 由于我们不希望系统崩溃，因此我们必须使用反压机制，以防止队列无限增长。 此文介绍了如何使用sbroker库将反压机制应用于Elixir应用程序。">
+<meta property="og:updated_time" content="2018-07-26T12:43:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何用Sbroker在Elixir中构建一个反压队列系统">
+<meta name="twitter:description" content="在PSPDFKit，我们使用Elixir构建可靠且高性能的分布式系统。 在这样的系统中，我们经常需要调用外部服务，同时异步消息传递允许客户端进行这些调用而不必等待响应。 无法立即处理的消息将排队并稍后处理，但是当队列过载时会发生什么呢？ 由于我们不希望系统崩溃，因此我们必须使用反压机制，以防止队列无限增长。 此文介绍了如何使用sbroker库将反压机制应用于Elixir应用程序。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2018/07/26/back-pressure-queuing-system-with-sbroker/"/>
+
+  <title> 如何用Sbroker在Elixir中构建一个反压队列系统 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                如何用Sbroker在Elixir中构建一个反压队列系统
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-07-26T20:17:37+08:00" content="2018-07-26">
+              2018-07-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/back-pressure/" itemprop="url" rel="index">
+                    <span itemprop="name">back-pressure</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在PSPDFKit，我们使用<a href="https://elixir-lang.org/" target="_blank" rel="external">Elixir</a>构建可靠且高性能的分布式系统。 在这样的系统中，我们经常需要调用外部服务，同时异步消息传递允许客户端进行这些调用而不必等待响应。 无法立即处理的消息将排队并稍后处理，但是当队列过载时会发生什么呢？ 由于我们不希望系统崩溃，因此我们必须使用反压机制，以防止队列无限增长。 此文介绍了如何使用<a href="https://github.com/fishcakez/sbroker" target="_blank" rel="external">sbroker</a>库将反压机制应用于Elixir应用程序。</p>
+<a id="more"></a>
+<h1 id="在Elixir应用中使用sbroker的Erlang库"><a href="#在Elixir应用中使用sbroker的Erlang库" class="headerlink" title="在Elixir应用中使用sbroker的Erlang库"></a>在Elixir应用中使用sbroker的Erlang库</h1><p>sbroker这个Erlang库提供了用于创建池和(或)负载调节器的构建模块。 它使用<a href="https://en.wikipedia.org/wiki/Broker_pattern" target="_blank" rel="external">broker模式</a>，其中与服务worker的通信由负责worker与其调用之间协调的broker处理。</p>
+<h1 id="一个简单例子"><a href="#一个简单例子" class="headerlink" title="一个简单例子"></a>一个简单例子</h1><p>让我们看一个如何在Elixir应用程序中使用sbroker库的简单示例。</p>
+<p>首先我们在命令行运行如下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mix new example</div></pre></td></tr></table></figure>
+<p>它将在当前目录下创建一个样例工程，名字就叫做 “example” 。在该示例中，我们将模拟在一个worker中对外部服务的调用并由broker处理相关通信。为此，我们编辑example/mix.exs文件，以便将sbroker库添加到我们的应用程序中：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Example</span></span>.Mixfile <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Mix.Project</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">project</span></span> <span class="keyword">do</span></div><div class="line">    [</div><div class="line">      <span class="symbol">app:</span> <span class="symbol">:example</span>,</div><div class="line">      <span class="symbol">version:</span> <span class="string">"0.1.0"</span>,</div><div class="line">      <span class="symbol">elixir:</span> <span class="string">"~&gt; 1.5"</span>,</div><div class="line">      <span class="symbol">start_permanent:</span> Mix.env == <span class="symbol">:prod</span>,</div><div class="line">      <span class="symbol">deps:</span> deps()</div><div class="line">    ]</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">application</span></span> <span class="keyword">do</span></div><div class="line">    [</div><div class="line">      <span class="symbol">applications:</span> [<span class="symbol">:sbroker</span>],</div><div class="line">      <span class="symbol">extra_applications:</span> [<span class="symbol">:logger</span>],</div><div class="line">      <span class="symbol">mod:</span> &#123;Example, []&#125;</div><div class="line">    ]</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">defp</span> <span class="title">deps</span></span> <span class="keyword">do</span></div><div class="line">    [&#123;<span class="symbol">:sbroker</span>, <span class="string">"~&gt; 1.0-beta"</span>&#125;]</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>我们将sbroker库添加到上面的依赖项和应用程序中。我们也在18行指定了我们应用的模块 mod: {Example, []}，这个模块我们稍后创建。现在我们准备添加一个broker，所以我们在example/lib/example/broker.ex中创建我们对broker模块：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Example</span></span>.Broker <span class="keyword">do</span></div><div class="line">  <span class="variable">@behaviour</span> <span class="symbol">:sbroker</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start_link</span></span>() <span class="keyword">do</span></div><div class="line">    start_link(<span class="symbol">timeout:</span> <span class="number">10000</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start_link</span></span>(opts) <span class="keyword">do</span></div><div class="line">    <span class="symbol">:sbroker</span>.start_link(&#123;<span class="symbol">:local</span>, __MODULE_<span class="number">_</span>&#125;, __MODULE_<span class="number">_</span>, opts, [])</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">init</span></span>(opts) <span class="keyword">do</span></div><div class="line">    <span class="comment"># See `DBConnection.Sojourn.Broker`.</span></div><div class="line"></div><div class="line">    <span class="comment"># 使broker的“左”侧成为一个FIFO队列，在超时后丢弃请求。</span></div><div class="line">    client_queue =</div><div class="line">      &#123;<span class="symbol">:sbroker_timeout_queue</span>,</div><div class="line">       %&#123;</div><div class="line">         <span class="symbol">out:</span> <span class="symbol">:out</span>,</div><div class="line">         <span class="symbol">timeout:</span> opts[<span class="symbol">:timeout</span>],</div><div class="line">         <span class="symbol">drop:</span> <span class="symbol">:drop</span>,</div><div class="line">         <span class="symbol">min:</span> <span class="number">0</span>,</div><div class="line">         <span class="symbol">max:</span> <span class="number">128</span></div><div class="line">       &#125;&#125;</div><div class="line"></div><div class="line">    <span class="comment"># 使broker对“右”侧成为一个FIFO队列，这个队列没有超时。</span></div><div class="line">    worker_queue =</div><div class="line">      &#123;<span class="symbol">:sbroker_drop_queue</span>,</div><div class="line">       %&#123;</div><div class="line">         <span class="symbol">out:</span> <span class="symbol">:out_r</span>,</div><div class="line">         <span class="symbol">drop:</span> <span class="symbol">:drop</span>,</div><div class="line">         <span class="symbol">timeout:</span> <span class="symbol">:infinity</span></div><div class="line">       &#125;&#125;</div><div class="line"></div><div class="line">    &#123;<span class="symbol">:ok</span>, &#123;client_queue, worker_queue, []&#125;&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>上面的模块实现了sbroker行为。在第9行我们启动sbroker，并且在选项里设置超时为10秒。这个超时的意思是，当这些调用在队列里等候worker的时间超过10秒，它们将被丢弃。在init/1函数里，我们给broker定义了客户端和worker的队列。我们定义了broker模块后，我们需要定义worker模块，它负责定义worker，并且向broker请求任务。我们在 example/lib/example/worker.ex里定义worker模块：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Example</span></span>.Worker <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> GenServer</div><div class="line"></div><div class="line">  <span class="keyword">alias</span> Example.&#123;Broker&#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start_link</span></span>() <span class="keyword">do</span></div><div class="line">    GenServer.start_link(__MODULE_<span class="number">_</span>, [])</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="comment">#</span></div><div class="line">  <span class="comment"># GenServer 的回调函数</span></div><div class="line">  <span class="comment">#</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">init</span></span>([]) <span class="keyword">do</span></div><div class="line">    state =</div><div class="line">      ask(%&#123;</div><div class="line">        <span class="symbol">tag:</span> make_ref()</div><div class="line">      &#125;)</div><div class="line"></div><div class="line">    &#123;<span class="symbol">:ok</span>, state&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">handle_info</span></span>(&#123;tag, &#123;<span class="symbol">:go</span>, ref, &#123;pid, &#123;<span class="symbol">:fetch</span>, [params]&#125;&#125;, <span class="number">_</span>, <span class="number">_</span>&#125;&#125;, %&#123;<span class="symbol">tag:</span> tag&#125; = s) <span class="keyword">do</span></div><div class="line">    send(pid, &#123;ref, fetch_from_external_resource(params)&#125;)</div><div class="line">    &#123;<span class="symbol">:noreply</span>, ask(s)&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="comment"># 当sborker发现有匹配的任务，它将给我们发送 &#123;tag, &#123;:go, ref, req, _, _&#125;&#125; 消息</span></div><div class="line">  <span class="function"><span class="keyword">defp</span> <span class="title">ask</span></span>(%&#123;<span class="symbol">tag:</span> tag&#125; = s) <span class="keyword">do</span></div><div class="line">    &#123;<span class="symbol">:await</span>, ^tag, <span class="number">_</span>&#125; = <span class="symbol">:sbroker</span>.async_ask_r(Broker, <span class="keyword">self</span>(), &#123;<span class="keyword">self</span>(), tag&#125;)</div><div class="line">    s</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">defp</span> <span class="title">fetch_from_external_resource</span></span>(params) <span class="keyword">do</span></div><div class="line">    <span class="comment"># 模拟处理工作</span></div><div class="line">    Process.sleep(<span class="number">1000</span>)</div><div class="line">    &#123;<span class="symbol">:ok</span>, <span class="string">"External service called with <span class="subst">#&#123;inspect(params)&#125;</span>"</span>&#125;</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p><code>fetchfrom_external_resource/1</code>函数是一个简单的模拟函数，它将使得进程等待一秒，然后返回 {:ok, “External service called with #{inspect(params)}”} 。当worker这个GenServer进程收到 {tag, {:go, ref, {pid, {:fetch, [params]}},<em>, </em>}} 这样的消息时，这个函数将被调用。这个元组中的tag变量是一个唯一标识符，它被用来标识worker并且被存储在GenServer进程的状态中。</p>
+<p>在worker获得所需数据后，它会向broker请求新的任务。我们已经定义了broker和worker模块，因此我们现在可以定义一个监督者，它将启动broker和一个worker池。监督者在 example/lib/example/supervisor.ex 里定义：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Example</span></span>.Supervisor <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Supervisor</div><div class="line"></div><div class="line">  <span class="keyword">alias</span> Example.&#123;Broker, Worker&#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start_link</span></span>() <span class="keyword">do</span></div><div class="line">    Supervisor.start_link(__MODULE_<span class="number">_</span>, [])</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">init</span></span>(_args) <span class="keyword">do</span></div><div class="line">    pool_size = <span class="number">5</span></div><div class="line">    broker = worker(Broker, [], <span class="symbol">id:</span> <span class="symbol">:broker</span>)</div><div class="line"></div><div class="line">    workers =</div><div class="line">      <span class="keyword">for</span> id &lt;- <span class="number">1</span>..pool_size <span class="keyword">do</span></div><div class="line">        worker(Worker, [], <span class="symbol">id:</span> id)</div><div class="line">      <span class="keyword">end</span></div><div class="line"></div><div class="line">    worker_sup_opts = [<span class="symbol">strategy:</span> <span class="symbol">:one_for_one</span>, <span class="symbol">max_restarts:</span> pool_size]</div><div class="line">    worker_sup = supervisor(Supervisor, [workers, worker_sup_opts], <span class="symbol">id:</span> <span class="symbol">:workers</span>)</div><div class="line"></div><div class="line">    supervise([broker, worker_sup], <span class="symbol">strategy:</span> <span class="symbol">:one_for_one</span>)</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>在这个例子中，我们的worker池有5个worker。我们基本完成工作了，还剩下要创建一个application模块，这个模块定义在 example/lib/example.ex 中：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">defmodule</span> <span class="title">Example</span></span> <span class="keyword">do</span></div><div class="line">  <span class="keyword">use</span> Application</div><div class="line">  <span class="keyword">alias</span> Example.&#123;Broker&#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">start</span></span>(_type, _args) <span class="keyword">do</span></div><div class="line">    Example.Supervisor.start_link()</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">fetch_from_external_resource</span></span>(params) <span class="keyword">do</span></div><div class="line">    perform(&#123;<span class="symbol">:fetch</span>, [params]&#125;)</div><div class="line">    |&gt; inspect()</div><div class="line">    |&gt; IO.puts()</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">defp</span> <span class="title">perform</span></span>(&#123;action, args&#125; = params) <span class="keyword">do</span></div><div class="line">    <span class="keyword">case</span> <span class="symbol">:sbroker</span>.ask(Broker, &#123;<span class="keyword">self</span>(), params&#125;) <span class="keyword">do</span></div><div class="line">      &#123;<span class="symbol">:go</span>, ref, worker, <span class="number">_</span>, _queue_time&#125; -&gt;</div><div class="line">        monitor = Process.monitor(worker)</div><div class="line"></div><div class="line">        receive <span class="keyword">do</span></div><div class="line">          &#123;^ref, result&#125; -&gt;</div><div class="line">            Process.demonitor(monitor, [<span class="symbol">:flush</span>])</div><div class="line">            result</div><div class="line"></div><div class="line">          &#123;<span class="symbol">:DOWN</span>, ^monitor, <span class="number">_</span>, <span class="number">_</span>, reason&#125; -&gt;</div><div class="line">            exit(&#123;reason, &#123;__MODULE_<span class="number">_</span>, action, args&#125;&#125;)</div><div class="line">        <span class="keyword">end</span></div><div class="line"></div><div class="line">      &#123;<span class="symbol">:drop</span>, _time&#125; -&gt;</div><div class="line">        &#123;<span class="symbol">:error</span>, <span class="symbol">:overload</span>&#125;</div><div class="line">    <span class="keyword">end</span></div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>这个模块启动监督者，并且它有一个函数：fetch_from_external_resource/1，这个函数向broker请求一个worker，当broker能够为我们的请求分配一个worker的时候，会向这个worker发送了消息 {:fetch, [params]} 。当broker不能分配给我们worker的时候，返回的是 {:drop, time} 消息，这样的话，我们的私有函数 perform/1，将返回 {:error, :overload} 。函数 fetch_from_external_resource/1 将打印worker的返回值，或者因为broker丢弃了我们的请求而打印 {:error, :overload} 。</p>
+<p>我们现在可以在iex里测试这个例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">iex -S mix run</div></pre></td></tr></table></figure>
+<p>然后我们可以运行如下语句来从外部资源获取数据：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Example.fetch_from_external_resource(<span class="string">"test"</span>)</div></pre></td></tr></table></figure>
+<p>一秒后在iex里会输出如下信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123;:ok, <span class="string">"External service called with \"test\""</span>&#125;</div><div class="line">:ok</div></pre></td></tr></table></figure>
+<p>为了模拟和测试更多的调用，我们可以通过运行以下语句多次并行地调用 Example.fetch_from_external_resource(“test”) ：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Enum.each(<span class="number">1</span>..<span class="number">500</span>, <span class="keyword">fn</span> <span class="number">_</span> -&gt;</div><div class="line">    Task.start(<span class="keyword">fn</span> -&gt;</div><div class="line">      Example.fetch_from_external_resource(<span class="string">"test"</span>)</div><div class="line">    <span class="keyword">end</span>)</div><div class="line"><span class="keyword">end</span>)</div></pre></td></tr></table></figure>
+<p>这将打印相同的行并一次打印五行，因为我们的示例worker池包含五个worker。我们也将得到 {:error, :overload} 响应，因为broker不能分配worker并且任务在队列等待太长时间。 {:error, :overload} 响应是用于防止外部服务过载的反压力示例。例如，我们的系统现在可以通过HTTP / 1.1 429 Too Many Requests回复请求服务的客户端，并且它不会因为过载而崩溃。</p>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>使用带有worker池和队列的异步进程来扩展系统是一种很好的方式，但是由于我们不希望系统崩溃，我们还应该考虑处理过载的方法。一种方法是将反压机制应用到我们的系统中。在Elixir应用程序中，可以使用sbroker库轻松完成此任务。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://pspdfkit.com/blog/2018/back-pressure-queuing-system-with-sbroker/" target="_blank" rel="external">https://pspdfkit.com/blog/2018/back-pressure-queuing-system-with-sbroker/</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elixir/" rel="tag">#Elixir</a>
+          
+            <a href="/tags/back-pressure/" rel="tag">#back-pressure</a>
+          
+            <a href="/tags/sbroker/" rel="tag">#sbroker</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/23/learning-gos-concurrency-through-illustrations/" rel="next" title="通过插图学习Go的并发">
+                <i class="fa fa-chevron-left"></i> 通过插图学习Go的并发
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时当勉励，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">161</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">112</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">231</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#在Elixir应用中使用sbroker的Erlang库"><span class="nav-number">1.</span> <span class="nav-text">在Elixir应用中使用sbroker的Erlang库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一个简单例子"><span class="nav-number">2.</span> <span class="nav-text">一个简单例子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结论"><span class="nav-number">3.</span> <span class="nav-text">结论</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
