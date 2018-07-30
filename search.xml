@@ -4,6 +4,58 @@
   
     
     <entry>
+      <title><![CDATA[WebAssembly简介]]></title>
+      <url>http://szpzs.oschina.io/2018/07/30/intro-to-web-assembly/</url>
+      <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在今年的EmberConf大会上有很多非常有趣的讨论话题 - 尤其是Tom Dale和Yehuda Katz的开场主题演讲。 他们通过讨论<a href="https://youtu.be/NhtpXs0ZtUc?t=35m54s" target="_blank" rel="external">使用WebAssembly在glimmer进行的工作</a>来结束演讲。 事实上，他们甚至展示了在WebAssembly中运行的<a href="https://schedule-wasm.emberconf.com/" target="_blank" rel="external">EmberConf网站</a>版本（尽管由于漏洞而在iOS中崩溃）。</p>
+<p>大家都对他们的演讲报以掌声，我也做了我通常做的：微笑着点点头，就像我知道发生了什么。</p>
+<p><img src="/images/giphy.gif" style="border:0;"></p>
+<p>因此，我决定深入研究它，并试图了解WebAssembly是什么，它真正解决了什么问题。</p>
+<a id="more"></a>
+<h1 id="从高层次看WebAssembly"><a href="#从高层次看WebAssembly" class="headerlink" title="从高层次看WebAssembly"></a>从高层次看WebAssembly</h1><p>如果你阅读过关于WebAssembly(又名WASM)的很多博客文章，你会发现很多人提出的最重要的一点是，它使他们能够用JavaScript以外的语言构建网站。 对于拥有多年其他语言经验的人来说，我知道这可能是一个巨大的好处。 但是，作为一名JavaScript开发人员，我仍然有一个问题：它对我有什么用？</p>
+<p>为了回答这个问题，我必须提高我对网站如何运行、JavaScript从何开始执行以及WebAssembly如何融入当前生态系统的知识。</p>
+<h1 id="JavaScript有什么问题吗？"><a href="#JavaScript有什么问题吗？" class="headerlink" title="JavaScript有什么问题吗？"></a>JavaScript有什么问题吗？</h1><p>大多数人可能知道，JavaScript是在1995年创建的，目的是使web开发人员能够添加一些功能。它是一种松散类型的语言，希望开发人员能够更快地启动和运行程序。这意味着，与C、C++或Rust等语言不同，它的变量可以从整数开始，更改为字符串，然后更改为对象，而不会导致问题。虽然这使学习变得容易，但这意味着语言的效率相当低。</p>
+<p>当一个带有JavaScript的网站运行时，这个过程看起来像这样：</p>
+<ol>
+<li>解析代码</li>
+<li>从头到尾执行代码</li>
+<li>任何垃圾收集</li>
+</ol>
+<p>这是因为JavaScript使用所谓的“解释器”来运行代码。就像现实生活中的专业翻译一样，它会对每一行代码都进行解释和翻译，最终达到系统所理解的语言——就像有人在实时对话中把英语翻译成西班牙语一样。</p>
+<p>这里的问题是，当你必须多次运行相同的代码块，循环或函数时它会变得低效。 解释器每次翻译都没有性能提升。 这导致浏览器开始实现<a href="https://en.wikipedia.org/wiki/Just-in-time_compilation" target="_blank" rel="external">即时(JIT)编译器</a>，使得用户开始在浏览器中看到巨大的性能提升。</p>
+<p>JIT所做的是创建函数的编译版本，以便在后续调用中更有效地运行它们。但是，由于我们使用的仍然是松散类型的语言，因此需要创建这些函数的多个编译版本。如下函数：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">putTogether</span>(<span class="params">a, b</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> a + b;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果a和b是数字，那么我们得到的是它们之和。但是，如果它们是字符串，我们得到则是它们的拼接字符串。这种模式在JavaScript里是可行的，但是低层次语言需要知道a和b的确切类型来执行正确的操作。这就是为什么JIT有一个“监视器”，它创建了这个函数的两个编译版本 —- 一个接收数字，一个接收字符串。 调用该函数时，会找到并执行正确的编译版本。 这就是所谓的基线编译器(<a href="https://blog.mozilla.org/javascript/2013/04/05/the-baseline-compiler-has-landed/" target="_blank" rel="external">Baseline Compiler</a>)。</p>
+<p>需要注意的是，JIT的具体内容要复杂很多，但我们会保持简单的示例。 如果你想了解更多信息，我建议你阅读<a href="https://hacks.mozilla.org/2017/02/a-crash-course-in-just-in-time-jit-compilers/" target="_blank" rel="external">Lin Clark写的文章</a>。</p>
+<p>因此，现在JIT帮助浏览器更有效地运行，因为它不是解释每一行，而是解释类型并找到函数的正确编译版本。为了进一步提高性能，监视器会观察这些基线编译函数中的哪一个被调用得最多。如果发现一个函数被大量调用，它会将其发送给优化编译器，以创建更快的版本。</p>
+<p>例如，如果它发现我们总是使用数字调用<code>putTogether</code>函数，那么它会假设它应该始终以这种方式调用并创建优化版本。 现在我们的函数接近原生速度。</p>
+<p>我们新的过程看起来如下：</p>
+<ol>
+<li>解析代码</li>
+<li>编译（基线编译器）</li>
+<li>编译（优化编译器）</li>
+<li>执行（比以前快得多）</li>
+<li>任何垃圾收集</li>
+</ol>
+<p>虽然我们有更多的步骤，但是在浏览器中引入的JIT在实现的头几年里使站点速度提高了十倍以上。这通常是编译程序与运行时的工作流程。 我们花了一点时间预先编译，但由于我们不再动态翻译，因此执行时间减少，这样会带来重大收益。</p>
+<h1 id="好的……但WebAssembly适合哪里？"><a href="#好的……但WebAssembly适合哪里？" class="headerlink" title="好的……但WebAssembly适合哪里？"></a>好的……但WebAssembly适合哪里？</h1><p>上述过程有明显改善，但仍存在一个主要问题。 以我们的<code>putTogether</code>函数为例。 假设我们执行该函数1000次并仅传递数字。 优化编译器就假设它只用数字调用并编写该函数的低级编译版本。</p>
+<p>但是，由于某种原因，在第1,001次我们调用函数时，我们传递给它的是字符串。</p>
+<p><img src="/images/giphy-2.gif" style="border:0;"></p>
+<p>当编译的代码看到它做出错误的假设时，它会废弃优化的函数并开始重新优化的过程。 这就是所谓的“拯救”，如果它发生得足够多，最终优化编译器将放弃，我们永远不会得到最有效的函数版本。</p>
+<p>WebAssembly允许你(开发人员)编写自己的这些函数的编译版本。这意味着JIT不再创建函数的基线版本、监视它们、优化它们、拯救和重新优化它们。相反，你会说“我知道我想让这个函数以这种方式运行”，而不需要JIT的任何参与。</p>
+<p>所以现在我们的流程看起来像这样：</p>
+<ol>
+<li>解析（通过WebAssembly编译代码）</li>
+<li>执行（和JIT一样快）</li>
+<li>任何垃圾收集</li>
+</ol>
+<p>现在，你可以让部分应用程序以与本机应用程序相同的速度运行。 虽然我们不会完全放弃JavaScript，但可以将大量计算转移到这些较低级别的编译语言。 对于大多数Web开发人员来说，这些收益将来自他们的应用程序使用的第三方软件包，他们不必自己编写任何WebAssembly。 但仅仅因为你可能没有直接写它，这并不意味着不能很好地理其解幕后所发生的事情。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://dockyard.com/blog/2018/05/14/intro-to-web-assembly" target="_blank" rel="external">https://dockyard.com/blog/2018/05/14/intro-to-web-assembly</a></p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[如何用Sbroker在Elixir中构建一个反压队列系统]]></title>
       <url>http://szpzs.oschina.io/2018/07/26/back-pressure-queuing-system-with-sbroker/</url>
       <content type="html"><![CDATA[<p>在PSPDFKit，我们使用<a href="https://elixir-lang.org/" target="_blank" rel="external">Elixir</a>构建可靠且高性能的分布式系统。 在这样的系统中，我们经常需要调用外部服务，同时异步消息传递允许客户端进行这些调用而不必等待响应。 无法立即处理的消息将排队并稍后处理，但是当队列过载时会发生什么呢？ 由于我们不希望系统崩溃，因此我们必须使用反压机制，以防止队列无限增长。 此文介绍了如何使用<a href="https://github.com/fishcakez/sbroker" target="_blank" rel="external">sbroker</a>库将反压机制应用于Elixir应用程序。</p>
