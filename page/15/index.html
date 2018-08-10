@@ -130,7 +130,7 @@
     var _hmt = _hmt || [];
     (function() {
       var hm = document.createElement("script");
-      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
       var s = document.getElementsByTagName("script")[0];
       s.parentNode.insertBefore(hm, s);
     })();
@@ -271,6 +271,267 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/17/erlang-thursday-calendar-is-leap-year-1/" itemprop="url">
+                  Erlang Thursday – calendar:is_leap_year/1
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-17T15:43:16+08:00" content="2016-09-17">
+              2016-09-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/calendar/" itemprop="url" rel="index">
+                    <span itemprop="name">calendar</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#is_leap_year-1" target="_blank" rel="external">calendar:is_leap_year/1</a>.</p>
+<p>calendar:is_leap_year/1 接收一个非负整数表示的年份，如果这个年份是闰年，则返回true，否则返回false。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">calendar:is_leap_year(<span class="number">2015</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">2012</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:is_leap_year(<span class="number">2017</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">2000</span>).</div><div class="line"><span class="comment">% true</span></div><div class="line">calendar:is_leap_year(<span class="number">1900</span>).</div><div class="line"><span class="comment">% false</span></div><div class="line">calendar:is_leap_year(<span class="number">0</span>).</div><div class="line"><span class="comment">% true</span></div></pre></td></tr></table></figure>
+<p>有了这个Erlang核心库的内置函数，意味着你不需要编写代码或者甚至不需要查找规则来记住如何判断某个年份到底是不是闰年。</p>
+<p>如果你传递一个负数来表示年份，Erlang将抛出一个异常，因为没有一个函数分支能匹配用负数来表示的年份。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">calendar:is_leap_year(-<span class="number">1</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:is_leap_year(-1) (calendar.erl, line 183)</span></div><div class="line">calendar:is_leap_year(-<span class="number">4</span>).</div><div class="line"><span class="comment">% ** exception error: no function clause matching calendar:is_leap_year(-4) (calendar.erl, line 183)</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-calendar-is_leap_year-1/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-calendar-is_leap_year-1/</a></p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/09/17/erlang-thursday-calendar-valid-date-3/" itemprop="url">
+                  Erlang Thursday – calendar:valid_date/3
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-17T15:38:52+08:00" content="2016-09-17">
+              2016-09-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/calendar/" itemprop="url" rel="index">
+                    <span itemprop="name">calendar</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/calendar.html#valid_date-3">calendar:valid_date/3</a>.</p>
+<p>本来这次我是想讲函数 calendar:time_difference/3 ，但是当我详细看了 <a href="http://www.erlang.org/doc/man/calendar.html">calendar</a> 模块的官方文档后，发现文档里已经说这个函数被淘汰了，所以今天我讲 calendar:valid_date/3 。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/09/17/erlang-thursday-calendar-valid-date-3/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
     
       
 
@@ -1296,268 +1557,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/16/erlang-thursday-string-join-2/" itemprop="url">
-                  Erlang Thursday – string:join/2
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-16T15:13:58+08:00" content="2016-09-16">
-              2016-09-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/lists/" itemprop="url" rel="index">
-                    <span itemprop="name">lists</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>今天的Erlang Thursday讲的是 <a href="http://www.erlang.org/doc/man/string.html#join-2" target="_blank" rel="external">string:join/2</a>.</p>
-<p>string:join/2 有两个入参，第一个是由字符串为元素组成的列表，第二个是一个当作分隔符的字符串，输出是由分隔符将各个字符串串起来组成的字符串。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">91</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">""</span>).</div><div class="line"><span class="string">"abc"</span></div><div class="line"><span class="number">92</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">"-"</span>).</div><div class="line"><span class="string">"a-b-c"</span></div></pre></td></tr></table></figure>
-<p>分隔符字符串可以是任意长度的字符串，也不必仅仅是单个字符。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="number">93</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">"___"</span>).</div><div class="line"><span class="string">"a___b___c"</span></div><div class="line"><span class="number">94</span>&gt; string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], <span class="string">" "</span>).</div><div class="line"><span class="string">"a b c"</span></div></pre></td></tr></table></figure>
-<p>而且任何字符串，字符列表，或者甚至是整数列表，都可以用作分隔符字符串。</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [$A]).</div><div class="line"><span class="string">"aAbAc"</span></div><div class="line">string:join([<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>], [<span class="number">52</span>]).</div><div class="line"><span class="string">"a4b4c"</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p><em>原文链接：</em>  <a href="https://www.proctor-it.com/erlang-thursday-string-join-2/" target="_blank" rel="external">https://www.proctor-it.com/erlang-thursday-string-join-2/</a></p>
-</blockquote>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/16/erlang-thursday-string-tokens-2/" itemprop="url">
-                  Erlang Thursday – string:tokens/2
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-16T15:09:40+08:00" content="2016-09-16">
-              2016-09-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/string/" itemprop="url" rel="index">
-                    <span itemprop="name">string</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>今天的Erlang Thursday讲的是  <a href="http://www.erlang.org/doc/man/string.html#tokens-2">string:tokens/2</a>.</p>
-<p>string:tokens/2 第一个入参是一个字符串，第二入参是一个分割字符列表，返回值是被分割后的字符串列表。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/16/erlang-thursday-string-tokens-2/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1603,7 +1602,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">164</span>
+              <span class="site-state-item-count">166</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

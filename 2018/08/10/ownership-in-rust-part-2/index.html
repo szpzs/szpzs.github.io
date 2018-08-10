@@ -1,0 +1,950 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Rust,Ownership," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="当我们上次学习Rust中的所有权时，我们学习了Rust如何使用作用域来确定何时应该删除或释放内存中的资源或数据。
+我们发现，对于具有“copy trait”的类型(即其数据可以存储在栈上的类型)，所有权模型的行为类似于其他可能使用不同范式的语言，如垃圾收集。但是对于没有这种trait的类型，我们需要更加意识到所有权规则。
+尽管所有权可能会带来设计上的妥协，但它以灵活性、明确性和安全性来弥补。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust的所有权（二）">
+<meta property="og:url" content="http://szpzs.oschina.io/2018/08/10/ownership-in-rust-part-2/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="当我们上次学习Rust中的所有权时，我们学习了Rust如何使用作用域来确定何时应该删除或释放内存中的资源或数据。
+我们发现，对于具有“copy trait”的类型(即其数据可以存储在栈上的类型)，所有权模型的行为类似于其他可能使用不同范式的语言，如垃圾收集。但是对于没有这种trait的类型，我们需要更加意识到所有权规则。
+尽管所有权可能会带来设计上的妥协，但它以灵活性、明确性和安全性来弥补。">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-1.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-2.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-3.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-4.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-5.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-6.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-7.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-8.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-9.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-10.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-11.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-12.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-13.png">
+<meta property="og:updated_time" content="2018-08-10T08:16:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Rust的所有权（二）">
+<meta name="twitter:description" content="当我们上次学习Rust中的所有权时，我们学习了Rust如何使用作用域来确定何时应该删除或释放内存中的资源或数据。
+我们发现，对于具有“copy trait”的类型(即其数据可以存储在栈上的类型)，所有权模型的行为类似于其他可能使用不同范式的语言，如垃圾收集。但是对于没有这种trait的类型，我们需要更加意识到所有权规则。
+尽管所有权可能会带来设计上的妥协，但它以灵活性、明确性和安全性来弥补。">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-2-1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2018/08/10/ownership-in-rust-part-2/"/>
+
+  <title> Rust的所有权（二） | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Rust的所有权（二）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-08-10T15:43:30+08:00" content="2018-08-10">
+              2018-08-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Rust/" itemprop="url" rel="index">
+                    <span itemprop="name">Rust</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>当我们<a href="https://medium.com/@thomascountz/ownership-in-rust-part-1-112036b1126b" target="_blank" rel="external">上次</a>学习Rust中的所有权时，我们学习了Rust如何使用作用域来确定何时应该删除或释放内存中的资源或数据。</p>
+<p>我们发现，对于具有“copy trait”的类型(即其数据可以存储在栈上的类型)，所有权模型的行为类似于其他可能使用不同范式的语言，如垃圾收集。但是对于没有这种trait的类型，我们需要更加意识到所有权规则。</p>
+<p>尽管所有权可能会带来设计上的妥协，但它以灵活性、明确性和安全性来弥补。</p>
+<a id="more"></a>
+<h1 id="所有权和函数"><a href="#所有权和函数" class="headerlink" title="所有权和函数"></a>所有权和函数</h1><p><img src="/images/ownership-in-rust-part-2-1.png" style="border:0;"></p>
+<center>复制 vs 移动</center>
+
+<p>在第一个例子里，我们先传递一个字符串字面值（它的数据存储在栈上）给函数foo()。在第二个例子里，我们传递一个字符串类型的值（它的值存储在堆上）给不同函数foo()。在这两个例子的main()和foo()的实现，我们把在各自作用域变量的内存地址打印出来。</p>
+<p><img src="/images/ownership-in-rust-part-2-2.png" style="border:0;"></p>
+<p>在第一个例子中，当我们复制变量的值并将其绑定到一个新变量时，我们看到类似的行为。 这是因为字符串字面量使用栈；存储指针所需的大小在编译时是已知的，因此，我们可以轻松地复制它的值并将其压入栈中。</p>
+<p>这意味着函数main()和foo()都拥有自己的存储在变量string的指针副本。 当foo()的作用域结束时，foo()负责删除它自己的string变量，当main()的作用域结束时，它也负责删除它拥有的string变量。</p>
+<p><img src="/images/ownership-in-rust-part-2-3.png" style="border:0;"></p>
+<p>相反，在第二个例子里，main()把变量string的所有权移交给foo()。这意味着，main()不再有变量string的所有权，即指针指向的内存的所有权。如果在所有权移交后，我们还在main()里尝试访问string变量，我们将收到错误。</p>
+<p>复制很昂贵，Rust不复制，而是使得foo()负责内存地址0x7efced01c010的数据，如示例注释所示。</p>
+<p>现在，仅当foo()超过作用域，Rust才释放那个地址的内存，从而使指向同一地址的任何其他变量失效。同样，我们这样做是为了避免重复释放的错误。</p>
+<h1 id="克隆"><a href="#克隆" class="headerlink" title="克隆"></a>克隆</h1><p>对于第二个示例，如果我们确实要复制string的值，那么main()和foo()都拥有自己的副本，类似于在栈上使用字符串字面量时，我们可以通过使用clone()方法进行“深度复制” ：</p>
+<p><img src="/images/ownership-in-rust-part-2-4.png" style="border:0;"></p>
+<center>clone()</center>
+
+<p>如注释所示，main()和foo()有各自的string复制的所有权。虽然这是一个有效的解决方案，但它不是最有效率的，因为Rust每次都需要在堆上进行内存分配的过程。有时你真的希望这两个函数与同一个数据交互！(稍后将详细介绍)。</p>
+<h1 id="给予所有权"><a href="#给予所有权" class="headerlink" title="给予所有权"></a>给予所有权</h1><p>正如通过调用另一个函数并传入变量来获取所有权一样，可以通过从不同函数返回来赋予函数所有权。</p>
+<p><img src="/images/ownership-in-rust-part-2-5.png" style="border:0;"></p>
+<center>给予所有权</center>
+
+<p>foo()现在通过将字符串返回到调用foo()的位置来赋予main()所有权。正如所料，只有当main()的作用域结束时，Rust才会释放0x7fc98be1c010地址的内存。</p>
+<h1 id="给予和获取"><a href="#给予和获取" class="headerlink" title="给予和获取"></a>给予和获取</h1><p>如果我们遵循这一趋势，那么我们既可以给予所有权，也可以通过接收foo()返回相同的字符串类型将所有权归还给我们。</p>
+<p><img src="/images/ownership-in-rust-part-2-6.png" style="border:0;"></p>
+<center>传递所有权</center>
+
+<p>但是，将这些值传入和传出函数似乎很麻烦。 幸运的是，这是Rust维护者考虑到的头痛问题：</p>
+<blockquote>
+<p>取得所有权然后通过各种函数归还所有权有点单调乏味。 如果我们想让一个函数使用一个值但不取得所有权，该怎么办？ 如果我们想要再次使用它，除了我们可能想要返回的函数体所产生的任何数据之外，我们传入的任何内容都需要传回。 对我们来说幸运的是，Rust有一个这个概念的特性，称为引用。<br>— <a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external"><em>Rust Book</em></a></p>
+</blockquote>
+<h1 id="引用和借用"><a href="#引用和借用" class="headerlink" title="引用和借用"></a>引用和借用</h1><p>所有权适用于共享和传递数据，但是，你必须遵循一些规则。</p>
+<p>借用看起来像这样：</p>
+<p><img src="/images/ownership-in-rust-part-2-7.png" style="border:0;"></p>
+<p>main()让foo()访问string，但是，（如果图中的标签所示），main()仍然是string的所有者。这意味着，foo()的作用域结束后，string不会被从内存中释放；main()仍然负责string的内存空间。</p>
+<p>以下是我们如何在Rust中编写这种交互：</p>
+<p><img src="/images/ownership-in-rust-part-2-8.png" style="border:0;"></p>
+<center>传递引用或借用</center>
+
+<p>就像我们的绘图一样，main()将字符串的引用传递给foo()，而foo()接收String类型引用。 引用由＆符号表示。 在foo()的作用域结束之后，执行返回到它的调用者，main()，并且字符串仍然有效。 foo()不必返回所有权，因为它从未获得所有权，只是借用了它。</p>
+<p>&amp;表示<em>引用</em>，它允许传递值而不需要放弃所有权！当我们传递引用的时候，Rust知道，所有权以及内存空间的释放的责任依然属于原来的所有者。</p>
+<p>Rust允许我们创建任意数量的引用。</p>
+<p><img src="/images/ownership-in-rust-part-2-9.png" style="border:0;"></p>
+<center>传递同一个值的多个引用</center>
+
+<p>不管我们传递string的引用多少次，它的所有权依然是原来的所有者。（在这种情况下，所有权返回到字符串最初被实例化的地方，但是请记住，我们可以传递所有权，然后创建引用。）</p>
+<h1 id="可变性"><a href="#可变性" class="headerlink" title="可变性"></a>可变性</h1><p>最后要提到的是可变性。 Rust通常以函数式编写，但作者非常务实，并且理解现代语言并不总是那么非黑即白，因此Rust适应了可变性。</p>
+<p><img src="/images/ownership-in-rust-part-2-10.png" style="border:0;"></p>
+<center>mut</center>
+
+<p>Rust允许我们使用 mut 关键字来使得值可变。注意内存地址的变化，这表明必须在堆上重新分配字符串。</p>
+<p>既然我们有一个可变变量，我们就可以做出一个可变引用！</p>
+<p><img src="/images/ownership-in-rust-part-2-11.png" style="border:0;"></p>
+<center>传递一个可变引用</center>
+
+<p>此处的语法有点特别，但是我们看到首先我们需要声明一个可变变量 <code>let mut string</code> 。然后当我们传递可变引用的时候，使用 <code>&amp;mut</code>。最后，我们在函数签名上用 <code>&amp;mut</code> 严格声明我们的函数接收一个可变引用。</p>
+<p>现在，我们仍然可以确定只有main()负责string变量的销毁，而同时允许其他函数来修改string。</p>
+<p>那些熟悉内存管理的人可能会想，如果不加以控制，这将是多么危险。如果几个函数持有一个可变引用，并试图同时异步更新同一内存位置，会发生什么情况；比如当使用线程时？这会导致数据竞争情况。</p>
+<blockquote>
+<p>当两个或多个线程可以访问共享数据并试图同时更改数据时，就会出现竞争情况。因为线程调度算法可以在任何时候在线程之间切换，所以你不知道线程试图访问共享数据的顺序。因此，数据变化的结果取决于线程调度算法，即两个线程都“竞相”访问或改变数据。<br>— <a href="https://stackoverflow.com/users/142/lehane" target="_blank" rel="external">Lehane</a> &amp; <a href="https://stackoverflow.com/users/3001736/amit-joki" target="_blank" rel="external">Amit Joki</a> 在 <a href="https://stackoverflow.com/a/34550" target="_blank" rel="external">SO</a>上的回答</p>
+</blockquote>
+<p>当使用低级语言(如Rust )时，这个问题会更加严重。Rust允许我们访问原始指针，这可能会导致许多不安全的情况。</p>
+<p>这是所有权被设置来防止的事情，它通过强制实施以下规则来做到这一点：“在任何给定的时间点，你可以有一个可变引用或者任何数量的不可变引用。”</p>
+<blockquote>
+<p>具有此限制的好处是Rust可以在编译时阻止数据争用。 数据竞争类似于竞争条件，并且在发生以下三种行为时发生：</p>
+<ul>
+<li>两个或多个指针同时访问相同的数据。</li>
+<li>至少有一个指针用于写入数据。</li>
+<li>没有用于同步访问数据的机制。</li>
+</ul>
+<p>数据争用会导致未定义的行为，并且在你尝试在运行时跟踪它们时可能难以诊断和修复；Rust可以防止这个问题的发生，因为它甚至不会编译通过有数据争用的代码！<br>—<a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external">Rust Book</a></p>
+</blockquote>
+<p>Rust的所有权规则再次拯救了我们，这被强调为Rust提供的核心安全特性，超过了其他系统语言。这意味着Ruby程序员和我一样，仍然不需要熟悉内存管理的内部工作。</p>
+<h1 id="悬空的引用"><a href="#悬空的引用" class="headerlink" title="悬空的引用"></a>悬空的引用</h1><p>最后一件事是，在传递引用时，还有另一个条件会导致称为悬空引用的bug。</p>
+<p>悬空引用是指向已释放的数据的指针，例如:</p>
+<p><img src="/images/ownership-in-rust-part-2-12.png" style="border:0;"></p>
+<center>悬空引用—编译不会成功</center>
+
+<p>在这个例子中，<code>foo()</code> 返回一个 string 的引用。但是，一旦 <code>foo()</code> 的作用域结束，string的内存被释放，这意味着引用指向无效的内存空间！</p>
+<p>Rust在编译这样的代码的时候会抛出错误：</p>
+<p><img src="/images/ownership-in-rust-part-2-13.png" style="border:0;"></p>
+<p>Rust使用者们可以享受所有权带来的好处而不需要理解它提供的保护。然而，理解所有权解决的问题只会帮助我们写出更好的代码而不需要和编译器斗争。</p>
+<p>还有一些关于Rust所有权的问题没有涉及到，但是有了这两篇文章，希望你能有足够的机会开始使用这个优雅的解决方案来解决一个其他棘手的问题。</p>
+<blockquote>
+<p><em>原文链接：</em> <a href="https://medium.com/@thomascountz/ownership-in-rust-part-2-c3e1da89956e" target="_blank" rel="external">https://medium.com/@thomascountz/ownership-in-rust-part-2-c3e1da89956e</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Rust/" rel="tag">#Rust</a>
+          
+            <a href="/tags/Ownership/" rel="tag">#Ownership</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/10/ownership-in-rust-part-1/" rel="next" title="Rust的所有权（一）">
+                <i class="fa fa-chevron-left"></i> Rust的所有权（一）
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时当勉励，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">166</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">114</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">234</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#所有权和函数"><span class="nav-number">1.</span> <span class="nav-text">所有权和函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#克隆"><span class="nav-number">2.</span> <span class="nav-text">克隆</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#给予所有权"><span class="nav-number">3.</span> <span class="nav-text">给予所有权</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#给予和获取"><span class="nav-number">4.</span> <span class="nav-text">给予和获取</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#引用和借用"><span class="nav-number">5.</span> <span class="nav-text">引用和借用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#可变性"><span class="nav-number">6.</span> <span class="nav-text">可变性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#悬空的引用"><span class="nav-number">7.</span> <span class="nav-text">悬空的引用</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

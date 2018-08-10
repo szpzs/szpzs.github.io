@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://szpzs.oschina.io/"/>
-  <updated>2018-08-01T08:22:13.000Z</updated>
+  <updated>2018-08-10T08:16:27.000Z</updated>
   <id>http://szpzs.oschina.io/</id>
   
   <author>
@@ -14,6 +14,228 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Rust的所有权（二）</title>
+    <link href="http://szpzs.oschina.io/2018/08/10/ownership-in-rust-part-2/"/>
+    <id>http://szpzs.oschina.io/2018/08/10/ownership-in-rust-part-2/</id>
+    <published>2018-08-10T07:43:30.000Z</published>
+    <updated>2018-08-10T08:16:27.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>当我们<a href="https://medium.com/@thomascountz/ownership-in-rust-part-1-112036b1126b" target="_blank" rel="external">上次</a>学习Rust中的所有权时，我们学习了Rust如何使用作用域来确定何时应该删除或释放内存中的资源或数据。</p>
+<p>我们发现，对于具有“copy trait”的类型(即其数据可以存储在栈上的类型)，所有权模型的行为类似于其他可能使用不同范式的语言，如垃圾收集。但是对于没有这种trait的类型，我们需要更加意识到所有权规则。</p>
+<p>尽管所有权可能会带来设计上的妥协，但它以灵活性、明确性和安全性来弥补。</p>
+<a id="more"></a>
+<h1 id="所有权和函数"><a href="#所有权和函数" class="headerlink" title="所有权和函数"></a>所有权和函数</h1><p><img src="/images/ownership-in-rust-part-2-1.png" style="border:0;"></p>
+<center>复制 vs 移动</center>
+
+<p>在第一个例子里，我们先传递一个字符串字面值（它的数据存储在栈上）给函数foo()。在第二个例子里，我们传递一个字符串类型的值（它的值存储在堆上）给不同函数foo()。在这两个例子的main()和foo()的实现，我们把在各自作用域变量的内存地址打印出来。</p>
+<p><img src="/images/ownership-in-rust-part-2-2.png" style="border:0;"></p>
+<p>在第一个例子中，当我们复制变量的值并将其绑定到一个新变量时，我们看到类似的行为。 这是因为字符串字面量使用栈；存储指针所需的大小在编译时是已知的，因此，我们可以轻松地复制它的值并将其压入栈中。</p>
+<p>这意味着函数main()和foo()都拥有自己的存储在变量string的指针副本。 当foo()的作用域结束时，foo()负责删除它自己的string变量，当main()的作用域结束时，它也负责删除它拥有的string变量。</p>
+<p><img src="/images/ownership-in-rust-part-2-3.png" style="border:0;"></p>
+<p>相反，在第二个例子里，main()把变量string的所有权移交给foo()。这意味着，main()不再有变量string的所有权，即指针指向的内存的所有权。如果在所有权移交后，我们还在main()里尝试访问string变量，我们将收到错误。</p>
+<p>复制很昂贵，Rust不复制，而是使得foo()负责内存地址0x7efced01c010的数据，如示例注释所示。</p>
+<p>现在，仅当foo()超过作用域，Rust才释放那个地址的内存，从而使指向同一地址的任何其他变量失效。同样，我们这样做是为了避免重复释放的错误。</p>
+<h1 id="克隆"><a href="#克隆" class="headerlink" title="克隆"></a>克隆</h1><p>对于第二个示例，如果我们确实要复制string的值，那么main()和foo()都拥有自己的副本，类似于在栈上使用字符串字面量时，我们可以通过使用clone()方法进行“深度复制” ：</p>
+<p><img src="/images/ownership-in-rust-part-2-4.png" style="border:0;"></p>
+<center>clone()</center>
+
+<p>如注释所示，main()和foo()有各自的string复制的所有权。虽然这是一个有效的解决方案，但它不是最有效率的，因为Rust每次都需要在堆上进行内存分配的过程。有时你真的希望这两个函数与同一个数据交互！(稍后将详细介绍)。</p>
+<h1 id="给予所有权"><a href="#给予所有权" class="headerlink" title="给予所有权"></a>给予所有权</h1><p>正如通过调用另一个函数并传入变量来获取所有权一样，可以通过从不同函数返回来赋予函数所有权。</p>
+<p><img src="/images/ownership-in-rust-part-2-5.png" style="border:0;"></p>
+<center>给予所有权</center>
+
+<p>foo()现在通过将字符串返回到调用foo()的位置来赋予main()所有权。正如所料，只有当main()的作用域结束时，Rust才会释放0x7fc98be1c010地址的内存。</p>
+<h1 id="给予和获取"><a href="#给予和获取" class="headerlink" title="给予和获取"></a>给予和获取</h1><p>如果我们遵循这一趋势，那么我们既可以给予所有权，也可以通过接收foo()返回相同的字符串类型将所有权归还给我们。</p>
+<p><img src="/images/ownership-in-rust-part-2-6.png" style="border:0;"></p>
+<center>传递所有权</center>
+
+<p>但是，将这些值传入和传出函数似乎很麻烦。 幸运的是，这是Rust维护者考虑到的头痛问题：</p>
+<blockquote>
+<p>取得所有权然后通过各种函数归还所有权有点单调乏味。 如果我们想让一个函数使用一个值但不取得所有权，该怎么办？ 如果我们想要再次使用它，除了我们可能想要返回的函数体所产生的任何数据之外，我们传入的任何内容都需要传回。 对我们来说幸运的是，Rust有一个这个概念的特性，称为引用。<br>— <a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external"><em>Rust Book</em></a></p>
+</blockquote>
+<h1 id="引用和借用"><a href="#引用和借用" class="headerlink" title="引用和借用"></a>引用和借用</h1><p>所有权适用于共享和传递数据，但是，你必须遵循一些规则。</p>
+<p>借用看起来像这样：</p>
+<p><img src="/images/ownership-in-rust-part-2-7.png" style="border:0;"></p>
+<p>main()让foo()访问string，但是，（如果图中的标签所示），main()仍然是string的所有者。这意味着，foo()的作用域结束后，string不会被从内存中释放；main()仍然负责string的内存空间。</p>
+<p>以下是我们如何在Rust中编写这种交互：</p>
+<p><img src="/images/ownership-in-rust-part-2-8.png" style="border:0;"></p>
+<center>传递引用或借用</center>
+
+<p>就像我们的绘图一样，main()将字符串的引用传递给foo()，而foo()接收String类型引用。 引用由＆符号表示。 在foo()的作用域结束之后，执行返回到它的调用者，main()，并且字符串仍然有效。 foo()不必返回所有权，因为它从未获得所有权，只是借用了它。</p>
+<p>&amp;表示<em>引用</em>，它允许传递值而不需要放弃所有权！当我们传递引用的时候，Rust知道，所有权以及内存空间的释放的责任依然属于原来的所有者。</p>
+<p>Rust允许我们创建任意数量的引用。</p>
+<p><img src="/images/ownership-in-rust-part-2-9.png" style="border:0;"></p>
+<center>传递同一个值的多个引用</center>
+
+<p>不管我们传递string的引用多少次，它的所有权依然是原来的所有者。（在这种情况下，所有权返回到字符串最初被实例化的地方，但是请记住，我们可以传递所有权，然后创建引用。）</p>
+<h1 id="可变性"><a href="#可变性" class="headerlink" title="可变性"></a>可变性</h1><p>最后要提到的是可变性。 Rust通常以函数式编写，但作者非常务实，并且理解现代语言并不总是那么非黑即白，因此Rust适应了可变性。</p>
+<p><img src="/images/ownership-in-rust-part-2-10.png" style="border:0;"></p>
+<center>mut</center>
+
+<p>Rust允许我们使用 mut 关键字来使得值可变。注意内存地址的变化，这表明必须在堆上重新分配字符串。</p>
+<p>既然我们有一个可变变量，我们就可以做出一个可变引用！</p>
+<p><img src="/images/ownership-in-rust-part-2-11.png" style="border:0;"></p>
+<center>传递一个可变引用</center>
+
+<p>此处的语法有点特别，但是我们看到首先我们需要声明一个可变变量 <code>let mut string</code> 。然后当我们传递可变引用的时候，使用 <code>&amp;mut</code>。最后，我们在函数签名上用 <code>&amp;mut</code> 严格声明我们的函数接收一个可变引用。</p>
+<p>现在，我们仍然可以确定只有main()负责string变量的销毁，而同时允许其他函数来修改string。</p>
+<p>那些熟悉内存管理的人可能会想，如果不加以控制，这将是多么危险。如果几个函数持有一个可变引用，并试图同时异步更新同一内存位置，会发生什么情况；比如当使用线程时？这会导致数据竞争情况。</p>
+<blockquote>
+<p>当两个或多个线程可以访问共享数据并试图同时更改数据时，就会出现竞争情况。因为线程调度算法可以在任何时候在线程之间切换，所以你不知道线程试图访问共享数据的顺序。因此，数据变化的结果取决于线程调度算法，即两个线程都“竞相”访问或改变数据。<br>— <a href="https://stackoverflow.com/users/142/lehane" target="_blank" rel="external">Lehane</a> &amp; <a href="https://stackoverflow.com/users/3001736/amit-joki" target="_blank" rel="external">Amit Joki</a> 在 <a href="https://stackoverflow.com/a/34550" target="_blank" rel="external">SO</a>上的回答</p>
+</blockquote>
+<p>当使用低级语言(如Rust )时，这个问题会更加严重。Rust允许我们访问原始指针，这可能会导致许多不安全的情况。</p>
+<p>这是所有权被设置来防止的事情，它通过强制实施以下规则来做到这一点：“在任何给定的时间点，你可以有一个可变引用或者任何数量的不可变引用。”</p>
+<blockquote>
+<p>具有此限制的好处是Rust可以在编译时阻止数据争用。 数据竞争类似于竞争条件，并且在发生以下三种行为时发生：</p>
+<ul>
+<li>两个或多个指针同时访问相同的数据。</li>
+<li>至少有一个指针用于写入数据。</li>
+<li>没有用于同步访问数据的机制。</li>
+</ul>
+<p>数据争用会导致未定义的行为，并且在你尝试在运行时跟踪它们时可能难以诊断和修复；Rust可以防止这个问题的发生，因为它甚至不会编译通过有数据争用的代码！<br>—<a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external">Rust Book</a></p>
+</blockquote>
+<p>Rust的所有权规则再次拯救了我们，这被强调为Rust提供的核心安全特性，超过了其他系统语言。这意味着Ruby程序员和我一样，仍然不需要熟悉内存管理的内部工作。</p>
+<h1 id="悬空的引用"><a href="#悬空的引用" class="headerlink" title="悬空的引用"></a>悬空的引用</h1><p>最后一件事是，在传递引用时，还有另一个条件会导致称为悬空引用的bug。</p>
+<p>悬空引用是指向已释放的数据的指针，例如:</p>
+<p><img src="/images/ownership-in-rust-part-2-12.png" style="border:0;"></p>
+<center>悬空引用—编译不会成功</center>
+
+<p>在这个例子中，<code>foo()</code> 返回一个 string 的引用。但是，一旦 <code>foo()</code> 的作用域结束，string的内存被释放，这意味着引用指向无效的内存空间！</p>
+<p>Rust在编译这样的代码的时候会抛出错误：</p>
+<p><img src="/images/ownership-in-rust-part-2-13.png" style="border:0;"></p>
+<p>Rust使用者们可以享受所有权带来的好处而不需要理解它提供的保护。然而，理解所有权解决的问题只会帮助我们写出更好的代码而不需要和编译器斗争。</p>
+<p>还有一些关于Rust所有权的问题没有涉及到，但是有了这两篇文章，希望你能有足够的机会开始使用这个优雅的解决方案来解决一个其他棘手的问题。</p>
+<blockquote>
+<p><em>原文链接：</em> <a href="https://medium.com/@thomascountz/ownership-in-rust-part-2-c3e1da89956e" target="_blank" rel="external">https://medium.com/@thomascountz/ownership-in-rust-part-2-c3e1da89956e</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;当我们&lt;a href=&quot;https://medium.com/@thomascountz/ownership-in-rust-part-1-112036b1126b&quot;&gt;上次&lt;/a&gt;学习Rust中的所有权时，我们学习了Rust如何使用作用域来确定何时应该删除或释放内存中的资源或数据。&lt;/p&gt;
+&lt;p&gt;我们发现，对于具有“copy trait”的类型(即其数据可以存储在栈上的类型)，所有权模型的行为类似于其他可能使用不同范式的语言，如垃圾收集。但是对于没有这种trait的类型，我们需要更加意识到所有权规则。&lt;/p&gt;
+&lt;p&gt;尽管所有权可能会带来设计上的妥协，但它以灵活性、明确性和安全性来弥补。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Rust" scheme="http://szpzs.oschina.io/categories/Rust/"/>
+    
+    
+      <category term="Rust" scheme="http://szpzs.oschina.io/tags/Rust/"/>
+    
+      <category term="Ownership" scheme="http://szpzs.oschina.io/tags/Ownership/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Rust的所有权（一）</title>
+    <link href="http://szpzs.oschina.io/2018/08/10/ownership-in-rust-part-1/"/>
+    <id>http://szpzs.oschina.io/2018/08/10/ownership-in-rust-part-1/</id>
+    <published>2018-08-10T07:43:26.000Z</published>
+    <updated>2018-08-10T08:16:27.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>作为一个Ruby开发者，我所知道的关于内存分配的所有内容都是由一些称为垃圾收集的进程处理的，这是<a href="https://medium.com/@tenderlove" target="_blank" rel="external">Aaron Patterson</a>的问题，而不是我的问题。</p>
+<p>因此，当我阅读<a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external">Rust Book</a>并看到Rust的一个明确的特性是垃圾收集的替代品时，我有点担心。</p>
+<p>处理内存管理的责任是不是要摊派到我的身上?</p>
+<p>显然，对于其他系统编程语言，如C语言，处理内存分配是一件大事，如果做得不好，可能会产生重大后果。<br>随着所有其他新事物的学习，我觉得事情开始堆积起来。</p>
+<a id="more"></a>
+<h1 id="栈和堆"><a href="#栈和堆" class="headerlink" title="栈和堆"></a>栈和堆</h1><p>不，它不是一个时髦的服装品牌，栈和堆是在运行时管理内存的方法。</p>
+<p><img src="/images/ownership-in-rust-part-1-1.png" style="border:0;"></p>
+<p>首先，我们有<strong>栈</strong>。栈被认为是快速的，因为它根据顺序存储和访问数据。最后一个放在（推入）栈上的数据是从栈中取出（弹出）的第一个数据。这被称为<em>LIFO</em>，即后进先出，这意味着我们只需要在释放内存的时候跟踪堆栈顶部的位置。</p>
+<p>栈很快的另一个原因是堆栈所需的空间量在编译时是已知的。 这意味着我们可以在将任何内容存储到其中之前分配一个固定大小的内存部分。</p>
+<p>例如，如果你知道有4来你家吃饭聚会，你就可以预先安排好他们的座位，准备好食物，并在他们到来之前练习如何叫他们的名字。这样非常高效！</p>
+<p>接下来，我们有另一个选择，<strong>堆</strong>。当你不能预先知道来你家吃饭聚会的确切人数，你可以使用堆。随着越来越多的人来到你的晚餐聚会，使用堆意味着找到额外的椅子并发出姓名标签。</p>
+<p>当运行时需要存储未知大小的数据时，计算机搜索堆上的内存，标记它，并返回指针，指针指向内存中的那个位置。这叫做内存分配。然后，你可以将指针压入栈，但是，当你想要检索实际数据时，你需要跟随指针返回到堆。</p>
+<p>当我继续深入研究栈和堆，感觉到似乎在堆中管理数据是很困难的。例如，你需要确保在使用完内存后，允许计算机重新分配内存中的位置。但是，如果代码的某个部分释放了内存中的一个位置，而代码的另一部分仍然有指针指向这个位置，那么就会发生一些奇怪的事情。</p>
+<blockquote>
+<p>跟踪代码的哪些部分正在使用堆上的哪些数据，最小化堆上重复数据的数量，清理堆上未使用的数据，以免耗尽空间，这些都是所有权要解决的问题。<br>-<a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external">Rust Book</a></p>
+</blockquote>
+<h1 id="所有权和作用域"><a href="#所有权和作用域" class="headerlink" title="所有权和作用域"></a>所有权和作用域</h1><p><img src="/images/ownership-in-rust-part-1-2.png" style="border:0;"></p>
+<p>Rust的所有权有三个规则：</p>
+<ul>
+<li>Rust中的每个值都有一个称为其所有者的变量。</li>
+<li>任何时刻只能有一个所有者。</li>
+<li>当所有者超出作用域时，该值将被删除。</li>
+</ul>
+<p>这种所有权魔力的最简单说明是变量的作用域：</p>
+<p><img src="/images/ownership-in-rust-part-1-3.png" style="border:0;"></p>
+<center>变量作用域</center>
+
+<p>一旦当前函数范围结束，由 <code>}</code> 表示，变量hello超出作用域，并被删除。</p>
+<p>“嗯，呸！”这就是我第一次看到这个时的想法。这在大多数其他编程语言中是一样的。这就是我所知道的“局部作用域变量”的行为。”</p>
+<p>如果这就是所有权的全部知识，我真就有点不知所措了。</p>
+<p>然而，当我们开始传递值并从使用存储在栈中的字符串字面值切换到使用存储在堆中的字符串类型时，事情变得更加有趣。</p>
+<p><img src="/images/ownership-in-rust-part-1-4.png" style="border:0;"></p>
+<center>复制 vs 移动</center>
+
+<p>我们可以看到，当使用字符串字面量的时候，Rust把hello的值复制到hello1里，这个符合我们的预期。但是当使用String类型的时候，Rust反而是移动值。当我们尝试获取已经被移走的值的时候，Rust会报错：error[E0382]: use of moved value: ‘hello’。</p>
+<p>看起来在使用字符串字面量时，Rust会将该一个变量的值复制到另一个变量中，但是当我们使用String类型时，它会移动该值。</p>
+<p>要找到哪些类型实现了<code>copy trait</code>，“你可以查看文档，但是一般来说，任何一组简单标量值都可以被复制，任何需要分配或某种形式的资源都不会被复制”。</p>
+<h1 id="为什么不复制一切？"><a href="#为什么不复制一切？" class="headerlink" title="为什么不复制一切？"></a>为什么不复制一切？</h1><p><img src="/images/ownership-in-rust-part-1-5.png" style="border:0;"></p>
+<center>当使用&amp;str的时候，用Copy trait</center>
+
+<p>字符串字面量”Hello, World!”存储在只读内存的某个地方（既不在栈中也不在堆中），而指向这个字符串字面量的指针存储在栈中。因为它是一个字符串字面量，它通常显示为引用，这意味着我们使用指向永久内存中存储的字符串的指针(关于引用的更多信息，请参见<a href="https://medium.com/@thomascountz/ownership-in-rust-part-2-c3e1da89956e" target="_blank" rel="external">Rust的所有权，第2部分</a>)，并且它保证在整个程序的持续时间内有效，(它有一个静态生命周期)。</p>
+<p>这里，hello和hello1中存储的指针正在使用栈。当我们使用=运算符时，Rust将hello中存储的指针的新副本压入栈，并将其绑定到hello1。在作用域的末尾，Rust添加了一个drop调用，从栈中弹出值以释放内存。这些指针可以被存储并容易地复制到栈中，因为它们的大小在编译时是已知的。</p>
+<p><img src="/images/ownership-in-rust-part-1-6.png" style="border:0;"></p>
+<center>当使用堆，用Move trait</center>
+
+<p>在堆上，字符串类型值为“Hello，World！”使用<code>String : : from</code>方法绑定到变量hello。然而，与字符串字面量不同，绑定到hello的数据不仅仅是指针，这些数据的大小会在运行时发生变化。在这里，=运算符将hello中的数据绑定到新变量hello1，有效地将数据从一个变量移动到另一个变量。可怜的hello现在无效，因为根据所有权第二条规则：“一次只能有一个所有者。”</p>
+<p>但是为什么要这样做？Rust为什么不一直仅仅拷贝数据并把它绑定到新变量？</p>
+<p>如果我们回想一下栈和堆之间的差异，我们会记得堆上存储的数据大小在编译时是未知的，这意味着我们需要在运行时运行一些内存分配步骤。 这可能是很昂贵的操作。 根据我们存储的数据量，如果我们整天都在制作数据副本，我们可能会快速耗尽内存。</p>
+<p>除此之外，Rust的默认行为有助于保护我们免受在其他语言中可能遇到的记忆问题。</p>
+<p>在堆上存储数据的一部分是在栈上存储指向该数据的指针。然而，与使用指针定位只读存储器不同，比如当使用字符串字面量时，指向堆的指针末端的数据可能会改变。指针是绑定到存储字符串类型的hello变量的数据的一部分。如果我们将同一个指针数据绑定到两个不同的变量，它可能如下所示:</p>
+<p><img src="/images/ownership-in-rust-part-1-7.png" style="border:0;"></p>
+<center>复制字符串类型数据的粗略草图</center>
+
+<p>我们有两个变量，hello和hello1，它们共享同一份数据的所有权，这违反所有权第二条规则：“一次只能有一个所有者。”让我们继续往下看。</p>
+<p>在hello和hello 1的作用域结束时，我们必须将堆中的内存释放，以便在其他地方再次使用。</p>
+<p><img src="/images/ownership-in-rust-part-1-8.png" style="border:0;"></p>
+<center>释放hello1</center>
+
+<p>首先，我们对绑定到hello1的指针指向的存储数据调用drop，但是当我们在hello上调用drop时，接下来会发生什么？</p>
+<p><img src="/images/ownership-in-rust-part-1-9.png" style="border:0;"></p>
+<center>重复释放错误</center>
+
+<p>这称为重复释放错误，我认为对此最好的总结是 <a href="https://stackoverflow.com/a/21057524" target="_blank" rel="external">Stack Overflow 上的回答</a>：</p>
+<blockquote>
+<p>从技术上讲，在C语言中，重复释放会导致未定义的行为。这意味着程序可以完全任意地运行，并且对所发生的一切都没有把握。发生这种事当然是件坏事！在实践中，重复释放内存块将破坏内存管理器的状态，这可能导致现有内存块被破坏，或者导致未来的分配以奇怪的方式失败(例如，相同的内存被两个连续的不同malloc调用来处理)。<br>重复释放在各种情况下都可能发生。一个相当常见的情况是，多个不同的对象都有指向彼此的指针，并开始通过调用free来清理。当这种情况发生时，如果你不小心，你可能会在清理对象时多次释放同一个指针。不过，还有很多其他的情况。<br>— <a href="https://stackoverflow.com/users/501557/templatetypedef" target="_blank" rel="external">templatetypedef</a></p>
+</blockquote>
+<p>这就是Rust试图防止发生的！通过使hello无效，编译器知道只在hello1上调用drop（在幕后调用free）。</p>
+<p>这一切都很好，但是在某些情况下，我们确实希望复制存储在堆中的数据。Rust为此提供了一种简单的方法，就是<code>clone()</code>函数。</p>
+<p><img src="/images/ownership-in-rust-part-1-10.png" style="border:0;"></p>
+<center>深度复制</center>
+
+<p>请记住，对clone()的调用可能很昂贵，这就是Rust默认禁止这种“深度复制”的原因。</p>
+<p>显然，关于Rust所有权的问题比这里所提到的要多得多；还有一些概念叫做借用、引用和切片！</p>
+<p>迄今为止，似乎了解所有权更多的是为了浏览Rust的内存管理解决方案，而不是了解它解决的问题。但是，<a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external">Rust Book</a>鼓励你去了解为什么语言的作者渴望创造一种更安全的语言，而不是把它当作语言的怪癖。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external">Rust Book</a></li>
+<li><a href="https://users.rust-lang.org/t/the-copy-trait-what-does-it-actually-copy/18730" target="_blank" rel="external">Rust Language Form Post about The Copy Trait</a></li>
+</ul>
+<blockquote>
+<p><em>原文链接：</em> <a href="https://medium.com/@thomascountz/ownership-in-rust-part-1-112036b1126b" target="_blank" rel="external">https://medium.com/@thomascountz/ownership-in-rust-part-1-112036b1126b</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;作为一个Ruby开发者，我所知道的关于内存分配的所有内容都是由一些称为垃圾收集的进程处理的，这是&lt;a href=&quot;https://medium.com/@tenderlove&quot;&gt;Aaron Patterson&lt;/a&gt;的问题，而不是我的问题。&lt;/p&gt;
+&lt;p&gt;因此，当我阅读&lt;a href=&quot;https://doc.rust-lang.org/book/second-edition/&quot;&gt;Rust Book&lt;/a&gt;并看到Rust的一个明确的特性是垃圾收集的替代品时，我有点担心。&lt;/p&gt;
+&lt;p&gt;处理内存管理的责任是不是要摊派到我的身上?&lt;/p&gt;
+&lt;p&gt;显然，对于其他系统编程语言，如C语言，处理内存分配是一件大事，如果做得不好，可能会产生重大后果。&lt;br&gt;随着所有其他新事物的学习，我觉得事情开始堆积起来。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Rust" scheme="http://szpzs.oschina.io/categories/Rust/"/>
+    
+    
+      <category term="Rust" scheme="http://szpzs.oschina.io/tags/Rust/"/>
+    
+      <category term="Ownership" scheme="http://szpzs.oschina.io/tags/Ownership/"/>
+    
+  </entry>
   
   <entry>
     <title>不要害怕Rust的借用检查器</title>
@@ -1382,141 +1604,6 @@
       <category term="include" scheme="http://szpzs.oschina.io/tags/include/"/>
     
       <category term="include_lib" scheme="http://szpzs.oschina.io/tags/include-lib/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Erlang的调度器如何绑定到CPU</title>
-    <link href="http://szpzs.oschina.io/2018/03/23/erlang-scheduler-binding-cpu/"/>
-    <id>http://szpzs.oschina.io/2018/03/23/erlang-scheduler-binding-cpu/</id>
-    <published>2018-03-23T05:37:31.000Z</published>
-    <updated>2018-05-30T08:02:30.000Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="调度器绑定CPU"><a href="#调度器绑定CPU" class="headerlink" title="调度器绑定CPU"></a>调度器绑定CPU</h2><p>在启动Erlang虚拟机的时候可以通过参数来设置它的调度器以什么方式绑定CPU。这个参数是 +sbt，也可以用另一个参数 +stbt。它们的使用方法是：</p>
-<p>+sbt 绑定类型</p>
-<p>例如：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">erl +sbt db</div></pre></td></tr></table></figure>
-<p>这两个参数的差异表现在对如下错误的处理方式上：</p>
-<ul>
-<li>某些不支持绑定CPU功能的平台上尝试绑定调度器到CPU</li>
-<li>没有可用的CPU拓扑。运行时系统无法自动侦测到CPU拓扑，并且我们也没有设置自定义的CPU拓扑。</li>
-</ul>
-<p>当发生上述两种情况的时候，如果使用的是 +sbt 参数，则运行时系统会打印错误消息并拒绝启动；而如果使用的是 +stbt 参数，则运行时系统会忽略错误，并且用调度器不绑定CPU的方式启动。</p>
-<a id="more"></a>
-<p>当前有效的绑定类型如下：<br>u、ns、ts、ps、s、nnts、nnps、tnnps、db。</p>
-<p>下面对上述有效类型进行说明。我的机器CPU信息如下：</p>
-<p>有两个NUMA节点，每个节点有一个物理处理器，两个物理处理器为：p1和p2，每个物理处理器有4个核，每个核有两个线程。p1上的线程标识符为：第一个核{0,8}，第二个核{1,9}，第三个核{2,10}，第四个核{3,11}；p2上的线程标识符为：第一个核{4,12}，第二个核{5,13}，第三个核{6,14}，第四个核{7,15}。</p>
-<p>u：是 unbound 的首字母。调度器不绑定在某个CPU线程上，而是由操作系统决定调度器在那个CPU线程上执行以及什么时候迁移到别的cpu线程上。这是Erlang虚拟机的默认行为。</p>
-<p>ns：代表 no_spread。标识符相近的调度器尽可能地绑定在相近的CPU线程上。调度器绑定到cpu线程的顺序是：{0,8,1,9,2,10,3,11,4,12,5,13,6,14,7,15}。</p>
-<p>ts：代表 thread_spread。低标识符的调度器先绑定所有CPU核的第一个线程，然后再绑定所有CPU核的第二个线程，以此类推。调度器绑定到cpu线程的顺序是：{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}。</p>
-<p>ps：代表 processor_spread。和ts方式一样，只是会跨物理处理器核间隔地绑定。调度器绑定到cpu线程的顺序是：{0,4,1,5,2,6,3,7,8,12,9,13,10,14,11,15}。</p>
-<p>s：代表 spread。调度器尽可能地绑定到cpu线程上。与ns方式相似。调度器绑定到cpu线程的顺序是：{0,8,1,9,2,10,3,11,4,12,5,13,6,14,7,15}。</p>
-<p>nnts：代表 no_node_thread_spread。与thread_spread方式相似。但是，如果有多个NUMA节点存在，则调度器会先把一个NUMA节点内的cpu线程全部绑定完，然后再去绑定下一个NUMA节点内的cpu线程。调度器绑定到cpu线程的顺序是：{0,1,2,3,8,9,10,11,4,5,6,7,12,13,14,15}。</p>
-<p>nnps：代表 no_node_processor_spread。与processor_spread方式相似。但是，如果有多个NUMA节点存在，则调度器会先把一个NUMA节点内的cpu线程全部绑定完，然后再去绑定下一个NUMA节点内的cpu线程。调度器绑定到cpu线程的顺序是：{0,1,2,3,8,9,10,11,4,5,6,7,12,13,14,15}。</p>
-<p>tnnps：代表 thread_no_node_processor_spread。是thread_spread和no_node_processor_spread方式的组合。调度器将在NUMA节点间顺序绑定cpu线程，但是会先在一个NUMA节点内的cpu核的同类线程都绑定完了再到下一个NUMA节点。调度器绑定到cpu线程的顺序是：{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}。</p>
-<p>db：代表 default_bind。是调度器绑定cpu的默认方式。目前就是thread_no_node_processor_spread方式。将来可能会改变为别的方式。调度器绑定到cpu线程的顺序是：{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}。</p>
-<h2 id="自定义CPU拓扑"><a href="#自定义CPU拓扑" class="headerlink" title="自定义CPU拓扑"></a>自定义CPU拓扑</h2><p>自定义CPU拓扑会覆盖任何自动监测到的CPU拓扑。将调度器绑定到逻辑处理器时会使用自定义的CPU拓扑。</p>
-<p>自定义CPU拓扑的格式定义：</p>
-<ul>
-<li>&lt;Id&gt; = integer(); when 0 =&lt; &lt;Id&gt; =&lt; 65535</li>
-<li>&lt;IdRange&gt; = &lt;Id&gt;-&lt;Id&gt;</li>
-<li>&lt;IdOrIdRange&gt; = &lt;Id&gt; | &lt;IdRange&gt;</li>
-<li>&lt;IdList&gt; = &lt;IdOrIdRange&gt;,&lt;IdOrIdRange&gt; | &lt;IdOrIdRange&gt;</li>
-<li>&lt;LogicalIds&gt; = L&lt;IdList&gt;</li>
-<li>&lt;ThreadIds&gt; = T&lt;IdList&gt; | t&lt;IdList&gt;</li>
-<li>&lt;CoreIds&gt; = C&lt;IdList&gt; | c&lt;IdList&gt;</li>
-<li>&lt;ProcessorIds&gt; = P&lt;IdList&gt; | p&lt;IdList&gt;</li>
-<li>&lt;NodeIds&gt; = N&lt;IdList&gt; | n&lt;IdList&gt;</li>
-<li>&lt;IdDefs&gt; = &lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;ProcessorIds&gt;&lt;NodeIds&gt; | &lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;NodeIds&gt;&lt;ProcessorIds&gt;<ul>
-<li>&lt;LogicalIds&gt;必须是一个标识符列表。</li>
-<li>除&lt;LogicalIds&gt;之外至少还有一个其他的标识符类型也必须有一个标识符列表。</li>
-<li>所有标识符列表必须产生相同数量的标识符。</li>
-</ul>
-</li>
-<li>CpuTopology = &lt;IdDefs&gt;:&lt;IdDefs&gt; | &lt;IdDefs&gt;</li>
-<li>&lt;IdRange&gt;可以递增也可以递减</li>
-</ul>
-<p>大写字母表示真实标识符，小写字母表示仅用于描述拓扑的伪标识符。作为实际标识符传递的标识符可能被运行时系统用于访问特定硬件，如果它们不正确，行为是未定义的。由于在没有真实的逻辑CPU标识符的情况下定义CPU拓扑没有意义，所以不接受假的逻辑CPU标识符。线程，核心，处理器和节点标识符可以省略。如果省略，线程ID默认为t0，核心ID默认为c0，处理器ID默认为p0，节点ID将为未定义。每个逻辑处理器必须属于一个且只有一个NUMA节点，或者没有逻辑处理器必须属于任何NUMA节点。NUMA节点标识符是系统范围的。 也就是说，系统上的每个NUMA节点都必须具有唯一的标识符。处理器标识符也是系统范围的。 核心标识符是处理器范围的。 线程标识符是核心范围。标识符类型的顺序意味着CPU拓扑的层次结构。</p>
-<p>标识符类型的顺序：</p>
-<ul>
-<li>&lt;LogicalId&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;ProcessorIds&gt;&lt;NodeIds&gt;</li>
-<li>&lt;LogicalIds&gt;&lt;ThreadIds&gt;&lt;CoreIds&gt;&lt;NodeIds&gt;&lt;ProcessorIds&gt;</li>
-</ul>
-<p>只要每个逻辑处理器属于一个且只有一个NUMA节点，则CPU拓扑可由NUMA节点外部处理器和NUMA节点内部处理器一起组成。</p>
-<h2 id="Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数"><a href="#Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数" class="headerlink" title="Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数"></a>Erlang查询CPU拓扑以及虚拟机调度器绑定CPU的函数</h2><ul>
-<li>erlang:system_info(cpu_topology).</li>
-<li>erlang:system_info(scheduler_bindings).</li>
-</ul>
-<h2 id="linux-的CPU信息查询和NUMA工具"><a href="#linux-的CPU信息查询和NUMA工具" class="headerlink" title="linux 的CPU信息查询和NUMA工具"></a>linux 的CPU信息查询和NUMA工具</h2><ul>
-<li>lscpu<ul>
-<li>显示CPU架构信息</li>
-</ul>
-</li>
-<li>mpstat -P ALL<ul>
-<li>显示各个CPU负载情况</li>
-</ul>
-</li>
-<li>numactl –hardware<ul>
-<li>显示各个NUMA节点的内存以及distance情况</li>
-</ul>
-</li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;调度器绑定CPU&quot;&gt;&lt;a href=&quot;#调度器绑定CPU&quot; class=&quot;headerlink&quot; title=&quot;调度器绑定CPU&quot;&gt;&lt;/a&gt;调度器绑定CPU&lt;/h2&gt;&lt;p&gt;在启动Erlang虚拟机的时候可以通过参数来设置它的调度器以什么方式绑定CPU。这个参数是 +sbt，也可以用另一个参数 +stbt。它们的使用方法是：&lt;/p&gt;
-&lt;p&gt;+sbt 绑定类型&lt;/p&gt;
-&lt;p&gt;例如：&lt;/p&gt;
-&lt;figure class=&quot;highlight erlang&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;erl +sbt db&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;这两个参数的差异表现在对如下错误的处理方式上：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;某些不支持绑定CPU功能的平台上尝试绑定调度器到CPU&lt;/li&gt;
-&lt;li&gt;没有可用的CPU拓扑。运行时系统无法自动侦测到CPU拓扑，并且我们也没有设置自定义的CPU拓扑。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;当发生上述两种情况的时候，如果使用的是 +sbt 参数，则运行时系统会打印错误消息并拒绝启动；而如果使用的是 +stbt 参数，则运行时系统会忽略错误，并且用调度器不绑定CPU的方式启动。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/categories/Erlang/"/>
-    
-      <category term="scheduler" scheme="http://szpzs.oschina.io/categories/Erlang/scheduler/"/>
-    
-    
-      <category term="Erlang" scheme="http://szpzs.oschina.io/tags/Erlang/"/>
-    
-      <category term="sbt" scheme="http://szpzs.oschina.io/tags/sbt/"/>
-    
-      <category term="cpu" scheme="http://szpzs.oschina.io/tags/cpu/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>勉励自己</title>
-    <link href="http://szpzs.oschina.io/2017/12/31/2018-encourage-myself/"/>
-    <id>http://szpzs.oschina.io/2017/12/31/2018-encourage-myself/</id>
-    <published>2017-12-31T09:37:52.000Z</published>
-    <updated>2017-12-31T09:43:39.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="/images/encourage-myself.jpg" style="border:0;"></p>
-<h1 align="center">世界上任何书籍都不能带给你好运，</h1><br><h1 align="center">但是它们能让你悄悄成为你自己。</h1><br><h1 align="center">我继续和时间做朋友。</h1>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;/images/encourage-myself.jpg&quot; style=&quot;border:0;&quot;&gt;&lt;/p&gt;
-&lt;h1 align=&quot;center&quot;&gt;世界上任何书籍都不能带给你好运，&lt;/h1&gt;&lt;br&gt;&lt;h1 align=&quot;center&quot;&gt;但是它们能让你悄悄成为
-    
-    </summary>
-    
-    
-      <category term="Time" scheme="http://szpzs.oschina.io/tags/Time/"/>
-    
-      <category term="时间" scheme="http://szpzs.oschina.io/tags/%E6%97%B6%E9%97%B4/"/>
-    
-      <category term="2018" scheme="http://szpzs.oschina.io/tags/2018/"/>
-    
-      <category term="勉励" scheme="http://szpzs.oschina.io/tags/%E5%8B%89%E5%8A%B1/"/>
     
   </entry>
   

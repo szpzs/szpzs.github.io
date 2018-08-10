@@ -130,7 +130,7 @@
     var _hmt = _hmt || [];
     (function() {
       var hm = document.createElement("script");
-      hm.src = "//hm.baidu.com/hm.js?773cb20e4f6e199d6371a6a8df8640bd";
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
       var s = document.getElementsByTagName("script")[0];
       s.parentNode.insertBefore(hm, s);
     })();
@@ -271,6 +271,276 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/10/elixir-getting-started-protocols/" itemprop="url">
+                  Elixir入门教程－协议
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-10T21:36:51+08:00" content="2017-02-10">
+              2017-02-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/protocol/" itemprop="url" rel="index">
+                    <span itemprop="name">protocol</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ol>
+<li><a href="#part-one">协议和结构体</a></li>
+<li><a href="#part-two">实现Any</a><br> 2.1. <a href="#part-two-one">派生</a><br> 2.3. <a href="#part-two-two">回退到Any</a></li>
+<li><a href="#part-three">内建协议</a></li>
+<li><a href="#part-four">协议整合</a></li>
+</ol>
+<p>协议是Elixir里实现多态的一种机制。在一个协议上派发消息给任意数据类型是可行的，只要这个数据类型实现了这个协议。让我们看一个例子。</p>
+<p>在Elixir里，我们有两个动作来检查在一个数据结构里有多少个元素：length 和 size。length 意味着信息必需是被计算的。例如：length(list)需要遍历整个列表来计算它的长度。而另一方面，tuple_size(tuple) 和 byte_size(binary) 不依赖于元组和二进制数据的大小，因为在数据结构里大小的信息已经被预先计算了。</p>
+<p>虽然我们已经有Elixir内建的获取大小的指定类型函数（比如tuple_size/1），我们还是想实现一个通用的 Size 协议，然后所有数据结构只要它的大小是预先计算的，都可以实现这个协议。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/10/elixir-getting-started-protocols/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/02/09/elixir-getting-started-structs/" itemprop="url">
+                  Elixir入门教程－结构体
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-09T22:13:18+08:00" content="2017-02-09">
+              2017-02-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/struct/" itemprop="url" rel="index">
+                    <span itemprop="name">struct</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <ol>
+<li><a href="#part-one">定义结构体</a></li>
+<li><a href="#part-two">访问和修改结构体</a></li>
+<li><a href="#part-three">结构体的底层是裸映射</a></li>
+<li><a href="#part-four">默认值和所需的键</a></li>
+</ol>
+<p>在第七章我们学了映射：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">iex&gt; map = %&#123;<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div><div class="line">%&#123;<span class="symbol">a:</span> <span class="number">1</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div><div class="line">iex&gt; map[<span class="symbol">:a</span>]</div><div class="line"><span class="number">1</span></div><div class="line">iex&gt; %&#123;map | <span class="symbol">a:</span> <span class="number">3</span>&#125;</div><div class="line">%&#123;<span class="symbol">a:</span> <span class="number">3</span>, <span class="symbol">b:</span> <span class="number">2</span>&#125;</div></pre></td></tr></table></figure>
+<p>结构体是构建于映射之上的扩展，它提供了编译时检查和默认值。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/02/09/elixir-getting-started-structs/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
     
       
 
@@ -1352,274 +1622,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/02/01/elixir-getting-started-binaries-strings-and-char-lists/" itemprop="url">
-                  Elixir入门教程－二进制数据，字符串 和 字符列表
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-02-01T19:43:38+08:00" content="2017-02-01">
-              2017-02-01
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/" itemprop="url" rel="index">
-                    <span itemprop="name">Elixir</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/binary-string-char-list/" itemprop="url" rel="index">
-                    <span itemprop="name">binary-string-char list</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <ol>
-<li><a href="#part-one">UTF-8和Unicode</a></li>
-<li><a href="#part-two">二进制数据（和位串）</a></li>
-<li><a href="#part-three">字符列表</a></li>
-</ol>
-<p>在“基本类型”那一章，我们学到了字符串以及使用 is_binary/1 函数来检查它：</p>
-<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">iex&gt; string = <span class="string">"hello"</span></div><div class="line"><span class="string">"hello"</span></div><div class="line">iex&gt; is_binary(string)</div><div class="line"><span class="literal">true</span></div></pre></td></tr></table></figure>
-<p>在本章，我们将理解二进制数据是什么；它们如何和字符串联系在一起；在Elixir里，被单引号括起来的值，比如 ‘like this’，是什么。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/02/01/elixir-getting-started-binaries-strings-and-char-lists/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/01/31/elixir-getting-started-case-cond-and-if/" itemprop="url">
-                  Elixir入门教程－case，cond 和 if
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-01-31T19:35:56+08:00" content="2017-01-31">
-              2017-01-31
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/" itemprop="url" rel="index">
-                    <span itemprop="name">Elixir</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Elixir/control-flow-structure/" itemprop="url" rel="index">
-                    <span itemprop="name">control flow structure</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <ol>
-<li><a href="#part-one">case</a></li>
-<li><a href="#part-two">卫语句里的表达式</a></li>
-<li><a href="#part-three">cond</a></li>
-<li><a href="#part-four">if 和 unless</a></li>
-<li><a href="#part-five">do/end 块</a></li>
-</ol>
-<p>在本章，我们将学习 case，cond 和 if 这几个控制流结构。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/01/31/elixir-getting-started-case-cond-and-if/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1665,7 +1667,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">164</span>
+              <span class="site-state-item-count">166</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

@@ -1,0 +1,947 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Rust,Ownership," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="作为一个Ruby开发者，我所知道的关于内存分配的所有内容都是由一些称为垃圾收集的进程处理的，这是Aaron Patterson的问题，而不是我的问题。
+因此，当我阅读Rust Book并看到Rust的一个明确的特性是垃圾收集的替代品时，我有点担心。
+处理内存管理的责任是不是要摊派到我的身上?
+显然，对于其他系统编程语言，如C语言，处理内存分配是一件大事，如果做得不好，可能会产生重大后果。随着所有其">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust的所有权（一）">
+<meta property="og:url" content="http://szpzs.oschina.io/2018/08/10/ownership-in-rust-part-1/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="作为一个Ruby开发者，我所知道的关于内存分配的所有内容都是由一些称为垃圾收集的进程处理的，这是Aaron Patterson的问题，而不是我的问题。
+因此，当我阅读Rust Book并看到Rust的一个明确的特性是垃圾收集的替代品时，我有点担心。
+处理内存管理的责任是不是要摊派到我的身上?
+显然，对于其他系统编程语言，如C语言，处理内存分配是一件大事，如果做得不好，可能会产生重大后果。随着所有其">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-1.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-2.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-3.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-4.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-5.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-6.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-7.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-8.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-9.png">
+<meta property="og:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-10.png">
+<meta property="og:updated_time" content="2018-08-10T08:16:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Rust的所有权（一）">
+<meta name="twitter:description" content="作为一个Ruby开发者，我所知道的关于内存分配的所有内容都是由一些称为垃圾收集的进程处理的，这是Aaron Patterson的问题，而不是我的问题。
+因此，当我阅读Rust Book并看到Rust的一个明确的特性是垃圾收集的替代品时，我有点担心。
+处理内存管理的责任是不是要摊派到我的身上?
+显然，对于其他系统编程语言，如C语言，处理内存分配是一件大事，如果做得不好，可能会产生重大后果。随着所有其">
+<meta name="twitter:image" content="http://szpzs.oschina.io/images/ownership-in-rust-part-1-1.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2018/08/10/ownership-in-rust-part-1/"/>
+
+  <title> Rust的所有权（一） | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Rust的所有权（一）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-08-10T15:43:26+08:00" content="2018-08-10">
+              2018-08-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Rust/" itemprop="url" rel="index">
+                    <span itemprop="name">Rust</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>作为一个Ruby开发者，我所知道的关于内存分配的所有内容都是由一些称为垃圾收集的进程处理的，这是<a href="https://medium.com/@tenderlove" target="_blank" rel="external">Aaron Patterson</a>的问题，而不是我的问题。</p>
+<p>因此，当我阅读<a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external">Rust Book</a>并看到Rust的一个明确的特性是垃圾收集的替代品时，我有点担心。</p>
+<p>处理内存管理的责任是不是要摊派到我的身上?</p>
+<p>显然，对于其他系统编程语言，如C语言，处理内存分配是一件大事，如果做得不好，可能会产生重大后果。<br>随着所有其他新事物的学习，我觉得事情开始堆积起来。</p>
+<a id="more"></a>
+<h1 id="栈和堆"><a href="#栈和堆" class="headerlink" title="栈和堆"></a>栈和堆</h1><p>不，它不是一个时髦的服装品牌，栈和堆是在运行时管理内存的方法。</p>
+<p><img src="/images/ownership-in-rust-part-1-1.png" style="border:0;"></p>
+<p>首先，我们有<strong>栈</strong>。栈被认为是快速的，因为它根据顺序存储和访问数据。最后一个放在（推入）栈上的数据是从栈中取出（弹出）的第一个数据。这被称为<em>LIFO</em>，即后进先出，这意味着我们只需要在释放内存的时候跟踪堆栈顶部的位置。</p>
+<p>栈很快的另一个原因是堆栈所需的空间量在编译时是已知的。 这意味着我们可以在将任何内容存储到其中之前分配一个固定大小的内存部分。</p>
+<p>例如，如果你知道有4来你家吃饭聚会，你就可以预先安排好他们的座位，准备好食物，并在他们到来之前练习如何叫他们的名字。这样非常高效！</p>
+<p>接下来，我们有另一个选择，<strong>堆</strong>。当你不能预先知道来你家吃饭聚会的确切人数，你可以使用堆。随着越来越多的人来到你的晚餐聚会，使用堆意味着找到额外的椅子并发出姓名标签。</p>
+<p>当运行时需要存储未知大小的数据时，计算机搜索堆上的内存，标记它，并返回指针，指针指向内存中的那个位置。这叫做内存分配。然后，你可以将指针压入栈，但是，当你想要检索实际数据时，你需要跟随指针返回到堆。</p>
+<p>当我继续深入研究栈和堆，感觉到似乎在堆中管理数据是很困难的。例如，你需要确保在使用完内存后，允许计算机重新分配内存中的位置。但是，如果代码的某个部分释放了内存中的一个位置，而代码的另一部分仍然有指针指向这个位置，那么就会发生一些奇怪的事情。</p>
+<blockquote>
+<p>跟踪代码的哪些部分正在使用堆上的哪些数据，最小化堆上重复数据的数量，清理堆上未使用的数据，以免耗尽空间，这些都是所有权要解决的问题。<br>-<a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external">Rust Book</a></p>
+</blockquote>
+<h1 id="所有权和作用域"><a href="#所有权和作用域" class="headerlink" title="所有权和作用域"></a>所有权和作用域</h1><p><img src="/images/ownership-in-rust-part-1-2.png" style="border:0;"></p>
+<p>Rust的所有权有三个规则：</p>
+<ul>
+<li>Rust中的每个值都有一个称为其所有者的变量。</li>
+<li>任何时刻只能有一个所有者。</li>
+<li>当所有者超出作用域时，该值将被删除。</li>
+</ul>
+<p>这种所有权魔力的最简单说明是变量的作用域：</p>
+<p><img src="/images/ownership-in-rust-part-1-3.png" style="border:0;"></p>
+<center>变量作用域</center>
+
+<p>一旦当前函数范围结束，由 <code>}</code> 表示，变量hello超出作用域，并被删除。</p>
+<p>“嗯，呸！”这就是我第一次看到这个时的想法。这在大多数其他编程语言中是一样的。这就是我所知道的“局部作用域变量”的行为。”</p>
+<p>如果这就是所有权的全部知识，我真就有点不知所措了。</p>
+<p>然而，当我们开始传递值并从使用存储在栈中的字符串字面值切换到使用存储在堆中的字符串类型时，事情变得更加有趣。</p>
+<p><img src="/images/ownership-in-rust-part-1-4.png" style="border:0;"></p>
+<center>复制 vs 移动</center>
+
+<p>我们可以看到，当使用字符串字面量的时候，Rust把hello的值复制到hello1里，这个符合我们的预期。但是当使用String类型的时候，Rust反而是移动值。当我们尝试获取已经被移走的值的时候，Rust会报错：error[E0382]: use of moved value: ‘hello’。</p>
+<p>看起来在使用字符串字面量时，Rust会将该一个变量的值复制到另一个变量中，但是当我们使用String类型时，它会移动该值。</p>
+<p>要找到哪些类型实现了<code>copy trait</code>，“你可以查看文档，但是一般来说，任何一组简单标量值都可以被复制，任何需要分配或某种形式的资源都不会被复制”。</p>
+<h1 id="为什么不复制一切？"><a href="#为什么不复制一切？" class="headerlink" title="为什么不复制一切？"></a>为什么不复制一切？</h1><p><img src="/images/ownership-in-rust-part-1-5.png" style="border:0;"></p>
+<center>当使用&amp;str的时候，用Copy trait</center>
+
+<p>字符串字面量”Hello, World!”存储在只读内存的某个地方（既不在栈中也不在堆中），而指向这个字符串字面量的指针存储在栈中。因为它是一个字符串字面量，它通常显示为引用，这意味着我们使用指向永久内存中存储的字符串的指针(关于引用的更多信息，请参见<a href="https://medium.com/@thomascountz/ownership-in-rust-part-2-c3e1da89956e" target="_blank" rel="external">Rust的所有权，第2部分</a>)，并且它保证在整个程序的持续时间内有效，(它有一个静态生命周期)。</p>
+<p>这里，hello和hello1中存储的指针正在使用栈。当我们使用=运算符时，Rust将hello中存储的指针的新副本压入栈，并将其绑定到hello1。在作用域的末尾，Rust添加了一个drop调用，从栈中弹出值以释放内存。这些指针可以被存储并容易地复制到栈中，因为它们的大小在编译时是已知的。</p>
+<p><img src="/images/ownership-in-rust-part-1-6.png" style="border:0;"></p>
+<center>当使用堆，用Move trait</center>
+
+<p>在堆上，字符串类型值为“Hello，World！”使用<code>String : : from</code>方法绑定到变量hello。然而，与字符串字面量不同，绑定到hello的数据不仅仅是指针，这些数据的大小会在运行时发生变化。在这里，=运算符将hello中的数据绑定到新变量hello1，有效地将数据从一个变量移动到另一个变量。可怜的hello现在无效，因为根据所有权第二条规则：“一次只能有一个所有者。”</p>
+<p>但是为什么要这样做？Rust为什么不一直仅仅拷贝数据并把它绑定到新变量？</p>
+<p>如果我们回想一下栈和堆之间的差异，我们会记得堆上存储的数据大小在编译时是未知的，这意味着我们需要在运行时运行一些内存分配步骤。 这可能是很昂贵的操作。 根据我们存储的数据量，如果我们整天都在制作数据副本，我们可能会快速耗尽内存。</p>
+<p>除此之外，Rust的默认行为有助于保护我们免受在其他语言中可能遇到的记忆问题。</p>
+<p>在堆上存储数据的一部分是在栈上存储指向该数据的指针。然而，与使用指针定位只读存储器不同，比如当使用字符串字面量时，指向堆的指针末端的数据可能会改变。指针是绑定到存储字符串类型的hello变量的数据的一部分。如果我们将同一个指针数据绑定到两个不同的变量，它可能如下所示:</p>
+<p><img src="/images/ownership-in-rust-part-1-7.png" style="border:0;"></p>
+<center>复制字符串类型数据的粗略草图</center>
+
+<p>我们有两个变量，hello和hello1，它们共享同一份数据的所有权，这违反所有权第二条规则：“一次只能有一个所有者。”让我们继续往下看。</p>
+<p>在hello和hello 1的作用域结束时，我们必须将堆中的内存释放，以便在其他地方再次使用。</p>
+<p><img src="/images/ownership-in-rust-part-1-8.png" style="border:0;"></p>
+<center>释放hello1</center>
+
+<p>首先，我们对绑定到hello1的指针指向的存储数据调用drop，但是当我们在hello上调用drop时，接下来会发生什么？</p>
+<p><img src="/images/ownership-in-rust-part-1-9.png" style="border:0;"></p>
+<center>重复释放错误</center>
+
+<p>这称为重复释放错误，我认为对此最好的总结是 <a href="https://stackoverflow.com/a/21057524" target="_blank" rel="external">Stack Overflow 上的回答</a>：</p>
+<blockquote>
+<p>从技术上讲，在C语言中，重复释放会导致未定义的行为。这意味着程序可以完全任意地运行，并且对所发生的一切都没有把握。发生这种事当然是件坏事！在实践中，重复释放内存块将破坏内存管理器的状态，这可能导致现有内存块被破坏，或者导致未来的分配以奇怪的方式失败(例如，相同的内存被两个连续的不同malloc调用来处理)。<br>重复释放在各种情况下都可能发生。一个相当常见的情况是，多个不同的对象都有指向彼此的指针，并开始通过调用free来清理。当这种情况发生时，如果你不小心，你可能会在清理对象时多次释放同一个指针。不过，还有很多其他的情况。<br>— <a href="https://stackoverflow.com/users/501557/templatetypedef" target="_blank" rel="external">templatetypedef</a></p>
+</blockquote>
+<p>这就是Rust试图防止发生的！通过使hello无效，编译器知道只在hello1上调用drop（在幕后调用free）。</p>
+<p>这一切都很好，但是在某些情况下，我们确实希望复制存储在堆中的数据。Rust为此提供了一种简单的方法，就是<code>clone()</code>函数。</p>
+<p><img src="/images/ownership-in-rust-part-1-10.png" style="border:0;"></p>
+<center>深度复制</center>
+
+<p>请记住，对clone()的调用可能很昂贵，这就是Rust默认禁止这种“深度复制”的原因。</p>
+<p>显然，关于Rust所有权的问题比这里所提到的要多得多；还有一些概念叫做借用、引用和切片！</p>
+<p>迄今为止，似乎了解所有权更多的是为了浏览Rust的内存管理解决方案，而不是了解它解决的问题。但是，<a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external">Rust Book</a>鼓励你去了解为什么语言的作者渴望创造一种更安全的语言，而不是把它当作语言的怪癖。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="https://doc.rust-lang.org/book/second-edition/" target="_blank" rel="external">Rust Book</a></li>
+<li><a href="https://users.rust-lang.org/t/the-copy-trait-what-does-it-actually-copy/18730" target="_blank" rel="external">Rust Language Form Post about The Copy Trait</a></li>
+</ul>
+<blockquote>
+<p><em>原文链接：</em> <a href="https://medium.com/@thomascountz/ownership-in-rust-part-1-112036b1126b" target="_blank" rel="external">https://medium.com/@thomascountz/ownership-in-rust-part-1-112036b1126b</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Rust/" rel="tag">#Rust</a>
+          
+            <a href="/tags/Ownership/" rel="tag">#Ownership</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/01/rust-borrowing-and-ownership/" rel="next" title="不要害怕Rust的借用检查器">
+                <i class="fa fa-chevron-left"></i> 不要害怕Rust的借用检查器
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/10/ownership-in-rust-part-2/" rel="prev" title="Rust的所有权（二）">
+                Rust的所有权（二） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时当勉励，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">166</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">114</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">234</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#栈和堆"><span class="nav-number">1.</span> <span class="nav-text">栈和堆</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#所有权和作用域"><span class="nav-number">2.</span> <span class="nav-text">所有权和作用域</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么不复制一切？"><span class="nav-number">3.</span> <span class="nav-text">为什么不复制一切？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
