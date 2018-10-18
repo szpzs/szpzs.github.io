@@ -1,0 +1,941 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Erlang,xref,dialyzer," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Time is all" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="如果你不去管死代码(就像那些不在任何地方使用的函数)，它们就会堆积在大项目中。使用Xref最被低估的特性之一，你将能够检测和删除不再需要的死代码。
+我们已经在这个博客里写了几篇关于我们如何大量使用Erlang/OTP来构建我们的实时竞价平台服务器的文章。
+这些系统很大，到现在已经存在了很长时间。 就像任何大型旧系统一样，它们包含一些不再使用的代码片段。 需要明确的是：它们没有被破坏，它们甚至被测试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Xref删除Erlang死代码">
+<meta property="og:url" content="http://szpzs.oschina.io/2018/10/18/remove-erlang-dead-code-xref/index.html">
+<meta property="og:site_name" content="Time is all">
+<meta property="og:description" content="如果你不去管死代码(就像那些不在任何地方使用的函数)，它们就会堆积在大项目中。使用Xref最被低估的特性之一，你将能够检测和删除不再需要的死代码。
+我们已经在这个博客里写了几篇关于我们如何大量使用Erlang/OTP来构建我们的实时竞价平台服务器的文章。
+这些系统很大，到现在已经存在了很长时间。 就像任何大型旧系统一样，它们包含一些不再使用的代码片段。 需要明确的是：它们没有被破坏，它们甚至被测试">
+<meta property="og:updated_time" content="2018-10-18T05:23:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Xref删除Erlang死代码">
+<meta name="twitter:description" content="如果你不去管死代码(就像那些不在任何地方使用的函数)，它们就会堆积在大项目中。使用Xref最被低估的特性之一，你将能够检测和删除不再需要的死代码。
+我们已经在这个博客里写了几篇关于我们如何大量使用Erlang/OTP来构建我们的实时竞价平台服务器的文章。
+这些系统很大，到现在已经存在了很长时间。 就像任何大型旧系统一样，它们包含一些不再使用的代码片段。 需要明确的是：它们没有被破坏，它们甚至被测试">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://szpzs.oschina.io/2018/10/18/remove-erlang-dead-code-xref/"/>
+
+  <title> 使用Xref删除Erlang死代码 | Time is all </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?4bf4bf0dca55af13c8b921203c9b2a91";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Time is all</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用Xref删除Erlang死代码
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-10-18T13:20:54+08:00" content="2018-10-18">
+              2018-10-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/" itemprop="url" rel="index">
+                    <span itemprop="name">Erlang</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/xref/" itemprop="url" rel="index">
+                    <span itemprop="name">xref</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Erlang/xref/dialyzer/" itemprop="url" rel="index">
+                    <span itemprop="name">dialyzer</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>如果你不去管死代码(就像那些不在任何地方使用的函数)，它们就会堆积在大项目中。使用Xref最被低估的特性之一，你将能够检测和删除不再需要的死代码。</p>
+<p>我们已经在这个博客里写了几篇关于我们如何大量使用Erlang/OTP来构建我们的实时竞价平台服务器的文章。</p>
+<p>这些系统很大，到现在已经存在了很长时间。 就像任何大型旧系统一样，它们包含一些不再使用的代码片段。 需要明确的是：它们没有被破坏，它们甚至被测试所覆盖，但它们都没有在生产中使用。</p>
+<p>在Erlang中，这些死代码表现为未使用的函数。 确切地说：它们是未使用的<strong>导出函数</strong>，因为在编译时会检测到未导出并且未使用的函数。</p>
+<a id="more"></a>
+<p>在一个大系统里找出未使用的导出函数是很困难的。幸运的是，Erlang/OTP已经给我们提供了一个工具来做这个事情，它就是：<a href="http://erlang.org/doc/man/xref.html" target="_blank" rel="external">Xref</a>。</p>
+<blockquote>
+<p>Xerf是一个交叉引用工具，可用于查找函数、模块、应用程序和发布之间的依赖关系。</p>
+</blockquote>
+<p>如果你使用<a href="https://rebar3.org/" target="_blank" rel="external">rebar3</a>管理你的项目，那么你就可以运行如下简单的命令来使用<em>Xref</em>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ rebar3 xref</div></pre></td></tr></table></figure>
+<p>如果你没有在 rebar.config 文件里为 Xref 进行任何配置的话，它将会检查你整个项目，并且进行所有可能的检查。这样的话，对于大项目来说，警告列表就会大量生成，因此，人们常常在 rebar.config 里进行如下配置：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123;xref_checks,  [</div><div class="line">	undefined_function_calls,</div><div class="line">	locals_not_used,</div><div class="line">	deprecated_function_calls</div><div class="line">]&#125;.</div></pre></td></tr></table></figure>
+<p>也就是说，这样的配置产生的报告就是如下三种：</p>
+<ul>
+<li>调用的函数不存在（undefined_function_calls）</li>
+<li>未使用未导出函数（locals_not_used）</li>
+<li>调用过期函数（deprecated_function_calls）</li>
+</ul>
+<p>你可以在<a href="https://www.rebar3.org/docs/configuration#section-xref" target="_blank" rel="external">
+</a>里找到所有可检查的列表，但是，我想要你注意的是，后两项是编译器已经检查到的（如果你启用了正确的警告），而真正有效的检查是对 <em>undefined_function_calls</em> 的执行。这是一个很好的运行检查，但它不会帮助我们解决原始的死代码问题。</p>
+<p>那么让我们来看看我们没有执行的检查。 通常，<em>undefined_functions</em>将报告与<em>undefined_function_calls</em>相同的结果，但是没有用实际的函数调用（不是很有用）。 <em>deprecated_functions</em>和<em>deprecated_function_calls</em>也是如此。 但是，我们有<em>exports_not_used</em>，这正是我们正在寻找的检查。</p>
+<p>把 <em>exports_not_used</em> 添加到我们的配置列表里，它将会报告那些我们导出了但是没有使用的函数。真是太棒了！</p>
+<p>但是为什么没有人使用它呢？🤔</p>
+<p>使用exports_not_used时有一些注意事项。 我现在列出它们，我会告诉你如何解决或至少让它们正常运作。</p>
+<h1 id="动态调用的函数"><a href="#动态调用的函数" class="headerlink" title="动态调用的函数"></a>动态调用的函数</h1><p>Xref将为在代码中找不到使用的每个导出函数报告一个警告。但是，Xref找不到它在哪里被使用，并不意味着实际使用函数的地方不存在。例如，Xref不能处理动态函数调用，但是它们是完全有效的使用方式。假设你有一个模块看起来像下面代码所示（别问我为什么）：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(sample)</span>.</div><div class="line">-exports<span class="params">([some_function/<span class="number">1</span>,  some_other_function/<span class="number">1</span>])</span>.</div><div class="line"></div><div class="line"><span class="function"><span class="title">some_function</span><span class="params">(M)</span>  -&gt;</span></div><div class="line">	M:some_other_function(an_argument).</div><div class="line"></div><div class="line"><span class="function"><span class="title">some_other_function</span><span class="params">(X)</span>  -&gt;</span></div><div class="line">	&#123;called,  X&#125;.</div></pre></td></tr></table></figure>
+<p>而在另一些模块里，你可能这么调用：<code>sample:some_function(sample)</code> 。<em>Xref</em>没有足够聪明到探测到 <code>sample:some_other_function/1</code> 被真正使用了，因为它仅仅是通过动态评估来进行检查。上面的例子只是执行函数动态调用的其中一种方式。你可以通过如下示例看看其他方式：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">% 经典的动态调用</span></div><div class="line">Module:Function(Argument, Argument2),</div><div class="line"></div><div class="line"><span class="comment">% 使用 erlang:apply/3</span></div><div class="line">erlang:apply(Module, Function, Arguments),</div><div class="line"></div><div class="line"><span class="comment">% 使用 spawn[_link]/3</span></div><div class="line">erlang:spawn(Module, Function, Arguments),</div><div class="line"></div><div class="line"><span class="comment">% 使用 timer:tc/3</span></div><div class="line">timer:tc(Module, Function, Arguments),</div><div class="line"></div><div class="line"><span class="comment">% 在监督者的规格说明里</span></div><div class="line">&#123;ChildName, &#123;Module, Function, Arguments&#125;, permanent, <span class="number">5000</span>, worker, dynamic&#125;,</div></pre></td></tr></table></figure>
+<p>注：如果添加{xref_warnings，true}. 到你的 rebar.config文件中，Xref至少会为这些无法解析的动态调用打印警告，如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sample:  1  unresolved  call</div></pre></td></tr></table></figure>
+<p>无论如何，只要你的系统比原型稍微大一点，你就会开始在代码的各处出现导出而未使用的函数。但不要惊慌，实际上有一种方法可以避免这些警告，而且它还有一些额外的好处。这种方法就是使用<code>ignore_xref</code>。</p>
+<p>-ignore_xref是一个属性，你可以把它添加到你到模块中来阻止Xref对特定对函数发出警告。它的使用看起来如下所示：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">-module</span><span class="params">(sample)</span>.</div><div class="line">-exports<span class="params">([some_function/<span class="number">1</span>, some_other_function/<span class="number">1</span>])</span>.</div><div class="line"></div><div class="line"><span class="comment">%% This function should be dynamically invoked through sample:some_function/1</span></div><div class="line">-ignore_xref<span class="params">([&#123;?MODULE, some_other_function, <span class="number">1</span>&#125;])</span>.</div><div class="line"></div><div class="line">...</div></pre></td></tr></table></figure>
+<p>现在如果你查看OTP中Xref的文档，你不会找到有关这个属性的片言只语。这是因为它不是官方属性。ignore_xref 是 rebar3 xref（<a href="https://hex.pm/packages/xref_runner" target="_blank" rel="external">xref_run</a>也一样） 的未公开文档属性。这个属性可以被添加到你的模块中，在当中列出那些你不想被Xref检查的函数。它的语法如下所示：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-ignore_xref<span class="params">([&#123;module(),  function(),  arity()&#125;  |  &#123;module(),  function()&#125;])</span>.</div></pre></td></tr></table></figure>
+<p>使用这种方式，你可以有效地移除掉有关那些被导出的只被动态调用的函数的警告。另外，如上例所示，你可以在这个属性的上方添加注释，这些函数将在哪里被使用。</p>
+<h1 id="动态生成的代码"><a href="#动态生成的代码" class="headerlink" title="动态生成的代码"></a>动态生成的代码</h1><p>你可能不是一个动态生成代码的发烧友，但是有时候你还真不可避免地要遇到动态生成的代码。</p>
+<p>例如，我们在系统的几个地方使用了<code>protobuf</code>，导致我们使用了<a href="https://hex.pm/packages/gpb" target="_blank" rel="external">gpb</a>和它的<code>rebar3</code>插件。当用gpb写模块的时候，它是不知道这个模块是如何被使用的，因此它就无法判断函数是否不需要被导出。这就意味着，当我们使用<code>Xref</code>的时候，会得到由gpb生成的所有被导出而未被使用的函数的警告。</p>
+<p>如何避免这些警告呢？我们不能使用 <code>-ignore_xref</code>，因为代码不是我们手写的，而是gpb自动生成的。事实证明，还有另一种方式。 我们可以在rebar.config中使用读起来怪怪的的xref_ignores属性。 它基本上允许你拥有一个可以在任何地方被忽略的全局的函数列表。 它看起来像这样：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;xref_ignores, [</div><div class="line">    &#123;my_gpb_generated_module, some_function, <span class="number">1</span>&#125;,</div><div class="line">    &#123;my_gpb_generated_module, some_other_function, <span class="number">0</span>&#125;,</div><div class="line">    &#123;my_gpb_generated_module, a_function_with_various_arities&#125;,</div><div class="line">    ...</div><div class="line">]&#125;.</div></pre></td></tr></table></figure>
+<p>目前还没有办法忽略一个模块里的所有函数，不过我已经给这个项目提了 <a href="https://github.com/erlang/rebar3/issues/1905" target="_blank" rel="external">issue</a>。或许你也可以把这个问题作为一个 <a href="https://hacktoberfest.digitalocean.com/" target="_blank" rel="external">hacktoberfest</a> 项目来攻克。</p>
+<h1 id="导出函数被系统外部使用"><a href="#导出函数被系统外部使用" class="headerlink" title="导出函数被系统外部使用"></a>导出函数被系统外部使用</h1><p>如果你有一些函数仅仅因为当你远程登录到生产中的服务器时，会在shell中使用它们而被导出，那会怎么样？如果它们被外部脚本在你的节点执行RPC调用的时候被使用或诸如此类的情况，那会怎么样？</p>
+<p>在这种情况下，我建议你使用 <code>-ignore_xref</code>，并在那里添加一个适当的注释，说明如何/何时/在哪里使用这些函数。我保证，这么做将来会有回报的。</p>
+<h1 id="导出函数仅用于测试"><a href="#导出函数仅用于测试" class="headerlink" title="导出函数仅用于测试"></a>导出函数仅用于测试</h1><p>我有时候会遇到另一种不同的场景（特别是有关遗留代码的时候），就是被导出只是为了它们可以被测试。我们的想法是模拟它们或访问一些内部逻辑，否则这些内部逻辑应该隐藏在生产系统中。</p>
+<p>首先，如果你使用<a href="http://erlang.org/doc/man/eunit.html" target="_blank" rel="external">
+</a>，你就不需要导出那些函数。你可以在测试中使用非导出的函数。</p>
+<p>现在，如果你使用通用测试或其他需要在被测模块外部编写测试的框架，那就是另一回事了。 我认为重要的是要考虑导出函数只是为了在测试中使用它们一般是不可取的，因为……</p>
+<ul>
+<li>如果你的函数未导出和未使用，则编译器会检测它们，如前所述，这允许你更早地发现错误。</li>
+<li>如果要添加在生产中不可用的函数并且/或者做不应该在生产中完成的功能，那么你的测试不会准确模拟真实场景，这可能会导致测试通过代码仍然无法如预期一样正常工作。</li>
+</ul>
+<p>尽管如此，有时候还是没有办法解决它：你需要模拟一些外部世界看不到的东西，你需要验证一些只以非常复杂的格式暴露的数据或者检测真正难以捕获的副作用。 在这些场景中，<code>ignore_xref</code>以及一个简洁的注释对于未来的开发人员来说是避免意外和挫折的好工具，使得他们可以发现一个未使用的函数，决定删除它。</p>
+<h1 id="库接口"><a href="#库接口" class="headerlink" title="库接口"></a>库接口</h1><p>最后，还有另外一种情况，你确实需要导出应用程序中没有实际使用的函数：当你的应用程序是一个库时（例如，当你正在构建一个应用程序以便在其他系统中用作依赖项时）。在这种情况下，一些函数构成了应用程序的接口，它们不会被应用程序使用。它们是公开的，所以你的用户可以在他们的应用程序中调用它们。</p>
+<p>这些函数都将被报告为未使用的导出函数，并且必须为所有这些函数编写<code>ignore_xref</code> / <code>xref_ignore</code>，这样做不是好的办法。但是真正好的办法是在测试中覆盖它们。如果你这样做了，你就有了避免警告的方法并且实际上只为导出、未使用和未测试的函数生成警告。你可以像如下方式运行<code>Xref</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ rebar3 as <span class="built_in">test</span> xref</div></pre></td></tr></table></figure>
+<p>使用<code>test profile</code>，<code>rebar3</code>将把所有测试模块包含到分析中，并且由于你的接口函数将在这里使用，所以它不会警告您。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>虽然<code>Xref</code>是一个强大的工具，但是它需要一些调整来挖掘它的全部潜力。</p>
+<p>首先，你必须使用正确的检查。我们的推荐检查列表是：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123;xref_checks, [</div><div class="line">    undefined_function_calls,</div><div class="line">    exports_not_used</div><div class="line">]&#125;.</div></pre></td></tr></table></figure>
+<p>然后，你必须适当地使用<code>-ignore_xref</code>属性和<code>xref_ignores</code>配置参数来标识有意导出和未使用的所有函数。 如果你正在编写库，则还应该使用<code>rebar3 as test xref</code>来考虑分析中的测试。</p>
+<p>有了这些，你应该会得到0个警告的报告，因此你可以确定项目中没有任何死代码。</p>
+<p>嗯，实际上，你没有任何死函数（未使用的导出）。 但你仍然会有未使用的函数子句，未使用的case子句等形式的死代码，这些代码还不少，<code>Xref</code>将不会检测到这些问题。</p>
+<p>为此，你需要一个更强大的工具：<a href="http://erlang.org/doc/man/dialyzer.html" target="_blank" rel="external">dialyzer</a>。 我们不会在本文中介绍它，但请继续关注后续的文章。</p>
+<blockquote>
+<p><em>原文链接：</em>  <a href="http://tech.adroll.com/blog/dev/2018/10/09/remove-erlang-dead-code-xref.html" target="_blank" rel="external">http://tech.adroll.com/blog/dev/2018/10/09/remove-erlang-dead-code-xref.html</a></p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Erlang/" rel="tag">#Erlang</a>
+          
+            <a href="/tags/xref/" rel="tag">#xref</a>
+          
+            <a href="/tags/dialyzer/" rel="tag">#dialyzer</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/12/go-version-1-11-modules/" rel="next" title="Go v1.11中的Go模块介绍，再见GOPATH!">
+                <i class="fa fa-chevron-left"></i> Go v1.11中的Go模块介绍，再见GOPATH!
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="彭政生" />
+          <p class="site-author-name" itemprop="name">彭政生</p>
+          <p class="site-description motion-element" itemprop="description">盛年不重来，</br>一日难再晨，</br>及时当勉励，</br>岁月不待人。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">168</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">117</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">237</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/szpzs" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/szpengvictor" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://joearms.github.io/index.html" title="Joe Armstrong" target="_blank">Joe Armstrong</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://www.proctor-it.com/" title="Proctor It" target="_blank">Proctor It</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yufeng.info/" title="系统技术非业余研究" target="_blank">系统技术非业余研究</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/me-sa/" title="回头再说 坚强2002的博客" target="_blank">回头再说 坚强2002的博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/zhengsyao/" title="siyao zheng" target="_blank">siyao zheng</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://ferd.ca/" title="As bad as anything else" target="_blank">As bad as anything else</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cnblogs.com/bicowang/" title="Bico 笔记" target="_blank">Bico 笔记</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://coyee.com/" title="可译网" target="_blank">可译网</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#动态调用的函数"><span class="nav-number">1.</span> <span class="nav-text">动态调用的函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#动态生成的代码"><span class="nav-number">2.</span> <span class="nav-text">动态生成的代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#导出函数被系统外部使用"><span class="nav-number">3.</span> <span class="nav-text">导出函数被系统外部使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#导出函数仅用于测试"><span class="nav-number">4.</span> <span class="nav-text">导出函数仅用于测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#库接口"><span class="nav-number">5.</span> <span class="nav-text">库接口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">彭政生</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
