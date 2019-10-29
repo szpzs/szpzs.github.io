@@ -4,6 +4,30 @@
   
     
     <entry>
+      <title><![CDATA[创建Rust可执行程序的方式]]></title>
+      <url>http://szpzs.oschina.io/2019/10/29/executable-program-in-rust/</url>
+      <content type="html"><![CDATA[<p>总结一下最近<code>Rust</code>学习中关于创建可执行程序的三种方式：</p>
+<h2 id="第一种方式"><a href="#第一种方式" class="headerlink" title="第一种方式"></a>第一种方式</h2><p>直接用<code>cargo</code>来创建可执行项目，如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cargo new multi_bins</div></pre></td></tr></table></figure></p>
+<p>该命令将创建名字为<code>multi_bins</code>的可执行程序项目。项目目录结构如下：<br><img src="/images/executable-program-in-rust-1.png" style="border:0;"></p>
+<a id="more"></a>  
+<p>其中的<code>main.rs</code>文件为可执行程序的源码文件，它包含了<code>main</code>函数，其简单输出一句<code>&quot;Hello, world!&quot;</code></p>
+<p>执行如下命令将编译得到可执行程序：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cargo build --release</div></pre></td></tr></table></figure></p>
+<p>可执行文件创建成功后，其路径为：<br><img src="/images/executable-program-in-rust-2.png" style="border:0;"><br>执行该程序<br><img src="/images/executable-program-in-rust-3.png" style="border:0;"></p>
+<h2 id="第二种方式"><a href="#第二种方式" class="headerlink" title="第二种方式"></a>第二种方式</h2><p>在<code>src</code>目录下创建<code>bin</code>目录<br><img src="/images/executable-program-in-rust-4.png" style="border:0;"><br>然后在<code>bin</code>目录下创建包含<code>main</code>函数的源码文件。可以创建多个这样的文件，例如创建如下两个文件：<br><img src="/images/executable-program-in-rust-5.png" style="border:0;"><br>可以直接用<code>cargo run --bin</code>来运行这两个可执行程序。实际上是在<code>target/debug</code>下生成这两个文件的可执行程序并且运行它们<br><img src="/images/executable-program-in-rust-6.png" style="border:0;"><br>也可以编译得到可执行文件：<br><img src="/images/executable-program-in-rust-7.png" style="border:0;"></p>
+<h2 id="第三种方式"><a href="#第三种方式" class="headerlink" title="第三种方式"></a>第三种方式</h2><p>在<code>Cargo.toml</code>文件中进行配置，指定可执行程序的名称以及它的源码路径。这种方法可以使得可执行程序的源码既不是<code>main.rs</code>，也不需要放置于<code>src/bin</code>目录下，还可以随意指定它的名字。<br><img src="/images/executable-program-in-rust-8.png" style="border:0;"><br><img src="/images/executable-program-in-rust-9.png" style="border:0;"><br>执行如下构建命令：<br><img src="/images/executable-program-in-rust-10.png" style="border:0;"><br>生成可执行文件如下：<br><img src="/images/executable-program-in-rust-11.png" style="border:0;"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>上述三种方式中，第一种是最常用的，它是Rust的默认方式，<code>main.rs</code>默认为可执行项目的执行程序源码，<code>main</code>函数就是其入口。第二种方式把所有可执行程序的源码都放置到<code>src/bin</code>目录下，<code>Cargo</code>编译项目的时候会将这个目录下所有的包含<code>main</code>函数的源码文件都编译成和源码文件同名的可执行程序。第三种方式是最灵活的，它可以在<code>Cargo.toml</code>里进行灵活的配置，使得可执行程序的名称与它的源码路径解耦；从另一个角度来说这种方式使得可执行程序源码可以不必一定是<code>src/main.rs</code>或<code>src/bin/</code>中的包含<code>main</code>函数的文件。</p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[书山有路勤为径]]></title>
+      <url>http://szpzs.oschina.io/2018/12/31/all-wishes-come-true/</url>
+      <content type="html"><![CDATA[<p><img src="/images/2018-12-31.jpg" style="border:0;"></p>
+<h1 align="center">2018最大的收获来自书籍，</h1><br><h1 align="center">从中获得了认知上的进步，且有所实践。</h1><br><h1 align="center">2019，书山有路勤为径。</h1>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[使用Xref删除Erlang死代码]]></title>
       <url>http://szpzs.oschina.io/2018/10/18/remove-erlang-dead-code-xref/</url>
       <content type="html"><![CDATA[<p>如果你不去管死代码(就像那些不在任何地方使用的函数)，它们就会堆积在大项目中。使用Xref最被低估的特性之一，你将能够检测和删除不再需要的死代码。</p>

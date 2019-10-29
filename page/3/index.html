@@ -293,6 +293,262 @@
             
               
                 
+                <a class="post-title-link" href="/2018/04/03/using-c-from-elixir-with-nifs/" itemprop="url">
+                  以NIF的方式在Elixir里使用C
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-04-03T14:54:22+08:00" content="2018-04-03">
+              2018-04-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/NIF/" itemprop="url" rel="index">
+                    <span itemprop="name">NIF</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>Erlang支持一种方式，就是用C来实现函数，并在Erlang中透明地使用它们。这些函数被叫做NIFs（原生实现的函数）。在两种场景下，NIF被证明是完美的解决方案：当你需要原始的计算速度时；当你需要从Erlang调用已有的C接口时。在本文中，我们一起来看看这两种场景。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/04/03/using-c-from-elixir-with-nifs/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2018/04/02/better-control-flow-using-the-with-macro/" itemprop="url">
+                  使用“with”宏更好地控制执行流程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-04-02T13:46:11+08:00" content="2018-04-02">
+              2018-04-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/" itemprop="url" rel="index">
+                    <span itemprop="name">Elixir</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Elixir/macro/" itemprop="url" rel="index">
+                    <span itemprop="name">macro</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>从Elixir1.2开始就可以用with宏来写出更有表现力的流程控制语句。与需要深度嵌套的 case 和 if/else 语句不同，你可以只使用一个 with 语句来表达一样的逻辑，而且方式上更加优雅可读性也更好。下面我将探索如何利用它们来改进你的代码。</p>
+<h1 id="with-的基础"><a href="#with-的基础" class="headerlink" title="with 的基础"></a>with 的基础</h1><p>with 后跟一个句子列表，这些句子将按顺序执行。如果所有句子的结果都是正常，那么 do 后面的语句将被执行。当其中一个句子的结果有问题，则 do 后面的句子就不执行，而且相关错误值将返回给调用者。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">iex&gt; with &#123;int, <span class="number">_</span>&#125; &lt;- Integer.parse(<span class="string">"10"</span>) <span class="keyword">do</span></div><div class="line">...&gt;   <span class="number">10</span> * int</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="number">100</span></div><div class="line"></div><div class="line">iex&gt; with &#123;int, <span class="number">_</span>&#125; &lt;- Integer.parse(<span class="string">"foo"</span>) <span class="keyword">do</span></div><div class="line">...&gt;   <span class="number">10</span> * int</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="symbol">:error</span></div><div class="line"></div><div class="line">iex&gt; with &#123;int, <span class="number">_</span>&#125; &lt;- Integer.parse(<span class="string">"9"</span>),</div><div class="line">...&gt;      <span class="keyword">true</span> &lt;- Integer.is_even(int) <span class="keyword">do</span></div><div class="line">...&gt;   <span class="number">10</span> * int</div><div class="line">...&gt; <span class="keyword">end</span></div><div class="line"><span class="keyword">false</span></div></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/04/02/better-control-flow-using-the-with-macro/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/03/29/erlang-macro/" itemprop="url">
                   Erlang的宏
                 </a>
@@ -1237,251 +1493,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/08/01/joy-of-erlang/" itemprop="url">
-                  Erlang的乐趣犹如驾驭魅影
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-08-01T20:58:22+08:00" content="2017-08-01">
-              2017-08-01
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在电影&lt;&lt;阿凡达&gt;&gt;里，有一条超级大的翼龙，它叫做魅影，男主角为了赢得蓝色族人的信任必须学会骑魅影。一般来说，魅影不喜欢被骑，但如果你和它打一架，而且把它制服，然后把你的蓝马尾辫连接到魅影的尾巴上，你就能拥有它的生命。这就像拥有一辆你能控制的飞车，在与强敌作战时，你可以很方便地用你的思想控制它，给未来的同事留下深刻印象。但是学会骑魅影是很危险的，很少有人能成功。</p>
-<p>我喜欢把Erlang编程语言看作是一条魅影。大多数人都害怕Erlang。关于其能力的传说比比皆是。为了掌握它，你必须与它战斗，征服它，并(最后)把你的思想与它联系起来。但假设你能活下来，你就可以控制世界上最先进的服务器平台，让它做事情的时候通常无需再思考。现在让我来告诉你：驾驭魅影是很有趣的。</p>
-<p>本指南旨在教会你Erlang的思想，这样你就不会害怕而离开，而是可以战胜你自己的魅影。我将只介绍一些Erlang语言特性，但是我们将使用它们来解决大量实际问题。它的目的是让你想要并且有信心去学习并掌握Erlang语言其他知识。</p>
-<p>欢迎您将这些示例输入到自己的Erlang shell中，并执行它们，不过这些示例的设计是为了便于阅读而设计的。我建议你把这份文件打印出来，在舒适的椅子上仔细地阅读，并且远离电子邮件、编译器、3D电影以及其他干扰。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/08/01/joy-of-erlang/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/14/why-i-often-implement-things-from-scratch/" itemprop="url">
-                  为什么我经常从头开始实现某些功能
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-06-14T10:28:00+08:00" content="2017-06-14">
-              2017-06-14
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/" itemprop="url" rel="index">
-                    <span itemprop="name">Erlang</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Erlang/rpc/" itemprop="url" rel="index">
-                    <span itemprop="name">rpc</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>从前有一个Erlang程序员，他需要一个FTP服务器，运行在一个私有网络上的一个主机上。实际上，他不需要一个FTP服务器，他只需要在中央服务器和他的客户端机器之间传输文件，但是他认为他需要一个FTP服务器来完成这个操作。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/06/14/why-i-often-implement-things-from-scratch/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1527,7 +1538,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">168</span>
+              <span class="site-state-item-count">170</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1535,7 +1546,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">117</span>
+                <span class="site-state-item-count">119</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1544,7 +1555,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">237</span>
+                <span class="site-state-item-count">240</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -1650,7 +1661,7 @@
         <div class="copyright" >
   
   &copy;  2016 - 
-  <span itemprop="copyrightYear">2018</span>
+  <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
